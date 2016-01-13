@@ -1,0 +1,5 @@
+include *.rst LICENSE *.md *.in
+recursive-include pmg_diffusion *.py *.json *.cfg
+recursive-include scripts *.py
+prune */*/tests
+prune */*/*/tests

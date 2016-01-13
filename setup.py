@@ -1,0 +1,38 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+import os
+
+from setuptools import setup, find_packages
+
+PYMACY_DIR = os.path.dirname(os.path.abspath(__file__))
+
+setup(
+    name="pmg_diffusion",
+    packages=find_packages(),
+    version="0.0.1",
+    install_requires=["pymatgen>=3.3.1", "pymongo", "monty>=0.7.1"],
+    extras_require={},
+    package_data={},
+    author="materials virtual lab",
+    author_email="",
+    maintainer="materials virtual lab",
+    url="https://github.com/materialvirtuallab/pymacy/",
+    license="MIT",
+    description="Add-on to pymatgen for diffusion analysis.",
+    long_description="Add-on to pymatgen for diffusion analysis.",
+    keywords=["VASP", "gaussian", "diffusion", "molecular dynamics"],
+    classifiers=[
+        "Programming Language :: Python :: 2.7",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Chemistry",
+        "Topic :: Software Development :: Libraries :: Python Modules"
+    ],
+    scripts=[]
+)
