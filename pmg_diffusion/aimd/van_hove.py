@@ -153,7 +153,7 @@ class VanHoveAnalysis(object):
         self.gsrt = gsrt
         self.gdrt = gdrt
 
-    def get_Gs_plots(self, figsize=(12,8)):
+    def get_gs_plots(self, figsize=(12,8)):
         """
         Plot self-part van Hove functions.
         """
@@ -180,7 +180,7 @@ class VanHoveAnalysis(object):
 
         return plt
 
-    def get_Gd_plots(self, figsize=(12,8)):
+    def get_gd_plots(self, figsize=(12,8)):
         """
         Plot distinct-part van Hove functions.
         """
