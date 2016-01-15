@@ -4,7 +4,7 @@ import numpy as np
 from scipy.cluster.vq import kmeans
 import itertools
 from pymatgen import Lattice
-from pmg_diffusion.aimd.clustering import Kmeans, KmeansPBC
+from pymatgen_diffusion.aimd.clustering import Kmeans, KmeansPBC
 from pymatgen.util.coord_utils import pbc_diff
 
 
