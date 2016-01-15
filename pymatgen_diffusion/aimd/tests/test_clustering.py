@@ -31,7 +31,10 @@ class KmeansTest(unittest.TestCase):
         data = np.array(data)
 
         k = Kmeans()
-        c1, l1, ss = k.cluster(data, 3)
+        clusters = []
+        for i in range(10):
+            clusters.append(k.cluster(data, 3))
+        c1, l1, ss = min(clusters, key=lambda d: d[2])
         c2, d = kmeans(data, 3)
         same = False
         for a in itertools.permutations(c2):
