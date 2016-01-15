@@ -2,8 +2,6 @@
 # Copyright (c) Materials Virtual Lab
 # Distributed under the terms of the Modified BSD License.
 
-import os
-
 from setuptools import setup, find_packages
 
 
