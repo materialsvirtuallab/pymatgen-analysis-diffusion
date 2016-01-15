@@ -12,10 +12,9 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 29, 2012"
 
 import glob
-import os
 
 from fabric.api import local, lcd
-from custodian import __version__ as ver
+from pymatgen_diffusion import __version__ as ver
 
 
 def make_doc():
