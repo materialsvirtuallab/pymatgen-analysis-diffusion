@@ -1,15 +1,14 @@
 # coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+# Copyright (c) Materials Virtual Lab
+# Distributed under the terms of the Modified BSD License.
 
 import os
 
 from setuptools import setup, find_packages
 
-PYMACY_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
-    name="pmg_diffusion",
+    name="pymatgen-diffusion",
     packages=find_packages(),
     version="0.0.1",
     install_requires=["pymatgen>=3.3.1", "pymongo", "monty>=0.7.1"],
