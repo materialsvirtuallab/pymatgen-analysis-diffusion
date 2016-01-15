@@ -4,11 +4,18 @@
 
 from setuptools import setup, find_packages
 
+import os
+
+SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
+
+with open(os.path.join(SETUP_PTH, "README.md")) as f:
+    desc = f.read()
+
 
 setup(
     name="pymatgen-diffusion",
     packages=find_packages(),
-    version="0.1.0",
+    version="0.1.1",
     install_requires=["pymatgen>=3.3.1", "monty>=0.7.1"],
     extras_require={},
     package_data={},
@@ -18,10 +25,15 @@ setup(
     url="https://github.com/materialvirtuallab/pymatgen-diffusion/",
     license="MIT",
     description="Add-on to pymatgen for diffusion analysis.",
-    long_description="Add-on to pymatgen for diffusion analysis.",
-    keywords=["VASP", "gaussian", "diffusion", "molecular dynamics"],
+    long_description=desc,
+    keywords=["VASP", "gaussian", "diffusion", "molecular dynamics", "MD"],
     classifiers=[
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
