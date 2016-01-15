@@ -16,6 +16,16 @@ for more details.
 2. Probability density
 3. Clustering (e.g., k-means with periodic boundary conditions).
 
+# Citing
+
+If you use this package, please consider citing the relevant publications 
+documented in each analysis.
+
+# Contributing
+
+We welcome contributions in all forms. If you'd like to contribute, please 
+fork this repository, make changes and send us a pull request!
+
 # Acknowledgements
 
 This code is funded by the National Science Foundation’s Designing Materials
