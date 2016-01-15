@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 setup(
     name="pymatgen-diffusion",
     packages=find_packages(),
-    version="0.0.1",
+    version="0.1.0",
     install_requires=["pymatgen>=3.3.1", "monty>=0.7.1"],
     extras_require={},
     package_data={},
