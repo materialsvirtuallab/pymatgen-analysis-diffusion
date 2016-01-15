@@ -15,7 +15,8 @@ __date__ = "05/15"
 import numpy as np
 from collections import Counter
 
-#to do list: ipython notebook example file, unittests
+# TODO: ipython notebook example file, unittests
+
 
 class ProbabilityDensityAnalysis(object):
     """

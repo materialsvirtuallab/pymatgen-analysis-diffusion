@@ -12,7 +12,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
 
-# to do list: add unittests, and ipython notebook examples
+# TODO: add unittests, and ipython notebook examples
 
 def gen_gaussian(x, mu, sig):
     return np.exp(-np.power(x - mu, 2.0)/2.0/np.power(sig,2.0))/np.sqrt(2.0*np.pi)/sig
