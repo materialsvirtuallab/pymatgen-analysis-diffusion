@@ -1,6 +1,8 @@
 # coding: utf-8
+# Copyright (c) Materials Virtual Lab.
+# Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 """
 This module implements clustering algorithms to determine centroids, with

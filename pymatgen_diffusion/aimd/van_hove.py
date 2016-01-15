@@ -1,4 +1,8 @@
 # coding: utf-8
+# Copyright (c) Materials Virtual Lab.
+# Distributed under the terms of the BSD License.
+
+from __future__ import division, unicode_literals, print_function
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -128,7 +132,7 @@ class VanHoveAnalysis(object):
         for it in range(reduced_nt):
             dns = Counter()
             it0 = min(it*step_skip, ntsteps)
-            print it + 1, reduced_nt
+            #print it + 1, reduced_nt
 
             for it1 in range(avg_nsteps):
                 dcf = tracking_ions[it0+it1,:,None,None,:] + images[None,None,:,:] \
