@@ -65,8 +65,6 @@ class VanHoveAnalysis(object):
 
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
-        aux_factor = np.zeros_like(interval, dtype=np.double)
-        gaussians = np.zeros((ngrid, ngrid), dtype=np.double)
         reduced_nt = int(ntsteps / float(step_skip)) + 1
 
         # reduced time grid
@@ -78,11 +76,8 @@ class VanHoveAnalysis(object):
         tracking_ions = []
 
         # auxiliary factor for 4*\pi*r^2
-        for indx, v in enumerate(interval):
-            if indx == 0:
-                aux_factor[indx] = np.pi * dr ** 2
-            else:
-                aux_factor[indx] = 4.0 * np.pi * v ** 2
+        aux_factor = 4.0 * np.pi * interval ** 2
+        aux_factor[0] = np.pi * dr ** 2
 
         for i, ss in enumerate(pmg_diff_analyzer.get_drift_corrected_structures()):
             if i == 0:
