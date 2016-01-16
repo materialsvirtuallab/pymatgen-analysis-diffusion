@@ -9,16 +9,12 @@ __version__ = 1.0
 __date__ = "04/15"
 
 from collections import Counter
+from scipy.stats import norm
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 # TODO: add unittests, and ipython notebook examples
-
-
-def gen_gaussian(x, mu, sig):
-    return np.exp(-np.power(x - mu, 2) / 2 / np.power(sig, 2)) / np.sqrt(
-        2 * np.pi) / sig
 
 
 class VanHoveAnalysis(object):
@@ -100,10 +96,8 @@ class VanHoveAnalysis(object):
 
         tracking_ions = np.array(tracking_ions)
 
-        for indx, y in enumerate(interval):
-            gaussians[indx, :] = gen_gaussian(interval, interval[indx],
-                                              sigma) / float(avg_nsteps) / \
-                                 float(len(indices))
+        gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / \
+                    float(avg_nsteps) / float(len(indices))
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
