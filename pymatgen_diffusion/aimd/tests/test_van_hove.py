@@ -13,7 +13,7 @@ import os
 import json
 
 import numpy as np
-from pymatgen_diffusion.aimd.van_hove import VanHoveAnalysis
+from pymatgen_diffusion.aimd.van_hove import VanHoveAnalysis, RadialDistributionFunction
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,24 @@ class VanHoveTest(unittest.TestCase):
         self.assertTrue(check)
         self.assertAlmostEqual(vh.gsrt[0, 0], 3.98942280401, 10)
         self.assertAlmostEqual(vh.gdrt[10, 0], 9.68574868168, 10)
+
+class RDFTest(unittest.TestCase):
+    def test_rdf(self):
+        data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
+        data = json.load(open(data_file, "r"))
+        obj = DiffusionAnalyzer.from_dict(data)
+
+        structure_list = []
+        for i, s in enumerate(obj.get_drift_corrected_structures()):
+            structure_list.append(s)
+            if i == 9: break
+
+        obj = RadialDistributionFunction(pmg_structures=structure_list, ngrid=101, rmax=10.0,
+                                        cellrange=1, sigma=0.1, species = ["Na","P","S"])
+
+        check = np.shape(obj.rdf)[0] == 101 and np.argmax(obj.rdf) == 34
+        self.assertTrue(check)
+        self.assertAlmostEqual(obj.rdf.max(), 1.6831, 4)
 
 
 if __name__ == "__main__":

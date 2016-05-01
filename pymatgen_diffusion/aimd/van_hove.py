@@ -11,6 +11,8 @@ __date__ = "04/15"
 from collections import Counter
 from scipy.stats import norm
 import matplotlib.pyplot as plt
+from pymatgen.util.plotting_utils import get_publication_quality_plot
+from scipy import stats
 import numpy as np
 
 
@@ -212,6 +214,114 @@ class VanHoveAnalysis(object):
         plt.axis([x.min(), x.max(), y.min(), y.max()])
         plt.colorbar(ticks=[0, 1, 2, 3, 4]).set_label(label="G$_d$(t,r)",
                                                       size=labelsize)
+        plt.tight_layout()
+
+        return plt
+
+class RadialDistributionFunction(object):
+    """
+    Calculate the average radial distribution function for a given set of structures.
+    """
+    def __init__(self, pmg_structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
+                 species = ["Li","Na"]):
+        """
+        Args:
+            pmg_structures (list of pmg_structure objects): List of structure objects with
+                        the same composition. Allow for ensemble averaging.
+            ngrid (int): Number of radial grid points.
+            rmax (float): Maximum of radial grid (the minimum is always set zero).
+            cellrange (int): Range of translational vector elements associated with supercell.
+                            Default is 1, i.e. including the adjecent image cells along all three
+                            directions.
+            sigma (float): Smearing of a Gaussian function.
+            species ([string]): A list of specie symbols of interest.
+        """
+
+        if ngrid - 1 <= 0:
+            raise ValueError("Ntot should be greater than 1!")
+
+        if sigma <= 0.0:
+            raise ValueError("sigma should be > 0!")
+
+        lattice = pmg_structures[0].lattice
+        indices = [j for j, site in enumerate(pmg_structures[0]) if site.specie.symbol
+                   in species]
+
+        if len(indices) == 0:
+            raise ValueError("Given species are not in the structure!")
+
+        rho = float(len(indices)) / lattice.volume
+        fcoords_list = []
+
+        for s in pmg_structures:
+            all_fcoords = np.array(s.frac_coords)
+            fcoords_list.append(all_fcoords[indices,:])
+
+        dr = rmax / (ngrid - 1)
+        interval = np.linspace(0.0, rmax, ngrid)
+        rdf = np.zeros((ngrid), dtype = np.double)
+        dns = Counter()
+
+        # generate the translational vectors
+        r = np.arange(-cellrange, cellrange + 1)
+        arange = r[:, None] * np.array([1, 0, 0])[None, :]
+        brange = r[:, None] * np.array([0, 1, 0])[None, :]
+        crange = r[:, None] * np.array([0, 0, 1])[None, :]
+        images = arange[:, None, None] + brange[None, :, None] +crange[None, None, :]
+        images = images.reshape((len(r)**3, 3))
+
+        # find the zero image vector
+        zd = np.sum(images**2, axis=1)
+        indx0 = np.argmin(zd)
+
+        for fcoords in fcoords_list:
+            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - fcoords[None, :, None, :]
+            dcc = lattice.get_cartesian_coords(dcf)
+            d2 = np.sum(dcc ** 2, axis=3)
+            dists = [d2[u,v,j] ** 0.5 for u in range(len(indices)) for v in range(len(indices))
+                     for j in range(len(r)**3) if u != v or j != indx0]
+            dists = filter(lambda e: e < rmax + 0.1, dists)
+            r_indices = [int(dist / dr) for dist in dists]
+            dns.update(r_indices)
+
+        for indx, dn in dns.most_common(ngrid):
+            if indx == 0:
+                ff = np.pi * dr ** 2
+            else:
+                ff = 4.0 * np.pi * interval[indx] ** 2
+
+            rdf[:] += stats.norm.pdf(interval,interval[indx],sigma) * dn \
+                    / float(len(indices)) / ff / rho / len(fcoords_list)
+
+        self.structures = pmg_structures
+        self.rdf = rdf
+        self.interval = interval
+        self.cellrange = cellrange
+        self.rmax = rmax
+        self.ngrid = ngrid
+        self.species = species
+
+    def get_rdf_plot(self, label=None):
+        """
+        Plot the average RDF function.
+        """
+
+        if label is None:
+            symbol_list = set([e.symbol for e in self.structures[0].composition.keys()])
+            symbol_list = list(symbol_list.intersection(set(self.species)))
+
+            if len(symbol_list) == 1:
+                label = symbol_list[0]
+            else:
+                label = "-".join(symbol_list)
+
+        plt = get_publication_quality_plot(12,8)
+        plt.plot(self.interval, self.rdf, color = "r", label=label, linewidth=4.0)
+        plt.xlabel("$r$ ($\AA$)")
+        plt.ylabel("$g(r)$")
+        plt.legend(loc='upper right', fontsize=36)
+        plt.xlim(0.0, self.rmax)
+        plt.ylim(-0.005,self.rdf.max()+1.0)
         plt.tight_layout()
 
         return plt
