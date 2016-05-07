@@ -280,11 +280,13 @@ class RadialDistributionFunction(object):
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u,v,j] ** 0.5 for u in range(len(indices)) for v in range(len(indices))
                      for j in range(len(r)**3) if u != v or j != indx0]
-            dists = filter(lambda e: e < rmax + 0.1, dists)
+            dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)
 
         for indx, dn in dns.most_common(ngrid):
+            if indx > len(interval) - 1: continue
+
             if indx == 0:
                 ff = np.pi * dr ** 2
             else:
