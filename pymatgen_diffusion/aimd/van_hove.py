@@ -327,3 +327,24 @@ class RadialDistributionFunction(object):
         plt.tight_layout()
 
         return plt
+
+    def export_rdf(self, filename):
+        """
+        Output RDF data to a csv file.
+
+        Args:
+            filename (str): Filename. Supported formats are csv and dat. If
+                the extension is csv, a csv file is written. Otherwise,
+                a dat format is assumed.
+        """
+        fmt = "csv" if filename.lower().endswith(".csv") else "dat"
+        delimiter = ", " if fmt == "csv" else " "
+        with open(filename, "wt") as f:
+            if fmt == "dat":
+                f.write("# ")
+            f.write(delimiter.join(["r", "g(r)"]))
+            f.write("\n")
+
+            for r, gr in zip(self.interval, self.rdf):
+                f.write(delimiter.join(["%s" % v for v in [r, gr]]))
+                f.write("\n")
