@@ -20,7 +20,6 @@ from pymatgen_diffusion import __version__ as ver
 def make_doc():
     with lcd("docs"):
         local("sphinx-apidoc -o . -f ../pymatgen_diffusion")
-        #local("rm pymatgen_diffusion.tests.rst")
         for f in glob.glob("docs/*.rst"):
             if f.startswith('docs/pymatgen_diffusion') and f.endswith('rst'):
                 newoutput = []

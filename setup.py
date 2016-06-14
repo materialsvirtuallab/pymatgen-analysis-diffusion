@@ -26,7 +26,7 @@ setup(
     license="MIT",
     description="Add-on to pymatgen for diffusion analysis.",
     long_description=desc,
-    keywords=["VASP", "gaussian", "diffusion", "molecular dynamics", "MD"],
+    keywords=["VASP", "diffusion", "molecular dynamics", "MD"],
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
