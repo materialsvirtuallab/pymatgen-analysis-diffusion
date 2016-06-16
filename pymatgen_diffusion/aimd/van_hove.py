@@ -303,7 +303,7 @@ class RadialDistributionFunction(object):
         self.ngrid = ngrid
         self.species = species
 
-    def get_rdf_plot(self, label=None):
+    def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
         """
         Plot the average RDF function.
         """
@@ -322,8 +322,8 @@ class RadialDistributionFunction(object):
         plt.xlabel("$r$ ($\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc='upper right', fontsize=36)
-        plt.xlim(0.0, self.rmax)
-        plt.ylim(-0.005,self.rdf.max()+1.0)
+        plt.xlim(xlim[0], xlim[1])
+        plt.ylim(ylim[0], ylim[1])
         plt.tight_layout()
 
         return plt
