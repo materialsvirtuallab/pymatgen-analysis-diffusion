@@ -109,9 +109,6 @@ class ProbabilityDensityAnalysis(object):
 
                 Ncount.update([min_indx])
 
-            if (it + 1) % 100 == 0:
-                print("%s out of %s" % (it+1, nsteps))
-
         for i, n in Ncount.most_common(ngrid):
             Pr[i] = float(n)/nsteps/len(indices)/lattice.volume*ngrid
 
