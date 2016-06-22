@@ -12,6 +12,22 @@ pymatgen_diffusion.aimd.tests.test_clustering module
     :undoc-members:
     :show-inheritance:
 
+pymatgen_diffusion.aimd.tests.test_pathway module
+-------------------------------------------------
+
+.. automodule:: pymatgen_diffusion.aimd.tests.test_pathway
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen_diffusion.aimd.tests.test_van_hove module
+--------------------------------------------------
+
+.. automodule:: pymatgen_diffusion.aimd.tests.test_van_hove
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
