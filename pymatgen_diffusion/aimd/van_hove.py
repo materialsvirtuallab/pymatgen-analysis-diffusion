@@ -182,8 +182,10 @@ class VanHoveAnalysis(object):
         plt.xlabel("timesteps (ps)", size=labelsize)
         plt.ylabel("r ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
-        plt.colorbar(ticks=[0, 1]).set_label(label="4$\pi$G$_s$(t,r)",
-                                             size=labelsize)
+
+        cbar = plt.colorbar(ticks=[0, 1])
+        cbar.set_label(label="4$\pi$G$_s$(t,r)", size=labelsize)
+        cbar.ax.tick_params(labelsize=ticksize)
         plt.tight_layout()
 
         return plt
@@ -212,8 +214,9 @@ class VanHoveAnalysis(object):
         plt.xlabel("timesteps (ps)", size=labelsize)
         plt.ylabel("r ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
-        plt.colorbar(ticks=[0, 1, 2, 3, 4]).set_label(label="G$_d$(t,r)",
-                                                      size=labelsize)
+        cbar = plt.colorbar(ticks=[0, 1, 2, 3, 4])
+        cbar.set_label(label="G$_d$(t,r)", size=labelsize)
+        cbar.ax.tick_params(labelsize=ticksize)
         plt.tight_layout()
 
         return plt
