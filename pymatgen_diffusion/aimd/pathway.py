@@ -35,15 +35,20 @@ class ProbabilityDensityAnalysis(object):
         Args:
             structure (Structure): crystal structure
             trajectories (numpy array): ionic trajectories of the structure from MD simulations.
-                                        It should be (i) stored as 3-D array [Ntimesteps, Nions, 3]
+                                        It should be (1) stored as 3-D array [Ntimesteps, Nions, 3]
                                         where 3 refers to a,b,c components; (2) in fractional
                                         coordinates.
             interval(float): the interval between two nearest grid points (in Angstrom)
             species(list of str): list of species that are of interest
         """
 
-        #initial settings
+        # initial settings
         trajectories = np.array(trajectories)
+
+        # All fractional coordinates are between 0 and 1.
+        trajectories -= np.floor(trajectories)
+        assert np.all(trajectories >= 0) and np.all(trajectories <= 1)
+
         indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
         lattice = structure.lattice
         frac_interval = [interval / l for l in lattice.abc]
@@ -70,15 +75,12 @@ class ProbabilityDensityAnalysis(object):
         Ncount = Counter()
         Pr = np.zeros(ngrid,dtype=np.double)
 
-        step_func = lambda e: 1.0 if np.sign(e) == -1 else 0
-
         for it in range(nsteps):
             fcoords = trajectories[it][indices,:]
             for fcoord in fcoords:
                 #for each atom at time t, find the nearest grid point from the 8 points
                 # that surround the atom
-                corner_i = [int(np.modf(c + step_func(c))[0]/d) for c, d in
-                            zip(fcoord, frac_interval)]
+                corner_i = [int(c/d) for c, d in zip(fcoord, frac_interval)]
                 next_i = np.zeros_like(corner_i, dtype=int)
 
                 #consider PBC

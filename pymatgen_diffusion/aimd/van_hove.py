@@ -32,7 +32,7 @@ class VanHoveAnalysis(object):
     """
 
     def __init__(self, pmg_diff_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
-                 step_skip=50, sigma=0.1, species=["Li", "Na"]):
+                 step_skip=50, sigma=0.1, cellrange=1, species=["Li", "Na"]):
         """
         Initization.
 
@@ -45,6 +45,9 @@ class VanHoveAnalysis(object):
             step_skip (int): # of time steps skipped during analysis. It defines
                         the resolution of the reduced time grid
             sigma (float): Smearing of a Gaussian function
+            cellrange (int): Range of translational vector elements associated with
+                            supercell. Default is 1, i.e. including the adjecent
+                            image cells along all three directions.
             species ([string]): a list of specie symbols of interest
         """
 
@@ -103,8 +106,7 @@ class VanHoveAnalysis(object):
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [lattice.get_distance_and_image(tracking_ions[it1][u],
-                                                        tracking_ions[
-                                                            it0 + it1][u],
+                                                        tracking_ions[it0 + it1][u],
                                                         jimage=image)[0] for u
                          in range(len(indices))]
                 dists = filter(lambda e: e < rmax, dists)
@@ -116,13 +118,13 @@ class VanHoveAnalysis(object):
                 gsrt[it, :] += gaussians[indx, :] * dn
 
         # calculate distinct part of van Hove function of species
-        r = np.arange(-1, 2)
+        r = np.arange(-cellrange, cellrange + 1)
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None,
-                                                                 None, :]
-        images = images.reshape((27, 3))
+        images = arange[:, None, None] + brange[None, :, None] + \
+                 crange[None, None, :]
+        images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
         zd = np.sum(images ** 2, axis=1)
@@ -131,17 +133,16 @@ class VanHoveAnalysis(object):
         for it in range(reduced_nt):
             dns = Counter()
             it0 = min(it * step_skip, ntsteps)
-            # print it + 1, reduced_nt
 
             for it1 in range(avg_nsteps):
-                dcf = tracking_ions[it0 + it1, :, None, None, :] + images[None,
-                                                                   None, :, :] \
-                      - tracking_ions[it1, None, :, None, :]
+                dcf = tracking_ions[it0 + it1, :, None, None, :] + \
+                      images[None, None, :, :] - \
+                      tracking_ions[it1, None, :, None, :]
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc ** 2, axis=3)
                 dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v
                          in range(len(indices)) \
-                         for j in range(27) if u != v or j != indx0]
+                         for j in range(len(r)**3) if u != v or j != indx0]
                 dists = filter(lambda e: e < rmax, dists)
 
                 r_indices = [int(dist / dr) for dist in dists]
