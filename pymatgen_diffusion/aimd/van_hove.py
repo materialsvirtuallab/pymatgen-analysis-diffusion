@@ -254,7 +254,7 @@ class RadialDistributionFunction(object):
         if len(indices) == 0:
             raise ValueError("Given species are not in the structure!")
 
-        rho = float(len(indices)) / lattice.volume
+        self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
 
         for s in pmg_structures:
@@ -297,7 +297,7 @@ class RadialDistributionFunction(object):
                 ff = 4.0 * np.pi * interval[indx] ** 2
 
             rdf[:] += stats.norm.pdf(interval,interval[indx],sigma) * dn \
-                    / float(len(indices)) / ff / rho / len(fcoords_list)
+                    / float(len(indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = pmg_structures
         self.rdf = rdf
@@ -306,6 +306,16 @@ class RadialDistributionFunction(object):
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = species
+
+    @property
+    def coordination_number(self):
+        """
+        returns running coordination number
+
+        Returns:
+            numpy array
+        """
+        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
 
     def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
         """
