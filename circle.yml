@@ -10,7 +10,5 @@ dependencies:
     - python setup.py develop
 test:
   override:
-    - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS:
-        environment:
-          PYTHONPATH: /home/ubuntu/virtualenvs/venv-system/lib/python2.7/site-packages:/usr/lib/python2.7/dist-packages/:$PYTHONPATH
+    - nosetests --config=nose.cfg --cover-html --cover-html-dir=$CIRCLE_ARTIFACTS
     - coveralls
