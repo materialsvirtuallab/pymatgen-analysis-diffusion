@@ -227,37 +227,40 @@ class RadialDistributionFunction(object):
     Calculate the average radial distribution function for a given set of structures.
     """
     def __init__(self, pmg_structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
-                 species = ["Li","Na"], reference_species=None):
+                 species=["Li","Na"], reference_species=None):
         """
         Args:
-            pmg_structures (list of pmg_structure objects): List of structure objects with
-                        the same composition. Allow for ensemble averaging.
+            pmg_structures (list of pmg_structure objects): List of structure
+                objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
             rmax (float): Maximum of radial grid (the minimum is always set zero).
-            cellrange (int): Range of translational vector elements associated with supercell.
-                            Default is 1, i.e. including the adjecent image cells along all three
-                            directions.
+            cellrange (int): Range of translational vector elements associated
+                with supercell. Default is 1, i.e. including the adjecent image
+                cells along all three directions.
             sigma (float): Smearing of a Gaussian function.
             species ([string]): A list of specie symbols of interest.
+            reference_species ([string]): set this option along with 'species'
+                parameter to compute pair radial distribution function.
+                eg: species=["H"], reference_species=["O"] to compute
+                    O-H pair distribution in a water MD simulation.
         """
 
         if ngrid - 1 <= 0:
-            raise ValueError("Ntot should be greater than 1!")
+            raise ValueError("ngrid should be greater than 1!")
 
         if sigma <= 0.0:
             raise ValueError("sigma should be > 0!")
 
         lattice = pmg_structures[0].lattice
-        indices = [j for j, site in enumerate(pmg_structures[0]) if site.specie.symbol
-                   in species]
-        ref_indices = indices
-        if reference_species:
-            ref_indices = [j for j, site in enumerate(pmg_structures[0]) if site.specie.symbol
-                   in reference_species]
-
-
+        indices = [j for j, site in enumerate(pmg_structures[0])
+                   if site.specie.symbol in species]
         if len(indices) == 0:
             raise ValueError("Given species are not in the structure!")
+
+        ref_indices = indices
+        if reference_species:
+            ref_indices = [j for j, site in enumerate(pmg_structures[0])
+                           if site.specie.symbol in reference_species]
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
@@ -278,7 +281,7 @@ class RadialDistributionFunction(object):
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +crange[None, None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
         images = images.reshape((len(r)**3, 3))
 
         # find the zero image vector
