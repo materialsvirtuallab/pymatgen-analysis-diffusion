@@ -227,7 +227,7 @@ class RadialDistributionFunction(object):
     Calculate the average radial distribution function for a given set of structures.
     """
     def __init__(self, pmg_structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
-                 species = ["Li","Na"]):
+                 species = ["Li","Na"], reference_species=None):
         """
         Args:
             pmg_structures (list of pmg_structure objects): List of structure objects with
@@ -250,16 +250,23 @@ class RadialDistributionFunction(object):
         lattice = pmg_structures[0].lattice
         indices = [j for j, site in enumerate(pmg_structures[0]) if site.specie.symbol
                    in species]
+        ref_indices = indices
+        if reference_species:
+            ref_indices = [j for j, site in enumerate(pmg_structures[0]) if site.specie.symbol
+                   in reference_species]
+
 
         if len(indices) == 0:
             raise ValueError("Given species are not in the structure!")
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
+        ref_fcoords_list = []
 
         for s in pmg_structures:
             all_fcoords = np.array(s.frac_coords)
             fcoords_list.append(all_fcoords[indices,:])
+            ref_fcoords_list.append(all_fcoords[ref_indices, :])
 
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
@@ -278,11 +285,11 @@ class RadialDistributionFunction(object):
         zd = np.sum(images**2, axis=1)
         indx0 = np.argmin(zd)
 
-        for fcoords in fcoords_list:
-            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - fcoords[None, :, None, :]
+        for fcoords, ref_fcoords in zip(fcoords_list, ref_fcoords_list):
+            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
-            dists = [d2[u,v,j] ** 0.5 for u in range(len(indices)) for v in range(len(indices))
+            dists = [d2[u,v,j] ** 0.5 for u in range(len(ref_indices)) for v in range(len(indices))
                      for j in range(len(r)**3) if u != v or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
@@ -297,7 +304,7 @@ class RadialDistributionFunction(object):
                 ff = 4.0 * np.pi * interval[indx] ** 2
 
             rdf[:] += stats.norm.pdf(interval,interval[indx],sigma) * dn \
-                    / float(len(indices)) / ff / self.rho / len(fcoords_list)
+                    / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = pmg_structures
         self.rdf = rdf
