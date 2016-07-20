@@ -43,7 +43,7 @@ class Kmeans(object):
             provide the index for each point, and ss in the final sum squared
             distances.
         """
-        centroids = np.array(random.sample(points, k)) \
+        centroids = np.array(random.sample(list(points), k)) \
             if initial_centroids is None else initial_centroids
 
         # Initialize book keeping vars.

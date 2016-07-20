@@ -25,7 +25,7 @@ class VanHoveTest(unittest.TestCase):
         data = json.load(open(data_file, "r"))
         obj = DiffusionAnalyzer.from_dict(data)
 
-        vh = VanHoveAnalysis(pmg_diff_analyzer=obj, avg_nsteps=5, ngrid=101, rmax=10.0,
+        vh = VanHoveAnalysis(diffusion_analyzer=obj, avg_nsteps=5, ngrid=101, rmax=10.0,
                              step_skip=5, sigma=0.1, species=["Li", "Na"])
 
         check = np.shape(vh.gsrt) == (20, 101) and np.shape(vh.gdrt) == (20, 101)
@@ -44,8 +44,8 @@ class RDFTest(unittest.TestCase):
             structure_list.append(s)
             if i == 9: break
 
-        obj = RadialDistributionFunction(pmg_structures=structure_list, ngrid=101, rmax=10.0,
-                                        cellrange=1, sigma=0.1, species = ["Na","P","S"])
+        obj = RadialDistributionFunction(structures=structure_list, ngrid=101, rmax=10.0,
+                                         cellrange=1, sigma=0.1, species = ["Na","P","S"])
 
         check = np.shape(obj.rdf)[0] == 101 and np.argmax(obj.rdf) == 34
         self.assertTrue(check)

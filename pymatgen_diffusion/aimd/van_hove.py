@@ -31,13 +31,13 @@ class VanHoveAnalysis(object):
     Superionic Conductor". Chem. Mater. (2015), 27, pp 8318–8325
     """
 
-    def __init__(self, pmg_diff_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
-                 step_skip=50, sigma=0.1, cellrange=1, species=["Li", "Na"]):
+    def __init__(self, diffusion_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
+                 step_skip=50, sigma=0.1, cellrange=1, species=("Li", "Na")):
         """
         Initization.
 
         Args:
-            pmg_diff_analyzer (DiffusionAnalyzer): A
+            diffusion_analyzer (DiffusionAnalyzer): A
                 pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object
             avg_nsteps (int): Number of t0 used for statistical average
             ngrid (int): Number of radial grid points
@@ -55,7 +55,7 @@ class VanHoveAnalysis(object):
         if step_skip <= 0:
             raise ValueError("skip_step should be >=1!")
 
-        nions, nsteps, ndim = pmg_diff_analyzer.disp.shape
+        nions, nsteps, ndim = diffusion_analyzer.disp.shape
 
         if nsteps <= avg_nsteps:
             raise ValueError("Number of timesteps is too small!")
@@ -84,7 +84,7 @@ class VanHoveAnalysis(object):
         aux_factor = 4.0 * np.pi * interval ** 2
         aux_factor[0] = np.pi * dr ** 2
 
-        for i, ss in enumerate(pmg_diff_analyzer.get_drift_corrected_structures()):
+        for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             if i == 0:
                 lattice = ss.lattice
                 indices = [j for j, site in enumerate(ss) if
@@ -151,7 +151,7 @@ class VanHoveAnalysis(object):
             for indx, dn in dns.most_common(ngrid):
                 gdrt[it, :] += gaussians[indx, :] * dn / aux_factor[indx] / rho
 
-        self.obj = pmg_diff_analyzer
+        self.obj = diffusion_analyzer
         self.avg_nsteps = avg_nsteps
         self.step_skip = step_skip
         self.rtgrid = rtgrid
@@ -222,15 +222,16 @@ class VanHoveAnalysis(object):
 
         return plt
 
+
 class RadialDistributionFunction(object):
     """
     Calculate the average radial distribution function for a given set of structures.
     """
-    def __init__(self, pmg_structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
-                 species=["Li","Na"], reference_species=None):
+    def __init__(self, structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
+                 species=("Li", "Na"), reference_species=None):
         """
         Args:
-            pmg_structures (list of pmg_structure objects): List of structure
+            structures (list of pmg_structure objects): List of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
             rmax (float): Maximum of radial grid (the minimum is always set zero).
@@ -251,22 +252,22 @@ class RadialDistributionFunction(object):
         if sigma <= 0.0:
             raise ValueError("sigma should be > 0!")
 
-        lattice = pmg_structures[0].lattice
-        indices = [j for j, site in enumerate(pmg_structures[0])
+        lattice = structures[0].lattice
+        indices = [j for j, site in enumerate(structures[0])
                    if site.specie.symbol in species]
         if len(indices) == 0:
             raise ValueError("Given species are not in the structure!")
 
         ref_indices = indices
         if reference_species:
-            ref_indices = [j for j, site in enumerate(pmg_structures[0])
+            ref_indices = [j for j, site in enumerate(structures[0])
                            if site.specie.symbol in reference_species]
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
         ref_fcoords_list = []
 
-        for s in pmg_structures:
+        for s in structures:
             all_fcoords = np.array(s.frac_coords)
             fcoords_list.append(all_fcoords[indices,:])
             ref_fcoords_list.append(all_fcoords[ref_indices, :])
@@ -309,7 +310,7 @@ class RadialDistributionFunction(object):
             rdf[:] += stats.norm.pdf(interval,interval[indx],sigma) * dn \
                     / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
-        self.structures = pmg_structures
+        self.structures = structures
         self.rdf = rdf
         self.interval = interval
         self.cellrange = cellrange

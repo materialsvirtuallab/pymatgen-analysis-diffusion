@@ -52,7 +52,7 @@ class KmeansPBCTest(unittest.TestCase):
         pts = []
         initial = [[0, 0, 0], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25], [0.5, 0, 0]]
         for c in initial:
-            for i in xrange(100):
+            for i in range(100):
                 pts.append(np.array(c) + np.random.randn(3) * 0.01 +
                            np.random.randint(3))
         pts = np.array(pts)
