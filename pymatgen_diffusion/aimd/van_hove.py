@@ -289,7 +289,7 @@ class RadialDistributionFunction(object):
             dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
-            dists = [d2[u,v,j] ** 0.5 for u in range(len(ref_indices)) for v in range(len(indices))
+            dists = [d2[u,v,j] ** 0.5 for u in range(len(indices)) for v in range(len(ref_indices))
                      for j in range(len(r)**3) if u != v or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
