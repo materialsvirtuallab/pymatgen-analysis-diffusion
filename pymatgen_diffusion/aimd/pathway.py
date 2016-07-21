@@ -3,6 +3,8 @@
 # Distributed under the terms of the BSD License.
 
 from __future__ import division, unicode_literals, print_function
+import numpy as np
+from collections import Counter
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -11,9 +13,6 @@ __date__ = "05/15"
 """
  Algorithms for diffusion pathways analysis
 """
-
-import numpy as np
-from collections import Counter
 
 # TODO: ipython notebook example file, unittests
 
@@ -29,15 +28,16 @@ class ProbabilityDensityAnalysis(object):
     Chem. Mater. (2015), 27, pp 8318–8325.
     """
 
-    def __init__(self, structure, trajectories, interval=0.5, species=["Li","Na"]):
+    def __init__(self, structure, trajectories, interval=0.5,
+                 species=("Li", "Na")):
         """
         Initialization.
         Args:
             structure (Structure): crystal structure
             trajectories (numpy array): ionic trajectories of the structure from MD simulations.
-                                        It should be (1) stored as 3-D array [Ntimesteps, Nions, 3]
-                                        where 3 refers to a,b,c components; (2) in fractional
-                                        coordinates.
+                It should be (1) stored as 3-D array [Ntimesteps, Nions, 3]
+                where 3 refers to a,b,c components; (2) in fractional
+                coordinates.
             interval(float): the interval between two nearest grid points (in Angstrom)
             species(list of str): list of species that are of interest
         """
@@ -52,10 +52,6 @@ class ProbabilityDensityAnalysis(object):
         indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
         lattice = structure.lattice
         frac_interval = [interval / l for l in lattice.abc]
-        symbols = structure.symbol_set
-
-        natoms = [str(int(structure.composition[symbol])) for symbol in symbols]
-        init_fcoords = np.array(structure.frac_coords)
         nsteps = len(trajectories)
 
         # generate the 3-D grid
@@ -72,18 +68,18 @@ class ProbabilityDensityAnalysis(object):
         grid = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
 
         # calculate the time-averaged probability density function distribution Pr
-        Ncount = Counter()
+        count = Counter()
         Pr = np.zeros(ngrid,dtype=np.double)
 
         for it in range(nsteps):
             fcoords = trajectories[it][indices,:]
             for fcoord in fcoords:
-                #for each atom at time t, find the nearest grid point from the 8 points
-                # that surround the atom
+                # for each atom at time t, find the nearest grid point from
+                # the 8 points that surround the atom
                 corner_i = [int(c/d) for c, d in zip(fcoord, frac_interval)]
                 next_i = np.zeros_like(corner_i, dtype=int)
 
-                #consider PBC
+                # consider PBC
                 for i in range(3):
                     next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[i]-1 else 0
 
@@ -109,9 +105,9 @@ class ProbabilityDensityAnalysis(object):
                 # make sure the index does not go out of bound.
                 assert 0 <= min_indx < ngrid
 
-                Ncount.update([min_indx])
+                count.update([min_indx])
 
-        for i, n in Ncount.most_common(ngrid):
+        for i, n in count.most_common(ngrid):
             Pr[i] = float(n)/nsteps/len(indices)/lattice.volume*ngrid
 
         Pr = Pr.reshape(lens[0], lens[1], lens[2])

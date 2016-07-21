@@ -18,6 +18,7 @@ from pymatgen import Structure
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 class ProbabilityDensityTest(unittest.TestCase):
 
     def test_probability(self):
