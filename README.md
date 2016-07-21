@@ -18,8 +18,30 @@ for more details.
 
 # Citing
 
-If you use this package, please consider citing the relevant publications 
-documented in each analysis.
+If you use pymatgen-diffusion in your research, please cite the following
+work:
+
+    Zhi Deng, Zhuoying Zhu, Iek-Heng Chu, and Shyue Ping Ong. *Data-driven 
+    First Principles Methods for the Study and Design of Alkali Superionic
+    Conductors: A Case Study of Argyrodite Li6PS5Cl.* Submitted.
+
+You should also include the following citation for the pymatgen core package
+given that it forms the basis for most of the analyses.
+
+    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
+    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
+    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
+    Open-Source Python Library for Materials Analysis.* Computational
+    Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
+    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+
+In addition, some of pymatgen's functionality is based on scientific advances
+/ principles developed by the computational materials scientists in our team.
+Please refer to `pymatgen's documentation <http://pymatgen.org/>`_ on how to
+cite them.
+
+In addtion, some of the analyses may also have relevant publications that
+you should cite. Please consult the documentation of each module.
 
 # Contributing
 
