@@ -32,13 +32,8 @@ given that it forms the basis for most of the analyses.
     Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
     Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
     Open-Source Python Library for Materials Analysis.* Computational
-    Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
-    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
-
-In addition, some of pymatgen's functionality is based on scientific advances
-/ principles developed by the computational materials scientists in our team.
-Please refer to `pymatgen's documentation <http://pymatgen.org/>`_ on how to
-cite them.
+    Materials Science, 2013, 68, 314-319. [doi:10.1016/j.commatsci.2012.10.028]
+    (http://dx.doi.org/10.1016/j.commatsci.2012.10.028)
 
 In addtion, some of the analyses may also have relevant publications that
 you should cite. Please consult the documentation of each module.
