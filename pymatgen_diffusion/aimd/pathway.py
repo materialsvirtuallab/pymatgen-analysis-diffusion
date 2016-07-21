@@ -118,6 +118,30 @@ class ProbabilityDensityAnalysis(object):
         self.lens = lens
         self.Pr = Pr
 
+    @classmethod
+    def from_diffusion_analyzer(cls, diffusion_analyzer, interval=0.5,
+                 species=("Li", "Na")):
+        """
+        Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.
+
+        Args:
+            diffusion_analyzer (DiffusionAnalyzer): A
+                    pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object
+            interval(float): the interval between two nearest grid points (in Angstrom)
+            species(list of str): list of species that are of interest
+        """
+        structure = diffusion_analyzer.structure
+        trajectories = []
+
+        for i, s in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
+            trajectories.append(s.frac_coords)
+
+        trajectories = np.array(trajectories)
+
+        return ProbabilityDensityAnalysis(structure, trajectories, interval=interval,
+                 species=species)
+
+
     def to_chgcar(self, filename="CHGCAR.vasp"):
         """
         Save the probability density distribution in the format of CHGCAR,

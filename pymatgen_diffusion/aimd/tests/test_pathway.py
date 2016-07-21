@@ -11,9 +11,11 @@ __date__ = "01/16"
 
 import unittest
 import os
+import json
 
 import numpy as np
 from pymatgen_diffusion.aimd.pathway import ProbabilityDensityAnalysis
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen import Structure
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +36,21 @@ class ProbabilityDensityTest(unittest.TestCase):
         Pr_tot = np.sum(pda.Pr) * dV
 
         self.assertAlmostEqual(pda.Pr.max(), 0.030735573102, 12)
+        self.assertAlmostEqual(pda.Pr.min(), 0.0, 12)
+        self.assertAlmostEqual(Pr_tot, 1.0, 12)
+
+    def test_probability_classmethod(self):
+        file = os.path.join(tests_dir, "cNa3PS4_pda.json")
+        data = json.load(open(file, "r"))
+        diff_analyzer = DiffusionAnalyzer.from_dict(data)
+
+        #ProbabilityDensityAnalysis object
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer,
+                                                                 interval=0.5)
+        dV = pda.structure.lattice.volume / pda.lens[0] / pda.lens[1] / pda.lens[2]
+        Pr_tot = np.sum(pda.Pr) * dV
+
+        self.assertAlmostEqual(pda.Pr.max(), 0.0361594977596, 8)
         self.assertAlmostEqual(pda.Pr.min(), 0.0, 12)
         self.assertAlmostEqual(Pr_tot, 1.0, 12)
 
