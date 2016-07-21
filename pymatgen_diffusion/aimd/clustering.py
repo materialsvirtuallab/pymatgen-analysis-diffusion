@@ -3,18 +3,17 @@
 # Distributed under the terms of the BSD License.
 
 from __future__ import division, unicode_literals, print_function
+import numpy as np
+import random
+import warnings
+
+from pymatgen.util.coord_utils import all_distances, pbc_diff
 
 """
 This module implements clustering algorithms to determine centroids, with
 adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
-
-import numpy as np
-import random
-import warnings
-
-from pymatgen.util.coord_utils import all_distances, pbc_diff
 
 __author__ = 'Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
