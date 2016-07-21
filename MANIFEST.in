@@ -1,5 +1,7 @@
 include LICENSE COPYRIGHT *.md *.in requirements.txt
 recursive-include pymatgen_diffusion *.py
 recursive-include scripts *.py
-prune */*/tests
-prune */*/*/tests
+prune pymatgen_diffusion/tests
+prune pymatgen_diffusion/*/tests
+prune pymatgen_diffusion/*/*/tests
+prune pymatgen_diffusion/*/*/*/tests
