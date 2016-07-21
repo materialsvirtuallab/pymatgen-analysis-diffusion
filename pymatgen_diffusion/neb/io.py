@@ -14,7 +14,7 @@ class MVLCINEBEndPointSet(MITRelaxSet):
     def __init__(self, structure, **kwargs):
         user_incar_settings = kwargs.get("user_incar_settings", {})
         defaults = {"ISIF": 2, "EDIFFG": -0.02, "NELMIN": 4, "ISYM": 0,
-                    "NPAR": 6, "EDIFF": 5e-5, "LDAU": False}
+                    "EDIFF": 5e-5, "LDAU": False}
 
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
