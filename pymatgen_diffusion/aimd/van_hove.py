@@ -180,7 +180,7 @@ class VanHoveAnalysis(object):
         labelsize = int(figsize[0] * 3)
 
         plt.pcolor(X, Y, self.gsrt, cmap="jet", vmin=self.gsrt.min(), vmax=1.0)
-        plt.xlabel("timesteps (ps)", size=labelsize)
+        plt.xlabel("Time (ps)", size=labelsize)
         plt.ylabel("$r$ ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
 
@@ -212,7 +212,7 @@ class VanHoveAnalysis(object):
         labelsize = int(figsize[0] * 3)
 
         plt.pcolor(X, Y, self.gdrt, cmap="jet", vmin=self.gdrt.min(), vmax=4.0)
-        plt.xlabel("timesteps (ps)", size=labelsize)
+        plt.xlabel("Time (ps)", size=labelsize)
         plt.ylabel("$r$ ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
         cbar = plt.colorbar(ticks=[0, 1, 2, 3, 4])
