@@ -213,8 +213,7 @@ class VanHoveAnalysis(object):
 
         return plt
 
-
-    def get_1d_plot(self, type="distinct", times=[0.0], colors=["r","g","b"]):
+    def get_1d_plot(self, type="distinct", times=[0.0], colors=["r", "g", "b"]):
         """
         Plot the van Hove function at given r or t.
 
@@ -231,23 +230,25 @@ class VanHoveAnalysis(object):
         if type == "distinct":
             grt = self.gdrt.copy()
             ylabel = "$G_d$($t$,$r$)"
-            ylim=[-0.005, 4.0]
+            ylim = [-0.005, 4.0]
         elif type == "self":
             grt = self.gsrt.copy()
             ylabel = "4$\pi r^2G_s$($t$,$r$)"
-            ylim=[-0.005, 1.0]
+            ylim = [-0.005, 1.0]
 
         plt = get_publication_quality_plot(12, 8)
 
         for i, time in enumerate(times):
-            index = np.round(time / self.timeskip)
-            label = str(time) + " ps"
+            index = int(np.round(time / self.timeskip))
+            index = min(index, np.shape(grt)[0] - 1)
+            new_time = index * self.timeskip
+            label = str(new_time) + " ps"
             plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
 
         plt.xlabel("$r$ ($\AA$)")
         plt.ylabel(ylabel)
         plt.legend(loc='upper right', fontsize=36)
-        plt.xlim(0.0, self.interval[-1]-1.0)
+        plt.xlim(0.0, self.interval[-1] - 1.0)
         plt.ylim(ylim[0], ylim[1])
         plt.tight_layout()
 
