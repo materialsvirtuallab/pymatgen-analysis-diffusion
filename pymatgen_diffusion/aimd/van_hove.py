@@ -32,7 +32,8 @@ class VanHoveAnalysis(object):
     """
 
     def __init__(self, diffusion_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
-                 step_skip=50, sigma=0.1, cellrange=1, species=("Li", "Na")):
+                 step_skip=50, sigma=0.1, cellrange=1, species=("Li", "Na"),
+                 indices=None):
         """
         Initization.
 
@@ -49,6 +50,8 @@ class VanHoveAnalysis(object):
                             supercell. Default is 1, i.e. including the adjecent
                             image cells along all three directions.
             species ([string]): a list of specie symbols of interest
+            indices (list of int): If not None, only a subset of atomic indices
+                            will be selected for the analysis.
         """
 
         # initial check
@@ -72,6 +75,14 @@ class VanHoveAnalysis(object):
         interval = np.linspace(0.0, rmax, ngrid)
         reduced_nt = int(ntsteps / float(step_skip)) + 1
 
+        lattice = diffusion_analyzer.structure.lattice
+
+        if indices is None:
+            indices = [j for j, site in enumerate(diffusion_analyzer.structure)
+                       if site.specie.symbol in species]
+
+        rho = float(len(indices)) / lattice.volume
+
         # reduced time grid
         rtgrid = np.arange(0.0, reduced_nt)
         # van Hove functions
@@ -85,12 +96,6 @@ class VanHoveAnalysis(object):
         aux_factor[0] = np.pi * dr ** 2
 
         for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
-            if i == 0:
-                lattice = ss.lattice
-                indices = [j for j, site in enumerate(ss) if
-                           site.specie.symbol in species]
-                rho = float(len(indices)) / ss.lattice.volume
-
             all_fcoords = np.array(ss.frac_coords)
             tracking_ions.append(all_fcoords[indices, :])
 
@@ -142,7 +147,7 @@ class VanHoveAnalysis(object):
                 d2 = np.sum(dcc ** 2, axis=3)
                 dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v
                          in range(len(indices)) \
-                         for j in range(len(r)**3) if u != v or j != indx0]
+                         for j in range(len(r) ** 3) if u != v or j != indx0]
                 dists = filter(lambda e: e < rmax, dists)
 
                 r_indices = [int(dist / dr) for dist in dists]
@@ -159,16 +164,33 @@ class VanHoveAnalysis(object):
         self.gsrt = gsrt
         self.gdrt = gdrt
 
-    def get_gs_plots(self, figsize=(12, 8)):
+        # time interval (in ps) in gsrt and gdrt.
+        self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / \
+                        1000.0
+
+    def get_3d_plot(self, figsize=(12, 8), type="distinct"):
         """
-        Plot self-part van Hove functions.
+        Plot 3D self-part or distinct-part of van Hove function, which is specified
+        by the input argument 'type'.
         """
 
-        y = np.arange(np.shape(self.gsrt)[1]) * self.interval[-1] / float(
+        assert type in ["distinct", "self"]
+
+        if type == "distinct":
+            grt = self.gdrt.copy()
+            vmax = 4.0
+            cb_ticks = [0, 1, 2, 3, 4]
+            cb_label = "$G_d$($t$,$r$)"
+        elif type == "self":
+            grt = self.gsrt.copy()
+            vmax = 1.0
+            cb_ticks = [0, 1]
+            cb_label = "4$\pi r^2G_s$($t$,$r$)"
+
+        y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(
             len(self.interval) - 1)
-        timeskip = self.obj.time_step * self.obj.step_skip
         x = np.arange(
-                np.shape(self.gsrt)[0]) * self.step_skip * timeskip / 1000.0
+            np.shape(grt)[0]) * self.timeskip
         X, Y = np.meshgrid(x, y, indexing="ij")
 
         ticksize = int(figsize[0] * 2.5)
@@ -179,45 +201,54 @@ class VanHoveAnalysis(object):
 
         labelsize = int(figsize[0] * 3)
 
-        plt.pcolor(X, Y, self.gsrt, cmap="jet", vmin=self.gsrt.min(), vmax=1.0)
+        plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
         plt.xlabel("Time (ps)", size=labelsize)
         plt.ylabel("$r$ ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
 
-        cbar = plt.colorbar(ticks=[0, 1])
-        cbar.set_label(label="4$\pi r^2G_s$($t$,$r$)", size=labelsize)
+        cbar = plt.colorbar(ticks=cb_ticks)
+        cbar.set_label(label=cb_label, size=labelsize)
         cbar.ax.tick_params(labelsize=ticksize)
         plt.tight_layout()
 
         return plt
 
-    def get_gd_plots(self, figsize=(12, 8)):
+
+    def get_1d_plot(self, type="distinct", times=[0.0], colors=["r","g","b"]):
         """
-        Plot distinct-part van Hove functions.
+        Plot the van Hove function at given r or t.
+
+        Args:
+            type (str): Specify which part of van Hove function to be plotted.
+            times (list of float): Time moments (in ps) in which the van Hove
+                            function will be plotted.
+            colors (list of str): Default list of colors for plotting.
         """
 
-        y = np.arange(np.shape(self.gdrt)[1]) * self.interval[-1] / float(
-            len(self.interval) - 1)
-        timeskip = self.obj.time_step * self.obj.step_skip
-        x = np.arange(
-                np.shape(self.gdrt)[0]) * self.step_skip * timeskip / 1000.0
-        X, Y = np.meshgrid(x, y, indexing="ij")
+        assert type in ["distinct", "self"]
+        assert len(times) <= len(colors)
 
-        ticksize = int(figsize[0] * 2.5)
+        if type == "distinct":
+            grt = self.gdrt.copy()
+            ylabel = "$G_d$($t$,$r$)"
+            ylim=[-0.005, 4.0]
+        elif type == "self":
+            grt = self.gsrt.copy()
+            ylabel = "4$\pi r^2G_s$($t$,$r$)"
+            ylim=[-0.005, 1.0]
 
-        plt.figure(figsize=figsize, facecolor="w")
-        plt.xticks(fontsize=ticksize)
-        plt.yticks(fontsize=ticksize)
+        plt = get_publication_quality_plot(12, 8)
 
-        labelsize = int(figsize[0] * 3)
+        for i, time in enumerate(times):
+            index = np.round(time / self.timeskip)
+            label = str(time) + " ps"
+            plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
 
-        plt.pcolor(X, Y, self.gdrt, cmap="jet", vmin=self.gdrt.min(), vmax=4.0)
-        plt.xlabel("Time (ps)", size=labelsize)
-        plt.ylabel("$r$ ($\AA$)", size=labelsize)
-        plt.axis([x.min(), x.max(), y.min(), y.max()])
-        cbar = plt.colorbar(ticks=[0, 1, 2, 3, 4])
-        cbar.set_label(label="$G_d$($t$,$r$)", size=labelsize)
-        cbar.ax.tick_params(labelsize=ticksize)
+        plt.xlabel("$r$ ($\AA$)")
+        plt.ylabel(ylabel)
+        plt.legend(loc='upper right', fontsize=36)
+        plt.xlim(0.0, self.interval[-1]-1.0)
+        plt.ylim(ylim[0], ylim[1])
         plt.tight_layout()
 
         return plt
@@ -227,6 +258,7 @@ class RadialDistributionFunction(object):
     """
     Calculate the average radial distribution function for a given set of structures.
     """
+
     def __init__(self, structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
                  species=("Li", "Na"), reference_species=None):
         """
@@ -269,12 +301,12 @@ class RadialDistributionFunction(object):
 
         for s in structures:
             all_fcoords = np.array(s.frac_coords)
-            fcoords_list.append(all_fcoords[indices,:])
+            fcoords_list.append(all_fcoords[indices, :])
             ref_fcoords_list.append(all_fcoords[ref_indices, :])
 
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
-        rdf = np.zeros((ngrid), dtype = np.double)
+        rdf = np.zeros((ngrid), dtype=np.double)
         dns = Counter()
 
         # generate the translational vectors
@@ -283,18 +315,18 @@ class RadialDistributionFunction(object):
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
-        images = images.reshape((len(r)**3, 3))
+        images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
-        zd = np.sum(images**2, axis=1)
+        zd = np.sum(images ** 2, axis=1)
         indx0 = np.argmin(zd)
 
         for fcoords, ref_fcoords in zip(fcoords_list, ref_fcoords_list):
             dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
-            dists = [d2[u,v,j] ** 0.5 for u in range(len(indices)) for v in range(len(ref_indices))
-                     for j in range(len(r)**3) if u != v or j != indx0]
+            dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in range(len(ref_indices))
+                     for j in range(len(r) ** 3) if u != v or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)
@@ -307,8 +339,8 @@ class RadialDistributionFunction(object):
             else:
                 ff = 4.0 * np.pi * interval[indx] ** 2
 
-            rdf[:] += stats.norm.pdf(interval,interval[indx],sigma) * dn \
-                    / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
+            rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
+                      / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = structures
         self.rdf = rdf
@@ -342,8 +374,8 @@ class RadialDistributionFunction(object):
             else:
                 label = "-".join(symbol_list)
 
-        plt = get_publication_quality_plot(12,8)
-        plt.plot(self.interval, self.rdf, color = "r", label=label, linewidth=4.0)
+        plt = get_publication_quality_plot(12, 8)
+        plt.plot(self.interval, self.rdf, color="r", label=label, linewidth=4.0)
         plt.xlabel("$r$ ($\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc='upper right', fontsize=36)
