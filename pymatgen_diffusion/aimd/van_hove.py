@@ -367,8 +367,8 @@ class RadialDistributionFunction(object):
         """
 
         if label is None:
-            symbol_list = set([e.symbol for e in self.structures[0].composition.keys()])
-            symbol_list = list(symbol_list.intersection(set(self.species)))
+            symbol_list = [e.symbol for e in self.structures[0].composition.keys()]
+            symbol_list = [symbol for symbol in symbol_list if symbol in self.species]
 
             if len(symbol_list) == 1:
                 label = symbol_list[0]
