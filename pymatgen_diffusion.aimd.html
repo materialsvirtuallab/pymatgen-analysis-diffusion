@@ -1,0 +1,447 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 0.1.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="pymatgen-diffusion 0.1.5 documentation" href="index.html" />
+    <link rel="up" title="pymatgen_diffusion package" href="pymatgen_diffusion.html" />
+    <link rel="prev" title="pymatgen_diffusion package" href="pymatgen_diffusion.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pymatgen_diffusion.html" title="pymatgen_diffusion package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 0.1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pymatgen-diffusion-aimd-package">
+<h1>pymatgen_diffusion.aimd package<a class="headerlink" href="#pymatgen-diffusion-aimd-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pymatgen_diffusion.aimd.clustering">
+<span id="pymatgen-diffusion-aimd-clustering-module"></span><h2>pymatgen_diffusion.aimd.clustering module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.clustering" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans">
+<em class="property">class </em><code class="descname">Kmeans</code><span class="sig-paren">(</span><em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.cluster">
+<code class="descname">cluster</code><span class="sig-paren">(</span><em>points</em>, <em>k</em>, <em>initial_centroids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>points</strong> (<em>ndarray</em>) &#8211; Data points as a mxn ndarray, where m is the
+number of features and n is the number of data points.</li>
+<li><strong>k</strong> (<em>int</em>) &#8211; Number of means.</li>
+<li><strong>initial_centroids</strong> (<em>np.array</em>) &#8211; Initial guess for the centroids. If
+None, a randomized array of points is used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">centroids are the final centroids, labels
+provide the index for each point, and ss in the final sum squared
+distances.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">centroids, labels, ss</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids">
+<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_labels">
+<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.should_stop">
+<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.should_stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC">
+<em class="property">class </em><code class="descname">KmeansPBC</code><span class="sig-paren">(</span><em>lattice</em>, <em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="pymatgen_diffusion.aimd.clustering.Kmeans"><code class="xref py py-class docutils literal"><span class="pre">pymatgen_diffusion.aimd.clustering.Kmeans</span></code></a></p>
+<p>A version of KMeans that work with PBC. Distance metrics have to change,
+as well as new centroid determination. The points supplied should be
+fractional coordinates.</p>
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids">
+<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels">
+<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop">
+<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen_diffusion.aimd.clustering.get_random_centroid">
+<code class="descname">get_random_centroid</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen_diffusion.aimd.clustering.get_random_centroids">
+<code class="descname">get_random_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen_diffusion.aimd.pathway">
+<span id="pymatgen-diffusion-aimd-pathway-module"></span><h2>pymatgen_diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.pathway" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis">
+<em class="property">class </em><code class="descname">ProbabilityDensityAnalysis</code><span class="sig-paren">(</span><em>structure</em>, <em>trajectories</em>, <em>interval=0.5</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Compute the time-averaged probability density distribution of selected
+species on a &#8220;uniform&#8221; (in terms of fractional coordinates) 3-D grid.
+Note that int_{Omega}d^3rP(r) = 1</p>
+<p>If you use this class, please consider citing the following paper:</p>
+<p>Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. &#8220;Role of Na+ Interstitials and
+Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4 Superionic
+Conductor&#8221;. Chem. Mater. (2015), 27, pp 8318–8325.</p>
+<p>Initialization.
+:param structure: crystal structure
+:type structure: Structure
+:param trajectories: ionic trajectories of the structure</p>
+<blockquote>
+<div>from MD simulations. It should be (1) stored as 3-D array [
+Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
+(2) in fractional coordinates.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>interval</strong> (<em>float</em>) &#8211; the interval between two nearest grid points
+(in Angstrom)</li>
+<li><strong>species</strong> (<em>list of str</em>) &#8211; list of species that are of interest</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">
+<em class="property">classmethod </em><code class="descname">from_diffusion_analyzer</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>interval=0.5</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) &#8211; A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
+<li><strong>interval</strong> (<em>float</em>) &#8211; the interval between two nearest grid points (in
+Angstrom)</li>
+<li><strong>species</strong> (<em>list of str</em>) &#8211; list of species that are of interest</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar">
+<code class="descname">to_chgcar</code><span class="sig-paren">(</span><em>filename='CHGCAR.vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.to_chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the probability density distribution in the format of CHGCAR,
+which can be visualized by VESTA.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen_diffusion.aimd.van_hove">
+<span id="pymatgen-diffusion-aimd-van-hove-module"></span><h2>pymatgen_diffusion.aimd.van_hove module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.van_hove" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction">
+<em class="property">class </em><code class="descname">RadialDistributionFunction</code><span class="sig-paren">(</span><em>structures</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>cellrange=1</em>, <em>sigma=0.1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>reference_species=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Calculate the average radial distribution function for a given set of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structures</strong> (<em>list of pmg_structure objects</em>) &#8211; List of structure
+objects with the same composition. Allow for ensemble averaging.</li>
+<li><strong>ngrid</strong> (<em>int</em>) &#8211; Number of radial grid points.</li>
+<li><strong>rmax</strong> (<em>float</em>) &#8211; Maximum of radial grid (the minimum is always set zero).</li>
+<li><strong>cellrange</strong> (<em>int</em>) &#8211; Range of translational vector elements associated
+with supercell. Default is 1, i.e. including the adjecent image
+cells along all three directions.</li>
+<li><strong>sigma</strong> (<em>float</em>) &#8211; Smearing of a Gaussian function.</li>
+<li><strong>species</strong> (<em>[string]</em>) &#8211; A list of specie symbols of interest.</li>
+<li><strong>reference_species</strong> (<em>[string]</em>) &#8211; <p>set this option along with &#8216;species&#8217;
+parameter to compute pair radial distribution function.
+eg: species=[&#8220;H&#8221;], reference_species=[&#8220;O&#8221;] to compute</p>
+<blockquote>
+<div>O-H pair distribution in a water MD simulation.</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.coordination_number">
+<code class="descname">coordination_number</code><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns running coordination number</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.export_rdf">
+<code class="descname">export_rdf</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.export_rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.export_rdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output RDF data to a csv file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Filename. Supported formats are csv and dat. If
+the extension is csv, a csv file is written. Otherwise,
+a dat format is assumed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.get_rdf_plot">
+<code class="descname">get_rdf_plot</code><span class="sig-paren">(</span><em>label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.get_rdf_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.get_rdf_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the average RDF function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis">
+<em class="property">class </em><code class="descname">VanHoveAnalysis</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>avg_nsteps=50</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>step_skip=50</em>, <em>sigma=0.1</em>, <em>cellrange=1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for van Hove function analysis. In particular, self-part (Gs) and
+distinct-part (Gd) of the van Hove correlation function G(r,t)
+for given species and given structure are computed. If you use this class,
+please consider citing the following paper:</p>
+<p>Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. &#8220;Role of Na+ Interstitials
+and Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4
+Superionic Conductor&#8221;. Chem. Mater. (2015), 27, pp 8318–8325</p>
+<p>Initization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) &#8211; A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
+<li><strong>avg_nsteps</strong> (<em>int</em>) &#8211; Number of t0 used for statistical average</li>
+<li><strong>ngrid</strong> (<em>int</em>) &#8211; Number of radial grid points</li>
+<li><strong>rmax</strong> (<em>float</em>) &#8211; Maximum of radial grid (the minimum is always set zero)</li>
+<li><strong>step_skip</strong> (<em>int</em>) &#8211; # of time steps skipped during analysis. It defines
+the resolution of the reduced time grid</li>
+<li><strong>sigma</strong> (<em>float</em>) &#8211; Smearing of a Gaussian function</li>
+<li><strong>cellrange</strong> (<em>int</em>) &#8211; Range of translational vector elements associated with
+supercell. Default is 1, i.e. including the adjecent
+image cells along all three directions.</li>
+<li><strong>species</strong> (<em>[string]</em>) &#8211; a list of specie symbols of interest</li>
+<li><strong>indices</strong> (<em>list of int</em>) &#8211; If not None, only a subset of atomic indices
+will be selected for the analysis.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">
+<code class="descname">get_1d_plot</code><span class="sig-paren">(</span><em>type='distinct', times=[0.0], colors=['r', 'g', 'b']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the van Hove function at given r or t.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>type</strong> (<em>str</em>) &#8211; Specify which part of van Hove function to be plotted.</li>
+<li><strong>times</strong> (<em>list of float</em>) &#8211; Time moments (in ps) in which the van Hove
+function will be plotted.</li>
+<li><strong>colors</strong> (<em>list of str</em>) &#8211; Default list of colors for plotting.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot">
+<code class="descname">get_3d_plot</code><span class="sig-paren">(</span><em>figsize=(12</em>, <em>8)</em>, <em>type='distinct'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_3d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot 3D self-part or distinct-part of van Hove function, which is specified
+by the input argument &#8216;type&#8217;.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen_diffusion.aimd">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen_diffusion.aimd" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pymatgen_diffusion.aimd package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.clustering">pymatgen_diffusion.aimd.clustering module</a></li>
+<li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.pathway">pymatgen_diffusion.aimd.pathway module</a></li>
+<li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.van_hove">pymatgen_diffusion.aimd.van_hove module</a></li>
+<li><a class="reference internal" href="#module-pymatgen_diffusion.aimd">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen_diffusion.html"
+                        title="previous chapter">pymatgen_diffusion package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen_diffusion.aimd.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pymatgen_diffusion.html" title="pymatgen_diffusion package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 0.1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" >pymatgen_diffusion package</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Materials Virtual Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
