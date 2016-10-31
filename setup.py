@@ -16,7 +16,7 @@ setup(
     name="pymatgen-diffusion",
     packages=find_packages(),
     version="0.1.5",
-    install_requires=["pymatgen>=3.3.1", "monty>=0.7.1"],
+    install_requires=["pymatgen>=4.4.11", "monty>=0.9.6"],
     extras_require={},
     package_data={},
     author="materials virtual lab",
