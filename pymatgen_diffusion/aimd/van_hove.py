@@ -3,11 +3,6 @@
 # Distributed under the terms of the BSD License.
 
 from __future__ import division, unicode_literals, print_function
-
-__author__ = "Iek-Heng Chu"
-__version__ = 1.0
-__date__ = "04/15"
-
 from collections import Counter
 from scipy.stats import norm
 import matplotlib.pyplot as plt
@@ -15,8 +10,9 @@ from pymatgen.util.plotting_utils import get_publication_quality_plot
 from scipy import stats
 import numpy as np
 
-
-# TODO: add unittests, and ipython notebook examples
+__author__ = "Iek-Heng Chu"
+__version__ = 1.0
+__date__ = "04/15"
 
 
 class VanHoveAnalysis(object):
@@ -95,7 +91,8 @@ class VanHoveAnalysis(object):
         aux_factor = 4.0 * np.pi * interval ** 2
         aux_factor[0] = np.pi * dr ** 2
 
-        for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
+        for i, ss in enumerate(
+                diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
             tracking_ions.append(all_fcoords[indices, :])
 
@@ -111,7 +108,8 @@ class VanHoveAnalysis(object):
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [lattice.get_distance_and_image(tracking_ions[it1][u],
-                                                        tracking_ions[it0 + it1][u],
+                                                        tracking_ions[
+                                                            it0 + it1][u],
                                                         jimage=image)[0] for u
                          in range(len(indices))]
                 dists = filter(lambda e: e < rmax, dists)
@@ -243,7 +241,8 @@ class VanHoveAnalysis(object):
             index = min(index, np.shape(grt)[0] - 1)
             new_time = index * self.timeskip
             label = str(new_time) + " ps"
-            plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
+            plt.plot(self.interval, grt[index], color=colors[i], label=label,
+                     linewidth=4.0)
 
         plt.xlabel("$r$ ($\AA$)")
         plt.ylabel(ylabel)
@@ -315,7 +314,8 @@ class RadialDistributionFunction(object):
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None,
+                                                                 None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
@@ -323,10 +323,12 @@ class RadialDistributionFunction(object):
         indx0 = np.argmin(zd)
 
         for fcoords, ref_fcoords in zip(fcoords_list, ref_fcoords_list):
-            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
+            dcf = fcoords[:, None, None, :] + images[None, None, :,
+                                              :] - ref_fcoords[None, :, None, :]
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
-            dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in range(len(ref_indices))
+            dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in
+                     range(len(ref_indices))
                      for j in range(len(r) ** 3) if u != v or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
@@ -341,7 +343,8 @@ class RadialDistributionFunction(object):
                 ff = 4.0 * np.pi * interval[indx] ** 2
 
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
-                      / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
+                      / float(len(ref_indices)) / ff / self.rho / len(
+                fcoords_list)
 
         self.structures = structures
         self.rdf = rdf
@@ -367,8 +370,10 @@ class RadialDistributionFunction(object):
         """
 
         if label is None:
-            symbol_list = [e.symbol for e in self.structures[0].composition.keys()]
-            symbol_list = [symbol for symbol in symbol_list if symbol in self.species]
+            symbol_list = [e.symbol for e in
+                           self.structures[0].composition.keys()]
+            symbol_list = [symbol for symbol in symbol_list if
+                           symbol in self.species]
 
             if len(symbol_list) == 1:
                 label = symbol_list[0]

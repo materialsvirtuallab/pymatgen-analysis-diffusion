@@ -13,6 +13,9 @@ import os
 import json
 
 import numpy as np
+import matplotlib
+matplotlib.use("pdf")
+
 from pymatgen_diffusion.aimd.van_hove import VanHoveAnalysis, RadialDistributionFunction
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 
