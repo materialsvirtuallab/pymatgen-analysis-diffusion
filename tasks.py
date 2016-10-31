@@ -23,7 +23,7 @@ from invoke import task
 
 from monty.os import cd
 from monty.tempfile import ScratchDir
-from pymatgen import __version__ as ver
+from pymatgen_diffusion import __version__ as ver
 
 
 @task
