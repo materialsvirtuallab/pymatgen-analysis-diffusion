@@ -8,7 +8,7 @@ import os
 
 SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
-with open(os.path.join(SETUP_PTH, "README.md")) as f:
+with open(os.path.join(SETUP_PTH, "README.rst")) as f:
     desc = f.read()
 
 
@@ -42,6 +42,5 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
-    ],
-    scripts=[]
+    ]
 )
