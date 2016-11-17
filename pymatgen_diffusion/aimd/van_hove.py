@@ -161,6 +161,7 @@ class VanHoveAnalysis(object):
         self.interval = interval
         self.gsrt = gsrt
         self.gdrt = gdrt
+        self.dr = dr
 
         # time interval (in ps) in gsrt and gdrt.
         self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / \
@@ -362,7 +363,7 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
+        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2 * self.dr)
 
     def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
         """
