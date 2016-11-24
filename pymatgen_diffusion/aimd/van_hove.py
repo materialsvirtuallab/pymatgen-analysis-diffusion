@@ -161,7 +161,6 @@ class VanHoveAnalysis(object):
         self.interval = interval
         self.gsrt = gsrt
         self.gdrt = gdrt
-        self.dr = dr
 
         # time interval (in ps) in gsrt and gdrt.
         self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / \
@@ -354,6 +353,7 @@ class RadialDistributionFunction(object):
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = species
+        self.dr = dr
 
     @property
     def coordination_number(self):
