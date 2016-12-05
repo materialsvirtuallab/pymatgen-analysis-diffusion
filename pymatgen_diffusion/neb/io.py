@@ -52,6 +52,7 @@ class MVLCINEBSet(MITNEBSet):
 
         # CI-NEB settings
         defaults = {
+            "ISIF": 2,
             "EDIFF": 5e-5,
             "ISPIN": 2,
             "EDIFFG": -0.02,

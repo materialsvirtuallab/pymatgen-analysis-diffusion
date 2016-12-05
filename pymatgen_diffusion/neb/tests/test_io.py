@@ -99,7 +99,7 @@ ICHAIN  =  0
 ICHARG  =  1
 IMAGES  =  1
 IOPT    =  1
-ISIF    =  3
+ISIF    =  2
 ISMEAR  =  0
 ISPIN   =  2
 ISYM    =  0
@@ -123,7 +123,8 @@ SIGMA   =  0.05"""
     def test_incar_user_setting(self):
         user_incar_settings = {"IOPT": 3,
                                "EDIFFG": -0.05,
-                               "NPAR": 4}
+                               "NPAR": 4,
+                               "ISIF": 3}
         m = MVLCINEBSet(self.structures, user_incar_settings=user_incar_settings)
         incar_string = m.incar.get_string(sort_keys=True, pretty=True)
         incar_expect = """ALGO    =  Fast
