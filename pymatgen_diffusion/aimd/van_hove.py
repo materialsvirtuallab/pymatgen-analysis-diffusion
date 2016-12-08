@@ -354,7 +354,7 @@ class RadialDistributionFunction(object):
         self.ngrid = ngrid
         self.species = species
         self.dr = dr
-
+    
     @property
     def coordination_number(self):
         """
@@ -363,7 +363,7 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2 * self.dr)
+        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2 )
 
     def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
         """
