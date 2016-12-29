@@ -5,8 +5,10 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import copy
+
 from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet
-import os
+from pymatgen.core import Structure
 
 __author__ = 'Austen'
 
@@ -20,11 +22,11 @@ class MVLCINEBEndPointSet(MITRelaxSet):
         user_incar_settings = kwargs.get("user_incar_settings", {})
         defaults = {
             "ISIF": 2,
-            "EDIFFG": -0.02,
-            "NELMIN": 4,
-            "ISYM": 0,
             "EDIFF": 5e-5,
-            "LDAU": False
+            "EDIFFG": -0.02,
+            "ISYM": 0,
+            "LDAU": False,
+            "NELMIN": 4
         }
 
         if user_incar_settings != {}:
@@ -52,22 +54,67 @@ class MVLCINEBSet(MITNEBSet):
 
         # CI-NEB settings
         defaults = {
-            "ISIF": 2,
             "EDIFF": 5e-5,
-            "ISPIN": 2,
             "EDIFFG": -0.02,
-            "NSW": 200,
             "IBRION": 3,
-            "POTIM": 0,
             "ICHAIN": 0,
             "IOPT": 1,
-            "LCLIMB": True,
-            "LORBIT": 0,
+            "ISIF": 2,
             "ISMEAR": 0,
-            "LDAU": False}
+            "ISPIN": 2,
+            "LCLIMB": True,
+            "LDAU": False,
+            "LORBIT": 0,
+            "NSW": 200,
+            "POTIM": 0
+        }
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
 
         kwargs["user_incar_settings"] = defaults
 
         super(MVLCINEBSet, self).__init__(structures, **kwargs)
+
+
+def get_endpoints_from_index(structure, site_indices):
+    """
+    This class reads in one perfect structure and the two endpoint structures
+    are generated using site_indices.
+
+    Args:
+        structure (Structure): A perfect structure.
+        site_indices (list of int): a two-element list indicating site indices.
+
+    Returns:
+        endpoints (list of Structure): a two-element list of two endpoints
+                                        Structure object.
+    """
+
+    if len(site_indices) != 2 or len(set(site_indices)) != 2:
+        raise ValueError("Invalid indices!")
+    if structure[site_indices[0]].specie != structure[site_indices[1]].specie:
+        raise ValueError("The site indices must be "
+                         "associated with identical species!")
+
+    s = structure.copy()
+    sites = s.sites
+
+    # Move hopping atoms to the beginning of species index.
+    init_site = sites[site_indices[0]]
+    final_site = sites[site_indices[1]]
+    sites.remove(init_site)
+    sites.remove(final_site)
+
+    init_sites = copy.deepcopy(sites)
+    final_sites = copy.deepcopy(sites)
+
+    init_sites.insert(0, final_site)
+    final_sites.insert(0, init_site)
+
+    s_0 = Structure.from_sites(init_sites)
+    s_1 = Structure.from_sites(final_sites)
+
+    endpoints = [s_0, s_1]
+
+    return endpoints
+
