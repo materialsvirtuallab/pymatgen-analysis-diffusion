@@ -2,7 +2,8 @@
 
 from __future__ import division, unicode_literals
 from pymatgen.core import Structure
-from pymatgen_diffusion.neb.io import MVLCINEBEndPointSet, MVLCINEBSet
+from pymatgen_diffusion.neb.io import MVLCINEBEndPointSet, MVLCINEBSet, \
+    get_endpoints_from_index
 
 import unittest
 import os
@@ -16,6 +17,7 @@ def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(cwd,path_str)
     return path
+
 
 class MVLCINEBEndPointSetTest(unittest.TestCase):
 
@@ -158,6 +160,25 @@ SIGMA   =  0.05"""
         pass
 
     pass
+
+
+class UtilityTest(unittest.TestCase):
+    """
+    Unit test for outside methods in io.py
+    """
+    structure = Structure.from_file(get_path("POSCAR"))
+
+    def test_get_endpoints_from_index(self):
+        endpoints = get_endpoints_from_index(structure=self.structure,
+                                             site_indices=[0, 1])
+        ep_0 = endpoints[0].as_dict()
+        ep_1 = endpoints[1].as_dict()
+        ep_0_expect = Structure.from_file(get_path("POSCAR_ep0")).as_dict()
+        ep_1_expect = Structure.from_file(get_path("POSCAR_ep1")).as_dict()
+
+        self.assertEqual(ep_0, ep_0_expect)
+        self.assertEqual(ep_1, ep_1_expect)
+
 
 if __name__ == '__main__':
     unittest.main()
