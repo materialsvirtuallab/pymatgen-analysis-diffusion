@@ -29,7 +29,7 @@ class VanHoveAnalysis(object):
 
     def __init__(self, diffusion_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
                  step_skip=50, sigma=0.1, cellrange=1, species=("Li", "Na"),
-                 indices=None):
+                 reference_species=None, indices=None):
         """
         Initization.
 
@@ -45,9 +45,14 @@ class VanHoveAnalysis(object):
             cellrange (int): Range of translational vector elements associated with
                             supercell. Default is 1, i.e. including the adjecent
                             image cells along all three directions.
-            species ([string]): a list of specie symbols of interest
+            species ([string]): a list of specie symbols of interest.
+            reference_species ([string]): Set this option along with 'species'
+                            parameter to calculate the distinct-part of van Hove
+                            function. Note that the self-part of van Hove function is
+                            always computed only for those in "species" parameter.
             indices (list of int): If not None, only a subset of atomic indices
-                            will be selected for the analysis.
+                            will be selected for the analysis. If this is given,
+                            "species" parameter will be ignored.
         """
 
         # initial check
@@ -72,10 +77,16 @@ class VanHoveAnalysis(object):
         reduced_nt = int(ntsteps / float(step_skip)) + 1
 
         lattice = diffusion_analyzer.structure.lattice
+        structure = diffusion_analyzer.structure
 
         if indices is None:
-            indices = [j for j, site in enumerate(diffusion_analyzer.structure)
+            indices = [j for j, site in enumerate(structure)
                        if site.specie.symbol in species]
+
+        ref_indices = indices
+        if reference_species:
+            ref_indices = [j for j, site in enumerate(structure)
+                           if site.specie.symbol in reference_species]
 
         rho = float(len(indices)) / lattice.volume
 
@@ -86,6 +97,7 @@ class VanHoveAnalysis(object):
         gdrt = np.zeros((reduced_nt, ngrid), dtype=np.double)
 
         tracking_ions = []
+        ref_ions = []
 
         # auxiliary factor for 4*\pi*r^2
         aux_factor = 4.0 * np.pi * interval ** 2
@@ -95,11 +107,13 @@ class VanHoveAnalysis(object):
                 diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
             tracking_ions.append(all_fcoords[indices, :])
+            ref_ions.append(all_fcoords[ref_indices, :])
 
         tracking_ions = np.array(tracking_ions)
+        ref_ions = np.array(ref_ions)
 
         gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / \
-                    float(avg_nsteps) / float(len(indices))
+                    float(avg_nsteps) / float(len(ref_indices))
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
@@ -140,11 +154,11 @@ class VanHoveAnalysis(object):
             for it1 in range(avg_nsteps):
                 dcf = tracking_ions[it0 + it1, :, None, None, :] + \
                       images[None, None, :, :] - \
-                      tracking_ions[it1, None, :, None, :]
+                      ref_ions[it1, None, :, None, :]
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc ** 2, axis=3)
                 dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v
-                         in range(len(indices)) \
+                         in range(len(ref_indices)) \
                          for j in range(len(r) ** 3) if u != v or j != indx0]
                 dists = filter(lambda e: e < rmax, dists)
 
@@ -354,7 +368,7 @@ class RadialDistributionFunction(object):
         self.ngrid = ngrid
         self.species = species
         self.dr = dr
-    
+
     @property
     def coordination_number(self):
         """
@@ -363,7 +377,7 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2 )
+        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
 
     def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
         """
