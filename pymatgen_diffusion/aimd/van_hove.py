@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from scipy import stats
 import numpy as np
+from prettyplotlib import brewer2mpl
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -225,7 +226,7 @@ class VanHoveAnalysis(object):
 
         return plt
 
-    def get_1d_plot(self, type="distinct", times=[0.0], colors=["r", "g", "b"]):
+    def get_1d_plot(self, type="distinct", times=[0.0], colors=None):
         """
         Plot the van Hove function at given r or t.
 
@@ -233,9 +234,11 @@ class VanHoveAnalysis(object):
             type (str): Specify which part of van Hove function to be plotted.
             times (list of float): Time moments (in ps) in which the van Hove
                             function will be plotted.
-            colors (list of str): Default list of colors for plotting.
+            colors ([colors]): Additional color settings, available options:
+                1. ["r", "g", "b"]
+                2. brewer2mpl.get_map('Set1', 'qualitative', 8).mpl_colors
         """
-
+        colors = colors or brewer2mpl.get_map('Set1', 'qualitative', 8).mpl_colors
         assert type in ["distinct", "self"]
         assert len(times) <= len(colors)
 
