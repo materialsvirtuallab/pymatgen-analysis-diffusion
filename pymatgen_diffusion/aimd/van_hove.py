@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from scipy import stats
 import numpy as np
-from prettyplotlib import brewer2mpl
+
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -234,11 +234,13 @@ class VanHoveAnalysis(object):
             type (str): Specify which part of van Hove function to be plotted.
             times (list of float): Time moments (in ps) in which the van Hove
                             function will be plotted.
-            colors ([colors]): Additional color settings, available options:
-                1. ["r", "g", "b"]
-                2. brewer2mpl.get_map('Set1', 'qualitative', 8).mpl_colors
+            colors (list strings/tuples): Additional color settings. If not set,
+                            seaborn.color_plaette("Set1", 10) will be used.
         """
-        colors = colors or brewer2mpl.get_map('Set1', 'qualitative', 8).mpl_colors
+        if colors is None:
+            import seaborn as sns
+            colors = sns.color_palette("Set1", 10)
+
         assert type in ["distinct", "self"]
         assert len(times) <= len(colors)
 
