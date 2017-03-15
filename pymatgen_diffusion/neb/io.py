@@ -118,3 +118,26 @@ def get_endpoints_from_index(structure, site_indices):
 
     return endpoints
 
+
+def get_endpoint_dist(ep_0, ep_1):
+    """
+    Calculate a list of site distances between two endpoints, assuming periodic
+    boundary conditions.
+    Args:
+        ep_0 (Structure): the first endpoint structure.
+        ep_1 (Structure): the second endpoint structure.
+    Returns:
+        dist (list): a list of distances between two structures.
+    """
+    ep_0.remove_oxidation_states()
+    ep_1.remove_oxidation_states()
+    assert ep_0.species == ep_1.species, "Formula mismatch!"
+    assert ep_0.lattice.abc == ep_0.lattice.abc, "Lattice mismatch!"
+
+    distances = []
+    for site0, site1 in zip(ep_0, ep_1):
+        fc = (site0.frac_coords, site1.frac_coords)
+        d = ep_0.lattice.get_distance_and_image(fc[0], fc[1])[0]
+        distances.append(d)
+
+    return distances

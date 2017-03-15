@@ -3,7 +3,7 @@
 from __future__ import division, unicode_literals
 from pymatgen.core import Structure
 from pymatgen_diffusion.neb.io import MVLCINEBEndPointSet, MVLCINEBSet, \
-    get_endpoints_from_index
+    get_endpoints_from_index, get_endpoint_dist
 
 import unittest
 import os
@@ -181,6 +181,14 @@ class UtilityTest(unittest.TestCase):
 
         self.assertEqual(ep_0, ep_0_expect)
         self.assertEqual(ep_1, ep_1_expect)
+
+    def test_get_endpoint_dist(self):
+        ep0 = Structure.from_file(get_path("POSCAR_ep0"))
+        ep1 = Structure.from_file(get_path("POSCAR_ep1"))
+        distances = get_endpoint_dist(ep0, ep1)
+
+        self.assertAlmostEqual(max(distances), 6.3461081051543893, 7)
+        self.assertEqual(min(distances), 0.0)
 
 
 if __name__ == '__main__':
