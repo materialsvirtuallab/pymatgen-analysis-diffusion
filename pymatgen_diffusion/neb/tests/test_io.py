@@ -183,8 +183,8 @@ class UtilityTest(unittest.TestCase):
         self.assertEqual(ep_1, ep_1_expect)
 
     def test_get_endpoint_dist(self):
-        ep0 = Structure.from_file(get_path("POSCAR_ep0"))
-        ep1 = Structure.from_file(get_path("POSCAR_ep1"))
+        ep0 = Structure.from_file(get_path("POSCAR_ep0", dirname="io_files"))
+        ep1 = Structure.from_file(get_path("POSCAR_ep1", dirname="io_files"))
         distances = get_endpoint_dist(ep0, ep1)
 
         self.assertAlmostEqual(max(distances), 6.3461081051543893, 7)
