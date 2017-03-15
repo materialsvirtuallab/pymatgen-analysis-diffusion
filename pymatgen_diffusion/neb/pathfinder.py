@@ -28,15 +28,14 @@ class IDPPSolver(object):
 
     """
 
-    def __init__(self, structures, spring_const=5.0):
+    def __init__(self, structures):
         """
         Initialization.
 
         Args:
         structures (list of pmg_structure) : Initial guess of the NEB path (including
-                    initial and final end-point structures)
-        spring_const (float): A virtual spring constant used in the NEB-like relaxation
-                            process that yields so-called IDPP path.
+                    initial and final end-point structures).
+
         """
 
         lattice = structures[0].lattice
@@ -44,8 +43,8 @@ class IDPPSolver(object):
         nimages = len(structures) - 2
         target_dists = []
 
-        # Initial guess of the path used in the IDPP algo.
-        init_cart_coords = []
+        # Initial guess of the path (in Cartesian coordinates) used in the IDPP algo.
+        init_coords = []
 
         # Construct the set of target distance matrices via linear interpolation between
         # those of end-point structures.
@@ -73,7 +72,7 @@ class IDPPSolver(object):
         for ni in range(nimages + 2):
             for i in range(natoms):
                 frac_coords = structures[ni][i].frac_coords
-                init_cart_coords.append(lattice.get_cartesian_coords(frac_coords))
+                init_coords.append(lattice.get_cartesian_coords(frac_coords))
 
                 if ni not in [0, nimages + 1]:
                     for j in range(i + 1, natoms):
@@ -82,17 +81,16 @@ class IDPPSolver(object):
                         translations[ni - 1, i, j] = lattice.get_cartesian_coords(img)
                         translations[ni - 1, j, i] = -lattice.get_cartesian_coords(img)
 
-        self.init_coords = np.array(init_cart_coords).reshape(nimages + 2, natoms, 3)
+        self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)
         self.translations = translations
         self.weights = weights
         self.structures = structures
         self.target_dists = target_dists
-        self.spring_const = spring_const
         self.nimages = nimages
 
 
     def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05, max_disp=0.05,
-            species=None):
+            spring_const=5.0, species=None):
 
         """
         Perform iterative minimization of the set of objective functions in an NEB-like
@@ -109,6 +107,8 @@ class IDPPSolver(object):
             step_size (float): Step size associated with the displacement of the atoms
                         during the minimization process.
             max_disp (float): Maximum allowed atomic displacement in each iteration.
+            spring_const (float): A virtual spring constant used in the NEB-like
+                        relaxation process that yields so-called IDPP path.
             species (list of string): If provided, only those given species are allowed
                                 to move. The atomic positions of other species are
                                 obtained via regular linear interpolation approach.
@@ -135,7 +135,8 @@ class IDPPSolver(object):
         while (iter <= maxiter):
             # Get the sets of objective functions, true and total force matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
-            tot_forces = self._get_total_forces(coords, true_forces)
+            tot_forces = self._get_total_forces(coords, true_forces,
+                                                spring_const=spring_const)
 
             # Each atom is allowed to move up to max_disp
             for ni in range(self.nimages):
@@ -181,7 +182,7 @@ class IDPPSolver(object):
 
 
     @classmethod
-    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0, spring_const=5.0):
+    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
         """
         A class method that starts with end-point structures instead. The initial
         guess for the IDPP algo is then constructed using the regular linear
@@ -193,8 +194,6 @@ class IDPPSolver(object):
             sort_tol (float): Distance tolerance (in Angstrom) used to match the
                             atomic indices between start and end structures. Need
                             to increase the value in some cases.
-            spring_const (float): A virtual spring constant used in the NEB-like
-                            relaxation process that yields so-called IDPP path.
 
         """
 
@@ -211,7 +210,7 @@ class IDPPSolver(object):
             else:
                 raise e
 
-        return IDPPSolver(images, spring_const=spring_const)
+        return IDPPSolver(images)
 
 
     def _get_funcs_and_forces(self, x):
@@ -251,7 +250,7 @@ class IDPPSolver(object):
         return vec / np.linalg.norm(vec)
 
 
-    def _get_total_forces(self, x, true_forces):
+    def _get_total_forces(self, x, true_forces, spring_const):
         """
         Calculate the total force on each image structure, which is equal to the spring
         force along the tangent + true force perpendicular to the tangent. Note that the
@@ -271,8 +270,8 @@ class IDPPSolver(object):
             tangent = self.get_unit_vector(tangent)
 
             # Spring force
-            spring_force = self.spring_const * (np.linalg.norm(vec1) -
-                                                np.linalg.norm(vec2)) * tangent
+            spring_force = spring_const * (np.linalg.norm(vec1) -
+                                           np.linalg.norm(vec2)) * tangent
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
