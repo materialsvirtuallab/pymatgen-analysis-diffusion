@@ -129,6 +129,8 @@ def get_endpoint_dist(ep_0, ep_1):
     Returns:
         dist (list): a list of distances between two structures.
     """
+    ep_0.remove_oxidation_states()
+    ep_1.remove_oxidation_states()
     assert ep_0.species == ep_1.species, "Formula mismatch!"
     assert ep_0.lattice.abc == ep_0.lattice.abc, "Lattice mismatch!"
 
