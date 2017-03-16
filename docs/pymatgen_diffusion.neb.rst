@@ -18,6 +18,14 @@ pymatgen_diffusion.neb.io module
     :undoc-members:
     :show-inheritance:
 
+pymatgen_diffusion.neb.pathfinder module
+----------------------------------------
+
+.. automodule:: pymatgen_diffusion.neb.pathfinder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

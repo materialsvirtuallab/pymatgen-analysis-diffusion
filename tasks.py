@@ -55,7 +55,7 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        ctx.run("cp _static/* _build/html/_static")
+        #ctx.run("cp _static/* _build/html/_static")
 
         # Avoid ths use of jekyll so that _dir works as intended.
         ctx.run("touch _build/html/.nojekyll")

@@ -17,6 +17,7 @@ Features (non-exhaustive!)
 1. Van-Hove analysis
 2. Probability density
 3. Clustering (e.g., k-means with periodic boundary conditions).
+4. IDPP analysis.
 
 API documentation
 -----------------
