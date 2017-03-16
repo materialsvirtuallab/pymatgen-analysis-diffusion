@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen_diffusion.aimd.van_hove &#8212; pymatgen-diffusion 0.1.5 documentation</title>
+    <title>pymatgen_diffusion.aimd.van_hove &#8212; pymatgen-diffusion 0.3.0 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,8 +28,6 @@
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="pymatgen-diffusion 0.1.5 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
 
    
   
@@ -52,7 +51,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 0.1.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 0.3.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -75,6 +74,7 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="mf">1.0</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;04/15&quot;</span>
@@ -94,7 +94,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">avg_nsteps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
                  <span class="n">step_skip</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cellrange</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">),</span>
-                 <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">reference_species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initization.</span>
 
@@ -110,9 +110,14 @@
 <span class="sd">            cellrange (int): Range of translational vector elements associated with</span>
 <span class="sd">                            supercell. Default is 1, i.e. including the adjecent</span>
 <span class="sd">                            image cells along all three directions.</span>
-<span class="sd">            species ([string]): a list of specie symbols of interest</span>
+<span class="sd">            species ([string]): a list of specie symbols of interest.</span>
+<span class="sd">            reference_species ([string]): Set this option along with &#39;species&#39;</span>
+<span class="sd">                            parameter to calculate the distinct-part of van Hove</span>
+<span class="sd">                            function. Note that the self-part of van Hove function is</span>
+<span class="sd">                            always computed only for those in &quot;species&quot; parameter.</span>
 <span class="sd">            indices (list of int): If not None, only a subset of atomic indices</span>
-<span class="sd">                            will be selected for the analysis.</span>
+<span class="sd">                            will be selected for the analysis. If this is given,</span>
+<span class="sd">                            &quot;species&quot; parameter will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># initial check</span>
@@ -137,10 +142,16 @@
         <span class="n">reduced_nt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ntsteps</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">step_skip</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
 
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">structure</span>
 
         <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
                        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+
+        <span class="n">ref_indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="k">if</span> <span class="n">reference_species</span><span class="p">:</span>
+            <span class="n">ref_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+                           <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">reference_species</span><span class="p">]</span>
 
         <span class="n">rho</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> <span class="o">/</span> <span class="n">lattice</span><span class="o">.</span><span class="n">volume</span>
 
@@ -151,6 +162,7 @@
         <span class="n">gdrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">reduced_nt</span><span class="p">,</span> <span class="n">ngrid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
         <span class="n">tracking_ions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ref_ions</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># auxiliary factor for 4*\pi*r^2</span>
         <span class="n">aux_factor</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">interval</span> <span class="o">**</span> <span class="mi">2</span>
@@ -160,11 +172,13 @@
                 <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">get_drift_corrected_structures</span><span class="p">()):</span>
             <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
             <span class="n">tracking_ions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">ref_ions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">[</span><span class="n">ref_indices</span><span class="p">,</span> <span class="p">:])</span>
 
         <span class="n">tracking_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tracking_ions</span><span class="p">)</span>
+        <span class="n">ref_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ref_ions</span><span class="p">)</span>
 
         <span class="n">gaussians</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">interval</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">interval</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">/</span> \
-                    <span class="nb">float</span><span class="p">(</span><span class="n">avg_nsteps</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">avg_nsteps</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_indices</span><span class="p">))</span>
 
         <span class="c1"># calculate self part of van Hove function</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
@@ -205,11 +219,11 @@
             <span class="k">for</span> <span class="n">it1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">avg_nsteps</span><span class="p">):</span>
                 <span class="n">dcf</span> <span class="o">=</span> <span class="n">tracking_ions</span><span class="p">[</span><span class="n">it0</span> <span class="o">+</span> <span class="n">it1</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> \
                       <span class="n">images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> \
-                      <span class="n">tracking_ions</span><span class="p">[</span><span class="n">it1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                      <span class="n">ref_ions</span><span class="p">[</span><span class="n">it1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="n">dcc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">dcf</span><span class="p">)</span>
                 <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dcc</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
                 <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">d2</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span>
-                         <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> \
+                         <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_indices</span><span class="p">))</span> \
                          <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">!=</span> <span class="n">v</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">indx0</span><span class="p">]</span>
                 <span class="n">dists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">dists</span><span class="p">)</span>
 
@@ -276,7 +290,7 @@
 
         <span class="k">return</span> <span class="n">plt</span></div>
 
-<div class="viewcode-block" id="VanHoveAnalysis.get_1d_plot"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_1d_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;distinct&quot;</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">]):</span>
+<div class="viewcode-block" id="VanHoveAnalysis.get_1d_plot"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_1d_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;distinct&quot;</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the van Hove function at given r or t.</span>
 
@@ -284,8 +298,12 @@
 <span class="sd">            type (str): Specify which part of van Hove function to be plotted.</span>
 <span class="sd">            times (list of float): Time moments (in ps) in which the van Hove</span>
 <span class="sd">                            function will be plotted.</span>
-<span class="sd">            colors (list of str): Default list of colors for plotting.</span>
+<span class="sd">            colors (list strings/tuples): Additional color settings. If not set,</span>
+<span class="sd">                            seaborn.color_plaette(&quot;Set1&quot;, 10) will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;Set1&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;distinct&quot;</span><span class="p">,</span> <span class="s2">&quot;self&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
@@ -395,7 +413,7 @@
             <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">d2</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span>
                      <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_indices</span><span class="p">))</span>
                      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">!=</span> <span class="n">v</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">indx0</span><span class="p">]</span>
-            <span class="n">dists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">rmax</span> <span class="o">+</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="n">dists</span><span class="p">)</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">rmax</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">dists</span><span class="p">)</span>
             <span class="n">r_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">dr</span><span class="p">)</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">dists</span><span class="p">]</span>
             <span class="n">dns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r_indices</span><span class="p">)</span>
 
@@ -418,6 +436,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="n">rmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span> <span class="o">=</span> <span class="n">ngrid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">=</span> <span class="n">dr</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

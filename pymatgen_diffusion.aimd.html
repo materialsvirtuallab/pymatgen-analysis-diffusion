@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 0.1.5 documentation</title>
+    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 0.3.0 documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.5',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -27,8 +28,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="pymatgen-diffusion 0.1.5 documentation" href="index.html" />
-    <link rel="up" title="pymatgen_diffusion package" href="pymatgen_diffusion.html" />
+    <link rel="next" title="pymatgen_diffusion.neb package" href="pymatgen_diffusion.neb.html" />
     <link rel="prev" title="pymatgen_diffusion package" href="pymatgen_diffusion.html" />
 
    
@@ -54,9 +54,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="pymatgen_diffusion.neb.html" title="pymatgen_diffusion.neb package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="pymatgen_diffusion.html" title="pymatgen_diffusion package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 0.1.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 0.3.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li> 
       </ul>
@@ -248,8 +251,8 @@ objects with the same composition. Allow for ensemble averaging.</li>
 with supercell. Default is 1, i.e. including the adjecent image
 cells along all three directions.</li>
 <li><strong>sigma</strong> (<em>float</em>) &#8211; Smearing of a Gaussian function.</li>
-<li><strong>species</strong> (<em>[string]</em>) &#8211; A list of specie symbols of interest.</li>
-<li><strong>reference_species</strong> (<em>[string]</em>) &#8211; <p>set this option along with &#8216;species&#8217;
+<li><strong>species</strong> (<em></em><em>[</em><em>string</em><em>]</em><em></em>) &#8211; A list of specie symbols of interest.</li>
+<li><strong>reference_species</strong> (<em></em><em>[</em><em>string</em><em>]</em><em></em>) &#8211; <p>set this option along with &#8216;species&#8217;
 parameter to compute pair radial distribution function.
 eg: species=[&#8220;H&#8221;], reference_species=[&#8220;O&#8221;] to compute</p>
 <blockquote>
@@ -300,7 +303,7 @@ a dat format is assumed.</td>
 
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis">
-<em class="property">class </em><code class="descname">VanHoveAnalysis</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>avg_nsteps=50</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>step_skip=50</em>, <em>sigma=0.1</em>, <em>cellrange=1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">VanHoveAnalysis</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>avg_nsteps=50</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>step_skip=50</em>, <em>sigma=0.1</em>, <em>cellrange=1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>reference_species=None</em>, <em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for van Hove function analysis. In particular, self-part (Gs) and
 distinct-part (Gd) of the van Hove correlation function G(r,t)
@@ -326,9 +329,14 @@ the resolution of the reduced time grid</li>
 <li><strong>cellrange</strong> (<em>int</em>) &#8211; Range of translational vector elements associated with
 supercell. Default is 1, i.e. including the adjecent
 image cells along all three directions.</li>
-<li><strong>species</strong> (<em>[string]</em>) &#8211; a list of specie symbols of interest</li>
+<li><strong>species</strong> (<em></em><em>[</em><em>string</em><em>]</em><em></em>) &#8211; a list of specie symbols of interest.</li>
+<li><strong>reference_species</strong> (<em></em><em>[</em><em>string</em><em>]</em><em></em>) &#8211; Set this option along with &#8216;species&#8217;
+parameter to calculate the distinct-part of van Hove
+function. Note that the self-part of van Hove function is
+always computed only for those in &#8220;species&#8221; parameter.</li>
 <li><strong>indices</strong> (<em>list of int</em>) &#8211; If not None, only a subset of atomic indices
-will be selected for the analysis.</li>
+will be selected for the analysis. If this is given,
+&#8220;species&#8221; parameter will be ignored.</li>
 </ul>
 </td>
 </tr>
@@ -336,7 +344,7 @@ will be selected for the analysis.</li>
 </table>
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">
-<code class="descname">get_1d_plot</code><span class="sig-paren">(</span><em>type='distinct', times=[0.0], colors=['r', 'g', 'b']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_1d_plot</code><span class="sig-paren">(</span><em>type='distinct', times=[0.0], colors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the van Hove function at given r or t.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -346,7 +354,8 @@ will be selected for the analysis.</li>
 <li><strong>type</strong> (<em>str</em>) &#8211; Specify which part of van Hove function to be plotted.</li>
 <li><strong>times</strong> (<em>list of float</em>) &#8211; Time moments (in ps) in which the van Hove
 function will be plotted.</li>
-<li><strong>colors</strong> (<em>list of str</em>) &#8211; Default list of colors for plotting.</li>
+<li><strong>colors</strong> (<em>list strings/tuples</em>) &#8211; Additional color settings. If not set,
+seaborn.color_plaette(&#8220;Set1&#8221;, 10) will be used.</li>
 </ul>
 </td>
 </tr>
@@ -393,6 +402,7 @@ by the input argument &#8216;type&#8217;.</p>
   <li><a href="modules.html">pymatgen_diffusion</a><ul>
   <li><a href="pymatgen_diffusion.html">pymatgen_diffusion package</a><ul>
       <li>Previous: <a href="pymatgen_diffusion.html" title="previous chapter">pymatgen_diffusion package</a></li>
+      <li>Next: <a href="pymatgen_diffusion.neb.html" title="next chapter">pymatgen_diffusion.neb package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -400,7 +410,7 @@ by the input argument &#8216;type&#8217;.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen_diffusion.aimd.txt"
+      <li><a href="_sources/pymatgen_diffusion.aimd.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>

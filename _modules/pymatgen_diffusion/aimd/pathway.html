@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen_diffusion.aimd.pathway &#8212; pymatgen-diffusion 0.1.5 documentation</title>
+    <title>pymatgen_diffusion.aimd.pathway &#8212; pymatgen-diffusion 0.3.0 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -27,8 +28,6 @@
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="pymatgen-diffusion 0.1.5 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
 
    
   
@@ -52,7 +51,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 0.1.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 0.3.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -195,7 +194,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Pr</span> <span class="o">=</span> <span class="n">Pr</span>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="ProbabilityDensityAnalysis.from_diffusion_analyzer"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">[docs]</a>    <span class="k">def</span> <span class="nf">from_diffusion_analyzer</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.from_diffusion_analyzer"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">[docs]</a>    <span class="k">def</span> <span class="nf">from_diffusion_analyzer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                                 <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</span>

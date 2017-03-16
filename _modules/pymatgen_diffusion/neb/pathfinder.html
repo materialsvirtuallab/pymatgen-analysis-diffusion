@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen_diffusion.neb.pathfinder &#8212; pymatgen-diffusion 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 0.3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen_diffusion.neb.pathfinder</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 14, 2017&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Algorithms for improving initial NEB migration path.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># TODO: (1) ipython notebook example files, unittests</span>
+
+
+<div class="viewcode-block" id="IDPPSolver"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver">[docs]</a><span class="k">class</span> <span class="nc">IDPPSolver</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A solver using image dependent pair potential (IDPP) algo to get an improved</span>
+<span class="sd">    initial NEB path. For more details about this algo, please refer to Smidstrup</span>
+<span class="sd">    et al., J. Chem. Phys. 140, 214106 (2014).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        structures (list of pmg_structure) : Initial guess of the NEB path (including</span>
+<span class="sd">                    initial and final end-point structures).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="n">nimages</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">target_dists</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Initial guess of the path (in Cartesian coordinates) used in the IDPP algo.</span>
+        <span class="n">init_coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Construct the set of target distance matrices via linear interpolation between</span>
+        <span class="c1"># those of end-point structures.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Interpolated distance matrices</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">+</span> <span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">-</span>
+                                                    <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span> \
+                                                   <span class="o">/</span> <span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">target_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+
+        <span class="n">target_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target_dists</span><span class="p">)</span>
+
+        <span class="c1"># Set of translational vector matrices (anti-symmetric) for the images.</span>
+        <span class="n">translations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nimages</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># A set of weight functions. It is set as 1/d^4 for each image. Here, we take d as</span>
+        <span class="c1"># the average of the target distance matrix and the actual distance matrix.</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">target_dists</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="p">):</span>
+            <span class="n">avg_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">+</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_dist</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-8</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+                <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+                <span class="n">init_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">ni</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">natoms</span><span class="p">):</span>
+                        <span class="n">img</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span>
+                                                             <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">translations</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+                        <span class="n">translations</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_coords</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translations</span> <span class="o">=</span> <span class="n">translations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_dists</span> <span class="o">=</span> <span class="n">target_dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span> <span class="o">=</span> <span class="n">nimages</span>
+
+
+<div class="viewcode-block" id="IDPPSolver.run"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_disp</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">spring_const</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform iterative minimization of the set of objective functions in an NEB-like</span>
+<span class="sd">        manner. In each iteration, the total force matrix for each image is constructed,</span>
+<span class="sd">        which comprises both the spring forces and true forces. For more details about the</span>
+<span class="sd">        NEB approach, please see the references, e.g. Henkelman et al., J. Chem. Phys.</span>
+<span class="sd">        113, 9901 (2000).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            maxiter (int): Maximum number of iterations in the minimization process.</span>
+<span class="sd">            tol (float): Tolerance of the change of objective functions between</span>
+<span class="sd">                        consecutive steps.</span>
+<span class="sd">            gtol (float): Tolerance of maximum force component (absolute value).</span>
+<span class="sd">            step_size (float): Step size associated with the displacement of the atoms</span>
+<span class="sd">                        during the minimization process.</span>
+<span class="sd">            max_disp (float): Maximum allowed atomic displacement in each iteration.</span>
+<span class="sd">            spring_const (float): A virtual spring constant used in the NEB-like</span>
+<span class="sd">                        relaxation process that yields so-called IDPP path.</span>
+<span class="sd">            species (list of string): If provided, only those given species are allowed</span>
+<span class="sd">                                to move. The atomic positions of other species are</span>
+<span class="sd">                                obtained via regular linear interpolation approach.</span>
+
+<span class="sd">        At the end, the complete IDPP path (including end-point structures) will be</span>
+<span class="sd">        returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">iter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_coords</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">old_funcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">idpp_structures</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">species</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                       <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error! The given species are not in the system!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Iterative minimization</span>
+        <span class="k">while</span> <span class="p">(</span><span class="nb">iter</span> <span class="o">&lt;=</span> <span class="n">maxiter</span><span class="p">):</span>
+            <span class="c1"># Get the sets of objective functions, true and total force matrices.</span>
+            <span class="n">funcs</span><span class="p">,</span> <span class="n">true_forces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_funcs_and_forces</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+            <span class="n">tot_forces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_total_forces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span>
+                                                <span class="n">spring_const</span><span class="o">=</span><span class="n">spring_const</span><span class="p">)</span>
+
+            <span class="c1"># Each atom is allowed to move up to max_disp</span>
+            <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+                <span class="n">disp_mat</span> <span class="o">=</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">tot_forces</span><span class="p">[</span><span class="n">ni</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_disp</span><span class="p">:</span>
+                            <span class="n">disp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">/=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">/</span> <span class="n">max_disp</span><span class="p">)</span>
+
+                <span class="n">coords</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">indices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">disp_mat</span>
+
+            <span class="n">max_force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tot_forces</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">tot_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">old_funcs</span> <span class="o">-</span> <span class="n">funcs</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">tot_res</span> <span class="o">&lt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">max_force</span> <span class="o">&lt;</span> <span class="n">gtol</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">old_funcs</span> <span class="o">=</span> <span class="n">funcs</span>
+
+            <span class="k">if</span> <span class="nb">iter</span> <span class="o">==</span> <span class="n">maxiter</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Maximum iteration number is reached, not converged yet!&quot;</span><span class="p">,</span>
+                              <span class="ne">UserWarning</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="nb">iter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+            <span class="c1"># generate the improved image structure</span>
+            <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">cart_coords</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+                <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">cart_coords</span><span class="p">,</span>
+                                        <span class="n">lattice</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+                <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_site</span><span class="p">)</span>
+
+            <span class="n">idpp_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">))</span>
+
+        <span class="c1"># Also include end-point structure.</span>
+        <span class="n">idpp_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">idpp_structures</span></div>
+
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IDPPSolver.from_endpoints"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver.from_endpoints">[docs]</a>    <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class method that starts with end-point structures instead. The initial</span>
+<span class="sd">        guess for the IDPP algo is then constructed using the regular linear</span>
+<span class="sd">        interpolation approach.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            endpoints (list of Structure objects): The two end-point structures.</span>
+<span class="sd">            nimages (int): Number of images between the two end-points.</span>
+<span class="sd">            sort_tol (float): Distance tolerance (in Angstrom) used to match the</span>
+<span class="sd">                            atomic indices between start and end structures. Need</span>
+<span class="sd">                            to increase the value in some cases.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                             <span class="n">autosort_tol</span><span class="o">=</span><span class="n">sort_tol</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Unable to reliably match structures &quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Auto sorting is turned off because it is unable to &quot;</span>
+                              <span class="s2">&quot;match the end-point structures!&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                  <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                                  <span class="n">autosort_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="n">IDPPSolver</span><span class="p">(</span><span class="n">images</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_funcs_and_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the set of objective functions as well as their gradients, i.e.</span>
+<span class="sd">        &quot;effective true forces&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">funcs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">funcs_prime</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">ni</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">)])</span>
+            <span class="n">trial_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> \
+                  <span class="o">/</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+
+            <span class="c1"># Objective function</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">trial_dist</span> <span class="o">-</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span>
+
+            <span class="c1"># &quot;True force&quot; derived from the objective function.</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+                <span class="n">grad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aux</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="n">funcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="n">funcs_prime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">funcs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">funcs_prime</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="IDPPSolver.get_unit_vector"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver.get_unit_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_unit_vector</span><span class="p">(</span><span class="n">vec</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_total_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total force on each image structure, which is equal to the spring</span>
+<span class="sd">        force along the tangent + true force perpendicular to the tangent. Note that the</span>
+<span class="sd">        spring force is the modified version in the literature (e.g. Henkelman et al.,</span>
+<span class="sd">        J. Chem. Phys. 113, 9901 (2000)).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_forces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">true_forces</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">vec1</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">vec2</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="c1"># Local tangent</span>
+            <span class="n">tangent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unit_vector</span><span class="p">(</span><span class="n">vec1</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unit_vector</span><span class="p">(</span><span class="n">vec2</span><span class="p">)</span>
+            <span class="n">tangent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unit_vector</span><span class="p">(</span><span class="n">tangent</span><span class="p">)</span>
+
+            <span class="c1"># Spring force</span>
+            <span class="n">spring_force</span> <span class="o">=</span> <span class="n">spring_const</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec1</span><span class="p">)</span> <span class="o">-</span>
+                                           <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec2</span><span class="p">))</span> <span class="o">*</span> <span class="n">tangent</span>
+
+            <span class="c1"># Total force</span>
+            <span class="n">flat_ft</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">total_force</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">spring_force</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">flat_ft</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)</span> <span class="o">*</span>
+                                                 <span class="n">tangent</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">total_forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_force</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">total_forces</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
