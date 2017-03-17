@@ -11,6 +11,11 @@ DiffusionAnalyzer class.
 This is, and will always be, a scientific work in progress. Pls check back
 for more details.
 
+Change Log
+==========
+
+:doc:`Change log </change_log>`
+
 Features (non-exhaustive!)
 ==========================
 
