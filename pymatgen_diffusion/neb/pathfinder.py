@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals, print_function
 
 from pymatgen.core import Structure, PeriodicSite
+from pymatgen.core.periodic_table import get_el_sp
 import warnings
 import numpy as np
 
@@ -244,11 +245,9 @@ class IDPPSolver(object):
 
         return np.array(funcs), np.array(funcs_prime)
 
-
     @staticmethod
     def get_unit_vector(vec):
         return vec / np.linalg.norm(vec)
-
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
@@ -280,3 +279,126 @@ class IDPPSolver(object):
             total_forces.append(total_force)
 
         return np.array(total_forces)
+
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+
+class NEBPath(object):
+    # TODO: Given NEB path, write paths to NEB calculations.
+    """
+    A convenience container representing an NEB path.
+    """
+
+    def __init__(self, isite, esite, iindex, eindex, structure, symmops):
+        self.isite = isite
+        self.esite = esite
+        self.iindex = iindex
+        self.eindex = eindex
+        self.structure = structure
+        self.symmops = symmops
+        self.msite = PeriodicSite(
+            esite.specie,
+            (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
+
+    def __repr__(self):
+        output = ["Path of distance %.4f from atom index %d (%s) to %d (%s)" % (
+            self.length,
+            self.iindex, self.isite.frac_coords,
+            self.eindex, self.esite.frac_coords)]
+        output.append("via %s" % (str(self.msite.frac_coords)))
+        return "\n".join(output)
+
+    @property
+    def length(self):
+        return np.linalg.norm(self.isite.coords - self.esite.coords)
+
+    def __hash__(self):
+        return 7
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __eq__(self, other):
+        if self.structure != other.structure:
+            return False
+
+        return self.symmops.are_symmetrically_equivalent(
+            (self.isite, self.msite, self.esite),
+            (other.isite, other.msite, other.esite)
+        )
+
+    def to_file(self, fname, nimages=10):
+        sites = list(self.structure.sites)
+        for i in range(nimages):
+            x = i / nimages
+            sites.append(PeriodicSite(
+                self.isite.specie,
+                x * self.isite.frac_coords + (1-x) * self.esite.frac_coords,
+                self.structure.lattice
+            ))
+        s = Structure.from_sites(sites)
+        s.to(filename=fname)
+
+
+class DistinctPathFinder(object):
+    """
+    Determines symmetrically distinct paths between existing sites.
+    The path info can then be used to set up either vacancy or inter-site
+    diffusion.
+    """
+
+    def __init__(self, structure, migrating_specie, symprec=0.1,
+                 max_path_length=5):
+        self.structure = structure
+        self.migrating_specie = get_el_sp(migrating_specie)
+        self.max_path_length = max_path_length
+        self.symprec = symprec
+
+    def get_paths(self):
+        a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
+        structure = a.get_symmetrized_structure()
+        ops = a.get_space_group_operations()
+        paths = set()
+        for sites in structure.equivalent_sites:
+            if sites[0].specie == self.migrating_specie:
+                site0 = sites[0]
+                i = structure.index(site0)
+                for nn, dist, j in structure.get_neighbors(
+                        site0, r=self.max_path_length, include_index=True):
+                    if nn.specie == self.migrating_specie:
+                        path = NEBPath(site0, nn, i, j, structure, ops)
+                        paths.add(path)
+
+        return sorted(paths, key=lambda p: p.length)
+
+
+from pymatgen.util.testing import PymatgenTest
+
+
+class DistinctPathFinderTest(PymatgenTest):
+
+    def test_get_paths(self):
+        s = self.get_structure("LiFePO4")
+        # Only one path in LiFePO4 with 4 A.
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        # Make sure this is robust to supercells.
+        s.make_supercell((2, 2, 1))
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        s = self.get_structure("Graphite")
+
+        # Only one path in graphite with 4 A.
+        p = DistinctPathFinder(s, "C0+", max_path_length=2)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()
