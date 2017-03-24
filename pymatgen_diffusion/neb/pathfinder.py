@@ -6,6 +6,8 @@ from __future__ import division, unicode_literals, print_function
 
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 import warnings
 import numpy as np
 
@@ -24,8 +26,8 @@ Algorithms for NEB migration path analysis.
 class IDPPSolver(object):
     """
     A solver using image dependent pair potential (IDPP) algo to get an improved
-    initial NEB path. For more details about this algo, please refer to Smidstrup
-    et al., J. Chem. Phys. 140, 214106 (2014).
+    initial NEB path. For more details about this algo, please refer to 
+    Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
 
     """
 
@@ -62,8 +64,9 @@ class IDPPSolver(object):
         # Set of translational vector matrices (anti-symmetric) for the images.
         translations = np.zeros((nimages, natoms, natoms, 3), dtype=np.float64)
 
-        # A set of weight functions. It is set as 1/d^4 for each image. Here, we take d as
-        # the average of the target distance matrix and the actual distance matrix.
+        # A set of weight functions. It is set as 1/d^4 for each image. Here,
+        # we take d as the average of the target distance matrix and the actual
+        # distance matrix.
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
@@ -281,7 +284,6 @@ class IDPPSolver(object):
         return np.array(total_forces)
 
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class NEBPath(object):
@@ -290,25 +292,17 @@ class NEBPath(object):
     A convenience container representing an NEB path.
     """
 
-    def __init__(self, isite, esite, iindex, eindex, structure, symmops):
+    def __init__(self, isite, esite, symm_structure):
         self.isite = isite
         self.esite = esite
-        self.iindex = iindex
-        self.eindex = eindex
-        self.structure = structure
-        self.symmops = symmops
+        self.symm_structure = symm_structure
         self.msite = PeriodicSite(
             esite.specie,
             (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
 
     def __repr__(self):
-        output = [
-            "Path of distance %.4f A from atom index %d (%s) to %d (%s)" % (
-                self.length,
-                self.iindex, self.isite.frac_coords,
-                self.eindex, self.esite.frac_coords),
-            "via %s" % (str(self.msite.frac_coords))]
-        return "\n".join(output)
+        return "Path of %.4f A from %s to %s" % (
+                self.length, self.isite, self.esite)
 
     @property
     def length(self):
@@ -321,10 +315,10 @@ class NEBPath(object):
         return self.__repr__()
 
     def __eq__(self, other):
-        if self.structure != other.structure:
+        if self.symm_structure != other.symm_structure:
             return False
 
-        return self.symmops.are_symmetrically_equivalent(
+        return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
             (other.isite, other.msite, other.esite)
         )
@@ -349,8 +343,19 @@ class DistinctPathFinder(object):
     diffusion.
     """
 
-    def __init__(self, structure, migrating_specie, symprec=0.1,
-                 max_path_length=5):
+    def __init__(self, structure, migrating_specie, max_path_length=5,
+                 symprec=0.1):
+        """
+        Args:
+            structure: Input structure that contains all sites.
+            migrating_specie (Specie-like): The specie that migrates. E.g., 
+                "Li".
+            max_path_length (float): Maximum length of NEB path. Defaults to 5
+                Angstrom. Usually, you'd want to set this close to the longest
+                lattice parameter / diagonal in the cell to ensure all paths
+                are found.
+            symprec (float): Symmetry precision to determine equivalence. 
+        """
         self.structure = structure
         self.migrating_specie = get_el_sp(migrating_specie)
         self.max_path_length = max_path_length
@@ -359,16 +364,14 @@ class DistinctPathFinder(object):
     def get_paths(self):
         a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
         structure = a.get_symmetrized_structure()
-        ops = a.get_space_group_operations()
         paths = set()
         for sites in structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                i = structure.index(site0)
                 for nn, dist, j in structure.get_neighbors(
                         site0, r=self.max_path_length, include_index=True):
                     if nn.specie == self.migrating_specie:
-                        path = NEBPath(site0, nn, i, j, structure, ops)
+                        path = NEBPath(site0, nn, structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
