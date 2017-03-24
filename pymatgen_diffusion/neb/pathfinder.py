@@ -393,7 +393,7 @@ class DistinctPathFinderTest(PymatgenTest):
 
         s = self.get_structure("Graphite")
 
-        # Only one path in graphite with 4 A.
+        # Only one path in graphite with 2 A.
         p = DistinctPathFinder(s, "C0+", max_path_length=2)
         paths = p.get_paths()
         self.assertEqual(len(paths), 1)
