@@ -14,7 +14,7 @@ __version__ = "1.0"
 __date__ = "March 14, 2017"
 
 """
-Algorithms for improving initial NEB migration path.
+Algorithms for NEB migration path analysis.
 """
 
 
@@ -302,11 +302,12 @@ class NEBPath(object):
             (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
 
     def __repr__(self):
-        output = ["Path of distance %.4f from atom index %d (%s) to %d (%s)" % (
-            self.length,
-            self.iindex, self.isite.frac_coords,
-            self.eindex, self.esite.frac_coords)]
-        output.append("via %s" % (str(self.msite.frac_coords)))
+        output = [
+            "Path of distance %.4f A from atom index %d (%s) to %d (%s)" % (
+                self.length,
+                self.iindex, self.isite.frac_coords,
+                self.eindex, self.esite.frac_coords),
+            "via %s" % (str(self.msite.frac_coords))]
         return "\n".join(output)
 
     @property
@@ -371,34 +372,3 @@ class DistinctPathFinder(object):
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
-
-
-from pymatgen.util.testing import PymatgenTest
-
-
-class DistinctPathFinderTest(PymatgenTest):
-
-    def test_get_paths(self):
-        s = self.get_structure("LiFePO4")
-        # Only one path in LiFePO4 with 4 A.
-        p = DistinctPathFinder(s, "Li", max_path_length=4)
-        paths = p.get_paths()
-        self.assertEqual(len(paths), 1)
-
-        # Make sure this is robust to supercells.
-        s.make_supercell((2, 2, 1))
-        p = DistinctPathFinder(s, "Li", max_path_length=4)
-        paths = p.get_paths()
-        self.assertEqual(len(paths), 1)
-
-        s = self.get_structure("Graphite")
-
-        # Only one path in graphite with 2 A.
-        p = DistinctPathFinder(s, "C0+", max_path_length=2)
-        paths = p.get_paths()
-        self.assertEqual(len(paths), 1)
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

@@ -5,7 +5,8 @@
 from __future__ import division, unicode_literals
 
 from pymatgen.core import Structure
-from pymatgen_diffusion.neb.pathfinder import IDPPSolver
+from pymatgen_diffusion.neb.pathfinder import IDPPSolver, DistinctPathFinder
+from pymatgen.util.testing import PymatgenTest
 import unittest
 import numpy as np
 import os
@@ -13,8 +14,6 @@ import os
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
-
-#test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
 
 def get_path(path_str, dirname="./"):
@@ -68,8 +67,28 @@ class IDPPSolverTest(unittest.TestCase):
         self.assertTrue(np.allclose(new_path[4][47].frac_coords,
                                     np.array([0.59767531, 0.12640952, 0.37745006])))
 
-        pass
 
+class DistinctPathFinderTest(PymatgenTest):
+
+    def test_get_paths(self):
+        s = self.get_structure("LiFePO4")
+        # Only one path in LiFePO4 with 4 A.
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        # Make sure this is robust to supercells.
+        s.make_supercell((2, 2, 1))
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        s = self.get_structure("Graphite")
+
+        # Only one path in graphite with 2 A.
+        p = DistinctPathFinder(s, "C0+", max_path_length=2)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
 
 if __name__ == '__main__':
     unittest.main()
