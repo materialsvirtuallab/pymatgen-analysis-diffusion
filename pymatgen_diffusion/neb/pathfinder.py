@@ -92,7 +92,6 @@ class IDPPSolver(object):
         self.target_dists = target_dists
         self.nimages = nimages
 
-
     def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05, max_disp=0.05,
             spring_const=5.0, species=None):
 
@@ -136,7 +135,7 @@ class IDPPSolver(object):
                 raise ValueError("Error! The given species are not in the system!")
 
         # Iterative minimization
-        while (iter <= maxiter):
+        while iter <= maxiter:
             # Get the sets of objective functions, true and total force matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
             tot_forces = self._get_total_forces(coords, true_forces,
@@ -284,8 +283,6 @@ class IDPPSolver(object):
         return np.array(total_forces)
 
 
-
-
 class NEBPath(object):
     # TODO: Given NEB path, write paths to NEB calculations.
     """
@@ -293,6 +290,12 @@ class NEBPath(object):
     """
 
     def __init__(self, isite, esite, symm_structure):
+        """
+        Args:
+            isite: Initial site
+            esite: End site
+            symm_structure: SymmetrizedStructure
+        """
         self.isite = isite
         self.esite = esite
         self.symm_structure = symm_structure
@@ -331,7 +334,14 @@ class NEBPath(object):
             (other.isite, other.msite, other.esite)
         )
 
-    def to_file(self, fname, nimages=10):
+    def write_path(self, fname, nimages=10):
+        """
+        Write the path to a file for easy viewing.
+        
+        Args:
+            fname (str): File name. 
+            nimages (int): Number of images to construct the path.
+        """
         sites = list(self.structure.sites)
         for i in range(nimages):
             x = i / nimages
