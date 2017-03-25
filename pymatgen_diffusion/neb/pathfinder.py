@@ -299,17 +299,25 @@ class NEBPath(object):
         self.msite = PeriodicSite(
             esite.specie,
             (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
+        sg = self.symm_structure.spacegroup
+        for i, sites in enumerate(self.symm_structure.equivalent_sites):
+            if sg.are_symmetrically_equivalent([isite], [sites[0]]):
+                self.iindex = i
+            if sg.are_symmetrically_equivalent([esite], [sites[0]]):
+                self.eindex = i
 
     def __repr__(self):
-        return "Path of %.4f A from %s to %s" % (
-                self.length, self.isite, self.esite)
+        return "Path of %.4f A from %s %s (index: %d) to %s %s (index: %d)" \
+            % (self.length, self.isite.specie, self.isite.frac_coords,
+               self.iindex, self.esite.specie, self.esite.frac_coords,
+               self.eindex)
 
     @property
     def length(self):
         return np.linalg.norm(self.isite.coords - self.esite.coords)
 
     def __hash__(self):
-        return 7
+        return self.iindex + self.eindex
 
     def __str__(self):
         return self.__repr__()
