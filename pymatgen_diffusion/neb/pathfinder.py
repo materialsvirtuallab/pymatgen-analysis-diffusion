@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals, print_function
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.coord_utils import pbc_diff
 
 import warnings
 import numpy as np
@@ -334,24 +335,72 @@ class NEBPath(object):
             (other.isite, other.msite, other.esite)
         )
 
-    def write_path(self, fname, nimages=10):
+    def get_structures(self, nimages=5, vac_mode=True, idpp=False,
+                       **idpp_kwargs):
+        """
+        Generate structures for NEB calculation.
+        
+        Args:
+            nimages (int): Defaults to 5. Number of NEB images. Total number of
+                structures returned in nimages+1.
+            vac_mode (bool): Defaults to True. In vac_mode, a vacancy diffusion
+                mechanism is assumed. The initial and end sites of the path
+                are assumed to be the initial and ending positions of the
+                vacancies. If vac_mode is False, an interstitial mechanism is
+                assumed. The initial and ending positions are assumed to be
+                the initial and ending positions of the interstitial, and all
+                other sites of the same specie are removed. E.g., if NEBPaths
+                were obtained using a Li4Fe4P4O16 structure, vac_mode=True would
+                generate structures with formula Li3Fe4P4O16, while 
+                vac_mode=False would generate structures with formula 
+                LiFe4P4O16.
+            idpp (bool): Defaults to False. If True, the generated structures
+                will be run through the IDPP solver to generate a better guess
+                for the minimum energy path.
+            \*\*idpp_kwargs: Passthrough kwargs for the IDPP solver.
+
+        Returns:
+            [Structure]
+        """
+        migrating_specie_sites = []
+        other_sites = []
+        isite = self.isite
+        esite = self.esite
+
+        for site in self.symm_structure.sites:
+            if site.specie != isite.specie:
+                other_sites.append(site)
+            else:
+                if vac_mode and (isite.distance(site) > 1e-8 and
+                                 esite.distance(site) > 1e-8):
+                    migrating_specie_sites.append(site)
+
+        start_structure = Structure.from_sites(
+            [self.isite] + migrating_specie_sites + other_sites)
+        end_structure = Structure.from_sites(
+            [self.esite] + migrating_specie_sites + other_sites)
+
+        structures = start_structure.interpolate(end_structure, nimages=nimages)
+
+        if idpp:
+            solver = IDPPSolver(structures, **idpp_kwargs)
+            return solver.run()
+
+        return structures
+
+    def write_path(self, fname, **kwargs):
         """
         Write the path to a file for easy viewing.
         
         Args:
             fname (str): File name. 
-            nimages (int): Number of images to construct the path.
+            \*\*kwargs: Kwargs supported by NEBPath.get_structures.
         """
-        sites = list(self.structure.sites)
-        for i in range(nimages):
-            x = i / nimages
-            sites.append(PeriodicSite(
-                self.isite.specie,
-                x * self.isite.frac_coords + (1-x) * self.esite.frac_coords,
-                self.structure.lattice
-            ))
-        s = Structure.from_sites(sites)
-        s.to(filename=fname)
+        sites = []
+        for st in self.get_structures(**kwargs):
+            sites.extend(st)
+        st = Structure.from_sites(sites)
+        st.to(filename=fname)
 
 
 class DistinctPathFinder(object):

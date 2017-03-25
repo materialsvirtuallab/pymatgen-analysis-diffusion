@@ -83,6 +83,12 @@ class DistinctPathFinderTest(PymatgenTest):
         paths = p.get_paths()
         self.assertEqual(len(paths), 1)
 
+        ss = paths[0].get_structures(vac_mode=False)
+        self.assertEqual(len(ss), 6)
+        # paths[0].write_path("noidpp_vac.cif", idpp=False)
+        # paths[0].write_path("idpp_vac.cif", idpp=True)
+        # paths[0].write_path("idpp_nonvac.cif", idpp=True, vac_mode=False)
+
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()
         self.assertEqual(len(paths), 4)
