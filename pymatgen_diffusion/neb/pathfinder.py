@@ -360,18 +360,18 @@ class DistinctPathFinder(object):
         self.migrating_specie = get_el_sp(migrating_specie)
         self.max_path_length = max_path_length
         self.symprec = symprec
+        a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
+        self.symm_structure = a.get_symmetrized_structure()
 
     def get_paths(self):
-        a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
-        structure = a.get_symmetrized_structure()
         paths = set()
-        for sites in structure.equivalent_sites:
+        for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                for nn, dist, j in structure.get_neighbors(
+                for nn, dist, j in self.symm_structure.get_neighbors(
                         site0, r=self.max_path_length, include_index=True):
                     if nn.specie == self.migrating_specie:
-                        path = NEBPath(site0, nn, structure)
+                        path = NEBPath(site0, nn, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
