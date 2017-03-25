@@ -383,8 +383,8 @@ class NEBPath(object):
         structures = start_structure.interpolate(end_structure, nimages=nimages)
 
         if idpp:
-            solver = IDPPSolver(structures, **idpp_kwargs)
-            return solver.run()
+            solver = IDPPSolver(structures)
+            return solver.run(**idpp_kwargs)
 
         return structures
 
