@@ -284,7 +284,7 @@ class IDPPSolver(object):
         return np.array(total_forces)
 
 
-class NEBPath(object):
+class MigrationPath(object):
     # TODO: Given NEB path, write paths to NEB calculations.
     """
     A convenience container representing an NEB path.
@@ -439,7 +439,7 @@ class DistinctPathFinder(object):
                 for nn, dist, j in self.symm_structure.get_neighbors(
                         site0, r=self.max_path_length, include_index=True):
                     if nn.specie == self.migrating_specie:
-                        path = NEBPath(site0, nn, self.symm_structure)
+                        path = MigrationPath(site0, nn, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
