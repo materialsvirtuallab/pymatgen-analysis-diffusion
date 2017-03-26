@@ -10,6 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 import unittest
 import numpy as np
 import os
+import glob
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -85,9 +86,13 @@ class DistinctPathFinderTest(PymatgenTest):
 
         ss = paths[0].get_structures(vac_mode=False)
         self.assertEqual(len(ss), 7)
-        # paths[0].write_path("noidpp_vac.cif", idpp=False)
-        # paths[0].write_path("idpp_vac.cif", idpp=True)
-        # paths[0].write_path("idpp_nonvac.cif", idpp=True, vac_mode=False)
+
+        paths[0].write_path("pathfindertest_noidpp_vac.cif", idpp=False)
+        paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
+        paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
+
+        for f in glob.glob("pathfindertest_*.cif"):
+            os.remove(f)
 
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()
