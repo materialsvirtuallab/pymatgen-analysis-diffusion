@@ -407,8 +407,9 @@ class MigrationPath(object):
 class DistinctPathFinder(object):
     """
     Determines symmetrically distinct paths between existing sites.
-    The path info can then be used to set up either vacancy or inter-site
-    diffusion.
+    The path info can then be used to set up either vacancy or interstitial
+    diffusion (assuming site positions are known). Note that this works mainly
+    for atomic mechanism, and does not work for correlated migration.
     """
 
     def __init__(self, structure, migrating_specie, max_path_length=5,
