@@ -342,7 +342,7 @@ class NEBPath(object):
         
         Args:
             nimages (int): Defaults to 5. Number of NEB images. Total number of
-                structures returned in nimages+1.
+                structures returned in nimages+2.
             vac_mode (bool): Defaults to True. In vac_mode, a vacancy diffusion
                 mechanism is assumed. The initial and end sites of the path
                 are assumed to be the initial and ending positions of the
@@ -380,7 +380,8 @@ class NEBPath(object):
         end_structure = Structure.from_sites(
             [self.esite] + migrating_specie_sites + other_sites)
 
-        structures = start_structure.interpolate(end_structure, nimages=nimages)
+        structures = start_structure.interpolate(end_structure,
+                                                 nimages=nimages + 1)
 
         if idpp:
             solver = IDPPSolver(structures)
