@@ -7,10 +7,10 @@ from __future__ import division, unicode_literals, print_function
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.coord_utils import pbc_diff
 
 import warnings
 import numpy as np
+import itertools
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -37,26 +37,25 @@ class IDPPSolver(object):
         Initialization.
 
         Args:
-        structures (list of pmg_structure) : Initial guess of the NEB path (including
-                    initial and final end-point structures).
-
+            structures (list of pmg_structure) : Initial guess of the NEB path 
+                (including initial and final end-point structures).
         """
 
-        lattice = structures[0].lattice
+        latt = structures[0].lattice
         natoms = structures[0].num_sites
         nimages = len(structures) - 2
         target_dists = []
 
-        # Initial guess of the path (in Cartesian coordinates) used in the IDPP algo.
+        # Initial guess of the path (in Cartesian coordinates) used in the IDPP
+        # algo.
         init_coords = []
 
-        # Construct the set of target distance matrices via linear interpolation between
-        # those of end-point structures.
+        # Construct the set of target distance matrices via linear interpolation
+        # between those of end-point structures.
         for i in range(1, nimages + 1):
             # Interpolated distance matrices
-            dist = structures[0].distance_matrix + (structures[-1].distance_matrix -
-                                                    structures[0].distance_matrix) * i \
-                                                   / (nimages + 1)
+            dist = structures[0].distance_matrix + i / (nimages + 1) * (
+                structures[-1].distance_matrix - structures[0].distance_matrix)
 
             target_dists.append(dist)
 
@@ -70,21 +69,21 @@ class IDPPSolver(object):
         # distance matrix.
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
-            avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
+            avg_dist = (target_dists[ni]
+                        + structures[ni + 1].distance_matrix) / 2.0
             weights[ni] = 1.0 / (avg_dist ** 4 +
-                                np.eye(natoms, dtype=np.float64) * 1e-8)
+                                 np.eye(natoms, dtype=np.float64) * 1e-8)
 
-        for ni in range(nimages + 2):
-            for i in range(natoms):
-                frac_coords = structures[ni][i].frac_coords
-                init_coords.append(lattice.get_cartesian_coords(frac_coords))
+        for ni, i in itertools.product(range(nimages + 2), range(natoms)):
+            frac_coords = structures[ni][i].frac_coords
+            init_coords.append(latt.get_cartesian_coords(frac_coords))
 
-                if ni not in [0, nimages + 1]:
-                    for j in range(i + 1, natoms):
-                        img = lattice.get_distance_and_image(frac_coords,
-                                                             structures[ni][j].frac_coords)[1]
-                        translations[ni - 1, i, j] = lattice.get_cartesian_coords(img)
-                        translations[ni - 1, j, i] = -lattice.get_cartesian_coords(img)
+            if ni not in [0, nimages + 1]:
+                for j in range(i + 1, natoms):
+                    img = latt.get_distance_and_image(
+                        frac_coords, structures[ni][j].frac_coords)[1]
+                    translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
+                    translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
         self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)
         self.translations = translations
@@ -93,32 +92,33 @@ class IDPPSolver(object):
         self.target_dists = target_dists
         self.nimages = nimages
 
-    def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05, max_disp=0.05,
-            spring_const=5.0, species=None):
-
+    def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05,
+            max_disp=0.05, spring_const=5.0, species=None):
         """
-        Perform iterative minimization of the set of objective functions in an NEB-like
-        manner. In each iteration, the total force matrix for each image is constructed,
-        which comprises both the spring forces and true forces. For more details about the
-        NEB approach, please see the references, e.g. Henkelman et al., J. Chem. Phys.
-        113, 9901 (2000).
+        Perform iterative minimization of the set of objective functions in an 
+        NEB-like manner. In each iteration, the total force matrix for each 
+        image is constructed, which comprises both the spring forces and true 
+        forces. For more details about the NEB approach, please see the 
+        references, e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000).
 
         Args:
-            maxiter (int): Maximum number of iterations in the minimization process.
+            maxiter (int): Maximum number of iterations in the minimization 
+                process.
             tol (float): Tolerance of the change of objective functions between
-                        consecutive steps.
+                consecutive steps.
             gtol (float): Tolerance of maximum force component (absolute value).
-            step_size (float): Step size associated with the displacement of the atoms
-                        during the minimization process.
-            max_disp (float): Maximum allowed atomic displacement in each iteration.
+            step_size (float): Step size associated with the displacement of 
+                the atoms during the minimization process.
+            max_disp (float): Maximum allowed atomic displacement in each 
+                iteration.
             spring_const (float): A virtual spring constant used in the NEB-like
                         relaxation process that yields so-called IDPP path.
-            species (list of string): If provided, only those given species are allowed
-                                to move. The atomic positions of other species are
-                                obtained via regular linear interpolation approach.
+            species (list of string): If provided, only those given species are 
+                allowed to move. The atomic positions of other species are
+                obtained via regular linear interpolation approach.
 
-        At the end, the complete IDPP path (including end-point structures) will be
-        returned.
+        Returns:
+            [Structure] Complete IDPP path (including end-point structures)
         """
 
         iter = 0
@@ -133,11 +133,12 @@ class IDPPSolver(object):
                        if site.specie.symbol in species]
 
             if len(indices) == 0:
-                raise ValueError("Error! The given species are not in the system!")
+                raise ValueError("The given species are not in the system!")
 
         # Iterative minimization
         while iter <= maxiter:
-            # Get the sets of objective functions, true and total force matrices.
+            # Get the sets of objective functions, true and total force
+            # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
             tot_forces = self._get_total_forces(coords, true_forces,
                                                 spring_const=spring_const)
@@ -161,8 +162,9 @@ class IDPPSolver(object):
                 old_funcs = funcs
 
             if iter == maxiter:
-                warnings.warn("Maximum iteration number is reached, not converged yet!",
-                              UserWarning)
+                warnings.warn(
+                    "Maximum iteration number is reached without convergence!",
+                    UserWarning)
                 break
 
             iter += 1
@@ -172,9 +174,10 @@ class IDPPSolver(object):
             new_sites = []
 
             for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
-                new_site = PeriodicSite(site.species_and_occu, coords=cart_coords,
-                                        lattice=site.lattice, coords_are_cartesian=True,
-                                        properties=site.properties)
+                new_site = PeriodicSite(
+                    site.species_and_occu, coords=cart_coords,
+                    lattice=site.lattice, coords_are_cartesian=True,
+                    properties=site.properties)
                 new_sites.append(new_site)
 
             idpp_structures.append(Structure.from_sites(new_sites))
@@ -184,30 +187,28 @@ class IDPPSolver(object):
 
         return idpp_structures
 
-
     @classmethod
     def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
         """
-        A class method that starts with end-point structures instead. The initial
-        guess for the IDPP algo is then constructed using the regular linear
-        interpolation approach.
+        A class method that starts with end-point structures instead. The 
+        initial guess for the IDPP algo is then constructed using linear
+        interpolation.
 
         Args:
             endpoints (list of Structure objects): The two end-point structures.
             nimages (int): Number of images between the two end-points.
             sort_tol (float): Distance tolerance (in Angstrom) used to match the
-                            atomic indices between start and end structures. Need
-                            to increase the value in some cases.
-
+                atomic indices between start and end structures. Need
+                to increase the value in some cases.
         """
-
         try:
             images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1,
-                                             autosort_tol=sort_tol)
+                                              autosort_tol=sort_tol)
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
-                warnings.warn("Auto sorting is turned off because it is unable to "
-                              "match the end-point structures!", UserWarning)
+                warnings.warn("Auto sorting is turned off because it is unable"
+                              " to match the end-point structures!",
+                              UserWarning)
                 images = endpoints[0].interpolate(endpoints[1],
                                                   nimages=nimages + 1,
                                                   autosort_tol=0)
@@ -216,11 +217,10 @@ class IDPPSolver(object):
 
         return IDPPSolver(images)
 
-
     def _get_funcs_and_forces(self, x):
         """
-        Calculate the set of objective functions as well as their gradients, i.e.
-        "effective true forces"
+        Calculate the set of objective functions as well as their gradients, 
+        i.e. "effective true forces"
         """
         funcs = []
         funcs_prime = []
@@ -230,8 +230,8 @@ class IDPPSolver(object):
             vec = np.array([x[ni + 1, i] - x[ni + 1] -
                             self.translations[ni, i] for i in range(natoms)])
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = -2.0 * (trial_dist - self.target_dists[ni]) * self.weights[ni] \
-                  / (trial_dist + np.eye(natoms, dtype=np.float64))
+            aux = -2 * (trial_dist - self.target_dists[ni]) * self.weights[ni] \
+                / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
             func = 0.5 * np.sum((trial_dist -
@@ -254,10 +254,10 @@ class IDPPSolver(object):
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
-        Calculate the total force on each image structure, which is equal to the spring
-        force along the tangent + true force perpendicular to the tangent. Note that the
-        spring force is the modified version in the literature (e.g. Henkelman et al.,
-        J. Chem. Phys. 113, 9901 (2000)).
+        Calculate the total force on each image structure, which is equal to 
+        the spring force along the tangent + true force perpendicular to the 
+        tangent. Note that the spring force is the modified version in the
+        literature (e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000)).
         """
 
         total_forces = []
@@ -277,8 +277,9 @@ class IDPPSolver(object):
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
-            total_force = true_forces[ni - 1] + (spring_force - np.dot(flat_ft, tangent) *
-                                                 tangent).reshape(natoms, 3)
+            total_force = true_forces[ni - 1] + (
+                spring_force - np.dot(flat_ft, tangent) * tangent).reshape(
+                natoms, 3)
             total_forces.append(total_force)
 
         return np.array(total_forces)
