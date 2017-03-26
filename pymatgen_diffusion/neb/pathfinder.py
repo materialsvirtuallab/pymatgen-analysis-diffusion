@@ -437,8 +437,8 @@ class DistinctPathFinder(object):
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                for nn, dist, j in self.symm_structure.get_neighbors(
-                        site0, r=self.max_path_length, include_index=True):
+                for nn, dist in self.symm_structure.get_neighbors(
+                        site0, r=self.max_path_length):
                     if nn.specie == self.migrating_specie:
                         path = MigrationPath(site0, nn, self.symm_structure)
                         paths.add(path)
