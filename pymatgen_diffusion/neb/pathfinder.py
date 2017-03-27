@@ -455,7 +455,8 @@ class DistinctPathFinder(object):
     def write_all_paths(self, fname, nimages=5, **kwargs):
         """
         Write a file containing all paths, using hydrogen as a placeholder for
-        the images. H is chosen as it is the smallest atom.
+        the images. H is chosen as it is the smallest atom. This is extremely
+        useful for path visualization in a standard software like VESTA.
         
         Args:
             fname (str): Filename 
