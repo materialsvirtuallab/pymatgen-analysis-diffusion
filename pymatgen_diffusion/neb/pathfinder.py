@@ -356,12 +356,14 @@ class MigrationPath(object):
                 vac_mode=False would generate structures with formula 
                 LiFe4P4O16.
             idpp (bool): Defaults to False. If True, the generated structures
-                will be run through the IDPP solver to generate a better guess
+                will be run through the IDPPSolver to generate a better guess
                 for the minimum energy path.
-            \*\*idpp_kwargs: Passthrough kwargs for the IDPP solver.
+            \*\*idpp_kwargs: Passthrough kwargs for the IDPPSolver.run.
 
         Returns:
-            [Structure]
+            [Structure] Note that the first site of each structure is always
+            the migrating ion. This makes it easier to perform subsequent
+            analysis.
         """
         migrating_specie_sites = []
         other_sites = []
@@ -434,6 +436,10 @@ class DistinctPathFinder(object):
         self.symm_structure = a.get_symmetrized_structure()
 
     def get_paths(self):
+        """
+        Returns:
+            [MigrationPath] All distinct migration paths.
+        """
         paths = set()
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
@@ -445,3 +451,23 @@ class DistinctPathFinder(object):
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
+
+    def write_all_paths(self, fname, nimages=5, **kwargs):
+        """
+        Write a file containing all paths, using hydrogen as a placeholder for
+        the images. H is chosen as it is the smallest atom.
+        
+        Args:
+            fname (str): Filename 
+            nimages (int): Number of images per path.
+            \*\*kwargs: Passthrough kwargs to path.get_structures.
+        """
+        sites = []
+        for p in self.get_paths():
+            structures = p.get_structures(nimages=nimages, **kwargs)
+            sites.append(structures[0][0])
+            sites.append(structures[-1][0])
+            for s in structures[1:-1]:
+                sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
+        sites.extend(structures[0].sites[1:])
+        Structure.from_sites(sites).to(filename=fname)

@@ -91,9 +91,6 @@ class DistinctPathFinderTest(PymatgenTest):
         paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
         paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
 
-        for f in glob.glob("pathfindertest_*.cif"):
-            os.remove(f)
-
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()
         self.assertEqual(len(paths), 4)
@@ -104,6 +101,16 @@ class DistinctPathFinderTest(PymatgenTest):
         p = DistinctPathFinder(s, "C0+", max_path_length=2)
         paths = p.get_paths()
         self.assertEqual(len(paths), 1)
+
+        s = self.get_structure("Li3V2(PO4)3")
+        p = DistinctPathFinder(s, "Li0+", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 4)
+        p.write_all_paths("pathfindertest_LVPO.cif", nimages=10, idpp=True)
+
+        for f in glob.glob("pathfindertest_*.cif"):
+            os.remove(f)
+
 
 if __name__ == '__main__':
     unittest.main()
