@@ -384,7 +384,8 @@ class MigrationPath(object):
             [self.esite] + migrating_specie_sites + other_sites)
 
         structures = start_structure.interpolate(end_structure,
-                                                 nimages=nimages + 1)
+                                                 nimages=nimages + 1,
+                                                 pbc=False)
 
         if idpp:
             solver = IDPPSolver(structures)
