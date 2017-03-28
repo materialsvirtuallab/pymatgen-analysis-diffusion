@@ -117,7 +117,8 @@ NELMIN  =  6
 NSW     =  200
 POTIM   =  0
 PREC    =  Accurate
-SIGMA   =  0.05"""
+SIGMA   =  0.05
+SPRING  =  -5"""
 
         self.assertEqual(incar_string, incar_expect)
 
@@ -155,7 +156,8 @@ NPAR    =  4
 NSW     =  200
 POTIM   =  0
 PREC    =  Accurate
-SIGMA   =  0.05"""
+SIGMA   =  0.05
+SPRING  =  -5"""
 
         self.assertEqual(incar_string, incar_expect)
         pass

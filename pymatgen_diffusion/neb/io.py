@@ -66,7 +66,8 @@ class MVLCINEBSet(MITNEBSet):
             "LDAU": False,
             "LORBIT": 0,
             "NSW": 200,
-            "POTIM": 0
+            "POTIM": 0,
+            "SPRING": -5
         }
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
