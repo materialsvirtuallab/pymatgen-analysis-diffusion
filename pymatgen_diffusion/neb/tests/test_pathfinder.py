@@ -5,16 +5,16 @@
 from __future__ import division, unicode_literals
 
 from pymatgen.core import Structure
-from pymatgen_diffusion.neb.pathfinder import IDPPSolver
+from pymatgen_diffusion.neb.pathfinder import IDPPSolver, DistinctPathFinder
+from pymatgen.util.testing import PymatgenTest
 import unittest
 import numpy as np
 import os
+import glob
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
-
-#test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
 
 def get_path(path_str, dirname="./"):
@@ -68,7 +68,48 @@ class IDPPSolverTest(unittest.TestCase):
         self.assertTrue(np.allclose(new_path[4][47].frac_coords,
                                     np.array([0.59767531, 0.12640952, 0.37745006])))
 
-        pass
+
+class DistinctPathFinderTest(PymatgenTest):
+
+    def test_get_paths(self):
+        s = self.get_structure("LiFePO4")
+        # Only one path in LiFePO4 with 4 A.
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        # Make sure this is robust to supercells.
+        s.make_supercell((2, 2, 1))
+        p = DistinctPathFinder(s, "Li", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        ss = paths[0].get_structures(vac_mode=False)
+        self.assertEqual(len(ss), 7)
+
+        paths[0].write_path("pathfindertest_noidpp_vac.cif", idpp=False)
+        paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
+        paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
+
+        p = DistinctPathFinder(s, "Li", max_path_length=6)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 4)
+
+        s = self.get_structure("Graphite")
+
+        # Only one path in graphite with 2 A.
+        p = DistinctPathFinder(s, "C0+", max_path_length=2)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 1)
+
+        s = self.get_structure("Li3V2(PO4)3")
+        p = DistinctPathFinder(s, "Li0+", max_path_length=4)
+        paths = p.get_paths()
+        self.assertEqual(len(paths), 4)
+        p.write_all_paths("pathfindertest_LVPO.cif", nimages=10, idpp=True)
+
+        for f in glob.glob("pathfindertest_*.cif"):
+            os.remove(f)
 
 
 if __name__ == '__main__':
