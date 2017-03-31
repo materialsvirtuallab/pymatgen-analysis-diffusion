@@ -146,8 +146,9 @@ class IDPPSolver(object):
 
             # Each atom is allowed to move up to max_disp
             disp_mat = step_size * tot_forces[:, indices, :]
-            k = np.abs(disp_mat) / max_disp
-            disp_mat = np.where(k > 1, k, disp_mat)
+            disp_mat = np.where(np.abs(disp_mat) > max_disp,
+                                np.sign(disp_mat) * max_disp,
+                                disp_mat)
             coords[1:(self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
