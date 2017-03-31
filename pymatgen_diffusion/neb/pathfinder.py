@@ -121,13 +121,13 @@ class IDPPSolver(object):
             [Structure] Complete IDPP path (including end-point structures)
         """
 
-        iter = 0
+        n = 0
         coords = self.init_coords.copy()
         old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
         species = [get_el_sp(sp) for sp in species]
         if species is None:
-            indices = [i for i, site in enumerate(self.structures[0])]
+            indices = list(range(len(self.structures[0])))
         else:
             indices = [i for i, site in enumerate(self.structures[0])
                        if site.specie in species]
@@ -136,7 +136,7 @@ class IDPPSolver(object):
                 raise ValueError("The given species are not in the system!")
 
         # Iterative minimization
-        while iter <= maxiter:
+        for n in range(maxiter):
             # Get the sets of objective functions, true and total force
             # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
@@ -158,16 +158,13 @@ class IDPPSolver(object):
 
             if tot_res < tol and max_force < gtol:
                 break
-            else:
-                old_funcs = funcs
 
-            if iter == maxiter:
-                warnings.warn(
-                    "Maximum iteration number is reached without convergence!",
-                    UserWarning)
-                break
+            old_funcs = funcs
 
-            iter += 1
+        else:
+            warnings.warn(
+                "Maximum iteration number is reached without convergence!",
+                UserWarning)
 
         for ni in range(self.nimages):
             # generate the improved image structure
@@ -286,9 +283,8 @@ class IDPPSolver(object):
 
 
 class MigrationPath(object):
-    # TODO: Given NEB path, write paths to NEB calculations.
     """
-    A convenience container representing an NEB path.
+    A convenience container representing a migration path.
     """
 
     def __init__(self, isite, esite, symm_structure):
@@ -319,6 +315,10 @@ class MigrationPath(object):
 
     @property
     def length(self):
+        """
+        Returns:
+            (float) Length of migration path.
+        """
         return np.linalg.norm(self.isite.coords - self.esite.coords)
 
     def __hash__(self):
