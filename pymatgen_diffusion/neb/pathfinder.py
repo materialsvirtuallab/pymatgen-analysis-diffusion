@@ -121,7 +121,6 @@ class IDPPSolver(object):
             [Structure] Complete IDPP path (including end-point structures)
         """
 
-        n = 0
         coords = self.init_coords.copy()
         old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
@@ -224,6 +223,7 @@ class IDPPSolver(object):
         for ni in range(len(x) - 2):
             vec = np.array([x[ni + 1, i] - x[ni + 1] -
                             self.translations[ni, i] for i in range(natoms)])
+
             trial_dist = np.linalg.norm(vec, axis=2)
             aux = -2 * (trial_dist - self.target_dists[ni]) * self.weights[ni] \
                 / (trial_dist + np.eye(natoms, dtype=np.float64))
@@ -245,7 +245,7 @@ class IDPPSolver(object):
 
     @staticmethod
     def get_unit_vector(vec):
-        return vec / np.linalg.norm(vec)
+        return vec / np.sqrt(np.sum(vec ** 2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
