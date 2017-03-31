@@ -125,12 +125,12 @@ class IDPPSolver(object):
         coords = self.init_coords.copy()
         old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
-
+        species = [get_el_sp(sp) for sp in species]
         if species is None:
             indices = [i for i, site in enumerate(self.structures[0])]
         else:
             indices = [i for i, site in enumerate(self.structures[0])
-                       if site.specie.symbol in species]
+                       if site.specie in species]
 
             if len(indices) == 0:
                 raise ValueError("The given species are not in the system!")
@@ -466,7 +466,8 @@ class DistinctPathFinder(object):
         """
         sites = []
         for p in self.get_paths():
-            structures = p.get_structures(nimages=nimages, **kwargs)
+            structures = p.get_structures(
+                nimages=nimages, species=[self.migrating_specie], **kwargs)
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:
