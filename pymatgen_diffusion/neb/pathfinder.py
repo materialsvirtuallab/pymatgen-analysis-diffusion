@@ -125,10 +125,11 @@ class IDPPSolver(object):
         coords = self.init_coords.copy()
         old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
-        species = [get_el_sp(sp) for sp in species]
+
         if species is None:
             indices = list(range(len(self.structures[0])))
         else:
+            species = [get_el_sp(sp) for sp in species]
             indices = [i for i, site in enumerate(self.structures[0])
                        if site.specie in species]
 
@@ -144,14 +145,10 @@ class IDPPSolver(object):
                                                 spring_const=spring_const)
 
             # Each atom is allowed to move up to max_disp
-            for ni in range(self.nimages):
-                disp_mat = step_size * tot_forces[ni, indices, :]
-                for i in indices:
-                    for j in range(3):
-                        if abs(disp_mat[i, j]) > max_disp:
-                            disp_mat[i, j] /= (abs(disp_mat[i, j]) / max_disp)
-
-                coords[ni + 1, indices] += disp_mat
+            disp_mat = step_size * tot_forces[:, indices, :]
+            k = np.abs(disp_mat) / max_disp
+            disp_mat = np.where(k > 1, k, disp_mat)
+            coords[1:(self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
             tot_res = np.sum(np.abs(old_funcs - funcs))
