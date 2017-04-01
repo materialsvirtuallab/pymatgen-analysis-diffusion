@@ -220,18 +220,19 @@ class IDPPSolver(object):
         funcs_prime = []
         trans = self.translations
         natoms = trans.shape[1]
+        weights = self.weights
+        target_dists = self.target_dists
 
         for ni in range(len(x) - 2):
-            vec = np.array([x[ni + 1, i] - x[ni + 1] - trans[ni, i]
-                            for i in range(natoms)])
+            vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i]
+                   for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = -2 * (trial_dist - self.target_dists[ni]) * self.weights[ni] \
+            aux = (trial_dist - target_dists[ni]) * weights[ni] \
                 / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
-            func = 0.5 * np.sum((trial_dist -
-                                 self.target_dists[ni]) ** 2 * self.weights[ni])
+            func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
 
             # "True force" derived from the objective function.
             grad = np.sum(aux[:, :, None] * vec, axis=1)
@@ -239,7 +240,7 @@ class IDPPSolver(object):
             funcs.append(func)
             funcs_prime.append(grad)
 
-        return np.array(funcs), np.array(funcs_prime)
+        return 0.5 * np.array(funcs), -2 * np.array(funcs_prime)
 
     @staticmethod
     def get_unit_vector(vec):
