@@ -233,10 +233,7 @@ class IDPPSolver(object):
                                  self.target_dists[ni]) ** 2 * self.weights[ni])
 
             # "True force" derived from the objective function.
-            grad = np.zeros_like(x[0], dtype=np.float64)
-
-            for i in range(natoms):
-                grad[i] = np.dot(aux[i], vec[i])
+            grad = [np.dot(aux[i], vec[i]) for i in range(natoms)]
 
             funcs.append(func)
             funcs_prime.append(grad)
