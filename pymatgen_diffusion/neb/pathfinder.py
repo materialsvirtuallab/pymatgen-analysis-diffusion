@@ -218,11 +218,12 @@ class IDPPSolver(object):
         """
         funcs = []
         funcs_prime = []
-        natoms = np.shape(self.translations)[1]
+        trans = self.translations
+        natoms = trans.shape[1]
 
         for ni in range(len(x) - 2):
-            vec = np.array([x[ni + 1, i] - x[ni + 1] -
-                            self.translations[ni, i] for i in range(natoms)])
+            vec = np.array([x[ni + 1, i] - x[ni + 1] - trans[ni, i]
+                            for i in range(natoms)])
 
             trial_dist = np.linalg.norm(vec, axis=2)
             aux = -2 * (trial_dist - self.target_dists[ni]) * self.weights[ni] \
@@ -233,7 +234,7 @@ class IDPPSolver(object):
                                  self.target_dists[ni]) ** 2 * self.weights[ni])
 
             # "True force" derived from the objective function.
-            grad = [np.dot(aux[i], vec[i]) for i in range(natoms)]
+            grad = np.sum(aux[:, :, None] * vec, axis=1)
 
             funcs.append(func)
             funcs_prime.append(grad)
