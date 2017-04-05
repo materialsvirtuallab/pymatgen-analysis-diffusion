@@ -50,6 +50,11 @@ fork this repository, make changes and send us a pull request!
 Acknowledgements
 ================
 
-This code is funded by the National Science Foundation’s Designing Materials
-to Revolutionize and Engineer our Future (DMREF) program under Grant No. 
-1436976.
+We gratefully acknowledge funding from the following agencies for the
+development of this code:
+
+1. US National Science Foundation’s Designing Materials to Revolutionize and
+   Engineer our Future (DMREF) program under Grant No. 1436976 for the AIMD
+   analysis package.
+2. US Department of Energy, Oﬃce of Science, Basic Energy Sciences under
+   Award No. DE-SC0012118 for the NEB analysis package.
