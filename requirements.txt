@@ -1,5 +1,5 @@
 numpy==1.13.0
-scipy==0.19.0
-pymatgen==2017.6.8
+scipy==0.19.1
+pymatgen==2017.6.24
 six==1.10.0
 matplotlib==2.0.2
