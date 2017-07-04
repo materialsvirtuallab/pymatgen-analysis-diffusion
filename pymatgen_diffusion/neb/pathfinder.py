@@ -306,9 +306,9 @@ class MigrationPath(object):
 
     def __repr__(self):
         return "Path of %.4f A from %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)" \
-            % (self.length, self.isite.specie, *self.isite.frac_coords,
+            % (self.length, self.isite.specie, self.isite.frac_coords[0], self.isite.frac_coords[1], self.isite.frac_coords[2],
                self.iindex, self.symm_structure.wyckoff_symbols[self.iindex],
-               self.esite.specie, *self.esite.frac_coords,
+               self.esite.specie, self.esite.frac_coords[0], self.esite.frac_coords[1], self.esite.frac_coords[2],
                self.eindex, self.symm_structure.wyckoff_symbols[self.eindex])
 
     @property
