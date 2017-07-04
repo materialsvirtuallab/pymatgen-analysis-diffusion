@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals, print_function
 from collections import Counter
 from scipy.stats import norm
 import matplotlib.pyplot as plt
-from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.plotting import pretty_plot
 from scipy import stats
 import numpy as np
 
@@ -253,7 +253,7 @@ class VanHoveAnalysis(object):
             ylabel = "4$\pi r^2G_s$($t$,$r$)"
             ylim = [-0.005, 1.0]
 
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
 
         for i, time in enumerate(times):
             index = int(np.round(time / self.timeskip))
@@ -400,7 +400,7 @@ class RadialDistributionFunction(object):
             else:
                 label = "-".join(symbol_list)
 
-        plt = get_publication_quality_plot(12, 8)
+        plt = pretty_plot(12, 8)
         plt.plot(self.interval, self.rdf, color="r", label=label, linewidth=4.0)
         plt.xlabel("$r$ ($\AA$)")
         plt.ylabel("$g(r)$")

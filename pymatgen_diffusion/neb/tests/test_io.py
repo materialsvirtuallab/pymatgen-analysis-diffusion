@@ -40,13 +40,12 @@ LORBIT  =  11
 LREAL   =  Auto
 LWAVE   =  False
 MAGMOM  =  35*0.6
-NELM    =  100
+NELM    =  200
 NELMIN  =  4
 NSW     =  99
 PREC    =  Accurate
 SIGMA   =  0.05"""
         self.assertEqual(incar_string, incar_expect)
-        pass
 
     def test_incar_user_setting(self):
         user_incar_settings = {"ALGO": "Normal",
@@ -55,33 +54,29 @@ SIGMA   =  0.05"""
                                "NPAR": 4,
                                "NSW": 100,}
         m = MVLCINEBEndPointSet(self.endpoint, user_incar_settings=user_incar_settings)
-        incar_string = m.incar.get_string(sort_keys=True, pretty=True)
-        incar_expect = """ALGO    =  Normal
-EDIFF   =  5e-05
-EDIFFG  =  -0.05
-ENCUT   =  520
-IBRION  =  2
-ICHARG  =  1
-ISIF    =  2
-ISMEAR  =  -5
-ISPIN   =  2
-ISYM    =  0
-LORBIT  =  11
-LREAL   =  Auto
-LWAVE   =  False
-MAGMOM  =  35*0.6
-NELECT  =  576
-NELM    =  100
-NELMIN  =  4
-NPAR    =  4
-NSW     =  100
-PREC    =  Accurate
-SIGMA   =  0.05"""
-
-        self.assertEqual(incar_string, incar_expect)
-
-        pass
-    pass
+        incar_string = m.incar.get_string(sort_keys=True)
+        incar_expect = """ALGO = Normal
+EDIFF = 5e-05
+EDIFFG = -0.05
+ENCUT = 520
+IBRION = 2
+ICHARG = 1
+ISIF = 2
+ISMEAR = -5
+ISPIN = 2
+ISYM = 0
+LORBIT = 11
+LREAL = Auto
+LWAVE = False
+MAGMOM = 35*0.6
+NELECT = 576
+NELM = 200
+NELMIN = 4
+NPAR = 4
+NSW = 100
+PREC = Accurate
+SIGMA = 0.05"""
+        self.assertEqual(incar_string.strip(), incar_expect.strip())
 
 
 class MVLCINEBSetTest(unittest.TestCase):
@@ -92,37 +87,34 @@ class MVLCINEBSetTest(unittest.TestCase):
     def test_incar(self):
         m = MVLCINEBSet(self.structures)
 
-        incar_string = m.incar.get_string(sort_keys=True, pretty=True)
-        incar_expect ="""ALGO    =  Fast
-EDIFF   =  5e-05
-EDIFFG  =  -0.02
-ENCUT   =  520
-IBRION  =  3
-ICHAIN  =  0
-ICHARG  =  1
-IMAGES  =  1
-IOPT    =  1
-ISIF    =  2
-ISMEAR  =  0
-ISPIN   =  2
-ISYM    =  0
-LCHARG  =  False
-LCLIMB  =  True
-LORBIT  =  0
-LREAL   =  Auto
-LWAVE   =  False
-MAGMOM  =  35*0.6
-NELM    =  100
-NELMIN  =  6
-NSW     =  200
-POTIM   =  0
-PREC    =  Accurate
-SIGMA   =  0.05
-SPRING  =  -5"""
-
-        self.assertEqual(incar_string, incar_expect)
-
-        pass
+        incar_string = m.incar.get_string(sort_keys=True)
+        incar_expect ="""ALGO = Fast
+EDIFF = 5e-05
+EDIFFG = -0.02
+ENCUT = 520
+IBRION = 3
+ICHAIN = 0
+ICHARG = 1
+IMAGES = 1
+IOPT = 1
+ISIF = 2
+ISMEAR = 0
+ISPIN = 2
+ISYM = 0
+LCHARG = False
+LCLIMB = True
+LORBIT = 0
+LREAL = Auto
+LWAVE = False
+MAGMOM = 35*0.6
+NELM = 200
+NELMIN = 6
+NSW = 200
+POTIM = 0
+PREC = Accurate
+SIGMA = 0.05
+SPRING = -5"""
+        self.assertEqual(incar_string.strip(), incar_expect.strip())
 
     def test_incar_user_setting(self):
         user_incar_settings = {"IOPT": 3,
@@ -150,7 +142,7 @@ LORBIT  =  0
 LREAL   =  Auto
 LWAVE   =  False
 MAGMOM  =  35*0.6
-NELM    =  100
+NELM    =  200
 NELMIN  =  6
 NPAR    =  4
 NSW     =  200
@@ -159,10 +151,7 @@ PREC    =  Accurate
 SIGMA   =  0.05
 SPRING  =  -5"""
 
-        self.assertEqual(incar_string, incar_expect)
-        pass
-
-    pass
+        self.assertEqual(incar_string.strip(), incar_expect.strip())
 
 
 class UtilityTest(unittest.TestCase):
