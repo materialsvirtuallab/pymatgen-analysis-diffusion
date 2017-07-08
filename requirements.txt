@@ -1,4 +1,4 @@
-numpy==1.13.0
+numpy==1.13.1
 scipy==0.19.1
 pymatgen==2017.7.4
 six==1.10.0
