@@ -10,10 +10,9 @@ from pymatgen.util.plotting import pretty_plot
 from scipy import stats
 import numpy as np
 
-
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
-__date__ = "04/15"
+__date__ = "Aug 9, 2017"
 
 
 class VanHoveAnalysis(object):
@@ -277,7 +276,7 @@ class RadialDistributionFunction(object):
     """
     Calculate the average radial distribution function for a given set of structures.
     """
-
+    # todo: volume change correction for NpT RDF
     def __init__(self, structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
                  species=("Li", "Na"), reference_species=None):
         """
@@ -297,17 +296,14 @@ class RadialDistributionFunction(object):
                     O-H pair distribution in a water MD simulation.
         """
 
-        if ngrid - 1 <= 0:
-            raise ValueError("ngrid should be greater than 1!")
-
-        if sigma <= 0.0:
-            raise ValueError("sigma should be > 0!")
+        assert ngrid >= 1, "ngrid should be greater than 1!"
+        assert sigma > 0, "sigma should be a positive number!"
 
         lattice = structures[0].lattice
         indices = [j for j, site in enumerate(structures[0])
                    if site.specie.symbol in species]
-        if len(indices) == 0:
-            raise ValueError("Given species are not in the structure!")
+
+        assert len(indices) > 0, "Given species are not in the structure!"
 
         ref_indices = indices
         if reference_species:
@@ -384,9 +380,14 @@ class RadialDistributionFunction(object):
         """
         return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
 
-    def get_rdf_plot(self, label=None, xlim=[0.0, 8.0], ylim=[-0.005, 3.0]):
+    def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """
         Plot the average RDF function.
+
+        Args:
+            label (str): The legend label.
+            xlim (list): Set the x limits of the current axes.
+            ylim (list): Set the y limits of the current axes.
         """
 
         if label is None:
@@ -402,7 +403,7 @@ class RadialDistributionFunction(object):
 
         plt = pretty_plot(12, 8)
         plt.plot(self.interval, self.rdf, color="r", label=label, linewidth=4.0)
-        plt.xlabel("$r$ ($\AA$)")
+        plt.xlabel("$r$ ($\\rm\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc='upper right', fontsize=36)
         plt.xlim(xlim[0], xlim[1])
