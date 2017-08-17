@@ -196,17 +196,17 @@ class SiteOccupancyAnalyzer(object):
     A class that analyzes the site occupancy of given species using MD trajectories.
     The occupancy of a site is determined based on the shortest distance scheme.
 
-    -- attribute: site_occ
+    .. attribute:: site_occ
         N x 1 numpy array that stores the occupancy of all sites associated with
         species. It has the same sequence as the given list of indices.
 
-    -- attribute: coords_ref
+    .. attribute:: coords_ref
         N x 3 numpy array of fractional coordinates of all reference sites.
 
-    -- attribute: nsites
+    .. attribute:: nsites
         Number of reference sites.
 
-    -- attribute: structure
+    .. attribute:: structure
         Initial structure.
 
     """
@@ -221,16 +221,12 @@ class SiteOccupancyAnalyzer(object):
                 simulation, where Ntimesteps is the number of time steps in MD
                 simulation. Note that the coordinates are fractional.
             species(list of str): list of species that are of interest.
-            indices (list of integers): Subset of site indices associated with the
-                selected species. Default is None, i.e. all the ions of the
-                selected species will be considered for the site occupancy
-                analysis.
         """
 
         lattice = structure.lattice
         coords_ref = np.array(coords_ref)
         trajectories = np.array(trajectories)
-        Ncount = Counter()
+        count = Counter()
 
         indices = [i for i, site in enumerate(structure)
                    if site.specie.symbol in species]
@@ -239,11 +235,11 @@ class SiteOccupancyAnalyzer(object):
             dist_matrix = lattice.get_all_distances(coords_ref,
                                                     trajectories[it, indices, :])
             labels = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0]
-            Ncount.update(labels)
+            count.update(labels)
 
         site_occ = np.zeros(len(coords_ref), dtype=np.double)
 
-        for i, n in Ncount.most_common(len(coords_ref)):
+        for i, n in count.most_common(len(coords_ref)):
             site_occ[i] = n / float(len(trajectories))
 
         self.structure = structure
