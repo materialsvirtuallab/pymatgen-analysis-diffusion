@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals, print_function
 import numpy as np
 from collections import Counter
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -13,10 +14,6 @@ __date__ = "05/15"
 """
  Algorithms for diffusion pathways analysis
 """
-
-
-# TODO: ipython notebook example file, unittests
-
 
 class ProbabilityDensityAnalysis(object):
     """
@@ -193,3 +190,102 @@ class ProbabilityDensityAnalysis(object):
                         count += 1
 
         f.close()
+
+
+class SiteOccupancyAnalyzer(object):
+    """
+    A class that analyzes the site occupancy of given species using MD trajectories.
+    The occupancy of a site is determined based on the shortest distance scheme.
+
+    -- attribute: site_occ
+        N x 1 numpy array that stores the occupancy of all sites associated with
+        species. It has the same sequence as the given list of indices.
+
+    -- attribute: coords_ref
+        N x 3 numpy array of fractional coordinates of all reference sites.
+
+    -- attribute: nsites
+        Number of reference sites.
+
+    -- attribute: structure
+        Initial structure.
+
+    """
+
+    def __init__(self, structure, coords_ref, trajectories, species=("Li", "Na")):
+        """
+        Args:
+            structure (pmg_structure): Initial structure.
+            coords_ref (N_s x 3 array): Fractional coordinates of N_s given sites
+                at which the site occupancy will be computed.
+            trajectories (Ntimesteps x Nions x 3 array): Ionic trajectories from MD
+                simulation, where Ntimesteps is the number of time steps in MD
+                simulation. Note that the coordinates are fractional.
+            species(list of str): list of species that are of interest.
+            indices (list of integers): Subset of site indices associated with the
+                selected species. Default is None, i.e. all the ions of the
+                selected species will be considered for the site occupancy
+                analysis.
+        """
+
+        lattice = structure.lattice
+        coords_ref = np.array(coords_ref)
+        trajectories = np.array(trajectories)
+        Ncount = Counter()
+
+        indices = [i for i, site in enumerate(structure)
+                   if site.specie.symbol in species]
+
+        for it in range(len(trajectories)):
+            dist_matrix = lattice.get_all_distances(coords_ref,
+                                                    trajectories[it, indices, :])
+            labels = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0]
+            Ncount.update(labels)
+
+        site_occ = np.zeros(len(coords_ref), dtype=np.double)
+
+        for i, n in Ncount.most_common(len(coords_ref)):
+            site_occ[i] = n / float(len(trajectories))
+
+        self.structure = structure
+        self.coords_ref = coords_ref
+        self.species = species
+        self.indices = indices
+        self.nsites = len(coords_ref)
+        self.nsteps = len(trajectories)
+        self.site_occ = site_occ
+
+
+    def get_average_site_occupancy(self, indices):
+        """
+        Get the average site occupancy over a subset of reference sites.
+        """
+        return np.sum(self.site_occ[indices]) / len(indices)
+
+
+    @classmethod
+    def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer,
+                                species=("Li", "Na")):
+
+        """
+        Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.
+
+        Args:
+            coords_ref (nested list of floats): Fractional coordinates of a list
+                of reference sites at which the site occupancy will be computed.
+            diffusion_analyzer (DiffusionAnalyzer): A
+                pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object
+            species(list of str): list of species that are of interest.
+        """
+
+        trajectories = []
+
+        # Initial structure.
+        structure = diffusion_analyzer.structure
+
+        # Drifted corrected ionic trajectories
+        for s in diffusion_analyzer.get_drift_corrected_structures():
+            trajectories.append(s.frac_coords)
+
+        return SiteOccupancyAnalyzer(structure, coords_ref, trajectories,
+                                     species)
