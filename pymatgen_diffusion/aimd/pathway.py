@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals, print_function
 import numpy as np
 from collections import Counter
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
