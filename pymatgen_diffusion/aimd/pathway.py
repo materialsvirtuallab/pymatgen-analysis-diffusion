@@ -11,8 +11,9 @@ __version__ = 1.0
 __date__ = "05/15"
 
 """
- Algorithms for diffusion pathways analysis
+ Algorithms for diffusion pathway analysis
 """
+
 
 class ProbabilityDensityAnalysis(object):
     """
@@ -69,7 +70,7 @@ class ProbabilityDensityAnalysis(object):
         grid = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None,
                                                              :]
 
-        # calculate the time-averaged probability density function distribution Pr
+        # Calculate time-averaged probability density function distribution Pr
         count = Counter()
         Pr = np.zeros(ngrid, dtype=np.double)
 
@@ -83,8 +84,7 @@ class ProbabilityDensityAnalysis(object):
 
                 # consider PBC
                 for i in range(3):
-                    next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[
-                                                                     i] - 1 else 0
+                    next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[i] - 1 else 0
 
                 agrid = np.array([corner_i[0], next_i[0]])[:, None] * \
                         np.array([1, 0, 0])[None, :]
@@ -250,13 +250,11 @@ class SiteOccupancyAnalyzer(object):
         self.nsteps = len(trajectories)
         self.site_occ = site_occ
 
-
     def get_average_site_occupancy(self, indices):
         """
         Get the average site occupancy over a subset of reference sites.
         """
         return np.sum(self.site_occ[indices]) / len(indices)
-
 
     @classmethod
     def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer,
