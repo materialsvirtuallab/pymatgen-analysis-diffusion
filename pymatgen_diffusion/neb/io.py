@@ -24,7 +24,9 @@ class MVLCINEBEndPointSet(MITRelaxSet):
             "ISIF": 2,
             "EDIFF": 5e-5,
             "EDIFFG": -0.02,
+            "ISMEAR": 0,
             "ISYM": 0,
+            "LCHARG": False,
             "LDAU": False,
             "NELMIN": 4
         }
@@ -62,6 +64,7 @@ class MVLCINEBSet(MITNEBSet):
             "ISIF": 2,
             "ISMEAR": 0,
             "ISPIN": 2,
+            "LCHARG": False,
             "LCLIMB": True,
             "LDAU": False,
             "LORBIT": 0,
