@@ -480,7 +480,6 @@ class DistinctPathFinder(object):
         mat = lattice.matrix
         max_r = max(lattice.a, lattice.b, lattice.c, np.linalg.norm(mat[0] + mat[1]), np.linalg.norm(mat[0] + mat[2]),
                     np.linalg.norm(mat[1] + mat[2]), np.linalg.norm(mat[0] + mat[1] + mat[2]))
-        print(max_r)
 
         a = SpacegroupAnalyzer(structure, symprec=symprec)
         symm_structure = a.get_symmetrized_structure()
@@ -488,34 +487,32 @@ class DistinctPathFinder(object):
         migrating_sites = [site for site in structure if site.specie == migrating_specie]
         s = Structure.from_sites(migrating_sites)
 
-        is_percolating = False
+        connected = [False] * len(clusters)
 
-        while not is_percolating:
+        while not all(connected):
 
             for i, c in enumerate(clusters):
-                nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
-                for n in nn:
-                    if len(c) < 2 or n[0] != c[-2]:
-                        # Avoid finding the previous site in the list.
-                        clusters[i].append(n[0])
-                        break
+                if not connected[i]:
+                    nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
+                    for n in nn:
+                        if len(c) < 2 or n[0] != c[-2]:
+                            # Avoid finding the previous site in the list.
+                            clusters[i].append(n[0])
+                            break
 
-            connected = [False] * len(clusters)
-            for i, c in enumerate(clusters):
-                for site in c:
-                    if site != c[-1] and c[-1].is_periodic_image(site):
-                        # The site wraps in on itself.
-                        connected[i] = True
-                        break
+                    for site in c:
+                        if site != c[-1] and c[-1].is_periodic_image(site):
+                            # The site wraps in on itself.
+                            connected[i] = True
+                            break
 
-                    for j, c2 in enumerate(clusters):
-                        if i != j:
-                            if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
-                                # The site connects to some other cluster
-                                connected[i] = True
-                                break
-
-            is_percolating = all(connected)
+                        for j, c2 in enumerate(clusters):
+                            if i != j:
+                                if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
+                                    # The site connects to some other cluster
+                                    connected[i] = True
+                                    connected[j] = True
+                                    break
 
         paths = []
         for c in clusters:
