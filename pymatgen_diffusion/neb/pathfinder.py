@@ -472,3 +472,57 @@ class DistinctPathFinder(object):
                 sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
         Structure.from_sites(sites).to(filename=fname)
+
+    @classmethod
+    def find_min_percolation(cls, structure, migrating_specie, symprec=0.1, distinct_only=True):
+        migrating_specie = get_el_sp(migrating_specie)
+        lattice = structure.lattice
+        mat = lattice.matrix
+        max_r = max(lattice.a, lattice.b, lattice.c, np.linalg.norm(mat[0] + mat[1]), np.linalg.norm(mat[0] + mat[2]),
+                    np.linalg.norm(mat[1] + mat[2]), np.linalg.norm(mat[0] + mat[1] + mat[2]))
+        print(max_r)
+
+        a = SpacegroupAnalyzer(structure, symprec=symprec)
+        symm_structure = a.get_symmetrized_structure()
+        clusters = [[sites[0]] for sites in symm_structure.equivalent_sites if sites[0].specie == migrating_specie]
+        migrating_sites = [site for site in structure if site.specie == migrating_specie]
+        s = Structure.from_sites(migrating_sites)
+
+        is_percolating = False
+
+        while not is_percolating:
+
+            for i, c in enumerate(clusters):
+                nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
+                for n in nn:
+                    if n[0] != c[-1]:
+                        clusters[i].append(n[0])
+                        break
+
+            connected = [False] * len(clusters)
+            for i, c in enumerate(clusters):
+                for site in c[:-1]:
+                    if c[-1].is_periodic_image(site):
+                        # The site wraps in on itself.
+                        connected[i] = True
+                        break
+
+                    for j, c2 in enumerate(clusters):
+                        if i != j:
+                            if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
+                                connected[i] = True
+                                break
+
+            is_percolating = all(connected)
+
+        print(len(clusters))
+
+        paths = []
+        for c in clusters:
+            for i in range(0, len(c) - 1):
+                paths.append(MigrationPath(c[i], c[i+1], symm_structure))
+
+        if distinct_only:
+            return set(paths)
+
+        return paths
