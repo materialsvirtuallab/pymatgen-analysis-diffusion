@@ -502,8 +502,8 @@ class DistinctPathFinder(object):
 
             connected = [False] * len(clusters)
             for i, c in enumerate(clusters):
-                for site in c[:-1]:
-                    if c[-1].is_periodic_image(site):
+                for site in c:
+                    if site != c[-1] and c[-1].is_periodic_image(site):
                         # The site wraps in on itself.
                         connected[i] = True
                         break
