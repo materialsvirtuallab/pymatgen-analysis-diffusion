@@ -495,7 +495,8 @@ class DistinctPathFinder(object):
             for i, c in enumerate(clusters):
                 nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
                 for n in nn:
-                    if n[0] != c[-1]:
+                    if len(c) < 2 or n[0] != c[-2]:
+                        # Avoid finding the previous site in the list.
                         clusters[i].append(n[0])
                         break
 
@@ -510,12 +511,11 @@ class DistinctPathFinder(object):
                     for j, c2 in enumerate(clusters):
                         if i != j:
                             if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
+                                # The site connects to some other cluster
                                 connected[i] = True
                                 break
 
             is_percolating = all(connected)
-
-        print(len(clusters))
 
         paths = []
         for c in clusters:
