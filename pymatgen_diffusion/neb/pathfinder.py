@@ -488,17 +488,20 @@ class DistinctPathFinder(object):
                            if site.specie == migrating_specie]
         s = Structure.from_sites(migrating_sites)
 
-        connected = [0] * len(clusters)
+        connectivity = [0] * len(clusters)
 
+        # If we only want 1D diffusion, we need all paths to have a
+        # connectivity threshold of 1. Otherwise, we need it to be at least two.
         threshold = 1 if perc_mode.lower() == "1d" else 2
-        # Some pathological structures like LiFePO4 only has one path, which
-        # cannot be made 3D.
+
+        # Some pathological structures like LiFePO4 only has one path of one
+        # site type, which cannot be made 3D.
         threshold = min(len(clusters), threshold)
 
-        while any([c < threshold for c in connected]):
+        while any([c < threshold for c in connectivity]):
 
             for i, c in enumerate(clusters):
-                if connected[i] < threshold:
+                if connectivity[i] < threshold:
                     nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
                     for n in nn:
                         if len(c) < 2 or n[0] != c[-2]:
@@ -508,16 +511,17 @@ class DistinctPathFinder(object):
 
                     for site in c:
                         if site != c[-1] and c[-1].is_periodic_image(site):
-                            # The site wraps in on itself.
-                            connected[i] = 1
+                            # The site wraps in on a site in the path.
+                            # Guarantees a percolating 1D path.
+                            connectivity[i] = 1
                             break
 
                         for j, c2 in enumerate(clusters):
                             if i != j:
                                 if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
-                                    # The site connects to some other cluster
-                                    connected[i] = 2
-                                    connected[j] = 2
+                                    # The site connects to some other cluster.
+                                    connectivity[i] = 2
+                                    connectivity[j] = 2
                                     break
 
         paths = []
