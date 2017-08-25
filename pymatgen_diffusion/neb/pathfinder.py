@@ -495,7 +495,7 @@ class DistinctPathFinder(object):
         # cannot be made 3D.
         threshold = min(len(clusters), threshold)
 
-        while not all([c >= threshold for c in connected]):
+        while any([c < threshold for c in connected]):
 
             for i, c in enumerate(clusters):
                 if connected[i] < threshold:
