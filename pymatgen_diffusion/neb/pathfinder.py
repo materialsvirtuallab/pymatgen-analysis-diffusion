@@ -229,7 +229,7 @@ class IDPPSolver(object):
 
             trial_dist = np.linalg.norm(vec, axis=2)
             aux = (trial_dist - target_dists[ni]) * weights[ni] \
-                / (trial_dist + np.eye(natoms, dtype=np.float64))
+                  / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
             func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
@@ -306,10 +306,11 @@ class MigrationPath(object):
 
     def __repr__(self):
         return "Path of %.4f A from %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)" \
-            % (self.length, self.isite.specie, self.isite.frac_coords[0], self.isite.frac_coords[1], self.isite.frac_coords[2],
-               self.iindex, self.symm_structure.wyckoff_symbols[self.iindex],
-               self.esite.specie, self.esite.frac_coords[0], self.esite.frac_coords[1], self.esite.frac_coords[2],
-               self.eindex, self.symm_structure.wyckoff_symbols[self.eindex])
+               % (self.length, self.isite.specie, self.isite.frac_coords[0], self.isite.frac_coords[1],
+                  self.isite.frac_coords[2],
+                  self.iindex, self.symm_structure.wyckoff_symbols[self.iindex],
+                  self.esite.specie, self.esite.frac_coords[0], self.esite.frac_coords[1], self.esite.frac_coords[2],
+                  self.eindex, self.symm_structure.wyckoff_symbols[self.eindex])
 
     @property
     def length(self):
@@ -373,7 +374,7 @@ class MigrationPath(object):
                 other_sites.append(site)
             else:
                 if vac_mode and (isite.distance(site) > 1e-8 and
-                                 esite.distance(site) > 1e-8):
+                                         esite.distance(site) > 1e-8):
                     migrating_specie_sites.append(site)
 
         start_structure = Structure.from_sites(
@@ -414,25 +415,64 @@ class DistinctPathFinder(object):
     for atomic mechanism, and does not work for correlated migration.
     """
 
-    def __init__(self, structure, migrating_specie, max_path_length=5,
-                 symprec=0.1):
+    def __init__(self, structure, migrating_specie, max_path_length=None,
+                 symprec=0.1, perc_mode=">1d"):
         """
         Args:
             structure: Input structure that contains all sites.
             migrating_specie (Specie-like): The specie that migrates. E.g., 
                 "Li".
-            max_path_length (float): Maximum length of NEB path. Defaults to 5
-                Angstrom. Usually, you'd want to set this close to the longest
-                lattice parameter / diagonal in the cell to ensure all paths
-                are found.
-            symprec (float): Symmetry precision to determine equivalence. 
+            max_path_length (float): Maximum length of NEB path in the unit
+                of Angstrom. Defaults to None, which means you are setting the
+                value to the min cutoff until finding 1D or >1D percolating paths.
+            symprec (float): Symmetry precision to determine equivalence.
+            perc_mode(str): The percolating type. Default to ">1d", because usually
+                it is used to find possible NEB paths to form percolating networks.
+                If you just want to check the min 1D percolation, set it to "1d".
         """
         self.structure = structure
         self.migrating_specie = get_el_sp(migrating_specie)
-        self.max_path_length = max_path_length
         self.symprec = symprec
         a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
         self.symm_structure = a.get_symmetrized_structure()
+
+        junc = 0
+        distance_list = []
+        max_r = max(structure.lattice.abc) if max_path_length is None else max_path_length
+        junc_cutoff = max_r
+        for sites in self.symm_structure.equivalent_sites:
+            if sites[0].specie == self.migrating_specie:
+                site0 = sites[0]
+                dists = []
+                neighbors = self.symm_structure.get_neighbors(
+                    site0, r=max_r)
+                for nn, dist in sorted(neighbors, key=lambda neighbor: neighbor[-1]):
+                    if nn.specie == self.migrating_specie:
+                        dists.append(dist)
+                if len(dists) > 2:
+                    junc += 1
+                distance_list.append(dists)
+        # Avoid isolated atoms (# of neighbors < 2)
+        if len(sorted(distance_list, key=len)[0]) < 2:
+            path_cutoff = max_r
+        # We define junction as atoms have at least three paths including equivalent ones.
+        elif junc == 0:
+            path_cutoff = sorted(distance_list, key=lambda d: d[1])[-1][1]
+        else:
+            # distance_list are sorted as [[a0,a1,a2],[b0,b1,b2],[c0,c1,c2],...] in which
+            # a0<a1<a2,b0<b1<b2,...
+            # path_cutoff = max(a1,b1,c1,...), junc_cutoff=min(a2,b2,c2)
+            path_cutoff = sorted(distance_list, key=lambda d: d[1])[-1][1]
+            junc_distance_list = [d for d in distance_list if len(d) >= 3]
+            junc_cutoff = sorted(junc_distance_list, key=lambda d: d[2])[0][2]
+
+        if max_path_length is None:
+            if perc_mode.lower() == "1d":
+                self.max_path_length = path_cutoff
+            else:
+                self.max_path_length = max(junc_cutoff, path_cutoff)
+        else:
+            self.max_path_length = max_path_length
 
     def get_paths(self):
         """
@@ -444,7 +484,7 @@ class DistinctPathFinder(object):
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
                 for nn, dist in self.symm_structure.get_neighbors(
-                        site0, r=self.max_path_length):
+                        site0, r=round(self.max_path_length, 3) + 0.01):
                     if nn.specie == self.migrating_specie:
                         path = MigrationPath(site0, nn, self.symm_structure)
                         paths.add(path)
@@ -472,54 +512,3 @@ class DistinctPathFinder(object):
                 sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
         Structure.from_sites(sites).to(filename=fname)
-
-    @classmethod
-    def find_min_percolation(cls, structure, migrating_specie, symprec=0.1, distinct_only=True):
-        migrating_specie = get_el_sp(migrating_specie)
-        lattice = structure.lattice
-        mat = lattice.matrix
-        max_r = max(lattice.a, lattice.b, lattice.c, np.linalg.norm(mat[0] + mat[1]), np.linalg.norm(mat[0] + mat[2]),
-                    np.linalg.norm(mat[1] + mat[2]), np.linalg.norm(mat[0] + mat[1] + mat[2]))
-
-        a = SpacegroupAnalyzer(structure, symprec=symprec)
-        symm_structure = a.get_symmetrized_structure()
-        clusters = [[sites[0]] for sites in symm_structure.equivalent_sites if sites[0].specie == migrating_specie]
-        migrating_sites = [site for site in structure if site.specie == migrating_specie]
-        s = Structure.from_sites(migrating_sites)
-
-        connected = [False] * len(clusters)
-
-        while not all(connected):
-
-            for i, c in enumerate(clusters):
-                if not connected[i]:
-                    nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
-                    for n in nn:
-                        if len(c) < 2 or n[0] != c[-2]:
-                            # Avoid finding the previous site in the list.
-                            clusters[i].append(n[0])
-                            break
-
-                    for site in c:
-                        if site != c[-1] and c[-1].is_periodic_image(site):
-                            # The site wraps in on itself.
-                            connected[i] = True
-                            break
-
-                        for j, c2 in enumerate(clusters):
-                            if i != j:
-                                if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
-                                    # The site connects to some other cluster
-                                    connected[i] = True
-                                    connected[j] = True
-                                    break
-
-        paths = []
-        for c in clusters:
-            for i in range(0, len(c) - 1):
-                paths.append(MigrationPath(c[i], c[i+1], symm_structure))
-
-        if distinct_only:
-            return set(paths)
-
-        return paths

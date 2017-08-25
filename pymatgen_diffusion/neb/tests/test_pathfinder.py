@@ -24,11 +24,10 @@ def get_path(path_str, dirname="./"):
 
 
 class IDPPSolverTest(unittest.TestCase):
-
     init_struct = Structure.from_file(get_path("CONTCAR-0",
                                                dirname="pathfinder_files"))
     final_struct = Structure.from_file(get_path("CONTCAR-1",
-                                               dirname="pathfinder_files"))
+                                                dirname="pathfinder_files"))
 
     def test_idpp_from_ep(self):
         obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct],
@@ -52,7 +51,6 @@ class IDPPSolverTest(unittest.TestCase):
         pass
 
     def test_idpp(self):
-
         images = self.init_struct.interpolate(self.final_struct, nimages=4,
                                               autosort_tol=1.0)
         obj = IDPPSolver(images)
@@ -70,7 +68,6 @@ class IDPPSolverTest(unittest.TestCase):
 
 
 class DistinctPathFinderTest(PymatgenTest):
-
     def test_get_paths(self):
         s = self.get_structure("LiFePO4")
         # Only one path in LiFePO4 with 4 A.
@@ -90,7 +87,8 @@ class DistinctPathFinderTest(PymatgenTest):
         paths[0].write_path("pathfindertest_noidpp_vac.cif", idpp=False)
         paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
         paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
-        self.assertEqual(str(paths[0]), "Path of 3.0328 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.250, 1.000] (ind: 0, Wyckoff: 16a)")
+        self.assertEqual(str(paths[0]),
+                         "Path of 3.0328 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.250, 1.000] (ind: 0, Wyckoff: 16a)")
 
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()
@@ -113,7 +111,15 @@ class DistinctPathFinderTest(PymatgenTest):
         for f in glob.glob("pathfindertest_*.cif"):
             os.remove(f)
 
-    def test_static(self):
+    def test_max_path_length(self):
+        s = Structure.from_file(get_path("LYPS.cif",
+                                         dirname="pathfinder_files"))
+        dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
+        self.assertAlmostEqual(dp1.max_path_length, 4.11375354207, 7)
+        dp2 = DistinctPathFinder(s, "Li", 5, perc_mode="1d")
+        self.assertAlmostEqual(dp2.max_path_length, 5.0, 7)
+
+        """def test_static(self):
         s = self.get_structure("LiFePO4")
         paths = DistinctPathFinder.find_min_percolation(s, "Li")
         print(len(paths))
@@ -132,7 +138,8 @@ class DistinctPathFinderTest(PymatgenTest):
             for s in structures[1:-1]:
                 sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
-        Structure.from_sites(sites).to(filename="LVPO.cif")
+        Structure.from_sites(sites).to(filename="LVPO.cif")"""
+
 
 if __name__ == '__main__':
     unittest.main()
