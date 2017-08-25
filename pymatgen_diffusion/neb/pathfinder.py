@@ -475,20 +475,25 @@ class DistinctPathFinder(object):
 
     @classmethod
     def find_min_percolation(cls, structure, migrating_specie, symprec=0.1,
-                             distinct_only=True, perc_mode="1D"):
+                             distinct_only=True, perc_mode="1d"):
         migrating_specie = get_el_sp(migrating_specie)
         lattice = structure.lattice
         max_r = max(*lattice.abc)
 
         a = SpacegroupAnalyzer(structure, symprec=symprec)
         symm_structure = a.get_symmetrized_structure()
-        clusters = [[sites[0]] for sites in symm_structure.equivalent_sites if sites[0].specie == migrating_specie]
-        migrating_sites = [site for site in structure if site.specie == migrating_specie]
+        clusters = [[sites[0]] for sites in symm_structure.equivalent_sites
+                    if sites[0].specie == migrating_specie]
+        migrating_sites = [site for site in structure
+                           if site.specie == migrating_specie]
         s = Structure.from_sites(migrating_sites)
 
         connected = [0] * len(clusters)
 
         threshold = 1 if perc_mode.lower() == "1d" else 2
+        # Some pathological structures like LiFePO4 only has one path, which
+        # cannot be made 3D.
+        threshold = min(len(clusters), threshold)
 
         while not all([c >= threshold for c in connected]):
 
