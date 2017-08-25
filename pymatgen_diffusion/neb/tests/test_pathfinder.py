@@ -120,7 +120,7 @@ class DistinctPathFinderTest(PymatgenTest):
         dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
         print(len(dp1.get_paths()))
         paths = DistinctPathFinder.find_min_percolation(s, "Li",
-                                                        distinct_only=False,
+                                                        distinct_only=True,
                                                         perc_mode="1d")
         print(len(paths))
 

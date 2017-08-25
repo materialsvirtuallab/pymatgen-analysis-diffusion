@@ -521,7 +521,9 @@ class DistinctPathFinder(object):
                              distinct_only=True, perc_mode="1d"):
         migrating_specie = get_el_sp(migrating_specie)
         lattice = structure.lattice
-        max_r = max(*lattice.abc)
+
+        # The shortest lattice vector guarantees a periodic image.
+        max_r = min(*lattice.abc)
 
         a = SpacegroupAnalyzer(structure, symprec=symprec)
         symm_structure = a.get_symmetrized_structure()
