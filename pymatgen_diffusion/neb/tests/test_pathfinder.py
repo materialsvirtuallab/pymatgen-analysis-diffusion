@@ -119,27 +119,6 @@ class DistinctPathFinderTest(PymatgenTest):
         dp2 = DistinctPathFinder(s, "Li", 5, perc_mode="1d")
         self.assertAlmostEqual(dp2.max_path_length, 5.0, 7)
 
-        """def test_static(self):
-        s = self.get_structure("LiFePO4")
-        paths = DistinctPathFinder.find_min_percolation(s, "Li")
-        print(len(paths))
-        s = self.get_structure("Li3V2(PO4)3")
-        paths = DistinctPathFinder.find_min_percolation(s, "Li0+", distinct_only=False)
-        print(len(paths))
-
-        from pymatgen.core.sites import PeriodicSite, get_el_sp
-
-        sites = []
-        for p in paths:
-            structures = p.get_structures(
-                nimages=30, species=[get_el_sp("Li0+")])
-            sites.append(structures[0][0])
-            sites.append(structures[-1][0])
-            for s in structures[1:-1]:
-                sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
-        sites.extend(structures[0].sites[1:])
-        Structure.from_sites(sites).to(filename="LVPO.cif")"""
-
 
 if __name__ == '__main__':
     unittest.main()
