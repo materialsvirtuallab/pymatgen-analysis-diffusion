@@ -118,7 +118,7 @@ class DistinctPathFinderTest(PymatgenTest):
         paths = DistinctPathFinder.find_min_percolation(s, "Li")
         print(len(paths))
         s = self.get_structure("Li3V2(PO4)3")
-        paths = DistinctPathFinder.find_min_percolation(s, "Li0+", distinct_only=False)
+        paths = DistinctPathFinder.find_min_percolation(s, "Li0+", distinct_only=False, perc_mode="3D")
         print(len(paths))
 
         from pymatgen.core.sites import PeriodicSite, get_el_sp

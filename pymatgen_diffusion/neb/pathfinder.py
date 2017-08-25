@@ -474,12 +474,11 @@ class DistinctPathFinder(object):
         Structure.from_sites(sites).to(filename=fname)
 
     @classmethod
-    def find_min_percolation(cls, structure, migrating_specie, symprec=0.1, distinct_only=True):
+    def find_min_percolation(cls, structure, migrating_specie, symprec=0.1,
+                             distinct_only=True, perc_mode="1D"):
         migrating_specie = get_el_sp(migrating_specie)
         lattice = structure.lattice
-        mat = lattice.matrix
-        max_r = max(lattice.a, lattice.b, lattice.c, np.linalg.norm(mat[0] + mat[1]), np.linalg.norm(mat[0] + mat[2]),
-                    np.linalg.norm(mat[1] + mat[2]), np.linalg.norm(mat[0] + mat[1] + mat[2]))
+        max_r = max(*lattice.abc)
 
         a = SpacegroupAnalyzer(structure, symprec=symprec)
         symm_structure = a.get_symmetrized_structure()
@@ -487,12 +486,14 @@ class DistinctPathFinder(object):
         migrating_sites = [site for site in structure if site.specie == migrating_specie]
         s = Structure.from_sites(migrating_sites)
 
-        connected = [False] * len(clusters)
+        connected = [0] * len(clusters)
 
-        while not all(connected):
+        threshold = 1 if perc_mode.lower() == "1d" else 2
+
+        while not all([c >= threshold for c in connected]):
 
             for i, c in enumerate(clusters):
-                if not connected[i]:
+                if connected[i] < threshold:
                     nn = sorted(s.get_neighbors(c[-1], max_r), key=lambda n: n[1])
                     for n in nn:
                         if len(c) < 2 or n[0] != c[-2]:
@@ -503,15 +504,15 @@ class DistinctPathFinder(object):
                     for site in c:
                         if site != c[-1] and c[-1].is_periodic_image(site):
                             # The site wraps in on itself.
-                            connected[i] = True
+                            connected[i] = 1
                             break
 
                         for j, c2 in enumerate(clusters):
                             if i != j:
                                 if symm_structure.spacegroup.are_symmetrically_equivalent([c2[0]], [site]):
                                     # The site connects to some other cluster
-                                    connected[i] = True
-                                    connected[j] = True
+                                    connected[i] = 2
+                                    connected[j] = 2
                                     break
 
         paths = []
