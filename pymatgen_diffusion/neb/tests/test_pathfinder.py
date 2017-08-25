@@ -120,9 +120,11 @@ class DistinctPathFinderTest(PymatgenTest):
         dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
         print(len(dp1.get_paths()))
         paths = DistinctPathFinder.find_min_percolation(s, "Li",
-                                                        distinct_only=True,
+                                                        distinct_only=False,
                                                         perc_mode="1d")
         print(len(paths))
+        for p in paths:
+            print(p)
 
         from pymatgen.core.sites import PeriodicSite, get_el_sp
 

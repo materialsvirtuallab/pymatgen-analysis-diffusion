@@ -440,7 +440,7 @@ class DistinctPathFinder(object):
 
         junc = 0
         distance_list = []
-        max_r = max(structure.lattice.abc) if max_path_length is None else max_path_length
+        max_r = min(structure.lattice.abc) if max_path_length is None else max_path_length
         junc_cutoff = max_r
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
