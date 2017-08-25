@@ -23,54 +23,51 @@ def get_path(path_str, dirname="./"):
     return path
 
 
-class IDPPSolverTest(unittest.TestCase):
-
-    init_struct = Structure.from_file(get_path("CONTCAR-0",
-                                               dirname="pathfinder_files"))
-    final_struct = Structure.from_file(get_path("CONTCAR-1",
-                                               dirname="pathfinder_files"))
-
-    def test_idpp_from_ep(self):
-        obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct],
-                                        nimages=3, sort_tol=1.0)
-        new_path = obj.run(maxiter=5000, tol=1e-5, gtol=1e-3, step_size=0.05,
-                           max_disp=0.05, spring_const=5.0, species=["Li"])
-
-        self.assertEqual(len(new_path), 5)
-        self.assertEqual(new_path[1].num_sites, 111)
-        self.assertTrue(np.allclose(new_path[0][2].frac_coords,
-                                    np.array([0.50000014, 0.99999998, 0.74999964])))
-        self.assertTrue(np.allclose(new_path[1][0].frac_coords,
-                                    np.array([0.482439, 0.68264727, 0.26525066])))
-        self.assertTrue(np.allclose(new_path[2][10].frac_coords,
-                                    np.array([0.50113915, 0.74958704, 0.75147021])))
-        self.assertTrue(np.allclose(new_path[3][22].frac_coords,
-                                    np.array([0.28422885, 0.62568764, 0.98975444])))
-        self.assertTrue(np.allclose(new_path[4][47].frac_coords,
-                                    np.array([0.59767531, 0.12640952, 0.37745006])))
-
-        pass
-
-    def test_idpp(self):
-
-        images = self.init_struct.interpolate(self.final_struct, nimages=4,
-                                              autosort_tol=1.0)
-        obj = IDPPSolver(images)
-        new_path = obj.run(maxiter=5000, tol=1e-5, gtol=1e-3, step_size=0.05,
-                           max_disp=0.05, spring_const=5.0, species=["Li"])
-
-        self.assertEqual(len(new_path), 5)
-        self.assertEqual(new_path[1].num_sites, 111)
-        self.assertTrue(np.allclose(new_path[0][2].frac_coords,
-                                    np.array([0.50000014, 0.99999998, 0.74999964])))
-        self.assertTrue(np.allclose(new_path[1][0].frac_coords,
-                                    np.array([0.482439, 0.68264727, 0.26525066])))
-        self.assertTrue(np.allclose(new_path[4][47].frac_coords,
-                                    np.array([0.59767531, 0.12640952, 0.37745006])))
+# class IDPPSolverTest(unittest.TestCase):
+#     init_struct = Structure.from_file(get_path("CONTCAR-0",
+#                                                dirname="pathfinder_files"))
+#     final_struct = Structure.from_file(get_path("CONTCAR-1",
+#                                                 dirname="pathfinder_files"))
+#
+#     def test_idpp_from_ep(self):
+#         obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct],
+#                                         nimages=3, sort_tol=1.0)
+#         new_path = obj.run(maxiter=5000, tol=1e-5, gtol=1e-3, step_size=0.05,
+#                            max_disp=0.05, spring_const=5.0, species=["Li"])
+#
+#         self.assertEqual(len(new_path), 5)
+#         self.assertEqual(new_path[1].num_sites, 111)
+#         self.assertTrue(np.allclose(new_path[0][2].frac_coords,
+#                                     np.array([0.50000014, 0.99999998, 0.74999964])))
+#         self.assertTrue(np.allclose(new_path[1][0].frac_coords,
+#                                     np.array([0.482439, 0.68264727, 0.26525066])))
+#         self.assertTrue(np.allclose(new_path[2][10].frac_coords,
+#                                     np.array([0.50113915, 0.74958704, 0.75147021])))
+#         self.assertTrue(np.allclose(new_path[3][22].frac_coords,
+#                                     np.array([0.28422885, 0.62568764, 0.98975444])))
+#         self.assertTrue(np.allclose(new_path[4][47].frac_coords,
+#                                     np.array([0.59767531, 0.12640952, 0.37745006])))
+#
+#         pass
+#
+#     def test_idpp(self):
+#         images = self.init_struct.interpolate(self.final_struct, nimages=4,
+#                                               autosort_tol=1.0)
+#         obj = IDPPSolver(images)
+#         new_path = obj.run(maxiter=5000, tol=1e-5, gtol=1e-3, step_size=0.05,
+#                            max_disp=0.05, spring_const=5.0, species=["Li"])
+#
+#         self.assertEqual(len(new_path), 5)
+#         self.assertEqual(new_path[1].num_sites, 111)
+#         self.assertTrue(np.allclose(new_path[0][2].frac_coords,
+#                                     np.array([0.50000014, 0.99999998, 0.74999964])))
+#         self.assertTrue(np.allclose(new_path[1][0].frac_coords,
+#                                     np.array([0.482439, 0.68264727, 0.26525066])))
+#         self.assertTrue(np.allclose(new_path[4][47].frac_coords,
+#                                     np.array([0.59767531, 0.12640952, 0.37745006])))
 
 
 class DistinctPathFinderTest(PymatgenTest):
-
     def test_get_paths(self):
         s = self.get_structure("LiFePO4")
         # Only one path in LiFePO4 with 4 A.
@@ -90,7 +87,8 @@ class DistinctPathFinderTest(PymatgenTest):
         paths[0].write_path("pathfindertest_noidpp_vac.cif", idpp=False)
         paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
         paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
-        self.assertEqual(str(paths[0]), "Path of 3.0328 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.250, 1.000] (ind: 0, Wyckoff: 16a)")
+        self.assertEqual(str(paths[0]),
+                         "Path of 3.0328 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.250, 1.000] (ind: 0, Wyckoff: 16a)")
 
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()
@@ -114,11 +112,16 @@ class DistinctPathFinderTest(PymatgenTest):
             os.remove(f)
 
     def test_static(self):
-        s = self.get_structure("LiFePO4")
-        paths = DistinctPathFinder.find_min_percolation(s, "Li")
-        print(len(paths))
-        s = self.get_structure("Li3V2(PO4)3")
-        paths = DistinctPathFinder.find_min_percolation(s, "Li0+", distinct_only=False, perc_mode="3D")
+        # s = self.get_structure("LiFePO4")
+        # paths = DistinctPathFinder.find_min_percolation(s, "Li")
+        # print(len(paths))
+        s = Structure.from_file(get_path("LYPS.cif",
+                                         dirname="pathfinder_files"))
+        dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
+        print(len(dp1.get_paths()))
+        paths = DistinctPathFinder.find_min_percolation(s, "Li",
+                                                        distinct_only=False,
+                                                        perc_mode="1d")
         print(len(paths))
 
         from pymatgen.core.sites import PeriodicSite, get_el_sp
@@ -126,13 +129,22 @@ class DistinctPathFinderTest(PymatgenTest):
         sites = []
         for p in paths:
             structures = p.get_structures(
-                nimages=30, species=[get_el_sp("Li0+")])
+                nimages=10, species=[get_el_sp("Li")])
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:
                 sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
-        Structure.from_sites(sites).to(filename="LVPO.cif")
+        Structure.from_sites(sites).to(filename="LYPS_path.cif")
+
+    def test_max_path_length(self):
+        s = Structure.from_file(get_path("LYPS.cif",
+                                         dirname="pathfinder_files"))
+        dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
+        self.assertAlmostEqual(dp1.max_path_length, 4.11375354207, 7)
+        dp2 = DistinctPathFinder(s, "Li", 5, perc_mode="1d")
+        self.assertAlmostEqual(dp2.max_path_length, 5.0, 7)
+
 
 if __name__ == '__main__':
     unittest.main()
