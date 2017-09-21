@@ -16,6 +16,8 @@ __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
 
+import os
+from pymatgen_diffusion.neb.pathfinder import combine_neb_plots
 
 def get_path(path_str, dirname="./"):
     cwd = os.path.abspath(os.path.dirname(__file__))
@@ -119,6 +121,12 @@ class DistinctPathFinderTest(PymatgenTest):
         dp2 = DistinctPathFinder(s, "Li", 5, perc_mode="1d")
         self.assertAlmostEqual(dp2.max_path_length, 5.0, 7)
 
+def test_combine_neb_plots():
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            'test_files', 'neb')
+    combine_neb_plots([test_dir, test_dir])
+
+test_combine_neb_plots()
 
 if __name__ == '__main__':
     unittest.main()
