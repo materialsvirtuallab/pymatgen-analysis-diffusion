@@ -438,11 +438,7 @@ class DistinctPathFinder(object):
 
         junc = 0
         distance_list = []
-<<<<<<< HEAD
-        max_r = max(structure.lattice.abc) if max_path_length is None else max_path_length
-=======
         max_r = max_path_length or min(structure.lattice.abc)
->>>>>>> 3ac18bbd4ff67c7578e036098f0ec54a9c57d7c2
         junc_cutoff = max_r
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
@@ -450,11 +446,7 @@ class DistinctPathFinder(object):
                 dists = []
                 neighbors = self.symm_structure.get_neighbors(
                     site0, r=max_r)
-<<<<<<< HEAD
-                for nn, dist in sorted(neighbors, key=lambda neighbor: neighbor[-1]):
-=======
                 for nn, dist in sorted(neighbors, key=lambda n: n[-1]):
->>>>>>> 3ac18bbd4ff67c7578e036098f0ec54a9c57d7c2
                     if nn.specie == self.migrating_specie:
                         dists.append(dist)
                 if len(dists) > 2:
@@ -463,14 +455,6 @@ class DistinctPathFinder(object):
         # Avoid isolated atoms (# of neighbors < 2)
         if len(sorted(distance_list, key=len)[0]) < 2:
             path_cutoff = max_r
-<<<<<<< HEAD
-        # We define junction as atoms have at least three paths including equivalent ones.
-        elif junc == 0:
-            path_cutoff = sorted(distance_list, key=lambda d: d[1])[-1][1]
-        else:
-            # distance_list are sorted as [[a0,a1,a2],[b0,b1,b2],[c0,c1,c2],...] in which
-            # a0<a1<a2,b0<b1<b2,...
-=======
         # We define junction as atoms have at least three paths including
         # equivalent ones.
         elif junc == 0:
@@ -478,7 +462,6 @@ class DistinctPathFinder(object):
         else:
             # distance_list are sorted as [[a0,a1,a2],[b0,b1,b2],[c0,c1,c2],...]
             # in which a0<a1<a2,b0<b1<b2,...
->>>>>>> 3ac18bbd4ff67c7578e036098f0ec54a9c57d7c2
             # path_cutoff = max(a1,b1,c1,...), junc_cutoff=min(a2,b2,c2)
             path_cutoff = sorted(distance_list, key=lambda d: d[1])[-1][1]
             junc_distance_list = [d for d in distance_list if len(d) >= 3]
