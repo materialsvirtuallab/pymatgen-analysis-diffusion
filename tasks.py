@@ -52,7 +52,6 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
         ctx.run("cp -r html/* .")
