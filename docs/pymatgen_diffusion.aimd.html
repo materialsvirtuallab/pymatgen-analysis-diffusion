@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 0.3.0 documentation</title>
+    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 2018.1.4 documentation</title>
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.0',
+        VERSION:     '2018.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -56,7 +56,7 @@
         <li class="right" >
           <a href="pymatgen_diffusion.html" title="pymatgen_diffusion package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 0.3.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2018.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li> 
       </ul>
@@ -77,8 +77,91 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pymatgen-diffusion-aimd-clustering-module">
-<h2>pymatgen_diffusion.aimd.clustering module<a class="headerlink" href="#pymatgen-diffusion-aimd-clustering-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pymatgen_diffusion.aimd.clustering">
+<span id="pymatgen-diffusion-aimd-clustering-module"></span><h2>pymatgen_diffusion.aimd.clustering module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.clustering" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans">
+<em class="property">class </em><code class="descname">Kmeans</code><span class="sig-paren">(</span><em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.cluster">
+<code class="descname">cluster</code><span class="sig-paren">(</span><em>points</em>, <em>k</em>, <em>initial_centroids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>points</strong> (<em>ndarray</em>) – Data points as a mxn ndarray, where m is the
+number of features and n is the number of data points.</li>
+<li><strong>k</strong> (<em>int</em>) – Number of means.</li>
+<li><strong>initial_centroids</strong> (<em>np.array</em>) – Initial guess for the centroids. If
+None, a randomized array of points is used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">centroids are the final centroids, labels
+provide the index for each point, and ss in the final sum squared
+distances.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">centroids, labels, ss</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids">
+<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_labels">
+<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.Kmeans.should_stop">
+<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.should_stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC">
+<em class="property">class </em><code class="descname">KmeansPBC</code><span class="sig-paren">(</span><em>lattice</em>, <em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="pymatgen_diffusion.aimd.clustering.Kmeans"><code class="xref py py-class docutils literal"><span class="pre">pymatgen_diffusion.aimd.clustering.Kmeans</span></code></a></p>
+<p>A version of KMeans that work with PBC. Distance metrics have to change,
+as well as new centroid determination. The points supplied should be
+fractional coordinates.</p>
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids">
+<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels">
+<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop">
+<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen_diffusion.aimd.clustering.get_random_centroid">
+<code class="descname">get_random_centroid</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen_diffusion.aimd.clustering.get_random_centroids">
+<code class="descname">get_random_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-pymatgen_diffusion.aimd.pathway">
 <span id="pymatgen-diffusion-aimd-pathway-module"></span><h2>pymatgen_diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.pathway" title="Permalink to this headline">¶</a></h2>
@@ -398,7 +481,7 @@ by the input argument ‘type’.</p>
 <li><a class="reference internal" href="#">pymatgen_diffusion.aimd package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#pymatgen-diffusion-aimd-clustering-module">pymatgen_diffusion.aimd.clustering module</a></li>
+<li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.clustering">pymatgen_diffusion.aimd.clustering module</a></li>
 <li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.pathway">pymatgen_diffusion.aimd.pathway module</a></li>
 <li><a class="reference internal" href="#module-pymatgen_diffusion.aimd.van_hove">pymatgen_diffusion.aimd.van_hove module</a></li>
 <li><a class="reference internal" href="#module-pymatgen_diffusion.aimd">Module contents</a></li>
