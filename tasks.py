@@ -1,38 +1,34 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+#!/usr/bin/env python
 
 """
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
+Deployment file to facilitate releases of pymatgen_diffusion.
 """
 
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
+from __future__ import division
 
 import glob
-import os
-import json
-import webbrowser
-import requests
+import datetime
 import re
-import subprocess
-from invoke import task
+import json
+import requests
+import os
 
+from invoke import task
 from monty.os import cd
-from monty.tempfile import ScratchDir
-from pymatgen_diffusion import __version__ as ver
+
+__author__ = "Shyue Ping Ong"
+__date__ = "Apr 29, 2012"
+
+
+NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
 @task
 def make_doc(ctx):
-
-    with cd("docs"):
-        ctx.run("sphinx-apidoc -d 6 -o . -f ../pymatgen_diffusion")
-        ctx.run("rm pymatgen_diffusion.*.tests.rst")
+    with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
+        ctx.run("sphinx-apidoc -d 6 -o . -f ../pymatgen_diffusion")
+        ctx.run("rm pymatgen_diffusion*.tests.rst")
         for f in glob.glob("*.rst"):
             if f.startswith('pymatgen_diffusion') and f.endswith('rst'):
                 newoutput = []
@@ -48,7 +44,7 @@ def make_doc(ctx):
                         else:
                             if not clean.endswith("tests"):
                                 suboutput.append(line)
-                            if clean.startswith("pymatgen_diffusion") and not clean.endswith("tests"):
+                            if clean.startswith("pymatgen") and not clean.endswith("tests"):
                                 newoutput.extend(suboutput)
                                 subpackage = False
                                 suboutput = []
@@ -56,40 +52,77 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        #ctx.run("cp _static/* _build/html/_static")
+        ctx.run("cp _static/* ../docs/html/_static")
 
+    with cd("docs"):
+        ctx.run("cp -r html/* .")
+        ctx.run("rm -r html")
         # Avoid ths use of jekyll so that _dir works as intended.
-        ctx.run("touch _build/html/.nojekyll")
+        ctx.run("touch .nojekyll")
+
+@task
+def set_ver(ctx):
+    lines = []
+    with open("pymatgen_diffusion/__init__.py", "rt") as f:
+        for l in f:
+            if "__version__" in l:
+                lines.append('__version__ = "%s"' % NEW_VER)
+            else:
+                lines.append(l.rstrip())
+    with open("pymatgen_diffusion/__init__.py", "wt") as f:
+        f.write("\n".join(lines))
+
+    lines = []
+    with open("setup.py", "rt") as f:
+        for l in f:
+            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
+                                l.rstrip()))
+    with open("setup.py", "wt") as f:
+        f.write("\n".join(lines))
 
 
 @task
 def update_doc(ctx):
-    with cd("docs/_build/html/"):
-        ctx.run("git pull")
     make_doc(ctx)
-    with cd("docs/_build/html/"):
+    with cd("docs"):
         ctx.run("git add .")
         ctx.run("git commit -a -m \"Update dev docs\"")
-        ctx.run("git push origin gh-pages")
+        ctx.run("git push")
 
 
 @task
 def publish(ctx):
-    ctx.run("python setup.py release")
+    ctx.run("rm dist/*.*", warn=True)
+    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("twine upload dist/*")
 
 
 @task
-def setver(ctx):
-    ctx.run("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
-          .format(ver))
-    ctx.run("mv newsetup setup.py")
+def release_github(ctx):
+    payload = {
+        "tag_name": "v" + NEW_VER,
+        "target_commitish": "master",
+        "name": "v" + NEW_VER,
+        "body": "v" + NEW_VER,
+        "draft": False,
+        "prerelease": False
+    }
+    response = requests.post(
+        "https://api.github.com/repos/materialsvirtuallab/pymatgen-diffusion/releases",
+        data=json.dumps(payload),
+        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]})
+    print(response.text)
 
 
 @task
-def release(ctx, notest=False):
-    setver(ctx)
-    if not notest:
-        ctx.run("nosetests")
-    publish(ctx)
+def test(ctx):
+    ctx.run("nosetests")
+
+
+@task
+def release(ctx):
+    set_ver(ctx)
+    #test(ctx)
     update_doc(ctx)
-
+    publish(ctx)
+    release_github(ctx)
