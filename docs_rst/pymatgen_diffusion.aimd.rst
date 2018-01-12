@@ -1,5 +1,5 @@
-pymatgen_diffusion.aimd package
-===============================
+pymatgen\_diffusion\.aimd package
+=================================
 
 Subpackages
 -----------
@@ -10,24 +10,24 @@ Subpackages
 Submodules
 ----------
 
-pymatgen_diffusion.aimd.clustering module
------------------------------------------
+pymatgen\_diffusion\.aimd\.clustering module
+--------------------------------------------
 
 .. automodule:: pymatgen_diffusion.aimd.clustering
     :members:
     :undoc-members:
     :show-inheritance:
 
-pymatgen_diffusion.aimd.pathway module
---------------------------------------
+pymatgen\_diffusion\.aimd\.pathway module
+-----------------------------------------
 
 .. automodule:: pymatgen_diffusion.aimd.pathway
     :members:
     :undoc-members:
     :show-inheritance:
 
-pymatgen_diffusion.aimd.van_hove module
----------------------------------------
+pymatgen\_diffusion\.aimd\.van\_hove module
+-------------------------------------------
 
 .. automodule:: pymatgen_diffusion.aimd.van_hove
     :members:

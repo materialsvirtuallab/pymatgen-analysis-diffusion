@@ -7,7 +7,7 @@ import numpy as np
 import random
 import warnings
 
-from pymatgen.util.coord_utils import all_distances, pbc_diff
+from pymatgen.util.coord import all_distances, pbc_diff
 
 """
 This module implements clustering algorithms to determine centroids, with

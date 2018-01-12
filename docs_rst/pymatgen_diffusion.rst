@@ -1,5 +1,5 @@
-pymatgen_diffusion package
-==========================
+pymatgen\_diffusion package
+===========================
 
 Subpackages
 -----------
