@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 from pymatgen.util.plotting import pretty_plot
 from scipy import stats
 import numpy as np
+import itertools
+import pandas as pds
+from pymatgen import Element, Specie
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -276,6 +279,7 @@ class RadialDistributionFunction(object):
     """
     Calculate the average radial distribution function for a given set of structures.
     """
+
     # todo: volume change correction for NpT RDF
     def __init__(self, structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
                  species=("Li", "Na"), reference_species=None):
@@ -432,3 +436,244 @@ class RadialDistributionFunction(object):
             for r, gr in zip(self.interval, self.rdf):
                 f.write(delimiter.join(["%s" % v for v in [r, gr]]))
                 f.write("\n")
+
+
+class EvolutionAnalyzer(object):
+    def __init__(self, structures, rmax=10, step=1, time_step=2):
+        """
+        Initialization the EvolutionAnalyzer from MD simulations. From the structures
+        obtained from MD simulations, we can analyze the structure evolution with time
+        by some quantitative characterization such as RDF and atomic distribution.
+
+        If you use this class, please consider citing the following paper:
+        Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.; Zheng, C.;
+        Ong, S. P. "Probing Solid–Solid Interfacial Reactions in All-Solid-State
+        Sodium-Ion Batteries with First-Principles Calculations", Chem. Mater. (2018),
+        30(1), pp 163-173.
+
+        Args:
+            structures ([Structure]): The list of structures obtained from MD simulations.
+            rmax (float): Maximum of radial grid (the minimum is always zero).
+            step (int): indicate the interval of input structures, which is used
+                to calculated correct time step.
+            time_step(int): the time step in fs, POTIM in INCAR.
+        """
+        self.pairs = self.get_pairs(structures[0])
+        self.structure = structures[0]
+        self.structures = structures
+        self.rmax = rmax
+        self.step = step
+        self.time_step = time_step
+
+    @staticmethod
+    def get_pairs(structure):
+        """
+        Get all element pairs in a structure.
+
+        Args:
+            structure (Structure): structure
+
+        Returns:
+            list of tuples
+        """
+        specie_list = [s.name for s in structure.types_of_specie]
+        pairs = itertools.combinations_with_replacement(specie_list, 2)
+
+        return list(pairs)
+
+    @staticmethod
+    def rdf(structure, pair, ngrid=101, rmax=10):
+        """
+        Process rdf from a given structure and pair.
+
+        Args:
+            structure (Structure): input structure.
+            pair (str tuple): e.g. ("Na", "Na").
+            ngrid (int): Number of radial grid points.
+            rmax (float): Maximum of radial grid (the minimum is always zero).
+
+        Returns:
+            rdf (np.array)
+        """
+        r = RadialDistributionFunction([structure], ngrid=ngrid,
+                                       rmax=rmax,
+                                       sigma=0.1, species=(pair[0]),
+                                       reference_species=(pair[1]))
+
+        return r.rdf
+
+    @staticmethod
+    def atom_dist(structure, specie, ngrid=101, window=3, direction="c"):
+        """
+        Get atomic distribution for a given specie.
+
+        Args:
+            structure (Structure): input structure
+            specie (str): species string for an element
+            ngrid (int): Number of radial grid points.
+            window (float): number of atoms will be counted within the range
+                (i, i+window), unit is angstrom.
+            direction (str): Choose from "a", "b" and "c". Default is "c".
+
+        Returns:
+            density (np.array): atomic concentration along one direction.
+        """
+        if direction in ["a", "b", "c"]:
+            length = structure.lattice.__getattribute__(direction)
+            ind = ["a", "b", "c"].index(direction)
+            assert window <= length, "Window range exceeds valid bounds!"
+        else:
+            raise ValueError("Choose from a, b and c!")
+
+        atom_total = structure.composition[specie]
+        density = []
+
+        for i in np.linspace(0, length - window, ngrid):
+            atoms = [s for s in structure.sites if s.species_string == specie and
+                     i < s.coords[ind] % length <= i + window]
+            density.append(len(atoms) / atom_total)
+
+        return np.array(density)
+
+    def get_df(self, func, save_csv=None, **kwargs):
+        """
+        Get the data frame for a given pair. This step would be very slow if
+        there are hundreds or more structures to parse.
+
+        Args:
+            func (FunctionType): structure to spectrum function. choose from
+                rdf (to get radial distribution function, pair required) or
+                get_atomic_distribution (to get atomic distribution, specie
+                required). Extra parameters can be parsed using kwargs.
+                e.g. To get rdf dataframe:
+                    df = EvolutionAnalyzer.get_df(func=EvolutionAnalyzer.rdf,
+                                            pair=("Na", "Na"))
+                e.g. To get atomic distribution:
+                    df = EvolutionAnalyzer.get_df(func=EvolutionAnalyzer.atom_dist,
+                                            specie="Na")
+            save_csv (str): save pandas DataFrame to csv.
+
+        Returns:
+            pandas.DataFrame object: index is the radial distance in Angstrom,
+                and column is the time step in ps.
+        """
+        prop_table = []
+        ngrid = kwargs.get("ngrid", 101)
+        if func == self.rdf:
+            kwargs["rmax"] = self.rmax
+
+        for structure in self.structures:
+            prop_table.append(func(structure, **kwargs))
+
+        index = np.arange(len(self.structures)) * \
+                self.time_step * self.step / 1000
+        columns = np.linspace(0, self.rmax, ngrid)
+        df = pds.DataFrame(prop_table, index=index, columns=columns)
+
+        if save_csv is not None:
+            df.to_csv(save_csv)
+
+        return df
+
+    @staticmethod
+    def get_min_dist(df, tol=1e-10):
+        """
+        Get the shortest pair distance from the given DataFrame.
+
+        Args:
+            df (DataFrame): index is the radial distance in Angstrom, and
+                column is the time step in ps.
+            tol (float): any float number less than tol is considered as zero.
+
+        Returns:
+            The shorted pair distance throughout the table.
+        """
+        # TODO: Add unittest
+        for i, col in enumerate(df.columns):
+            min_dist = df.min(axis="index")[i]
+            if min_dist > tol:
+                return float(col)
+
+    @staticmethod
+    def plot_evolution_from_data(df, x_label=None, cb_label=None,
+                                 cmap=plt.cm.plasma):
+        """
+        Plot the evolution with time for a given DataFrame. It can be RDF, atomic distribution
+        or other characterization data we might implement in the future.
+
+        Args:
+
+            df (pandas.DataFrame): input DataFrame object, index is the radial
+                distance in Angstrom, and column is the time step in ps.
+            x_label (str): x label
+            cb_label (str): color bar label
+            cmap (color map): the color map used in heat map.
+                cmocean.cm.thermal is recommended
+        Returns:
+            matplotlib.axes._subplots.AxesSubplot object
+        """
+        import seaborn as sns
+        sns.set_style("white")
+
+        plt.rcParams['axes.linewidth'] = 1.5
+        plt.rcParams["font.family"] = 'sans-serif'
+        plt.rcParams['xtick.labelsize'] = 20
+        plt.rcParams['ytick.labelsize'] = 20
+        plt.rcParams['xtick.major.pad'] = 10
+
+        fig, ax = plt.subplots(figsize=(12, 8), facecolor="w")
+        ax = sns.heatmap(df, linewidths=0, cmap=cmap, annot=False, cbar=True,
+                         xticklabels=10, yticklabels=25)
+        ax.set_ylim(ax.get_ylim()[::-1])
+        ax.collections[0].colorbar.set_label(cb_label, fontsize=30)
+
+        plt.xticks(rotation="horizontal")
+
+        plt.xlabel(x_label, fontsize=30)
+        plt.ylabel('Time (ps)', fontsize=30)
+
+        plt.yticks(rotation="horizontal")
+        plt.tight_layout()
+
+        return plt
+
+    def plot_rdf_evolution(self, pair, cmap=plt.cm.plasma, df=None):
+        """
+        Plot the RDF evolution with time for a given pair.
+
+        Args:
+            pair (str tuple): e.g. ("Na", "Na")
+            cmap (color map): the color map used in heat map.
+                cmocean.cm.thermal is recommended
+            df (DataFrame): external data, index is the radial distance in
+                Angstrom, and column is the time step in ps.
+        Returns:
+            matplotlib.axes._subplots.AxesSubplot object
+        """
+        if df is None:
+            df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
+        x_label, cb_label = "$r$ ({}-{}) ($\\rm\AA$)".format(*pair), "$g(r)$"
+        p = self.plot_evolution_from_data(df=df, x_label=x_label,
+                                          cb_label=cb_label, cmap=cmap)
+
+        return p
+
+    def plot_atomic_evolution(self, specie, direction="c", cmap=plt.cm.Blues, df=None):
+        """
+        Plot the atomic distribution evolution with time for a given species.
+
+        Args:
+            specie (str ): species string for an element.
+            direction (str): Choose from "a", "b", "c". Default to "c".
+            cmap (color map): the color map used in heat map.
+            df (DataFrame): external data, index is the atomic distance in
+                         Angstrom, and column is the time step in ps.
+        Returns:
+            matplotlib.axes._subplots.AxesSubplot object
+                """
+        if df is None:
+            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
+        x_label, cb_label = "Atomic distribution along {} ".format(direction), "Probability"
+        p = self.plot_evolution_from_data(df=df, x_label=x_label,
+                                          cb_label=cb_label, cmap=cmap)
+        return p
