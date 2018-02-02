@@ -5,6 +5,8 @@
 from __future__ import division, unicode_literals, print_function
 import numpy as np
 from collections import Counter
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import fcluster, linkage
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -124,6 +126,8 @@ class ProbabilityDensityAnalysis(object):
         self.interval = interval
         self.lens = lens
         self.Pr = Pr
+        self.species = species
+        self.stable_sites = None
 
     @classmethod
     def from_diffusion_analyzer(cls, diffusion_analyzer, interval=0.5,
@@ -149,6 +153,89 @@ class ProbabilityDensityAnalysis(object):
 
         return ProbabilityDensityAnalysis(structure, trajectories,
                                           interval=interval, species=species)
+
+
+    def generate_stable_sites(self, p_ratio=0.25, d_cutoff=1.0):
+        """
+        Obtain a set of low-energy sites from probability density function with
+        given probability threshold 'p_ratio'. The set of grid points with
+        probability density higher than the threshold will further be clustered
+        using hierachical clustering method, with no two clusters closer than the
+        given distance cutoff. Note that the low-energy sites may converge more
+        slowly in fast conductors (more shallow energy landscape) than in the slow
+        conductors.
+
+        Args:
+        p_ratio (float): Probability threshold above which a grid point is
+                considered as a low-energy site.
+        d_cutoff (float): Distance cutoff used in hierachical clustering.
+
+        """
+
+        # Set of grid points with high probability density.
+        grid_fcoords = []
+        indices = np.where(self.Pr > self.Pr.max() * p_ratio)
+        lattice = self.structure.lattice
+
+        for (x, y, z) in zip(indices[0], indices[1], indices[2]):
+            grid_fcoords.append([x/self.lens[0], y/self.lens[1], z/self.lens[2]])
+
+        grid_fcoords = np.array(grid_fcoords)
+        dist_matrix = np.array(lattice.get_all_distances(grid_fcoords,
+                                                         grid_fcoords))
+        np.fill_diagonal(dist_matrix, 0)
+
+        # Compressed distance matrix
+        condensed_m = squareform((dist_matrix + dist_matrix.T) / 2.0)
+
+        # Linkage function for hierachical clustering.
+        z = linkage(condensed_m, method="single", metric="euclidean")
+        cluster_indices = fcluster(z, t=d_cutoff, criterion="distance")
+
+        # The low-energy sites must accommodate all the existing mobile ions.
+        nions = len([e for e in self.structure
+                     if e.specie.symbol in self.species])
+        nc = len(set(cluster_indices))
+
+        if nc < nions:
+            raise ValueError("The number of clusters ({}) is smaller than that of "
+                             "mobile ions ({})! Please try to decrease either "
+                             "'p_ratio' or 'd_cut' values!".format(nc, nions))
+
+        # For each low-energy site (cluster centroid), its coordinates are obtained
+        # by averaging over all the associated grid points within that cluster.
+        stable_sites = []
+
+        for i in set(cluster_indices):
+            indices = np.where(cluster_indices == i)[0]
+
+            if len(indices) == 1:
+                stable_sites.append(grid_fcoords[indices[0]])
+                continue
+
+            # Consider periodic boundary condition
+            members = grid_fcoords[indices] - grid_fcoords[indices[0]]
+            members = np.where(members > 0.5, members - 1.0, members)
+            members = np.where(members < -0.5, members + 1.0, members)
+            members += grid_fcoords[indices[0]]
+
+            stable_sites.append(np.mean(members, axis=0).tolist())
+
+        self.stable_sites = stable_sites
+
+
+    def get_full_structure(self):
+        """
+        Generate the structure with the low-energy sites included. In the end, a
+        pymatgen Structure object will be returned.
+        """
+
+        full_structure = self.structure.copy()
+        for fcoord in self.stable_sites:
+            full_structure.append("X", fcoord)
+
+        return full_structure
+
 
     def to_chgcar(self, filename="CHGCAR.vasp"):
         """

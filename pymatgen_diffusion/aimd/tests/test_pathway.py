@@ -17,7 +17,7 @@ import numpy as np
 from pymatgen_diffusion.aimd.pathway import ProbabilityDensityAnalysis, \
     SiteOccupancyAnalyzer
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen import Structure
+from pymatgen.core import Structure
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,6 +54,26 @@ class ProbabilityDensityTest(unittest.TestCase):
         self.assertAlmostEqual(pda.Pr.max(), 0.0361594977596, 8)
         self.assertAlmostEqual(pda.Pr.min(), 0.0, 12)
         self.assertAlmostEqual(Pr_tot, 1.0, 12)
+
+    def test_generate_stable_sites(self):
+        file = os.path.join(tests_dir, "cNa3PS4_pda.json")
+        data = json.load(open(file, "r"))
+        diff_analyzer = DiffusionAnalyzer.from_dict(data)
+
+        # ProbabilityDensityAnalysis object
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
+            diffusion_analyzer=diff_analyzer, interval=0.1)
+        pda.generate_stable_sites(p_ratio=0.25, d_cutoff=1.5)
+
+        self.assertEqual(len(pda.stable_sites), 50)
+        self.assertAlmostEqual(pda.stable_sites[1][2], 0.24113475177304966, 8)
+        self.assertAlmostEqual(pda.stable_sites[7][1], 0.5193661971830985, 8)
+
+        s = pda.get_full_structure()
+        self.assertEqual(s.num_sites, 178)
+        self.assertEqual(s.composition["Na"], 48)
+        self.assertEqual(s.composition["X"], 50)
+        self.assertAlmostEqual(s[177].frac_coords[2], 0.57446809)
 
 class SiteOccupancyTest(unittest.TestCase):
 
