@@ -3,6 +3,7 @@
 # Distributed under the terms of the BSD License.
 
 from __future__ import division, unicode_literals, print_function
+from pymatgen import Structure, Lattice
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -56,6 +57,14 @@ class RDFTest(unittest.TestCase):
         self.assertTrue(check)
         self.assertAlmostEqual(obj.rdf.max(), 1.6831, 4)
 
+    def test_rdf_coordination_number(self):
+        # create a simple cubic lattice
+        coords = np.array( [ [ 0.5, 0.5, 0.5 ] ] )
+        atom_list = [ 'S' ]
+        lattice = Lattice.from_parameters( a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90 )
+        structure = Structure( lattice, atom_list, coords )
+        rdf = RadialDistributionFunction( structures=[ structure ], species=['S'], rmax=5.0, sigma=0.1, ngrid=500 )
+        self.assertEqual( rdf.coordination_number[100], 6.0 )
 
 class EvolutionAnalyzerTest(unittest.TestCase):
     def test_get_df(self):

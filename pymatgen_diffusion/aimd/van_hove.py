@@ -326,6 +326,7 @@ class RadialDistributionFunction(object):
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
         rdf = np.zeros((ngrid), dtype=np.double)
+        raw_rdf = np.zeros((ngrid), dtype=np.double)
         dns = Counter()
 
         # generate the translational vectors
@@ -364,9 +365,11 @@ class RadialDistributionFunction(object):
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
                       / float(len(ref_indices)) / ff / self.rho / len(
                 fcoords_list)
+            raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = structures
         self.rdf = rdf
+        self.raw_rdf = raw_rdf
         self.interval = interval
         self.cellrange = cellrange
         self.rmax = rmax
@@ -382,7 +385,7 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
+        return np.cumsum(self.raw_rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
 
     def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """
