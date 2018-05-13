@@ -300,18 +300,23 @@ class RadialDistributionFunction(object):
                     O-H pair distribution in a water MD simulation.
         """
 
-        assert ngrid >= 1, "ngrid should be greater than 1!"
-        assert sigma > 0, "sigma should be a positive number!"
+        if ngrid < 2:
+            raise ValueError( "ngrid should be greater than 1!" )
+        if sigma <= 0:
+            raise ValueError( "sigma should be a positive number!" )
 
         lattice = structures[0].lattice
         indices = [j for j, site in enumerate(structures[0])
                    if site.specie.symbol in species]
 
-        assert len(indices) > 0, "Given species are not in the structure!"
+        if len(indices) < 1:
+            raise ValueError( "Given species are not in the structure!" )
 
         if reference_species:
             ref_indices = [j for j, site in enumerate(structures[0])
                            if site.specie.symbol in reference_species]
+            if len(ref_indices) < 1:
+                raise ValueError( "Given reference species are not in the structure!" )
         else:
             ref_indices = indices
 
