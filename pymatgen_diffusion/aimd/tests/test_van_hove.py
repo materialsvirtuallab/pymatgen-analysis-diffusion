@@ -4,7 +4,6 @@
 
 from __future__ import division, unicode_literals, print_function
 from pymatgen import Structure, Lattice
-from unittest.mock import Mock
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
