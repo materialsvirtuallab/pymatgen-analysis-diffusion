@@ -389,8 +389,9 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.raw_rdf[:-1] * self.rho * 4.0/3.0 * np.pi * 
-                         ( self.interval[1:] ** 3 - self.interval[:-1] ** 3 ) )
+        intervals = np.append( self.interval, self.interval[-1] + self.dr )
+        return np.cumsum(self.raw_rdf * self.rho * 4.0/3.0 * np.pi * 
+                         ( intervals[1:] ** 3 - intervals[:-1] ** 3 ) )
 
     def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """
