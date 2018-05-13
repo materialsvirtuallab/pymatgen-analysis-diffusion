@@ -293,8 +293,8 @@ class RadialDistributionFunction(object):
                 with supercell. Default is 1, i.e. including the adjecent image
                 cells along all three directions.
             sigma (float): Smearing of a Gaussian function.
-            species ([string]): A list of specie symbols of interest.
-            reference_species ([string]): set this option along with 'species'
+            species (list[string]): A list of specie symbols of interest.
+            reference_species (list[string]): set this option along with 'species'
                 parameter to compute pair radial distribution function.
                 eg: species=["H"], reference_species=["O"] to compute
                     O-H pair distribution in a water MD simulation.
@@ -309,10 +309,11 @@ class RadialDistributionFunction(object):
 
         assert len(indices) > 0, "Given species are not in the structure!"
 
-        ref_indices = indices
         if reference_species:
             ref_indices = [j for j, site in enumerate(structures[0])
                            if site.specie.symbol in reference_species]
+        else:
+            ref_indices = indices
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
@@ -327,6 +328,7 @@ class RadialDistributionFunction(object):
         interval = np.linspace(0.0, rmax, ngrid)
         rdf = np.zeros((ngrid), dtype=np.double)
         raw_rdf = np.zeros((ngrid), dtype=np.double)
+
         dns = Counter()
 
         # generate the translational vectors
@@ -349,7 +351,7 @@ class RadialDistributionFunction(object):
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in
                      range(len(ref_indices))
-                     for j in range(len(r) ** 3) if u != v or j != indx0]
+                     for j in range(len(r) ** 3) if indices[u] != ref_indices[v] or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)

@@ -66,6 +66,16 @@ class RDFTest(unittest.TestCase):
         rdf = RadialDistributionFunction( structures=[ structure ], species=['S'], rmax=5.0, sigma=0.1, ngrid=500 )
         self.assertEqual( rdf.coordination_number[100], 6.0 )
 
+    def test_rdf_two_species_coordination_number(self):
+        # create a structure with interpenetrating simple cubic lattice
+        coords = np.array( [ [ 0.0, 0.0, 0.0 ],
+                             [ 0.5, 0.5, 0.5 ] ] )
+        atom_list = [ 'S', 'Zn' ]
+        lattice = Lattice.from_parameters( a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90 )
+        structure = Structure( lattice, atom_list, coords )
+        rdf = RadialDistributionFunction( structures=[ structure ], species=['S'], reference_species=['Zn'], rmax=5.0, sigma=0.1, ngrid=500 )
+        self.assertEqual( rdf.coordination_number[100], 8.0 )
+ 
 class EvolutionAnalyzerTest(unittest.TestCase):
     def test_get_df(self):
         data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
