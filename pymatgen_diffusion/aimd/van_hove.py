@@ -359,14 +359,11 @@ class RadialDistributionFunction(object):
         for indx, dn in dns.most_common(ngrid):
             if indx > len(interval) - 1: continue
 
-            if indx == 0:
-                ff = np.pi * dr ** 2
-            else:
-                ff = 4.0 * np.pi * interval[indx] ** 2
+            ff = 4.0 / 3.0 * np.pi * ( interval[indx+1] ** 3 - interval[indx] ** 3 ) 
 
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
-                      / float(len(ref_indices)) / ff / self.rho / len(
-                fcoords_list)
+                      / float(len(ref_indices)) / ff / self.rho / len(fcoords_list) * dr
+                      # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = structures
@@ -387,7 +384,8 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.raw_rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
+        return np.cumsum(self.raw_rdf[:-1] * self.rho * 4.0/3.0 * np.pi * 
+                         ( self.interval[1:] ** 3 - self.interval[:-1] ** 3 ) )
 
     def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """
