@@ -293,26 +293,32 @@ class RadialDistributionFunction(object):
                 with supercell. Default is 1, i.e. including the adjecent image
                 cells along all three directions.
             sigma (float): Smearing of a Gaussian function.
-            species ([string]): A list of specie symbols of interest.
-            reference_species ([string]): set this option along with 'species'
+            species (list[string]): A list of specie symbols of interest.
+            reference_species (list[string]): set this option along with 'species'
                 parameter to compute pair radial distribution function.
                 eg: species=["H"], reference_species=["O"] to compute
                     O-H pair distribution in a water MD simulation.
         """
 
-        assert ngrid >= 1, "ngrid should be greater than 1!"
-        assert sigma > 0, "sigma should be a positive number!"
+        if ngrid < 2:
+            raise ValueError( "ngrid should be greater than 1!" )
+        if sigma <= 0:
+            raise ValueError( "sigma should be a positive number!" )
 
         lattice = structures[0].lattice
         indices = [j for j, site in enumerate(structures[0])
                    if site.specie.symbol in species]
 
-        assert len(indices) > 0, "Given species are not in the structure!"
+        if len(indices) < 1:
+            raise ValueError( "Given species are not in the structure!" )
 
-        ref_indices = indices
         if reference_species:
             ref_indices = [j for j, site in enumerate(structures[0])
                            if site.specie.symbol in reference_species]
+            if len(ref_indices) < 1:
+                raise ValueError( "Given reference species are not in the structure!" )
+        else:
+            ref_indices = indices
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
@@ -327,6 +333,7 @@ class RadialDistributionFunction(object):
         interval = np.linspace(0.0, rmax, ngrid)
         rdf = np.zeros((ngrid), dtype=np.double)
         raw_rdf = np.zeros((ngrid), dtype=np.double)
+
         dns = Counter()
 
         # generate the translational vectors
@@ -349,7 +356,7 @@ class RadialDistributionFunction(object):
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in
                      range(len(ref_indices))
-                     for j in range(len(r) ** 3) if u != v or j != indx0]
+                     for j in range(len(r) ** 3) if indices[u] != ref_indices[v] or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)
@@ -357,14 +364,11 @@ class RadialDistributionFunction(object):
         for indx, dn in dns.most_common(ngrid):
             if indx > len(interval) - 1: continue
 
-            if indx == 0:
-                ff = np.pi * dr ** 2
-            else:
-                ff = 4.0 * np.pi * interval[indx] ** 2
+            ff = 4.0 / 3.0 * np.pi * ( interval[indx+1] ** 3 - interval[indx] ** 3 ) 
 
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
-                      / float(len(ref_indices)) / ff / self.rho / len(
-                fcoords_list)
+                      / float(len(ref_indices)) / ff / self.rho / len(fcoords_list) * dr
+                      # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
 
         self.structures = structures
@@ -385,7 +389,9 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        return np.cumsum(self.raw_rdf * self.rho * 4.0 * np.pi * self.interval ** 2)
+        intervals = np.append( self.interval, self.interval[-1] + self.dr )
+        return np.cumsum(self.raw_rdf * self.rho * 4.0/3.0 * np.pi * 
+                         ( intervals[1:] ** 3 - intervals[:-1] ** 3 ) )
 
     def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """

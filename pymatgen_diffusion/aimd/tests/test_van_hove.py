@@ -55,7 +55,7 @@ class RDFTest(unittest.TestCase):
 
         check = np.shape(obj.rdf)[0] == 101 and np.argmax(obj.rdf) == 34
         self.assertTrue(check)
-        self.assertAlmostEqual(obj.rdf.max(), 1.6831, 4)
+        self.assertAlmostEqual(obj.rdf.max(), 1.634448, 4)
 
     def test_rdf_coordination_number(self):
         # create a simple cubic lattice
@@ -65,6 +65,39 @@ class RDFTest(unittest.TestCase):
         structure = Structure( lattice, atom_list, coords )
         rdf = RadialDistributionFunction( structures=[ structure ], species=['S'], rmax=5.0, sigma=0.1, ngrid=500 )
         self.assertEqual( rdf.coordination_number[100], 6.0 )
+
+    def test_rdf_two_species_coordination_number(self):
+        # create a structure with interpenetrating simple cubic lattice
+        coords = np.array( [ [ 0.0, 0.0, 0.0 ],
+                             [ 0.5, 0.5, 0.5 ] ] )
+        atom_list = [ 'S', 'Zn' ]
+        lattice = Lattice.from_parameters( a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90 )
+        structure = Structure( lattice, atom_list, coords )
+        rdf = RadialDistributionFunction( structures=[ structure ], species=['S'], reference_species=['Zn'], rmax=5.0, sigma=0.1, ngrid=500 )
+        self.assertEqual( rdf.coordination_number[100], 8.0 )
+
+    def setUp(self):
+        coords = np.array( [ [ 0.5, 0.5, 0.5 ] ] )
+        atom_list = [ 'S' ]
+        lattice = Lattice.from_parameters( a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90 )
+        self.structure = Structure( lattice, atom_list, coords )
+
+    def test_raises_valueerror_if_ngrid_is_less_than_2(self):
+        with self.assertRaises( ValueError ):
+            rdf = RadialDistributionFunction( structures=[ self.structure ], ngrid=1 )
+
+    def test_raises_ValueError_if_sigma_is_not_positive(self):
+        with self.assertRaises( ValueError ):
+            rdf = RadialDistributionFunction( structures=[ self.structure ], sigma=0 )
+
+    def test_raises_ValueError_if_species_not_in_structure(self):
+        with self.assertRaises( ValueError ):
+            rdf = RadialDistributionFunction( structures=[ self.structure ], species=['Cl'] )
+         
+    def test_raises_ValueError_if_reference_species_not_in_structure(self):
+        with self.assertRaises( ValueError ):
+            rdf = RadialDistributionFunction( structures=[ self.structure ], species=['S'],
+                reference_species=['Cl'] )
 
 class EvolutionAnalyzerTest(unittest.TestCase):
     def test_get_df(self):
@@ -81,8 +114,7 @@ class EvolutionAnalyzerTest(unittest.TestCase):
         atom_dist = eva.get_df(EvolutionAnalyzer.atom_dist, specie="Na", direction="c")
         check = np.shape(rdf) == (10, 101) and np.shape(atom_dist) == (10, 101) and eva.pairs[0] == ("Na", "Na")
         self.assertTrue(check)
-        self.assertAlmostEqual(max(np.array(rdf)[0]), 1.82363640047, 4)
-
+        self.assertAlmostEqual(max(np.array(rdf)[0]), 1.772465, 4)
 
 if __name__ == "__main__":
     unittest.main()
