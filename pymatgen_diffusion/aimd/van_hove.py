@@ -3,15 +3,16 @@
 # Distributed under the terms of the BSD License.
 
 from __future__ import division, unicode_literals, print_function
+
 from collections import Counter
-from scipy.stats import norm
-import matplotlib.pyplot as plt
-from pymatgen.util.plotting import pretty_plot
-from scipy import stats
 import numpy as np
 import itertools
 import pandas as pds
-from pymatgen import Element, Specie
+from scipy import stats
+from scipy.stats import norm
+import matplotlib.pyplot as plt
+
+from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Iek-Heng Chu"
 __version__ = 1.0
@@ -31,10 +32,10 @@ class VanHoveAnalysis(object):
     """
 
     def __init__(self, diffusion_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
-                 step_skip=50, sigma=0.1, cellrange=1, species=("Li", "Na"),
+                 step_skip=50, sigma=0.1, cell_range=1, species=("Li", "Na"),
                  reference_species=None, indices=None):
         """
-        Initization.
+        Initiation.
 
         Args:
             diffusion_analyzer (DiffusionAnalyzer): A
@@ -43,26 +44,26 @@ class VanHoveAnalysis(object):
             ngrid (int): Number of radial grid points
             rmax (float): Maximum of radial grid (the minimum is always set zero)
             step_skip (int): # of time steps skipped during analysis. It defines
-                        the resolution of the reduced time grid
+                the resolution of the reduced time grid
             sigma (float): Smearing of a Gaussian function
-            cellrange (int): Range of translational vector elements associated with
-                            supercell. Default is 1, i.e. including the adjecent
-                            image cells along all three directions.
+            cell_range (int): Range of translational vector elements associated
+                with supercell. Default is 1, i.e. including the adjacent image
+                cells along all three directions.
             species ([string]): a list of specie symbols of interest.
             reference_species ([string]): Set this option along with 'species'
-                            parameter to calculate the distinct-part of van Hove
-                            function. Note that the self-part of van Hove function is
-                            always computed only for those in "species" parameter.
+                parameter to calculate the distinct-part of van Hove function.
+                Note that the self-part of van Hove function is always computed
+                only for those in "species" parameter.
             indices (list of int): If not None, only a subset of atomic indices
-                            will be selected for the analysis. If this is given,
-                            "species" parameter will be ignored.
+                will be selected for the analysis. If this is given, "species"
+                parameter will be ignored.
         """
 
         # initial check
         if step_skip <= 0:
             raise ValueError("skip_step should be >=1!")
 
-        nions, nsteps, ndim = diffusion_analyzer.disp.shape
+        n_ions, nsteps, ndim = diffusion_analyzer.disp.shape
 
         if nsteps <= avg_nsteps:
             raise ValueError("Number of timesteps is too small!")
@@ -138,7 +139,7 @@ class VanHoveAnalysis(object):
                 gsrt[it, :] += gaussians[indx, :] * dn
 
         # calculate distinct part of van Hove function of species
-        r = np.arange(-cellrange, cellrange + 1)
+        r = np.arange(-cell_range, cell_range + 1)
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
@@ -185,8 +186,8 @@ class VanHoveAnalysis(object):
 
     def get_3d_plot(self, figsize=(12, 8), type="distinct"):
         """
-        Plot 3D self-part or distinct-part of van Hove function, which is specified
-        by the input argument 'type'.
+        Plot 3D self-part or distinct-part of van Hove function, which is
+        specified by the input argument 'type'.
         """
 
         assert type in ["distinct", "self"]
@@ -228,12 +229,12 @@ class VanHoveAnalysis(object):
 
         return plt
 
-    def get_1d_plot(self, type="distinct", times=[0.0], colors=None):
+    def get_1d_plot(self, mode="distinct", times=[0.0], colors=None):
         """
         Plot the van Hove function at given r or t.
 
         Args:
-            type (str): Specify which part of van Hove function to be plotted.
+            mode (str): Specify which part of van Hove function to be plotted.
             times (list of float): Time moments (in ps) in which the van Hove
                             function will be plotted.
             colors (list strings/tuples): Additional color settings. If not set,
@@ -243,14 +244,14 @@ class VanHoveAnalysis(object):
             import seaborn as sns
             colors = sns.color_palette("Set1", 10)
 
-        assert type in ["distinct", "self"]
+        assert mode in ["distinct", "self"]
         assert len(times) <= len(colors)
 
-        if type == "distinct":
+        if mode == "distinct":
             grt = self.gdrt.copy()
             ylabel = "$G_d$($t$,$r$)"
             ylim = [-0.005, 4.0]
-        elif type == "self":
+        elif mode == "self":
             grt = self.gsrt.copy()
             ylabel = "4$\pi r^2G_s$($t$,$r$)"
             ylim = [-0.005, 1.0]
@@ -277,46 +278,48 @@ class VanHoveAnalysis(object):
 
 class RadialDistributionFunction(object):
     """
-    Calculate the average radial distribution function for a given set of structures.
+    Calculate the average radial distribution function for a given set of
+    structures.
     """
 
     # todo: volume change correction for NpT RDF
-    def __init__(self, structures, ngrid=101, rmax=10.0, cellrange=1, sigma=0.1,
-                 species=("Li", "Na"), reference_species=None):
+    def __init__(self, structures, ngrid=101, rmax=10.0, cell_range=1,
+                 sigma=0.1, species=("Li", "Na"), reference_species=None):
         """
         Args:
             structures (list of pmg_structure objects): List of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
-            rmax (float): Maximum of radial grid (the minimum is always set zero).
-            cellrange (int): Range of translational vector elements associated
-                with supercell. Default is 1, i.e. including the adjecent image
+            rmax (float): Maximum of radial grid (the minimum is always zero).
+            cell_range (int): Range of translational vector elements associated
+                with supercell. Default is 1, i.e. including the adjacent image
                 cells along all three directions.
             sigma (float): Smearing of a Gaussian function.
             species (list[string]): A list of specie symbols of interest.
-            reference_species (list[string]): set this option along with 'species'
-                parameter to compute pair radial distribution function.
+            reference_species (list[string]): set this option along with
+                'species' parameter to compute radial distribution function.
                 eg: species=["H"], reference_species=["O"] to compute
                     O-H pair distribution in a water MD simulation.
         """
 
         if ngrid < 2:
-            raise ValueError( "ngrid should be greater than 1!" )
+            raise ValueError("ngrid should be greater than 1!")
         if sigma <= 0:
-            raise ValueError( "sigma should be a positive number!" )
+            raise ValueError("sigma should be a positive number!")
 
         lattice = structures[0].lattice
         indices = [j for j, site in enumerate(structures[0])
                    if site.specie.symbol in species]
 
         if len(indices) < 1:
-            raise ValueError( "Given species are not in the structure!" )
+            raise ValueError("Given species are not in the structure!")
 
         if reference_species:
             ref_indices = [j for j, site in enumerate(structures[0])
                            if site.specie.symbol in reference_species]
             if len(ref_indices) < 1:
-                raise ValueError( "Given reference species are not in the structure!" )
+                raise ValueError(
+                    "Given reference species are not in the structure!")
         else:
             ref_indices = indices
 
@@ -337,7 +340,7 @@ class RadialDistributionFunction(object):
         dns = Counter()
 
         # generate the translational vectors
-        r = np.arange(-cellrange, cellrange + 1)
+        r = np.arange(-cell_range, cell_range + 1)
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
@@ -356,7 +359,8 @@ class RadialDistributionFunction(object):
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in
                      range(len(ref_indices))
-                     for j in range(len(r) ** 3) if indices[u] != ref_indices[v] or j != indx0]
+                     for j in range(len(r) ** 3) if
+                     indices[u] != ref_indices[v] or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)
@@ -364,18 +368,21 @@ class RadialDistributionFunction(object):
         for indx, dn in dns.most_common(ngrid):
             if indx > len(interval) - 1: continue
 
-            ff = 4.0 / 3.0 * np.pi * ( interval[indx+1] ** 3 - interval[indx] ** 3 ) 
+            ff = 4.0 / 3.0 * np.pi * (
+                interval[indx + 1] ** 3 - interval[indx] ** 3)
 
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
-                      / float(len(ref_indices)) / ff / self.rho / len(fcoords_list) * dr
-                      # additional dr factor renormalises overlapping gaussians.
-            raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(fcoords_list)
+                      / float(len(ref_indices)) / ff / self.rho / len(
+                fcoords_list) * dr
+            # additional dr factor renormalises overlapping gaussians.
+            raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(
+                fcoords_list)
 
         self.structures = structures
         self.rdf = rdf
         self.raw_rdf = raw_rdf
         self.interval = interval
-        self.cellrange = cellrange
+        self.cellrange = cell_range
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = species
@@ -389,9 +396,9 @@ class RadialDistributionFunction(object):
         Returns:
             numpy array
         """
-        intervals = np.append( self.interval, self.interval[-1] + self.dr )
-        return np.cumsum(self.raw_rdf * self.rho * 4.0/3.0 * np.pi * 
-                         ( intervals[1:] ** 3 - intervals[:-1] ** 3 ) )
+        intervals = np.append(self.interval, self.interval[-1] + self.dr)
+        return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi *
+                         (intervals[1:] ** 3 - intervals[:-1] ** 3))
 
     def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
         """
@@ -450,18 +457,20 @@ class RadialDistributionFunction(object):
 class EvolutionAnalyzer(object):
     def __init__(self, structures, rmax=10, step=1, time_step=2):
         """
-        Initialization the EvolutionAnalyzer from MD simulations. From the structures
-        obtained from MD simulations, we can analyze the structure evolution with time
-        by some quantitative characterization such as RDF and atomic distribution.
+        Initialization the EvolutionAnalyzer from MD simulations. From the
+        structures obtained from MD simulations, we can analyze the structure
+        evolution with time by some quantitative characterization such as RDF
+        and atomic distribution.
 
         If you use this class, please consider citing the following paper:
-        Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.; Zheng, C.;
-        Ong, S. P. "Probing Solid–Solid Interfacial Reactions in All-Solid-State
-        Sodium-Ion Batteries with First-Principles Calculations", Chem. Mater. (2018),
-        30(1), pp 163-173.
+        Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.;
+        Zheng, C.; Ong, S. P. "Probing Solid–Solid Interfacial Reactions in
+        All-Solid-State Sodium-Ion Batteries with First-Principles
+        Calculations", Chem. Mater. (2018), 30(1), pp 163-173.
 
         Args:
-            structures ([Structure]): The list of structures obtained from MD simulations.
+            structures ([Structure]): The list of structures obtained from MD
+                simulations.
             rmax (float): Maximum of radial grid (the minimum is always zero).
             step (int): indicate the interval of input structures, which is used
                 to calculated correct time step.
@@ -538,7 +547,8 @@ class EvolutionAnalyzer(object):
         density = []
 
         for i in np.linspace(0, length - window, ngrid):
-            atoms = [s for s in structure.sites if s.species_string == specie and
+            atoms = [s for s in structure.sites if
+                     s.species_string == specie and
                      i < s.coords[ind] % length <= i + window]
             density.append(len(atoms) / atom_total)
 
@@ -555,11 +565,11 @@ class EvolutionAnalyzer(object):
                 get_atomic_distribution (to get atomic distribution, specie
                 required). Extra parameters can be parsed using kwargs.
                 e.g. To get rdf dataframe:
-                    df = EvolutionAnalyzer.get_df(func=EvolutionAnalyzer.rdf,
-                                            pair=("Na", "Na"))
+                    df = EvolutionAnalyzer.get_df(
+                        func=EvolutionAnalyzer.rdf, pair=("Na", "Na"))
                 e.g. To get atomic distribution:
-                    df = EvolutionAnalyzer.get_df(func=EvolutionAnalyzer.atom_dist,
-                                            specie="Na")
+                    df = EvolutionAnalyzer.get_df(
+                        func=EvolutionAnalyzer.atom_dist, specie="Na")
             save_csv (str): save pandas DataFrame to csv.
 
         Returns:
@@ -607,8 +617,9 @@ class EvolutionAnalyzer(object):
     def plot_evolution_from_data(df, x_label=None, cb_label=None,
                                  cmap=plt.cm.plasma):
         """
-        Plot the evolution with time for a given DataFrame. It can be RDF, atomic distribution
-        or other characterization data we might implement in the future.
+        Plot the evolution with time for a given DataFrame. It can be RDF,
+        atomic distribution or other characterization data we might
+        implement in the future.
 
         Args:
 
@@ -632,7 +643,7 @@ class EvolutionAnalyzer(object):
 
         fig, ax = plt.subplots(figsize=(12, 8), facecolor="w")
         ax = sns.heatmap(df, linewidths=0, cmap=cmap, annot=False, cbar=True,
-                         xticklabels=10, yticklabels=25)
+                         xticklabels=10, yticklabels=25, rasterized=True)
         ax.set_ylim(ax.get_ylim()[::-1])
         ax.collections[0].colorbar.set_label(cb_label, fontsize=30)
 
@@ -667,7 +678,8 @@ class EvolutionAnalyzer(object):
 
         return p
 
-    def plot_atomic_evolution(self, specie, direction="c", cmap=plt.cm.Blues, df=None):
+    def plot_atomic_evolution(self, specie, direction="c",
+                              cmap=plt.cm.Blues, df=None):
         """
         Plot the atomic distribution evolution with time for a given species.
 
@@ -679,10 +691,12 @@ class EvolutionAnalyzer(object):
                          Angstrom, and column is the time step in ps.
         Returns:
             matplotlib.axes._subplots.AxesSubplot object
-                """
+        """
         if df is None:
-            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
-        x_label, cb_label = "Atomic distribution along {} ".format(direction), "Probability"
+            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie,
+                             direction=direction)
+        x_label, cb_label = "Atomic distribution along {} ".format(
+            direction), "Probability"
         p = self.plot_evolution_from_data(df=df, x_label=x_label,
                                           cb_label=cb_label, cmap=cmap)
         return p

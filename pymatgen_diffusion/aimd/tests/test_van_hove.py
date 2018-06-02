@@ -51,7 +51,7 @@ class RDFTest(unittest.TestCase):
             if i == 9: break
 
         obj = RadialDistributionFunction(structures=structure_list, ngrid=101, rmax=10.0,
-                                         cellrange=1, sigma=0.1, species=["Na", "P", "S"])
+                                         cell_range=1, sigma=0.1, species=["Na", "P", "S"])
 
         check = np.shape(obj.rdf)[0] == 101 and np.argmax(obj.rdf) == 34
         self.assertTrue(check)
