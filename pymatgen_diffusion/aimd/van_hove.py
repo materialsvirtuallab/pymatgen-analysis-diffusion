@@ -384,6 +384,7 @@ class RadialDistributionFunction(object):
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = species
+        self.reference_species = reference_species
         self.dr = dr
         self.rdf = rdf
         self.raw_rdf = raw_rdf
