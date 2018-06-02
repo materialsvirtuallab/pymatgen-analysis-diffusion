@@ -10,6 +10,7 @@ import itertools
 import pandas as pds
 from scipy import stats
 from scipy.stats import norm
+from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
 from pymatgen.util.plotting import pretty_plot
@@ -379,14 +380,18 @@ class RadialDistributionFunction(object):
                 fcoords_list)
 
         self.structures = structures
-        self.rdf = rdf
-        self.raw_rdf = raw_rdf
-        self.interval = interval
-        self.cellrange = cell_range
+        self.cell_range = cell_range
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = species
         self.dr = dr
+        self.rdf = rdf
+        self.raw_rdf = raw_rdf
+        self.interval = interval
+        # Finding peak based on smeared RDF
+        self.peak_indices = find_peaks(rdf)[0]
+        self.peak_r = [self.interval[i] for i in self.peak_indices]
+        self.peak_rdf = [self.rdf[i] for i in self.peak_indices]
 
     @property
     def coordination_number(self):
@@ -400,7 +405,8 @@ class RadialDistributionFunction(object):
         return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi *
                          (intervals[1:] ** 3 - intervals[:-1] ** 3))
 
-    def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0)):
+    def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0),
+                     loc_peak=False):
         """
         Plot the average RDF function.
 
@@ -408,6 +414,7 @@ class RadialDistributionFunction(object):
             label (str): The legend label.
             xlim (list): Set the x limits of the current axes.
             ylim (list): Set the y limits of the current axes.
+            loc_peak (bool): Label peaks if True.
         """
 
         if label is None:
@@ -422,7 +429,12 @@ class RadialDistributionFunction(object):
                 label = "-".join(symbol_list)
 
         plt = pretty_plot(12, 8)
-        plt.plot(self.interval, self.rdf, color="r", label=label, linewidth=4.0)
+        plt.plot(self.interval, self.rdf, label=label, linewidth=4.0, zorder=1)
+
+        if loc_peak:
+            plt.scatter(self.peak_r, self.peak_rdf, marker="P", s=240, c='k',
+                        linewidths=0.1, alpha=0.7, zorder=2, label="Peaks")
+
         plt.xlabel("$r$ ($\\rm\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc='upper right', fontsize=36)
@@ -514,8 +526,7 @@ class EvolutionAnalyzer(object):
             rdf (np.array)
         """
         r = RadialDistributionFunction([structure], ngrid=ngrid,
-                                       rmax=rmax,
-                                       sigma=0.1, species=(pair[0]),
+                                       rmax=rmax, sigma=0.1, species=(pair[0]),
                                        reference_species=(pair[1]))
 
         return r.rdf
