@@ -166,10 +166,13 @@ class ProbabilityDensityAnalysis(object):
         conductors.
 
         Args:
-        p_ratio (float): Probability threshold above which a grid point is
+            p_ratio (float): Probability threshold above which a grid point is
                 considered as a low-energy site.
-        d_cutoff (float): Distance cutoff used in hierachical clustering.
+            d_cutoff (float): Distance cutoff used in hierachical clustering.
 
+        Notes:
+            The set of stable sites is stored in the `stable_sites` attribute
+            as a Nx3 numpy array. 
         """
 
         # Set of grid points with high probability density.
@@ -219,10 +222,9 @@ class ProbabilityDensityAnalysis(object):
             members = np.where(members < -0.5, members + 1.0, members)
             members += grid_fcoords[indices[0]]
 
-            stable_sites.append(np.mean(members, axis=0).tolist())
+            stable_sites.append(np.mean(members, axis=0))
 
-        self.stable_sites = stable_sites
-
+        self.stable_sites = np.array(stable_sites)
 
     def get_full_structure(self):
         """
