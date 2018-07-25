@@ -8,6 +8,7 @@ from collections import Counter
 import numpy as np
 import itertools
 import pandas as pds
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from scipy import stats
 from scipy.stats import norm
 from scipy.signal import find_peaks
@@ -284,11 +285,11 @@ class RadialDistributionFunction(object):
     """
 
     # todo: volume change correction for NpT RDF
-    def __init__(self, structures, ngrid=101, rmax=10.0, cell_range=1,
-                 sigma=0.1, species=("Li", "Na"), reference_species=None):
+    def __init__(self, structures, indices, reference_indices, ngrid=101,
+                 rmax=10.0, cell_range=1, sigma=0.1):
         """
         Args:
-            structures (list of pmg_structure objects): List of structure
+            structures ([Structure]): List of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
             rmax (float): Maximum of radial grid (the minimum is always zero).
@@ -296,11 +297,9 @@ class RadialDistributionFunction(object):
                 with supercell. Default is 1, i.e. including the adjacent image
                 cells along all three directions.
             sigma (float): Smearing of a Gaussian function.
-            species (list[string]): A list of specie symbols of interest.
-            reference_species (list[string]): set this option along with
-                'species' parameter to compute radial distribution function.
-                eg: species=["H"], reference_species=["O"] to compute
-                    O-H pair distribution in a water MD simulation.
+            indices ([int]): A list of atom index of interest.
+            reference_indices ([int]): set this option along with 'indices'
+                parameter to compute radial distribution function.
         """
 
         if ngrid < 2:
@@ -309,20 +308,9 @@ class RadialDistributionFunction(object):
             raise ValueError("sigma should be a positive number!")
 
         lattice = structures[0].lattice
-        indices = [j for j, site in enumerate(structures[0])
-                   if site.specie.symbol in species]
 
         if len(indices) < 1:
             raise ValueError("Given species are not in the structure!")
-
-        if reference_species:
-            ref_indices = [j for j, site in enumerate(structures[0])
-                           if site.specie.symbol in reference_species]
-            if len(ref_indices) < 1:
-                raise ValueError(
-                    "Given reference species are not in the structure!")
-        else:
-            ref_indices = indices
 
         self.rho = float(len(indices)) / lattice.volume
         fcoords_list = []
@@ -331,7 +319,7 @@ class RadialDistributionFunction(object):
         for s in structures:
             all_fcoords = np.array(s.frac_coords)
             fcoords_list.append(all_fcoords[indices, :])
-            ref_fcoords_list.append(all_fcoords[ref_indices, :])
+            ref_fcoords_list.append(all_fcoords[reference_indices, :])
 
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
@@ -359,9 +347,9 @@ class RadialDistributionFunction(object):
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices)) for v in
-                     range(len(ref_indices))
+                     range(len(reference_indices))
                      for j in range(len(r) ** 3) if
-                     indices[u] != ref_indices[v] or j != indx0]
+                     indices[u] != reference_indices[v] or j != indx0]
             dists = filter(lambda e: e < rmax + 1e-8, dists)
             r_indices = [int(dist / dr) for dist in dists]
             dns.update(r_indices)
@@ -373,18 +361,22 @@ class RadialDistributionFunction(object):
                 interval[indx + 1] ** 3 - interval[indx] ** 3)
 
             rdf[:] += stats.norm.pdf(interval, interval[indx], sigma) * dn \
-                      / float(len(ref_indices)) / ff / self.rho / len(
+                      / float(len(reference_indices)) / ff / self.rho / len(
                 fcoords_list) * dr
             # additional dr factor renormalises overlapping gaussians.
-            raw_rdf[indx] += dn / float(len(ref_indices)) / ff / self.rho / len(
+            raw_rdf[indx] += dn / float(
+                len(reference_indices)) / ff / self.rho / len(
                 fcoords_list)
 
         self.structures = structures
         self.cell_range = cell_range
         self.rmax = rmax
         self.ngrid = ngrid
-        self.species = species
-        self.reference_species = reference_species
+        self.species = {structures[0][i].species_string for i in indices}
+        self.reference_species = {structures[0][i].species_string for i in
+                                  reference_indices}
+        self.indices = indices
+        self.reference_indices = reference_indices
         self.dr = dr
         self.rdf = rdf
         self.raw_rdf = raw_rdf
@@ -393,6 +385,43 @@ class RadialDistributionFunction(object):
         self.peak_indices = find_peaks(rdf)[0]
         self.peak_r = [self.interval[i] for i in self.peak_indices]
         self.peak_rdf = [self.rdf[i] for i in self.peak_indices]
+
+    @classmethod
+    def from_species(cls, structures, ngrid=101, rmax=10.0, cell_range=1,
+                     sigma=0.1, species=("Li", "Na"), reference_species=None):
+        """
+        Initialize using species.
+
+        Args:
+            structures (list of pmg_structure objects): List of structure
+                objects with the same composition. Allow for ensemble averaging.
+            ngrid (int): Number of radial grid points.
+            rmax (float): Maximum of radial grid (the minimum is always zero).
+            cell_range (int): Range of translational vector elements associated
+                with supercell. Default is 1, i.e. including the adjacent image
+                cells along all three directions.
+            sigma (float): Smearing of a Gaussian function.
+            species (list[string]): A list of specie symbols of interest.
+            reference_species (list[string]): set this option along with
+                'species' parameter to compute radial distribution function.
+                eg: species=["H"], reference_species=["O"] to compute
+                    O-H pair distribution in a water MD simulation.
+        """
+        indices = [j for j, site in enumerate(structures[0])
+                   if site.specie.symbol in species]
+        if reference_species:
+            reference_indices = [j for j, site in enumerate(structures[0])
+                                 if site.specie.symbol in reference_species]
+
+            if len(reference_indices) < 1:
+                raise ValueError(
+                    "Given reference species are not in the structure!")
+        else:
+            reference_indices = indices
+
+        return cls(structures=structures, ngrid=ngrid, rmax=rmax,
+                   cell_range=cell_range, sigma=sigma, indices=indices,
+                   reference_indices=reference_indices)
 
     @property
     def coordination_number(self):
@@ -526,9 +555,9 @@ class EvolutionAnalyzer(object):
         Returns:
             rdf (np.array)
         """
-        r = RadialDistributionFunction([structure], ngrid=ngrid,
-                                       rmax=rmax, sigma=0.1, species=(pair[0]),
-                                       reference_species=(pair[1]))
+        r = RadialDistributionFunction.from_species(
+            [structure], ngrid=ngrid, rmax=rmax, sigma=0.1, species=(pair[0]),
+            reference_species=(pair[1]))
 
         return r.rdf
 
@@ -712,3 +741,27 @@ class EvolutionAnalyzer(object):
         p = self.plot_evolution_from_data(df=df, x_label=x_label,
                                           cb_label=cb_label, cmap=cmap)
         return p
+
+
+if __name__ == "__main__":
+    # import os
+    # import json
+    #
+    # tests_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    #                          "tests")
+    # data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
+    # data = json.load(open(data_file, "r"))
+    # obj = DiffusionAnalyzer.from_dict(data)
+    # structure_list = []
+    # for i, s in enumerate(obj.get_drift_corrected_structures()):
+    #     structure_list.append(s)
+    #     if i == 9: break
+    #
+    # s = structure_list[0]
+    # indices = [i for (i, site) in enumerate(s) if
+    #            site.species_string in ["Na", "P", "S"]]
+    # obj = RadialDistributionFunction(
+    #     structures=structure_list, ngrid=101, rmax=10.0, cell_range=1,
+    #     sigma=0.1, indices=indices, reference_indices=indices)
+
+    pass
