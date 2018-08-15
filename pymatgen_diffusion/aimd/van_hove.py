@@ -562,7 +562,7 @@ class EvolutionAnalyzer(object):
         return r.rdf
 
     @staticmethod
-    def atom_dist(structure, specie, ngrid=101, window=3, direction="c"):
+    def atom_dist(structure, specie, ngrid=101, window=1, direction="c"):
         """
         Get atomic distribution for a given specie.
 
@@ -571,26 +571,32 @@ class EvolutionAnalyzer(object):
             specie (str): species string for an element
             ngrid (int): Number of radial grid points.
             window (float): number of atoms will be counted within the range
-                (i, i+window), unit is angstrom.
+                (i-window, i+window), unit is angstrom.
             direction (str): Choose from "a", "b" and "c". Default is "c".
 
         Returns:
             density (np.array): atomic concentration along one direction.
         """
         if direction in ["a", "b", "c"]:
-            length = structure.lattice.__getattribute__(direction)
+            l = structure.lattice.__getattribute__(direction)
             ind = ["a", "b", "c"].index(direction)
-            assert window <= length, "Window range exceeds valid bounds!"
+            assert window <= l, "Window range exceeds valid bounds!"
         else:
             raise ValueError("Choose from a, b and c!")
 
+        atom_list = [site for site in structure.sites
+                     if site.species_string == specie]
         atom_total = structure.composition[specie]
         density = []
 
-        for i in np.linspace(0, length - window, ngrid):
-            atoms = [s for s in structure.sites if
-                     s.species_string == specie and
-                     i < s.coords[ind] % length <= i + window]
+        for i in np.linspace(0, l - window, ngrid):
+            atoms = []
+            for j in [-1, 0, 1]:
+                temp = [
+                    s for s in atom_list if
+                    i - window < s.coords[ind] % l + l * j < i + window]
+                atoms.extend(temp)
+
             density.append(len(atoms) / atom_total)
 
         return np.array(density)
