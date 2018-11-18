@@ -4,24 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen_diffusion.aimd.pathway &#8212; pymatgen-diffusion 2018.1.4 documentation</title>
+    <title>pymatgen_diffusion.aimd.pathway &#8212; pymatgen-diffusion 2018.11.17 documentation</title>
     <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.4',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -37,8 +29,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -48,7 +39,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2018.1.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2018.11.17 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -66,6 +57,8 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">squareform</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">import</span> <span class="n">fcluster</span><span class="p">,</span> <span class="n">linkage</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -185,6 +178,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lens</span> <span class="o">=</span> <span class="n">lens</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pr</span> <span class="o">=</span> <span class="n">Pr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ProbabilityDensityAnalysis.from_diffusion_analyzer"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_diffusion_analyzer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
@@ -210,6 +205,91 @@
 
         <span class="k">return</span> <span class="n">ProbabilityDensityAnalysis</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span>
                                           <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.generate_stable_sites"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites">[docs]</a>    <span class="k">def</span> <span class="nf">generate_stable_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_ratio</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a set of low-energy sites from probability density function with</span>
+<span class="sd">        given probability threshold &#39;p_ratio&#39;. The set of grid points with</span>
+<span class="sd">        probability density higher than the threshold will further be clustered</span>
+<span class="sd">        using hierachical clustering method, with no two clusters closer than the</span>
+<span class="sd">        given distance cutoff. Note that the low-energy sites may converge more</span>
+<span class="sd">        slowly in fast conductors (more shallow energy landscape) than in the slow</span>
+<span class="sd">        conductors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p_ratio (float): Probability threshold above which a grid point is</span>
+<span class="sd">                considered as a low-energy site.</span>
+<span class="sd">            d_cutoff (float): Distance cutoff used in hierachical clustering.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            The set of stable sites is stored in the `stable_sites` attribute</span>
+<span class="sd">            as a Nx3 numpy array. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set of grid points with high probability density.</span>
+        <span class="n">grid_fcoords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pr</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">p_ratio</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+            <span class="n">grid_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="n">grid_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">)</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">,</span>
+                                                         <span class="n">grid_fcoords</span><span class="p">))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Compressed distance matrix</span>
+        <span class="n">condensed_m</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">((</span><span class="n">dist_matrix</span> <span class="o">+</span> <span class="n">dist_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="c1"># Linkage function for hierachical clustering.</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">condensed_m</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
+        <span class="n">cluster_indices</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">d_cutoff</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+
+        <span class="c1"># The low-energy sites must accommodate all the existing mobile ions.</span>
+        <span class="n">nions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+                     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">])</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">nc</span> <span class="o">&lt;</span> <span class="n">nions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of clusters (</span><span class="si">{}</span><span class="s2">) is smaller than that of &quot;</span>
+                             <span class="s2">&quot;mobile ions (</span><span class="si">{}</span><span class="s2">)! Please try to decrease either &quot;</span>
+                             <span class="s2">&quot;&#39;p_ratio&#39; or &#39;d_cut&#39; values!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">nions</span><span class="p">))</span>
+
+        <span class="c1"># For each low-energy site (cluster centroid), its coordinates are obtained</span>
+        <span class="c1"># by averaging over all the associated grid points within that cluster.</span>
+        <span class="n">stable_sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cluster_indices</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">stable_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Consider periodic boundary condition</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">members</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">members</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">members</span><span class="p">)</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">members</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">members</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">members</span><span class="p">)</span>
+            <span class="n">members</span> <span class="o">+=</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+            <span class="n">stable_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">members</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stable_sites</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.get_full_structure"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the structure with the low-energy sites included. In the end, a</span>
+<span class="sd">        pymatgen Structure object will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">full_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fcoord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">:</span>
+            <span class="n">full_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">full_structure</span></div>
+
 
 <div class="viewcode-block" id="ProbabilityDensityAnalysis.to_chgcar"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar">[docs]</a>    <span class="k">def</span> <span class="nf">to_chgcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CHGCAR.vasp&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -358,12 +438,14 @@
 </ul>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
