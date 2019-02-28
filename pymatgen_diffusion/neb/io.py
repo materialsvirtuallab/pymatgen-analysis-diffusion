@@ -2,9 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-
-from __future__ import division, unicode_literals, print_function
-
 import copy
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet

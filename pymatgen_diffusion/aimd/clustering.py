@@ -2,7 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
 import numpy as np
 import random
 import warnings
@@ -23,7 +22,7 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '3/18/15'
 
 
-class Kmeans(object):
+class Kmeans:
 
     def __init__(self, max_iterations=1000):
         self.max_iterations = max_iterations

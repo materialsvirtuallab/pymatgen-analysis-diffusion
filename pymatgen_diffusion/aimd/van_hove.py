@@ -2,8 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
-
 from collections import Counter
 import numpy as np
 import itertools
@@ -17,11 +15,11 @@ import matplotlib.pyplot as plt
 from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Iek-Heng Chu"
-__version__ = 1.0
+__version__ = "1.0"
 __date__ = "Aug 9, 2017"
 
 
-class VanHoveAnalysis(object):
+class VanHoveAnalysis:
     """
     Class for van Hove function analysis. In particular, self-part (Gs) and
     distinct-part (Gd) of the van Hove correlation function G(r,t)
@@ -278,7 +276,7 @@ class VanHoveAnalysis(object):
         return plt
 
 
-class RadialDistributionFunction(object):
+class RadialDistributionFunction:
     """
     Calculate the average radial distribution function for a given set of
     structures.
@@ -496,7 +494,7 @@ class RadialDistributionFunction(object):
                 f.write("\n")
 
 
-class EvolutionAnalyzer(object):
+class EvolutionAnalyzer:
     def __init__(self, structures, rmax=10, step=1, time_step=2):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the

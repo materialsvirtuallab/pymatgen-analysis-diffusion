@@ -2,11 +2,9 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
 from pymatgen import Structure, Lattice
 
 __author__ = "Iek-Heng Chu"
-__version__ = 1.0
 __date__ = "01/16"
 
 import unittest

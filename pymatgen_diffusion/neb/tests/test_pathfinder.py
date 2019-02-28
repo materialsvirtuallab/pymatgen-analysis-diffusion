@@ -2,8 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals
-
 from pymatgen.core import Structure
 from pymatgen_diffusion.neb.pathfinder import IDPPSolver, DistinctPathFinder
 from pymatgen.util.testing import PymatgenTest

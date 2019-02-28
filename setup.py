@@ -22,7 +22,7 @@ setup(
     author="materials virtual lab",
     author_email="ongsp@eng.ucsd.edu",
     maintainer="materials virtual lab",
-    url="https://github.com/materialvirtuallab/pymatgen-diffusion/",
+    url="https://github.com/materialsvirtuallab/pymatgen-diffusion/",
     license="MIT",
     description="Add-on to pymatgen for diffusion analysis.",
     long_description=desc,

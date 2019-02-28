@@ -2,14 +2,13 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
 import numpy as np
 from collections import Counter
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import fcluster, linkage
 
 __author__ = "Iek-Heng Chu"
-__version__ = 1.0
+__version__ = "1.0"
 __date__ = "05/15"
 
 """
@@ -17,7 +16,7 @@ __date__ = "05/15"
 """
 
 
-class ProbabilityDensityAnalysis(object):
+class ProbabilityDensityAnalysis:
     """
     Compute the time-averaged probability density distribution of selected
     species on a "uniform" (in terms of fractional coordinates) 3-D grid.
@@ -280,7 +279,7 @@ class ProbabilityDensityAnalysis(object):
         f.close()
 
 
-class SiteOccupancyAnalyzer(object):
+class SiteOccupancyAnalyzer:
     """
     A class that analyzes the site occupancy of given species using MD trajectories.
     The occupancy of a site is determined based on the shortest distance scheme.

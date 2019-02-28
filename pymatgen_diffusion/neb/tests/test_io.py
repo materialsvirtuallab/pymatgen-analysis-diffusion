@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals
 from pymatgen.core import Structure
 from pymatgen_diffusion.neb.io import MVLCINEBEndPointSet, MVLCINEBSet, \
     get_endpoints_from_index, get_endpoint_dist

@@ -2,8 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
-
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -24,7 +22,7 @@ Algorithms for NEB migration path analysis.
 # TODO: (1) ipython notebook example files, unittests
 
 
-class IDPPSolver(object):
+class IDPPSolver:
     """
     A solver using image dependent pair potential (IDPP) algo to get an improved
     initial NEB path. For more details about this algo, please refer to 
@@ -279,7 +277,7 @@ class IDPPSolver(object):
         return np.array(total_forces)
 
 
-class MigrationPath(object):
+class MigrationPath:
     """
     A convenience container representing a migration path.
     """
@@ -407,7 +405,7 @@ class MigrationPath(object):
         st.to(filename=fname)
 
 
-class DistinctPathFinder(object):
+class DistinctPathFinder:
     """
     Determines symmetrically distinct paths between existing sites.
     The path info can then be used to set up either vacancy or interstitial
