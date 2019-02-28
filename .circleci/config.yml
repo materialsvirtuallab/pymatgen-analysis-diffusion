@@ -20,6 +20,7 @@ jobs:
             pip install --upgrade pip
             pip install --upgrade numpy
             pip install --quiet -r requirements.txt -r requirements-ci.txt
+            pip install --upgrade pymatgen
       - run:
           command: |
             # Add executables and path.
