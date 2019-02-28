@@ -14,8 +14,7 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.7; fi
             source activate test_env
-            conda install --quiet --yes matplotlib
-            conda update --quiet --all
+            conda uninstall numpy scipy
             mkdir coverage_reports
             pip install --upgrade pip
             pip install --force-reinstall numpy
