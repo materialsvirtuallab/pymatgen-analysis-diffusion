@@ -17,7 +17,6 @@ jobs:
             conda install numpy scipy matplotlib
             mkdir coverage_reports
             pip install --upgrade pip
-            pip install --force-reinstall pymatgen
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-ci.txt
       - run:
           command: |
