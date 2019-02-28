@@ -14,13 +14,14 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.7; fi
             source activate test_env
-            conda install --quiet --yes scipy matplotlib sympy cython
+            conda install --quiet --yes matplotlib
             conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
-            pip install --upgrade numpy
+            pip install --force-reinstall numpy
+            pip install --force-reinstall scipy
+            pip install --force-reinstall cython
             pip install --quiet -r requirements.txt -r requirements-ci.txt
-            pip install --upgrade pymatgen
       - run:
           command: |
             # Add executables and path.
