@@ -493,7 +493,7 @@ class DistinctPathFinder:
     def write_all_paths(self, fname, nimages=5, **kwargs):
         """
         Write a file containing all paths, using hydrogen as a placeholder for
-        the images. H is chosen as it is the smallest atom. This is extremely
+        the images. We use a dummy species named 'X' to draw the path. This is extremely
         useful for path visualization in a standard software like VESTA.
         
         Args:
@@ -508,6 +508,6 @@ class DistinctPathFinder:
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:
-                sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
+                sites.append(PeriodicSite("X", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
-        Structure.from_sites(sites).to(filename=fname)
+        Structure.from_sites(sites).to('poscar', filename=fname)
