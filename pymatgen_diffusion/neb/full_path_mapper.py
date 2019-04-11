@@ -109,23 +109,10 @@ class FullPathMapper:
           Structure: Structure with all possible migrating ion sites
 
         """
-        print(self.migrating_specie)
         migrating_ion_sites = list(filter(
             lambda site: site.species == Composition({self.migrating_specie : 1}),self.structure.sites))
         return Structure.from_sites(migrating_ion_sites)
 
-    def _decortate_s_graph():
-        """
-        Populate each edge of the StructureGraph with a MigrationPath object
-        And label the edges based on the simularity
-
-        Args:
-
-        Returns:
-
-        """
-        # loop over a networkxgraph
-        list(G.nodes.data())
 
     def _get_migration_path(self, u, v, w):
         """
