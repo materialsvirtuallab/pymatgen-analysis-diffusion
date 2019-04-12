@@ -21,12 +21,13 @@ class FullPathMapperTest(unittest.TestCase):
         # Only one path in LiFePO4 with 4 A.
         self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
 
-    def test_get_unique_hop_lables(self):
+    def test_group_and_label_hops(self):
         """
         Check that the set of end points in a group of similiarly labeled hops are all the same
         """
         self.fpm.populate_edges_with_migration_paths()
-        edge_labs = np.array(self.fpm.get_unique_hop_labels())
+        self.fpm.group_and_label_hops()
+        edge_labs = np.array([d['hop_label'] for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
 
         site_labs = np.array([(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex], d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex]) for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
 

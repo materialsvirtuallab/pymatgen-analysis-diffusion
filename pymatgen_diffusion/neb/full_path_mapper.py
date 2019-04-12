@@ -34,6 +34,7 @@ import networkx as nx
 from itertools import starmap
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 
+
 def generic_groupby(list_in, comp=operator.eq):
     """
     Group a list of unsortable objects
@@ -52,11 +53,12 @@ def generic_groupby(list_in, comp=operator.eq):
         if ls1 is not None:
             continue
         list_out[i1] = label_num
-        for i2, ls2 in list(enumerate(list_out))[i1+1:]:
+        for i2, ls2 in list(enumerate(list_out))[i1 + 1:]:
             if comp(list_in[i1], list_in[i2]):
                 list_out[i2] = list_out[i1]
         label_num += 1
     return list_out
+
 
 class FullPathMapper:
     """
@@ -95,8 +97,10 @@ class FullPathMapper:
 
         # Generate the graph edges between these all the sites
         self.s_graph = StructureGraph.with_local_env_strategy(
-            self.only_sites, MinimumDistanceNN(
-                cutoff=max_path_length, get_all_sites=True)) # weights in this graph are the distances
+            self.only_sites,
+            MinimumDistanceNN(
+                cutoff=max_path_length,
+                get_all_sites=True))  # weights in this graph are the distances
         self.s_graph.set_node_attributes()
 
     def get_only_sites(self):
@@ -109,12 +113,13 @@ class FullPathMapper:
           Structure: Structure with all possible migrating ion sites
 
         """
-        migrating_ion_sites = list(filter(
-            lambda site: site.species == Composition({self.migrating_specie : 1}),self.structure.sites))
+        migrating_ion_sites = list(
+            filter(
+                lambda site: site.species == Composition(
+                    {self.migrating_specie: 1}), self.structure.sites))
         return Structure.from_sites(migrating_ion_sites)
 
-
-    def _get_migration_path(self, u, v, w):
+    def _get_pos_and_migration_path(self, u, v, w):
         """
         insert a single MigrationPath object on a graph edge
         Args:
@@ -129,14 +134,56 @@ class FullPathMapper:
             self.only_sites.sites[v].species,
             self.only_sites.sites[v].frac_coords + np.array(edge['to_jimage']),
             lattice=self.only_sites.lattice)
+        # Positions might be useful for plotting
+        edge['ipos'] = i_site.frac_coords
+        edge['fpos'] = f_site.frac_coords
+        edge['ipos_cart'] = np.dot(i_site.frac_coords,
+                                   self.only_sites.lattice.matrix)
+        edge['fpos_cart'] = np.dot(f_site.frac_coords,
+                                   self.only_sites.lattice.matrix)
+
         edge['hop'] = MigrationPath(i_site, f_site, self.symm_structure)
 
     def populate_edges_with_migration_paths(self):
         """
         Populate the edges with the data for the Migration Paths
         """
-        list(starmap(self._get_migration_path, self.s_graph.graph.edges))
+        list(
+            starmap(self._get_pos_and_migration_path,
+                    self.s_graph.graph.edges))
 
-    def get_unique_hop_labels(self):
-        hops = [val for _, val in nx.get_edge_attributes(self.s_graph.graph, "hop").items()]
-        return generic_groupby(hops)
+    def group_and_label_hops(self):
+        """
+        Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label
+        """
+        hops = [(g_index, val) for g_index, val in nx.get_edge_attributes(
+            self.s_graph.graph, "hop").items()]
+        labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
+        new_attr = {
+            g_index: {
+                'hop_label': labs[edge_index]
+            }
+            for edge_index, (g_index, _) in enumerate(hops)
+        }
+        nx.set_edge_attributes(self.s_graph.graph, new_attr)
+        return new_attr
+
+    def get_unique_hops_dict(self):
+        """
+        Get the list of the unique objects
+        Returns:
+            dictionary {label : MigrationPath}
+
+        """
+        self.unique_hops = {
+            d['hop_label']: d['hop']
+            for u, v, d in self.s_graph.graph.edges(data=True)
+        }
+
+    def add_data_to_similar_edges(self, taget_label, data=dict()):
+        """
+        Insert data to all edges with the same label
+        """
+        for u, v, d in enumerate(fpm.s_graph.graph.edges(data=True)):
+            if d['hop_label'] == taget_label:
+                d.update(data)
