@@ -65,11 +65,6 @@ class FullPathMapper:
     Find all hops in a given crystal structure using the StructureGraph.
     Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the structure
     The equivalence of the hops is checked using the MigrationPath.__eq__ funciton.
-
-    Args:
-
-    Returns:
-
     """
 
     def __init__(self,
@@ -123,9 +118,9 @@ class FullPathMapper:
         """
         insert a single MigrationPath object on a graph edge
         Args:
-          u: index of initial node
-          v: index of final node
-          w: index for multiple edges that share the same two nodes
+          u (int): index of initial node
+          v (int): index of final node
+          w (int): index for multiple edges that share the same two nodes
 
         """
         edge = self.s_graph.graph[u][v][w]
