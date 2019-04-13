@@ -5,8 +5,7 @@
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import MinimumDistanceNN
+
 import warnings
 import numpy as np
 import itertools
@@ -14,9 +13,11 @@ import itertools
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
+
 """
 Algorithms for NEB migration path analysis.
 """
+
 
 # TODO: (1) ipython notebook example files, unittests
 
@@ -24,7 +25,7 @@ Algorithms for NEB migration path analysis.
 class IDPPSolver:
     """
     A solver using image dependent pair potential (IDPP) algo to get an improved
-    initial NEB path. For more details about this algo, please refer to
+    initial NEB path. For more details about this algo, please refer to 
     Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
 
     """
@@ -34,7 +35,7 @@ class IDPPSolver:
         Initialization.
 
         Args:
-            structures (list of pmg_structure) : Initial guess of the NEB path
+            structures (list of pmg_structure) : Initial guess of the NEB path 
                 (including initial and final end-point structures).
         """
 
@@ -66,10 +67,10 @@ class IDPPSolver:
         # distance matrix.
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
-            avg_dist = (
-                target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (
-                avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8)
+            avg_dist = (target_dists[ni]
+                        + structures[ni + 1].distance_matrix) / 2.0
+            weights[ni] = 1.0 / (avg_dist ** 4 +
+                                 np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -80,45 +81,37 @@ class IDPPSolver:
                     img = latt.get_distance_and_image(
                         frac_coords, structures[ni][j].frac_coords)[1]
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
-                    translations[ni -
-                                 1, j, i] = -latt.get_cartesian_coords(img)
+                    translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
-        self.init_coords = np.array(init_coords).reshape(
-            nimages + 2, natoms, 3)
+        self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)
         self.translations = translations
         self.weights = weights
         self.structures = structures
         self.target_dists = target_dists
         self.nimages = nimages
 
-    def run(self,
-            maxiter=1000,
-            tol=1e-5,
-            gtol=1e-3,
-            step_size=0.05,
-            max_disp=0.05,
-            spring_const=5.0,
-            species=None):
+    def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05,
+            max_disp=0.05, spring_const=5.0, species=None):
         """
-        Perform iterative minimization of the set of objective functions in an
-        NEB-like manner. In each iteration, the total force matrix for each
-        image is constructed, which comprises both the spring forces and true
-        forces. For more details about the NEB approach, please see the
+        Perform iterative minimization of the set of objective functions in an 
+        NEB-like manner. In each iteration, the total force matrix for each 
+        image is constructed, which comprises both the spring forces and true 
+        forces. For more details about the NEB approach, please see the 
         references, e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000).
 
         Args:
-            maxiter (int): Maximum number of iterations in the minimization
+            maxiter (int): Maximum number of iterations in the minimization 
                 process.
             tol (float): Tolerance of the change of objective functions between
                 consecutive steps.
             gtol (float): Tolerance of maximum force component (absolute value).
-            step_size (float): Step size associated with the displacement of
+            step_size (float): Step size associated with the displacement of 
                 the atoms during the minimization process.
-            max_disp (float): Maximum allowed atomic displacement in each
+            max_disp (float): Maximum allowed atomic displacement in each 
                 iteration.
             spring_const (float): A virtual spring constant used in the NEB-like
                         relaxation process that yields so-called IDPP path.
-            species (list of string): If provided, only those given species are
+            species (list of string): If provided, only those given species are 
                 allowed to move. The atomic positions of other species are
                 obtained via regular linear interpolation approach.
 
@@ -127,17 +120,15 @@ class IDPPSolver:
         """
 
         coords = self.init_coords.copy()
-        old_funcs = np.zeros((self.nimages, ), dtype=np.float64)
+        old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
 
         if species is None:
             indices = list(range(len(self.structures[0])))
         else:
             species = [get_el_sp(sp) for sp in species]
-            indices = [
-                i for i, site in enumerate(self.structures[0])
-                if site.specie in species
-            ]
+            indices = [i for i, site in enumerate(self.structures[0])
+                       if site.specie in species]
 
             if len(indices) == 0:
                 raise ValueError("The given species are not in the system!")
@@ -147,14 +138,14 @@ class IDPPSolver:
             # Get the sets of objective functions, true and total force
             # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
-            tot_forces = self._get_total_forces(
-                coords, true_forces, spring_const=spring_const)
+            tot_forces = self._get_total_forces(coords, true_forces,
+                                                spring_const=spring_const)
 
             # Each atom is allowed to move up to max_disp
             disp_mat = step_size * tot_forces[:, indices, :]
-            disp_mat = np.where(
-                np.abs(disp_mat) > max_disp,
-                np.sign(disp_mat) * max_disp, disp_mat)
+            disp_mat = np.where(np.abs(disp_mat) > max_disp,
+                                np.sign(disp_mat) * max_disp,
+                                disp_mat)
             coords[1:(self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
@@ -174,13 +165,10 @@ class IDPPSolver:
             # generate the improved image structure
             new_sites = []
 
-            for site, cart_coords in zip(self.structures[ni + 1],
-                                         coords[ni + 1]):
+            for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
                 new_site = PeriodicSite(
-                    site.species_and_occu,
-                    coords=cart_coords,
-                    lattice=site.lattice,
-                    coords_are_cartesian=True,
+                    site.species_and_occu, coords=cart_coords,
+                    lattice=site.lattice, coords_are_cartesian=True,
                     properties=site.properties)
                 new_sites.append(new_site)
 
@@ -194,7 +182,7 @@ class IDPPSolver:
     @classmethod
     def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
         """
-        A class method that starts with end-point structures instead. The
+        A class method that starts with end-point structures instead. The 
         initial guess for the IDPP algo is then constructed using linear
         interpolation.
 
@@ -206,15 +194,16 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(
-                endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol)
+            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1,
+                                              autosort_tol=sort_tol)
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
-                warnings.warn(
-                    "Auto sorting is turned off because it is unable"
-                    " to match the end-point structures!", UserWarning)
-                images = endpoints[0].interpolate(
-                    endpoints[1], nimages=nimages + 1, autosort_tol=0)
+                warnings.warn("Auto sorting is turned off because it is unable"
+                              " to match the end-point structures!",
+                              UserWarning)
+                images = endpoints[0].interpolate(endpoints[1],
+                                                  nimages=nimages + 1,
+                                                  autosort_tol=0)
             else:
                 raise e
 
@@ -222,7 +211,7 @@ class IDPPSolver:
 
     def _get_funcs_and_forces(self, x):
         """
-        Calculate the set of objective functions as well as their gradients,
+        Calculate the set of objective functions as well as their gradients, 
         i.e. "effective true forces"
         """
         funcs = []
@@ -233,16 +222,15 @@ class IDPPSolver:
         target_dists = self.target_dists
 
         for ni in range(len(x) - 2):
-            vec = [
-                x[ni + 1, i] - x[ni + 1] - trans[ni, i] for i in range(natoms)
-            ]
+            vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i]
+                   for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
             aux = (trial_dist - target_dists[ni]) * weights[ni] \
                   / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
-            func = np.sum((trial_dist - target_dists[ni])**2 * weights[ni])
+            func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
 
             # "True force" derived from the objective function.
             grad = np.sum(aux[:, :, None] * vec, axis=1)
@@ -254,12 +242,12 @@ class IDPPSolver:
 
     @staticmethod
     def get_unit_vector(vec):
-        return vec / np.sqrt(np.sum(vec**2))
+        return vec / np.sqrt(np.sum(vec ** 2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
-        Calculate the total force on each image structure, which is equal to
-        the spring force along the tangent + true force perpendicular to the
+        Calculate the total force on each image structure, which is equal to 
+        the spring force along the tangent + true force perpendicular to the 
         tangent. Note that the spring force is the modified version in the
         literature (e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000)).
         """
@@ -276,14 +264,14 @@ class IDPPSolver:
             tangent = self.get_unit_vector(tangent)
 
             # Spring force
-            spring_force = spring_const * (
-                np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
+            spring_force = spring_const * (np.linalg.norm(vec1) -
+                                           np.linalg.norm(vec2)) * tangent
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
             total_force = true_forces[ni - 1] + (
                 spring_force - np.dot(flat_ft, tangent) * tangent).reshape(
-                    natoms, 3)
+                natoms, 3)
             total_forces.append(total_force)
 
         return np.array(total_forces)
@@ -304,9 +292,9 @@ class MigrationPath:
         self.isite = isite
         self.esite = esite
         self.symm_structure = symm_structure
-        self.msite = PeriodicSite(esite.specie,
-                                  (isite.frac_coords + esite.frac_coords) / 2,
-                                  esite.lattice)
+        self.msite = PeriodicSite(
+            esite.specie,
+            (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
         sg = self.symm_structure.spacegroup
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
             if sg.are_symmetrically_equivalent([isite], [sites[0]]):
@@ -342,16 +330,14 @@ class MigrationPath:
 
         return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
-            (other.isite, other.msite, other.esite))
+            (other.isite, other.msite, other.esite)
+        )
 
-    def get_structures(self,
-                       nimages=5,
-                       vac_mode=True,
-                       idpp=False,
+    def get_structures(self, nimages=5, vac_mode=True, idpp=False,
                        **idpp_kwargs):
         """
         Generate structures for NEB calculation.
-
+        
         Args:
             nimages (int): Defaults to 5. Number of NEB images. Total number of
                 structures returned in nimages+2.
@@ -363,8 +349,8 @@ class MigrationPath:
                 the initial and ending positions of the interstitial, and all
                 other sites of the same specie are removed. E.g., if NEBPaths
                 were obtained using a Li4Fe4P4O16 structure, vac_mode=True would
-                generate structures with formula Li3Fe4P4O16, while
-                vac_mode=False would generate structures with formula
+                generate structures with formula Li3Fe4P4O16, while 
+                vac_mode=False would generate structures with formula 
                 LiFe4P4O16.
             idpp (bool): Defaults to False. If True, the generated structures
                 will be run through the IDPPSolver to generate a better guess
@@ -385,8 +371,8 @@ class MigrationPath:
             if site.specie != isite.specie:
                 other_sites.append(site)
             else:
-                if vac_mode and (isite.distance(site) > 1e-8
-                                 and esite.distance(site) > 1e-8):
+                if vac_mode and (isite.distance(site) > 1e-8 and
+                                         esite.distance(site) > 1e-8):
                     migrating_specie_sites.append(site)
 
         start_structure = Structure.from_sites(
@@ -394,8 +380,9 @@ class MigrationPath:
         end_structure = Structure.from_sites(
             [self.esite] + migrating_specie_sites + other_sites)
 
-        structures = start_structure.interpolate(
-            end_structure, nimages=nimages + 1, pbc=False)
+        structures = start_structure.interpolate(end_structure,
+                                                 nimages=nimages + 1,
+                                                 pbc=False)
 
         if idpp:
             solver = IDPPSolver(structures)
@@ -406,9 +393,9 @@ class MigrationPath:
     def write_path(self, fname, **kwargs):
         """
         Write the path to a file for easy viewing.
-
+        
         Args:
-            fname (str): File name.
+            fname (str): File name. 
             \*\*kwargs: Kwargs supported by NEBPath.get_structures.
         """
         sites = []
@@ -426,16 +413,12 @@ class DistinctPathFinder:
     for atomic mechanism, and does not work for correlated migration.
     """
 
-    def __init__(self,
-                 structure,
-                 migrating_specie,
-                 max_path_length=None,
-                 symprec=0.1,
-                 perc_mode=">1d"):
+    def __init__(self, structure, migrating_specie, max_path_length=None,
+                 symprec=0.1, perc_mode=">1d"):
         """
         Args:
             structure: Input structure that contains all sites.
-            migrating_specie (Specie-like): The specie that migrates. E.g.,
+            migrating_specie (Specie-like): The specie that migrates. E.g., 
                 "Li".
             max_path_length (float): Maximum length of NEB path in the unit
                 of Angstrom. Defaults to None, which means you are setting the
@@ -448,8 +431,8 @@ class DistinctPathFinder:
         self.structure = structure
         self.migrating_specie = get_el_sp(migrating_specie)
         self.symprec = symprec
-        self.a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
-        self.symm_structure = self.a.get_symmetrized_structure()
+        a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
+        self.symm_structure = a.get_symmetrized_structure()
 
         junc = 0
         distance_list = []
@@ -459,7 +442,8 @@ class DistinctPathFinder:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
                 dists = []
-                neighbors = self.symm_structure.get_neighbors(site0, r=max_r)
+                neighbors = self.symm_structure.get_neighbors(
+                    site0, r=max_r)
                 for nn, dist in sorted(neighbors, key=lambda n: n[-1]):
                     if nn.specie == self.migrating_specie:
                         dists.append(dist)
@@ -509,11 +493,11 @@ class DistinctPathFinder:
     def write_all_paths(self, fname, nimages=5, **kwargs):
         """
         Write a file containing all paths, using hydrogen as a placeholder for
-        the images. We use a dummy species named 'X' to draw the path. This is extremely
+        the images. H is chosen as it is the smallest atom. This is extremely
         useful for path visualization in a standard software like VESTA.
-
+        
         Args:
-            fname (str): Filename
+            fname (str): Filename 
             nimages (int): Number of images per path.
             \*\*kwargs: Passthrough kwargs to path.get_structures.
         """
@@ -524,10 +508,6 @@ class DistinctPathFinder:
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:
-                sites.append(PeriodicSite("X", s[0].frac_coords, s.lattice))
+                sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
         sites.extend(structures[0].sites[1:])
-        paths = Structure.from_sites(sites)
-        paths.sort()
-        paths.to('poscar', filename=fname)
-
-
+        Structure.from_sites(sites).to(filename=fname)
