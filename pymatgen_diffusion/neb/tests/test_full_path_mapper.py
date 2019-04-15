@@ -11,26 +11,37 @@ import unittest
 from pymatgen import Structure
 import numpy as np
 from monty.serialization import loadfn
+import os, glob
 
 __author__ = "Jimmy Shen"
 __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
+def get_path(path_str, dirname="./"):
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(cwd, dirname, path_str)
+    return path
+
+
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file("./full_path_files/MnO2_full_Li.vasp")
+        struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
+                                              dirname="full_path_files"))
         self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
+
     def test_get_pos_and_migration_path(self):
         """
         Make sure that we can populate the graph with MigrationPath Objects
         """
-        self.fpm._get_pos_and_migration_path(0,1,1)
+        self.fpm._get_pos_and_migration_path(0, 1, 1)
         self.assertAlmostEqual(self.fpm.s_graph.graph[0][1][1]['hop'].length, 3.571248, 4)
+
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file("./full_path_files/MnO2_full_Li.vasp")
+        struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
+                                              dirname="full_path_files"))
         self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
         self.fpm.populate_edges_with_migration_paths()
         self.fpm.group_and_label_hops()
@@ -41,28 +52,33 @@ class FullPathMapperComplexTest(unittest.TestCase):
         """
         edge_labs = np.array([d['hop_label'] for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
 
-        site_labs = np.array([(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex], d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex]) for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
+        site_labs = np.array([(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex],
+                               d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex]) for u, v, d in
+                              self.fpm.s_graph.graph.edges(data=True)])
 
         for itr in range(edge_labs.max()):
             sub_set = site_labs[edge_labs == itr]
             for end_point_labels in sub_set:
-                self.assertTrue(sorted(end_point_labels)==sorted(sub_set[0]))
+                self.assertTrue(sorted(end_point_labels) == sorted(sub_set[0]))
 
     def test_unique_hops_dict(self):
         """
         Check that the unique hops are inequilvalent
         """
         self.fpm.get_unique_hops_dict()
-        unique_list = [v for k,v in self.fpm.unique_hops.items()]
-        all_pairs=[(mg1, mg2) for i1, mg1 in enumerate(unique_list) for mg2 in unique_list[i1 + 1:]]
+        unique_list = [v for k, v in self.fpm.unique_hops.items()]
+        all_pairs = [(mg1, mg2) for i1, mg1 in enumerate(unique_list) for mg2 in unique_list[i1 + 1:]]
 
         for migration_path in all_pairs:
             self.assertNotEqual(migration_path[0], migration_path[1])
 
+
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
-        self.test_ents_MOF = loadfn('./full_path_files/Mn6O5F7_cat_migration.json')
-        self.aeccar_MOF = Chgcar.from_file('./full_path_files/AECCAR_Mn6O5F7.vasp')
+        self.test_ents_MOF = loadfn(get_path("Mn6O5F7_cat_migration.json",
+                                             dirname="full_path_files"))
+        self.aeccar_MOF = Chgcar.from_file(get_path("AECCAR_Mn6O5F7.vasp",
+                                                    dirname="full_path_files"))
         self.cep = ComputedEntryPath(
             base_struct_entry=self.test_ents_MOF['ent_base'],
             migrating_specie='Li',
@@ -98,7 +114,6 @@ class ComputedEntryPathTest(unittest.TestCase):
         """
         self.assertEqual(len(self.cep.full_sites), 8)
 
-
     def test_integration(self):
         """
         Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
@@ -118,15 +133,17 @@ class ComputedEntryPathTest(unittest.TestCase):
         this will not always be true, but it valid in this Mn6O5F7
         """
         self.cep.populate_edges_with_chg_density_info()
-        length_vs_chg = list(sorted([(d['hop'].length, d['chg_total']) for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
-        prv=None
+        length_vs_chg = list(
+            sorted([(d['hop'].length, d['chg_total']) for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
+        prv = None
         for len, chg in length_vs_chg:
             if prv is None:
                 prv = (len, chg)
                 continue
 
-            if len/prv[0] < 1.05 and len/prv[0] > 0.95:
+            if len / prv[0] < 1.05 and len / prv[0] > 0.95:
                 self.assertAlmostEqual(chg, prv[1], 3)
 
+
 if __name__ == '__main__':
-      unittest.main()
+    unittest.main()
