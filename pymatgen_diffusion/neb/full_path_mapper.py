@@ -218,6 +218,7 @@ class ComputedEntryPath(FullPathMapper):
         self.single_cat_entries = single_cat_entries
         self.base_struct_entry = base_struct_entry
         self.base_aeccar = base_aeccar
+        self.migrating_specie = migrating_specie
         self._tube_radius = 0
         self.sm = StructureMatcher(
             comparator=ElementComparator(),
@@ -228,9 +229,11 @@ class ComputedEntryPath(FullPathMapper):
             angle_tol=angle_tol)
 
         logger.debug('See if the structures all match')
+        fit_ents = []
         for ent in self.single_cat_entries:
-            assert (self.sm.fit(self.base_struct_entry.structure,
-                                ent.structure))
+            if self.sm.fit(self.base_struct_entry.structure, ent.structure):
+                fit_ents.append(ent)
+                self.single_cat_entries = fit_ents
 
         self.translated_single_cat_entries = list(
             map(self.match_ent_to_base, self.single_cat_entries))
@@ -286,26 +289,29 @@ class ComputedEntryPath(FullPathMapper):
             self.base_struct_entry.structure, symprec=0.3, angle_tolerance=10)
         host_allsites = self.base_struct_entry.structure.copy()
         host_allsites.remove_species(host_allsites.species)
+
         pos_Li = list(
-            filter(lambda isite: isite.species_string == 'Li',
+            filter(lambda isite: isite.species_string == self.migrating_specie,
                    ent.structure.sites))
 
         for isite in pos_Li:
             host_allsites.insert(
                 0,
-                'Li',
-                isite.frac_coords,
+                self.migrating_specie,
+                np.mod(isite.frac_coords,1),
                 properties={'inserted_energy': ent.energy})
-
-        for op in sa.get_space_group_operations():
+        # ic(pos_Li)
+        for op in sa.get_symmetry_operations():
+            # ic(ent.entry_id, op)
             struct_tmp = host_allsites.copy()
             struct_tmp.apply_operation(symmop=op, fractional=True)
             for isite in struct_tmp.sites:
-                if isite.species_string == "Li":
+                if isite.species_string == self.migrating_specie:
+                    #ic(isite.frac_coords)
                     host_allsites.insert(
                         0,
-                        'Li',
-                        isite.frac_coords,
+                        self.migrating_specie,
+                        np.mod(isite.frac_coords,1),
                         properties={'inserted_energy': ent.energy})
 
         host_allsites.merge_sites(
@@ -327,7 +333,8 @@ class ComputedEntryPath(FullPathMapper):
         for itr in self.translated_single_cat_entries:
             res.extend(self.get_all_sym_sites(itr).sites)
         res = Structure.from_sites(res)
-        res.merge_sites(tol=1.0, mode='average')
+        if len(res) > 1:
+            res.merge_sites(tol=1.0, mode='average')
         return res
 
     def _setup_grids(self):
