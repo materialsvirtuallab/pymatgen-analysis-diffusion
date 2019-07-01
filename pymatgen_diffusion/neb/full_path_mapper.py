@@ -27,7 +27,7 @@ import numpy as np
 import networkx as nx
 from itertools import starmap
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
-from icecream import ic
+from monty.json import MSONable
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +56,7 @@ def generic_groupby(list_in, comp=operator.eq):
     return list_out
 
 
-class FullPathMapper:
+class FullPathMapper(MSONable):
     """
     Find all hops in a given crystal structure using the StructureGraph.
     Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the structure
@@ -294,13 +294,13 @@ class ComputedEntryPath(FullPathMapper):
         for itr in self.translated_single_cat_entries:
             sub_site_list = get_all_sym_sites(itr, self.base_struct_entry,
                                               self.migrating_specie)
-            ic(sub_site_list._sites)
+            # ic(sub_site_list._sites)
             res.extend(sub_site_list._sites)
         res = Structure.from_sites(res)
-        ic(res)
+        # ic(res)
         if len(res) > 1:
             res.merge_sites(tol=1.0, mode='average')
-        ic(res)
+        # ic(res)
         return res
 
     def _setup_grids(self):
@@ -421,12 +421,10 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
 
     """
 
-    ic("Symmetry analysis")
     sa = SpacegroupAnalyzer(
         base_struct_entry.structure,
         symprec=stol,
         angle_tolerance=atol)
-    ic(sa)
     #start with the base structure but empty
     host_allsites = base_struct_entry.structure.copy()
     host_allsites.remove_species(host_allsites.species)
@@ -443,9 +441,8 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
             properties={'inserted_energy': ent.energy})
     #base_ops = sa.get_space_group_operations()
     #all_ops = generate_full_symmops(base_ops, tol=1.0)
-    #ic(all_ops)
     for op in sa.get_space_group_operations():
-        ic(op)
+        logger.debug(f'{op}')
         struct_tmp = host_allsites.copy()
         struct_tmp.apply_operation(symmop=op, fractional=True)
         for isite in struct_tmp.sites:
@@ -460,3 +457,4 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
                 )  # keeps only one position but average the properties
 
     return host_allsites
+
