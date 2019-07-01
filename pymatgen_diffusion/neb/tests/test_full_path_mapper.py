@@ -10,6 +10,9 @@ import unittest
 from pymatgen import Structure
 import numpy as np
 from monty.serialization import loadfn
+import os 
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 __author__ = "Jimmy Shen"
 __version__ = "1.0"
@@ -18,7 +21,7 @@ __date__ = "April 10, 2019"
 
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file("./full_path_files/MnO2_full_Li.vasp")
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = FullPathMapper(
             structure=struct, migrating_specie='Li', max_path_length=4)
 
@@ -33,7 +36,7 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file("./full_path_files/MnO2_full_Li.vasp")
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = FullPathMapper(
             structure=struct, migrating_specie='Li', max_path_length=4)
         self.fpm.populate_edges_with_migration_paths()
@@ -74,9 +77,9 @@ class FullPathMapperComplexTest(unittest.TestCase):
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
         self.test_ents_MOF = loadfn(
-            './full_path_files/Mn6O5F7_cat_migration.json')
+            f'{dir_path}/full_path_files/Mn6O5F7_cat_migration.json')
         self.aeccar_MOF = Chgcar.from_file(
-            './full_path_files/AECCAR_Mn6O5F7.vasp')
+            f'{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp')
         self.cep = ComputedEntryPath(
             base_struct_entry=self.test_ents_MOF['ent_base'],
             migrating_specie='Li',

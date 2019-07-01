@@ -414,13 +414,14 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
     Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure
 
     Args:
-        ent(ComputedStructureEntry):  that contains cation
+        ent(ComputedStructureEntry): that contains cation
+        migrating_species(string or Elment): 
 
     Returns:
         Structure: containing all of the symmetry equivalent sites
 
     """
-
+    migrating_specie_el = get_el_sp(migrating_specie)
     sa = SpacegroupAnalyzer(
         base_struct_entry.structure,
         symprec=stol,
@@ -428,15 +429,14 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
     #start with the base structure but empty
     host_allsites = base_struct_entry.structure.copy()
     host_allsites.remove_species(host_allsites.species)
-
     pos_Li = list(
-        filter(lambda isite: isite.species_string == migrating_specie,
+        filter(lambda isite: isite.species_string == migrating_specie_el.name,
                ent.structure.sites))
-
+    print(pos_Li)
     for isite in pos_Li:
         host_allsites.insert(
             0,
-            migrating_specie,
+            migrating_specie_el.name,
             np.mod(isite.frac_coords, 1),
             properties={'inserted_energy': ent.energy})
     #base_ops = sa.get_space_group_operations()
@@ -446,10 +446,11 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
         struct_tmp = host_allsites.copy()
         struct_tmp.apply_operation(symmop=op, fractional=True)
         for isite in struct_tmp.sites:
-            if isite.species_string == migrating_specie:
+            if isite.species_string == migrating_specie_el.name:
+                logger.debug(f'{op}')
                 host_allsites.insert(
                     0,
-                    migrating_specie,
+                    migrating_specie_el.name,
                     np.mod(isite.frac_coords, 1),
                     properties={'inserted_energy': ent.energy})
                 host_allsites.merge_sites(
