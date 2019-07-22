@@ -167,7 +167,7 @@ class IDPPSolver:
 
             for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
                 new_site = PeriodicSite(
-                    site.species_and_occu, coords=cart_coords,
+                    site.species, coords=cart_coords,
                     lattice=site.lattice, coords_are_cartesian=True,
                     properties=site.properties)
                 new_sites.append(new_site)
