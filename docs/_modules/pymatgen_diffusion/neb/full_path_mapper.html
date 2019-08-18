@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen_diffusion.neb.full_path_mapper &#8212; pymatgen-diffusion 2019.8.18 documentation</title>
+    <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2019.8.18 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen_diffusion.neb.full_path_mapper</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on April 01, 2019</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;jmmshn@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 11, 2019&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">VolumetricData</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> <span class="n">ElementComparator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">StructureGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">MinimumDistanceNN</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">starmap</span>
+<span class="kn">from</span> <span class="nn">pymatgen_diffusion.neb.pathfinder</span> <span class="k">import</span> <span class="n">MigrationPath</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="generic_groupby"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.generic_groupby">[docs]</a><span class="k">def</span> <span class="nf">generic_groupby</span><span class="p">(</span><span class="n">list_in</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">eq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group a list of unsortable objects</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        list_in: A list of generic objects</span>
+<span class="sd">        comp: (Default value = operator.eq) The comparator</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [int] list of labels for the input list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">list_out</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_in</span><span class="p">)</span>
+    <span class="n">label_num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i1</span><span class="p">,</span> <span class="n">ls1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_out</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ls1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">list_out</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_num</span>
+        <span class="k">for</span> <span class="n">i2</span><span class="p">,</span> <span class="n">ls2</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">list_out</span><span class="p">))[</span><span class="n">i1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">comp</span><span class="p">(</span><span class="n">list_in</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">list_in</span><span class="p">[</span><span class="n">i2</span><span class="p">]):</span>
+                <span class="n">list_out</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span> <span class="o">=</span> <span class="n">list_out</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>
+        <span class="n">label_num</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">list_out</span></div>
+
+
+<div class="viewcode-block" id="FullPathMapper"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper">[docs]</a><span class="k">class</span> <span class="nc">FullPathMapper</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all hops in a given crystal structure using the StructureGraph.</span>
+<span class="sd">    Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the structure</span>
+<span class="sd">    The equivalence of the hops is checked using the MigrationPath.__eq__ funciton.</span>
+<span class="sd">    The funtions here are reponsible for distinguishing the individual hops and analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">structure</span><span class="p">,</span>
+                 <span class="n">migrating_specie</span><span class="p">,</span>
+                 <span class="n">max_path_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">vac_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Input structure that contains all sites.</span>
+<span class="sd">            migrating_specie (Specie-like): The specie that migrates. E.g.,</span>
+<span class="sd">                &quot;Li&quot;.</span>
+<span class="sd">            max_path_length (float): Maximum length of NEB path in the unit</span>
+<span class="sd">                of Angstrom. Defaults to None, which means you are setting the</span>
+<span class="sd">                value to the min cutoff until finding 1D or &gt;1D percolating paths.</span>
+<span class="sd">            symprec (float): Symmetry precision to determine equivalence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">migrating_specie</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_only_sites</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_hops</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Generate the graph edges between these all the sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="p">,</span>
+            <span class="n">MinimumDistanceNN</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">max_path_length</span><span class="p">,</span>
+                <span class="n">get_all_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>  <span class="c1"># weights in this graph are the distances</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
+
+    <span class="c1"># TODO add classmethod for creating the FullPathMapper from the charge density</span>
+
+<div class="viewcode-block" id="FullPathMapper.get_only_sites"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_only_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_only_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a copy of the structure with only the sites</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          Structure: Structure with all possible migrating ion sites</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">migrating_ion_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span>
+                    <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">migrating_ion_sites</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_pos_and_migration_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        insert a single MigrationPath object on a graph edge</span>
+<span class="sd">        Args:</span>
+<span class="sd">          u (int): index of initial node</span>
+<span class="sd">          v (int): index of final node</span>
+<span class="sd">          w (int): index for multiple edges that share the same two nodes</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">][</span><span class="n">w</span><span class="p">]</span>
+        <span class="n">i_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+        <span class="n">f_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]),</span>
+            <span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="c1"># Positions might be useful for plotting</span>
+        <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;ipos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_site</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;epos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_site</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;ipos_cart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">i_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;epos_cart&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">f_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">only_sites</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+
+        <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;hop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MigrationPath</span><span class="p">(</span><span class="n">i_site</span><span class="p">,</span> <span class="n">f_site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FullPathMapper.populate_edges_with_migration_paths"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.populate_edges_with_migration_paths">[docs]</a>    <span class="k">def</span> <span class="nf">populate_edges_with_migration_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Populate the edges with the data for the Migration Paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">list</span><span class="p">(</span>
+            <span class="n">starmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_pos_and_migration_path</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FullPathMapper.group_and_label_hops"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.group_and_label_hops">[docs]</a>    <span class="k">def</span> <span class="nf">group_and_label_hops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hops</span> <span class="o">=</span> <span class="p">[(</span><span class="n">g_index</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">g_index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_edge_attributes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;hop&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">labs</span> <span class="o">=</span> <span class="n">generic_groupby</span><span class="p">(</span><span class="n">hops</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">new_attr</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">g_index</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;hop_label&#39;</span><span class="p">:</span> <span class="n">labs</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">edge_index</span><span class="p">,</span> <span class="p">(</span><span class="n">g_index</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hops</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_edge_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">new_attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_attr</span></div>
+
+<div class="viewcode-block" id="FullPathMapper.get_unique_hops_dict"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_unique_hops_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_hops_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the list of the unique objects</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dictionary {label : MigrationPath}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_hops</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hop_label&#39;</span><span class="p">]:</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hop&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="FullPathMapper.add_data_to_similar_edges"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.add_data_to_similar_edges">[docs]</a>    <span class="k">def</span> <span class="nf">add_data_to_similar_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taget_label</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert data to all edges with the same label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;hop_label&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">taget_label</span><span class="p">:</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ComputedEntryPath"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath">[docs]</a><span class="k">class</span> <span class="nc">ComputedEntryPath</span><span class="p">(</span><span class="n">FullPathMapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the full migration network using computed entires for intercollation andvacancy limits</span>
+<span class="sd">    - Map the relaxed sites of a material back to the empty host lattice</span>
+<span class="sd">    - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom</span>
+<span class="sd">    - Get the symmetry inequivalent hops</span>
+<span class="sd">    - Get the migration barriers for each inequivalent hop</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">base_struct_entry</span><span class="p">,</span>
+                 <span class="n">single_cat_entries</span><span class="p">,</span>
+                 <span class="n">migrating_specie</span><span class="p">,</span>
+                 <span class="n">base_aeccar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_path_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                 <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                 <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pass in a entries for analysis</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          base_struct_entry: the structure without a working ion for us to analyze the migration</span>
+<span class="sd">          single_cat_entries: list of structures containing a single cation at different positions</span>
+<span class="sd">          base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)</span>
+<span class="sd">          migration_specie: a String symbol or Element for the cation. (Default value = &#39;Li&#39;)</span>
+<span class="sd">          ltol: parameter for StructureMatcher (Default value = 0.2)</span>
+<span class="sd">          stol: parameter for StructureMatcher (Default value = 0.3)</span>
+<span class="sd">          angle_tol: parameter for StructureMatcher (Default value = 5)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">single_cat_entries</span> <span class="o">=</span> <span class="n">single_cat_entries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span> <span class="o">=</span> <span class="n">base_struct_entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span> <span class="o">=</span> <span class="n">base_aeccar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tube_radius</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span>
+            <span class="n">comparator</span><span class="o">=</span><span class="n">ElementComparator</span><span class="p">(),</span>
+            <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">ignored_species</span><span class="o">=</span><span class="p">[</span><span class="n">migrating_specie</span><span class="p">],</span>
+            <span class="n">ltol</span><span class="o">=</span><span class="n">ltol</span><span class="p">,</span>
+            <span class="n">stol</span><span class="o">=</span><span class="n">stol</span><span class="p">,</span>
+            <span class="n">angle_tol</span><span class="o">=</span><span class="n">angle_tol</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;See if the structures all match&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_cat_entries</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                <span class="n">ent</span><span class="o">.</span><span class="n">structure</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">translated_single_cat_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">match_ent_to_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_cat_entries</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_full_sites</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_structure_full_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_sites</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_structure_full_sites</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+
+        <span class="c1"># Initialize</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ComputedEntryPath</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_structure_full_sites</span><span class="p">,</span>
+            <span class="n">migrating_specie</span><span class="o">=</span><span class="n">migrating_specie</span><span class="p">,</span>
+            <span class="n">max_path_length</span><span class="o">=</span><span class="n">max_path_length</span><span class="p">,</span>
+            <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">vac_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate_edges_with_migration_paths</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_and_label_hops</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_unique_hops_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_grids</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ComputedEntryPath.match_ent_to_base"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.match_ent_to_base">[docs]</a>    <span class="k">def</span> <span class="nf">match_ent_to_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform the structure of one entry to match the base structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          ent:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          ComputedStructureEntry: entry with modified structure</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_ent</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">new_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="o">.</span><span class="n">get_s2_like_s1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                            <span class="n">ent</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">new_ent</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">new_struct</span>
+        <span class="k">return</span> <span class="n">new_ent</span></div>
+
+<div class="viewcode-block" id="ComputedEntryPath.get_all_sym_sites"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_all_sym_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_sym_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          ent(ComputedStructureEntry):  that contains cation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          Structure: containing all of the symmetry equivalent sites</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sa</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">host_allsites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_struct_entry</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">host_allsites</span><span class="o">.</span><span class="n">remove_species</span><span class="p">(</span><span class="n">host_allsites</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+        <span class="n">pos_Li</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">isite</span><span class="p">:</span> <span class="n">isite</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s1">&#39;Li&#39;</span><span class="p">,</span>
+                   <span class="n">ent</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">pos_Li</span><span class="p">:</span>
+            <span class="n">host_allsites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;Li&#39;</span><span class="p">,</span>
+                <span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;inserted_energy&#39;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">energy</span><span class="p">})</span>
+
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">sa</span><span class="o">.</span><span class="n">get_space_group_operations</span><span class="p">():</span>
+            <span class="n">struct_tmp</span> <span class="o">=</span> <span class="n">host_allsites</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">struct_tmp</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">symmop</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">struct_tmp</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">isite</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">:</span>
+                    <span class="n">host_allsites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                        <span class="mi">0</span><span class="p">,</span>
+                        <span class="s1">&#39;Li&#39;</span><span class="p">,</span>
+                        <span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                        <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;inserted_energy&#39;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">energy</span><span class="p">})</span>
+
+        <span class="n">host_allsites</span><span class="o">.</span><span class="n">merge_sites</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;average&#39;</span>
+        <span class="p">)</span>  <span class="c1"># keeps only one position but average the properties</span>
+
+        <span class="k">return</span> <span class="n">host_allsites</span></div>
+
+<div class="viewcode-block" id="ComputedEntryPath.get_full_sites"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_full_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get each group of symmetry inequivalent sites and combine them</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        Returns: a Structure with all possible Li sites, the enregy of the structure is stored as a site property</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">translated_single_cat_entries</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_sym_sites</span><span class="p">(</span><span class="n">itr</span><span class="p">)</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">merge_sites</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+    <span class="k">def</span> <span class="nf">_setup_grids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Populate the internal varialbes used for defining the grid points in the charge density analysis&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_shift_grid</span><span class="p">(</span><span class="n">vv</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Move the grid points by half a step so that they sit in the center</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">              vv: equally space grid points in 1-D</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">vv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">vv</span> <span class="o">+=</span> <span class="n">step</span> <span class="o">/</span> <span class="mf">2.</span>
+
+        <span class="c1"># set up the grid</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">get_axis_grid</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">get_axis_grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">get_axis_grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># move the grid points to the center</span>
+        <span class="n">_shift_grid</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+        <span class="n">_shift_grid</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+        <span class="n">_shift_grid</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span>
+
+        <span class="c1"># mesh grid for each unit cell</span>
+        <span class="n">AA</span><span class="p">,</span> <span class="n">BB</span><span class="p">,</span> <span class="n">CC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+
+        <span class="c1"># should be using a mesh grid of 5x5x5 (using 3x3x3 misses some fringe cases)</span>
+        <span class="c1"># but using 3x3x3 is much faster and only crops the cyliners in some rare case</span>
+        <span class="c1"># if you keep the tube_radius small then this is not a big deal</span>
+        <span class="n">IMA</span><span class="p">,</span> <span class="n">IMB</span><span class="p">,</span> <span class="n">IMC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                    <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+
+        <span class="c1"># store these</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uc_grid_shape</span> <span class="o">=</span> <span class="n">AA</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">AA</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">BB</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">CC</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">IMA</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                                  <span class="n">IMB</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                                  <span class="n">IMC</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">def</span> <span class="nf">_get_chg_between_sites_tube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">migration_path</span><span class="p">,</span> <span class="n">mask_file_seedname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the amount of charge that a migrating ion has to move through in order to complete a hop</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          migration_path: MigrationPath object that represents a given hop</span>
+<span class="sd">          mask_file_seedname(string): seedname for output of the migration path masks (for debugging and visualization) (Default value = None)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          float: The total charge density in a tube that connects two sites of a given edges of the graph</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tube_radius</span>
+        <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;The radius of the tubes for charge analysis need to be defined first.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">ipos</span> <span class="o">=</span> <span class="n">migration_path</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">epos</span> <span class="o">=</span> <span class="n">migration_path</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span>
+
+        <span class="n">cart_ipos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ipos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">cart_epos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">epos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">pbc_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uc_grid_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_images</span><span class="p">:</span>
+            <span class="n">grid_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fcoords</span> <span class="o">+</span> <span class="n">img</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+            <span class="n">proj_on_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">grid_pos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">,</span> <span class="n">cart_epos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cart_epos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">))</span>
+            <span class="n">dist_to_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">grid_pos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">,</span> <span class="n">cart_epos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">)</span> <span class="o">/</span>
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cart_epos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">)),</span>
+                <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">proj_on_line</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">proj_on_line</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cart_epos</span> <span class="o">-</span> <span class="n">cart_ipos</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">dist_to_line</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tube_radius</span><span class="p">)</span>
+            <span class="n">pbc_mask</span> <span class="o">=</span> <span class="n">pbc_mask</span> <span class="o">+</span> <span class="n">mask</span>
+        <span class="n">pbc_mask</span> <span class="o">=</span> <span class="n">pbc_mask</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uc_grid_shape</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mask_file_seedname</span><span class="p">:</span>
+            <span class="n">mask_out</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="p">(</span>
+                <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]})</span>
+            <span class="n">mask_out</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">ipos</span><span class="p">)</span>
+            <span class="n">mask_out</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">epos</span><span class="p">)</span>
+            <span class="n">mask_out</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbc_mask</span>
+            <span class="n">isym</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="n">migration_path</span><span class="o">.</span><span class="n">iindex</span><span class="p">]</span>
+            <span class="n">esym</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="n">migration_path</span><span class="o">.</span><span class="n">eindex</span><span class="p">]</span>
+            <span class="n">mask_out</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_tot(</span><span class="si">{:0.2f}</span><span class="s1">).vasp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">mask_file_seedname</span><span class="p">,</span> <span class="n">isym</span><span class="p">,</span> <span class="n">esym</span><span class="p">,</span> <span class="n">mask_out</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">][</span><span class="n">pbc_mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">ngridpts</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_aeccar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
+
+<div class="viewcode-block" id="ComputedEntryPath.populate_edges_with_chg_density_info"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.populate_edges_with_chg_density_info">[docs]</a>    <span class="k">def</span> <span class="nf">populate_edges_with_chg_density_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tube_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tube_radius</span> <span class="o">=</span> <span class="n">tube_radius</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_hops</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">chg_tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_chg_between_sites_tube</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;chg_total&#39;</span> <span class="p">:</span> <span class="n">chg_tot</span><span class="p">})</span></div></div>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
