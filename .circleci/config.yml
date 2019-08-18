@@ -3,29 +3,28 @@ jobs:
   py3test:
     working_directory: ~/pymatgen-diffusion
     docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
-        environment:
-          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    # parallelism: 4
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+      - image: circleci/mongo:3.5.10
     steps:
       - checkout
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env2 python=3.7; fi
-            source activate test_env2
-            conda install numpy scipy matplotlib
-            mkdir coverage_reports
-            pip install --upgrade pip
+            conda config --set always_yes yes --set changeps1 no
+            conda update -q conda
+            conda info -a
+            conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
+            source activate test-environment
+            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip h5py
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-ci.txt
       - run:
           command: |
             # Add executables and path.
             export PATH=$HOME/miniconda3/bin:$PATH
             export MPLBACKEND=Agg
-            source activate test_env2
+            source activate test-environment
             pip install --quiet -e .
-            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            pytest --cov=pymatgen_diffusion --cov-report html:coverage_reports --durations=30 pymatgen_diffusion
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
