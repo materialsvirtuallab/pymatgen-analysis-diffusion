@@ -1,10 +1,6 @@
 Change Log
 ----------
 
-v2019.8.18
-----------
-* Update pmg version and minor code refactoring. Speeds up nn calculations.
-
 v2019.2.28
 ----------
 * Py3k cleanup.
