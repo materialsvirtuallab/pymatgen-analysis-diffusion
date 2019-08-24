@@ -59,7 +59,8 @@ def generic_groupby(list_in, comp=operator.eq):
 class FullPathMapper:
     """
     Find all hops in a given crystal structure using the StructureGraph.
-    Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the structure
+    Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the
+    structure
     The equivalence of the hops is checked using the MigrationPath.__eq__ funciton.
     The funtions here are reponsible for distinguishing the individual hops and analysis
     """
@@ -379,11 +380,12 @@ class ComputedEntryPath(FullPathMapper):
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
 
         Args:
-          migration_path: MigrationPath object that represents a given hop
-          mask_file_seedname(string): seedname for output of the migration path masks (for debugging and visualization) (Default value = None)
+            migration_path: MigrationPath object that represents a given hop
+            mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
+                visualization) (Default value = None)
 
         Returns:
-          float: The total charge density in a tube that connects two sites of a given edges of the graph
+            float: The total charge density in a tube that connects two sites of a given edges of the graph
 
         """
         try:
@@ -408,7 +410,8 @@ class ComputedEntryPath(FullPathMapper):
                 (np.linalg.norm(cart_epos - cart_ipos)),
                 axis=-1)
 
-            mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_epos - cart_ipos)) * (dist_to_line < self._tube_radius)
+            mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_epos - cart_ipos)) * (
+                        dist_to_line < self._tube_radius)
             pbc_mask = pbc_mask + mask
         pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
 
@@ -433,6 +436,4 @@ class ComputedEntryPath(FullPathMapper):
         self._tube_radius = tube_radius
         for k, v in self.unique_hops.items():
             chg_tot = self._get_chg_between_sites_tube(v)
-            self.add_data_to_similar_edges(k, {'chg_total' : chg_tot})
-
-
+            self.add_data_to_similar_edges(k, {'chg_total': chg_tot})

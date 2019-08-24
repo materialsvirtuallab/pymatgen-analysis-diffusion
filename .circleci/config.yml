@@ -25,6 +25,7 @@ jobs:
             source activate test-environment
             pip install --quiet -e .
             pytest --cov=pymatgen_diffusion --cov-report html:coverage_reports --durations=30 pymatgen_diffusion
+            pycodestyle pymatgen_diffusion
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
