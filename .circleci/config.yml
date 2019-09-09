@@ -4,7 +4,6 @@ jobs:
     working_directory: ~/pymatgen-diffusion
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-      - image: circleci/mongo:3.5.10
     steps:
       - checkout
       - run:
