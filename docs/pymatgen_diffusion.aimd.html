@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen_diffusion.aimd package &#8212; pymatgen-diffusion 2019.8.18 documentation</title>
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -47,7 +45,7 @@
         <li class="right" >
           <a href="pymatgen_diffusion.html" title="pymatgen_diffusion package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2019.8.18 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li> 
       </ul>
@@ -72,85 +70,81 @@
 <span id="pymatgen-diffusion-aimd-clustering-module"></span><h2>pymatgen_diffusion.aimd.clustering module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.clustering" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.clustering.Kmeans">
-<em class="property">class </em><code class="descname">Kmeans</code><span class="sig-paren">(</span><em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Kmeans</code><span class="sig-paren">(</span><em class="sig-param">max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.Kmeans.cluster">
-<code class="descname">cluster</code><span class="sig-paren">(</span><em>points</em>, <em>k</em>, <em>initial_centroids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.cluster" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>points</strong> (<em>ndarray</em>) – Data points as a mxn ndarray, where m is the
-number of features and n is the number of data points.</li>
-<li><strong>k</strong> (<em>int</em>) – Number of means.</li>
-<li><strong>initial_centroids</strong> (<em>np.array</em>) – Initial guess for the centroids. If
-None, a randomized array of points is used.</li>
+<code class="sig-name descname">cluster</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">k</em>, <em class="sig-param">initial_centroids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>ndarray</em>) – Data points as a mxn ndarray, where m is the
+number of features and n is the number of data points.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of means.</p></li>
+<li><p><strong>initial_centroids</strong> (<em>np.array</em>) – Initial guess for the centroids. If
+None, a randomized array of points is used.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">centroids are the final centroids, labels
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>centroids are the final centroids, labels
 provide the index for each point, and ss in the final sum squared
 distances.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">centroids, labels, ss</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>centroids, labels, ss</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids">
-<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_centroids</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">labels</em>, <em class="sig-param">k</em>, <em class="sig-param">centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_centroids" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.Kmeans.get_labels">
-<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_labels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.get_labels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.Kmeans.should_stop">
-<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.should_stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">should_stop</code><span class="sig-paren">(</span><em class="sig-param">old_centroids</em>, <em class="sig-param">centroids</em>, <em class="sig-param">iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#Kmeans.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.Kmeans.should_stop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC">
-<em class="property">class </em><code class="descname">KmeansPBC</code><span class="sig-paren">(</span><em>lattice</em>, <em>max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">KmeansPBC</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">max_iterations=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen_diffusion.aimd.clustering.Kmeans" title="pymatgen_diffusion.aimd.clustering.Kmeans"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen_diffusion.aimd.clustering.Kmeans</span></code></a></p>
 <p>A version of KMeans that work with PBC. Distance metrics have to change,
 as well as new centroid determination. The points supplied should be
 fractional coordinates.</p>
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids">
-<code class="descname">get_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>labels</em>, <em>k</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_centroids</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">labels</em>, <em class="sig-param">k</em>, <em class="sig-param">centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_centroids" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels">
-<code class="descname">get_labels</code><span class="sig-paren">(</span><em>points</em>, <em>centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">centroids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.get_labels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop">
-<code class="descname">should_stop</code><span class="sig-paren">(</span><em>old_centroids</em>, <em>centroids</em>, <em>iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">should_stop</code><span class="sig-paren">(</span><em class="sig-param">old_centroids</em>, <em class="sig-param">centroids</em>, <em class="sig-param">iterations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#KmeansPBC.should_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.KmeansPBC.should_stop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen_diffusion.aimd.clustering.get_random_centroid">
-<code class="descname">get_random_centroid</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_random_centroid</code><span class="sig-paren">(</span><em class="sig-param">points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroid" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen_diffusion.aimd.clustering.get_random_centroids">
-<code class="descname">get_random_centroids</code><span class="sig-paren">(</span><em>points</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroids" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_random_centroids</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/clustering.html#get_random_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.clustering.get_random_centroids" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -158,7 +152,7 @@ fractional coordinates.</p>
 <span id="pymatgen-diffusion-aimd-pathway-module"></span><h2>pymatgen_diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.pathway" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis">
-<em class="property">class </em><code class="descname">ProbabilityDensityAnalysis</code><span class="sig-paren">(</span><em>structure</em>, <em>trajectories</em>, <em>interval=0.5</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ProbabilityDensityAnalysis</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">trajectories</em>, <em class="sig-param">interval=0.5</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Compute the time-averaged probability density distribution of selected
 species on a “uniform” (in terms of fractional coordinates) 3-D grid.
@@ -172,46 +166,39 @@ Conductor”. Chem. Mater. (2015), 27, pp 8318–8325.</p>
 :type structure: Structure
 :param trajectories: ionic trajectories of the structure</p>
 <blockquote>
-<div>from MD simulations. It should be (1) stored as 3-D array [
+<div><p>from MD simulations. It should be (1) stored as 3-D array [
 Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
-(2) in fractional coordinates.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points
-(in Angstrom)</li>
-<li><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</li>
+(2) in fractional coordinates.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points
+(in Angstrom)</p></li>
+<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="classmethod">
+</dd>
+</dl>
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">
-<em class="property">classmethod </em><code class="descname">from_diffusion_analyzer</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>interval=0.5</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_diffusion_analyzer</code><span class="sig-paren">(</span><em class="sig-param">diffusion_analyzer</em>, <em class="sig-param">interval=0.5</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
-pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
-<li><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points (in
-Angstrom)</li>
-<li><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
+<li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points (in
+Angstrom)</p></li>
+<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites">
-<code class="descname">generate_stable_sites</code><span class="sig-paren">(</span><em>p_ratio=0.25</em>, <em>d_cutoff=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.generate_stable_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_stable_sites</code><span class="sig-paren">(</span><em class="sig-param">p_ratio=0.25</em>, <em class="sig-param">d_cutoff=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.generate_stable_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a set of low-energy sites from probability density function with
 given probability threshold ‘p_ratio’. The set of grid points with
 probability density higher than the threshold will further be clustered
@@ -219,19 +206,15 @@ using hierachical clustering method, with no two clusters closer than the
 given distance cutoff. Note that the low-energy sites may converge more
 slowly in fast conductors (more shallow energy landscape) than in the slow
 conductors.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p_ratio</strong> (<em>float</em>) – Probability threshold above which a grid point is
-considered as a low-energy site.</li>
-<li><strong>d_cutoff</strong> (<em>float</em>) – Distance cutoff used in hierachical clustering.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p_ratio</strong> (<em>float</em>) – Probability threshold above which a grid point is
+considered as a low-energy site.</p></li>
+<li><p><strong>d_cutoff</strong> (<em>float</em>) – Distance cutoff used in hierachical clustering.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>The set of stable sites is stored in the <cite>stable_sites</cite> attribute
 as a Nx3 numpy array.</p>
@@ -239,14 +222,14 @@ as a Nx3 numpy array.</p>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure">
-<code class="descname">get_full_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.get_full_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_full_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.get_full_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the structure with the low-energy sites included. In the end, a
 pymatgen Structure object will be returned.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar">
-<code class="descname">to_chgcar</code><span class="sig-paren">(</span><em>filename='CHGCAR.vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.to_chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_chgcar</code><span class="sig-paren">(</span><em class="sig-param">filename='CHGCAR.vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.to_chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the probability density distribution in the format of CHGCAR,
 which can be visualized by VESTA.</p>
 </dd></dl>
@@ -255,81 +238,73 @@ which can be visualized by VESTA.</p>
 
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer">
-<em class="property">class </em><code class="descname">SiteOccupancyAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>coords_ref</em>, <em>trajectories</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SiteOccupancyAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">coords_ref</em>, <em class="sig-param">trajectories</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class that analyzes the site occupancy of given species using MD trajectories.
 The occupancy of a site is determined based on the shortest distance scheme.</p>
 <dl class="attribute">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ">
-<code class="descname">site_occ</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">site_occ</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">N x 1 numpy array that stores the occupancy of all sites associated with</code></dt>
+<code class="sig-name descname">N x 1 numpy array that stores the occupancy of all sites associated with</code></dt>
 <dt>
-<code class="descname">species. It has the same sequence as the given list of indices.</code></dt>
+<code class="sig-name descname">species. It has the same sequence as the given list of indices.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref">
-<code class="descname">coords_ref</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coords_ref</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">N x 3 numpy array of fractional coordinates of all reference sites.</code></dt>
+<code class="sig-name descname">N x 3 numpy array of fractional coordinates of all reference sites.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites">
-<code class="descname">nsites</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nsites</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">Number of reference sites.</code></dt>
+<code class="sig-name descname">Number of reference sites.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure">
-<code class="descname">structure</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">Initial structure.</code></dt>
+<code class="sig-name descname">Initial structure.</code></dt>
 <dd></dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<em>pmg_structure</em>) – Initial structure.</li>
-<li><strong>coords_ref</strong> (<em>N_s x 3 array</em>) – Fractional coordinates of N_s given sites
-at which the site occupancy will be computed.</li>
-<li><strong>trajectories</strong> (<em>Ntimesteps x Nions x 3 array</em>) – Ionic trajectories from MD
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>pmg_structure</em>) – Initial structure.</p></li>
+<li><p><strong>coords_ref</strong> (<em>N_s x 3 array</em>) – Fractional coordinates of N_s given sites
+at which the site occupancy will be computed.</p></li>
+<li><p><strong>trajectories</strong> (<em>Ntimesteps x Nions x 3 array</em>) – Ionic trajectories from MD
 simulation, where Ntimesteps is the number of time steps in MD
-simulation. Note that the coordinates are fractional.</li>
-<li><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</li>
+simulation. Note that the coordinates are fractional.</p></li>
+<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="classmethod">
+</dd>
+</dl>
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer">
-<em class="property">classmethod </em><code class="descname">from_diffusion_analyzer</code><span class="sig-paren">(</span><em>coords_ref</em>, <em>diffusion_analyzer</em>, <em>species=('Li'</em>, <em>'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.from_diffusion_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_diffusion_analyzer</code><span class="sig-paren">(</span><em class="sig-param">coords_ref</em>, <em class="sig-param">diffusion_analyzer</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.from_diffusion_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords_ref</strong> (<em>nested list of floats</em>) – Fractional coordinates of a list
-of reference sites at which the site occupancy will be computed.</li>
-<li><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
-pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
-<li><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords_ref</strong> (<em>nested list of floats</em>) – Fractional coordinates of a list
+of reference sites at which the site occupancy will be computed.</p></li>
+<li><p><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
+<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy">
-<code class="descname">get_average_site_occupancy</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.get_average_site_occupancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_average_site_occupancy</code><span class="sig-paren">(</span><em class="sig-param">indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.get_average_site_occupancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the average site occupancy over a subset of reference sites.</p>
 </dd></dl>
 
@@ -340,7 +315,7 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
 <span id="pymatgen-diffusion-aimd-van-hove-module"></span><h2>pymatgen_diffusion.aimd.van_hove module<a class="headerlink" href="#module-pymatgen_diffusion.aimd.van_hove" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer">
-<em class="property">class </em><code class="descname">EvolutionAnalyzer</code><span class="sig-paren">(</span><em>structures</em>, <em>rmax=10</em>, <em>step=1</em>, <em>time_step=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EvolutionAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">rmax=10</em>, <em class="sig-param">step=1</em>, <em class="sig-param">time_step=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initialization the EvolutionAnalyzer from MD simulations. From the
 structures obtained from MD simulations, we can analyze the structure
@@ -351,350 +326,297 @@ Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.;
 Zheng, C.; Ong, S. P. “Probing Solid–Solid Interfacial Reactions in
 All-Solid-State Sodium-Ion Batteries with First-Principles
 Calculations”, Chem. Mater. (2018), 30(1), pp 163-173.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – The list of structures obtained from MD
-simulations.</li>
-<li><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</li>
-<li><strong>step</strong> (<em>int</em>) – indicate the interval of input structures, which is used
-to calculated correct time step.</li>
-<li><strong>time_step</strong> (<em>int</em>) – the time step in fs, POTIM in INCAR.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – The list of structures obtained from MD
+simulations.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – indicate the interval of input structures, which is used
+to calculated correct time step.</p></li>
+<li><p><strong>time_step</strong> (<em>int</em>) – the time step in fs, POTIM in INCAR.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="staticmethod">
+</dd>
+</dl>
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.atom_dist">
-<em class="property">static </em><code class="descname">atom_dist</code><span class="sig-paren">(</span><em>structure</em>, <em>specie</em>, <em>ngrid=101</em>, <em>window=1</em>, <em>direction='c'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.atom_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.atom_dist" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">atom_dist</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">specie</em>, <em class="sig-param">ngrid=101</em>, <em class="sig-param">window=1</em>, <em class="sig-param">direction='c'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.atom_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.atom_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get atomic distribution for a given specie.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<em>Structure</em>) – input structure</li>
-<li><strong>specie</strong> (<em>str</em>) – species string for an element</li>
-<li><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</li>
-<li><strong>window</strong> (<em>float</em>) – number of atoms will be counted within the range
-(i-window, i+window), unit is angstrom.</li>
-<li><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b” and “c”. Default is “c”.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em>) – input structure</p></li>
+<li><p><strong>specie</strong> (<em>str</em>) – species string for an element</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>window</strong> (<em>float</em>) – number of atoms will be counted within the range
+(i-window, i+window), unit is angstrom.</p></li>
+<li><p><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b” and “c”. Default is “c”.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">atomic concentration along one direction.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">density (np.array)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>atomic concentration along one direction.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>density (np.array)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_df">
-<code class="descname">get_df</code><span class="sig-paren">(</span><em>func</em>, <em>save_csv=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_df" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_df</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">save_csv=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the data frame for a given pair. This step would be very slow if
 there are hundreds or more structures to parse.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>func</strong> (<em>FunctionType</em>) – <p>structure to spectrum function. choose from
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>FunctionType</em>) – <p>structure to spectrum function. choose from
 rdf (to get radial distribution function, pair required) or
 get_atomic_distribution (to get atomic distribution, specie
 required). Extra parameters can be parsed using kwargs.
 e.g. To get rdf dataframe:</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>df = EvolutionAnalyzer.get_df(</dt>
-<dd>func=EvolutionAnalyzer.rdf, pair=(“Na”, “Na”))</dd>
+<div><dl class="simple">
+<dt>df = EvolutionAnalyzer.get_df(</dt><dd><p>func=EvolutionAnalyzer.rdf, pair=(“Na”, “Na”))</p>
+</dd>
 </dl>
 </div></blockquote>
-<dl class="docutils">
-<dt>e.g. To get atomic distribution:</dt>
-<dd><dl class="first last docutils">
-<dt>df = EvolutionAnalyzer.get_df(</dt>
-<dd>func=EvolutionAnalyzer.atom_dist, specie=”Na”)</dd>
+<dl class="simple">
+<dt>e.g. To get atomic distribution:</dt><dd><dl class="simple">
+<dt>df = EvolutionAnalyzer.get_df(</dt><dd><p>func=EvolutionAnalyzer.atom_dist, specie=”Na”)</p>
+</dd>
 </dl>
 </dd>
 </dl>
-</li>
-<li><strong>save_csv</strong> (<em>str</em>) – save pandas DataFrame to csv.</li>
+</p></li>
+<li><p><strong>save_csv</strong> (<em>str</em>) – save pandas DataFrame to csv.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>index is the radial distance in Angstrom,</dt>
-<dd><p class="first last">and column is the time step in ps.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>index is the radial distance in Angstrom,</dt><dd><p>and column is the time step in ps.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_min_dist">
-<em class="property">static </em><code class="descname">get_min_dist</code><span class="sig-paren">(</span><em>df</em>, <em>tol=1e-10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_min_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_min_dist" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_min_dist</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">tol=1e-10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_min_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_min_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the shortest pair distance from the given DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> (<em>DataFrame</em>) – index is the radial distance in Angstrom, and
-column is the time step in ps.</li>
-<li><strong>tol</strong> (<em>float</em>) – any float number less than tol is considered as zero.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – index is the radial distance in Angstrom, and
+column is the time step in ps.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – any float number less than tol is considered as zero.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The shorted pair distance throughout the table.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The shorted pair distance throughout the table.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_pairs">
-<em class="property">static </em><code class="descname">get_pairs</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_pairs" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_pairs</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.get_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all element pairs in a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure</em>) – structure</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of tuples</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Structure</em>) – structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of tuples</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_atomic_evolution">
-<code class="descname">plot_atomic_evolution</code><span class="sig-paren">(</span><em>specie</em>, <em>direction='c'</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em>df=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_atomic_evolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_atomic_evolution" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_atomic_evolution</code><span class="sig-paren">(</span><em class="sig-param">specie</em>, <em class="sig-param">direction='c'</em>, <em class="sig-param">cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em class="sig-param">df=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_atomic_evolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_atomic_evolution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the atomic distribution evolution with time for a given species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>specie</strong> (<em>str</em>) – species string for an element.</li>
-<li><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b”, “c”. Default to “c”.</li>
-<li><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.</li>
-<li><strong>df</strong> (<em>DataFrame</em>) – external data, index is the atomic distance in
-Angstrom, and column is the time step in ps.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specie</strong> (<em>str</em>) – species string for an element.</p></li>
+<li><p><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b”, “c”. Default to “c”.</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – external data, index is the atomic distance in
+Angstrom, and column is the time step in ps.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.axes._subplots.AxesSubplot object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_evolution_from_data">
-<em class="property">static </em><code class="descname">plot_evolution_from_data</code><span class="sig-paren">(</span><em>df</em>, <em>x_label=None</em>, <em>cb_label=None</em>, <em>cmap=&lt;matplotlib.colors.ListedColormap object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_evolution_from_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_evolution_from_data" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">plot_evolution_from_data</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">x_label=None</em>, <em class="sig-param">cb_label=None</em>, <em class="sig-param">cmap=&lt;matplotlib.colors.ListedColormap object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_evolution_from_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_evolution_from_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the evolution with time for a given DataFrame. It can be RDF,
 atomic distribution or other characterization data we might
 implement in the future.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) – input DataFrame object, index is the radial
-distance in Angstrom, and column is the time step in ps.</li>
-<li><strong>x_label</strong> (<em>str</em>) – x label</li>
-<li><strong>cb_label</strong> (<em>str</em>) – color bar label</li>
-<li><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
-cmocean.cm.thermal is recommended</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – input DataFrame object, index is the radial
+distance in Angstrom, and column is the time step in ps.</p></li>
+<li><p><strong>x_label</strong> (<em>str</em>) – x label</p></li>
+<li><p><strong>cb_label</strong> (<em>str</em>) – color bar label</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
+cmocean.cm.thermal is recommended</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.axes._subplots.AxesSubplot object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_rdf_evolution">
-<code class="descname">plot_rdf_evolution</code><span class="sig-paren">(</span><em>pair</em>, <em>cmap=&lt;matplotlib.colors.ListedColormap object&gt;</em>, <em>df=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_rdf_evolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_rdf_evolution" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_rdf_evolution</code><span class="sig-paren">(</span><em class="sig-param">pair</em>, <em class="sig-param">cmap=&lt;matplotlib.colors.ListedColormap object&gt;</em>, <em class="sig-param">df=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_rdf_evolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.plot_rdf_evolution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the RDF evolution with time for a given pair.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”)</li>
-<li><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
-cmocean.cm.thermal is recommended</li>
-<li><strong>df</strong> (<em>DataFrame</em>) – external data, index is the radial distance in
-Angstrom, and column is the time step in ps.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”)</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
+cmocean.cm.thermal is recommended</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – external data, index is the radial distance in
+Angstrom, and column is the time step in ps.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.axes._subplots.AxesSubplot object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.rdf">
-<em class="property">static </em><code class="descname">rdf</code><span class="sig-paren">(</span><em>structure</em>, <em>pair</em>, <em>ngrid=101</em>, <em>rmax=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.rdf" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">rdf</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">pair</em>, <em class="sig-param">ngrid=101</em>, <em class="sig-param">rmax=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#EvolutionAnalyzer.rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.EvolutionAnalyzer.rdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process rdf from a given structure and pair.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<em>Structure</em>) – input structure.</li>
-<li><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”).</li>
-<li><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</li>
-<li><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em>) – input structure.</p></li>
+<li><p><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”).</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">rdf (np.array)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rdf (np.array)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction">
-<em class="property">class </em><code class="descname">RadialDistributionFunction</code><span class="sig-paren">(</span><em>structures</em>, <em>indices</em>, <em>reference_indices</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>cell_range=1</em>, <em>sigma=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">RadialDistributionFunction</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">indices</em>, <em class="sig-param">reference_indices</em>, <em class="sig-param">ngrid=101</em>, <em class="sig-param">rmax=10.0</em>, <em class="sig-param">cell_range=1</em>, <em class="sig-param">sigma=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Calculate the average radial distribution function for a given set of
 structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – List of structure
-objects with the same composition. Allow for ensemble averaging.</li>
-<li><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</li>
-<li><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</li>
-<li><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – List of structure
+objects with the same composition. Allow for ensemble averaging.</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
 with supercell. Default is 1, i.e. including the adjacent image
-cells along all three directions.</li>
-<li><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</li>
-<li><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – A list of atom index of interest.</li>
-<li><strong>reference_indices</strong> (<em>[</em><em>int</em><em>]</em>) – set this option along with ‘indices’
-parameter to compute radial distribution function.</li>
+cells along all three directions.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</p></li>
+<li><p><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – A list of atom index of interest.</p></li>
+<li><p><strong>reference_indices</strong> (<em>[</em><em>int</em><em>]</em>) – set this option along with ‘indices’
+parameter to compute radial distribution function.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
+</dd>
+</dl>
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.coordination_number">
-<code class="descname">coordination_number</code><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.coordination_number" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">coordination_number</code><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.coordination_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns running coordination number</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy array</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.export_rdf">
-<code class="descname">export_rdf</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.export_rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.export_rdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export_rdf</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.export_rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.export_rdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output RDF data to a csv file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
 the extension is csv, a csv file is written. Otherwise,
-a dat format is assumed.</td>
-</tr>
-</tbody>
-</table>
+a dat format is assumed.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.from_species">
-<em class="property">classmethod </em><code class="descname">from_species</code><span class="sig-paren">(</span><em>structures</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>cell_range=1</em>, <em>sigma=0.1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>reference_species=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.from_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.from_species" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_species</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">ngrid=101</em>, <em class="sig-param">rmax=10.0</em>, <em class="sig-param">cell_range=1</em>, <em class="sig-param">sigma=0.1</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em>, <em class="sig-param">reference_species=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.from_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.from_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize using species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em>list of pmg_structure objects</em>) – List of structure
-objects with the same composition. Allow for ensemble averaging.</li>
-<li><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</li>
-<li><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</li>
-<li><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>list of pmg_structure objects</em>) – List of structure
+objects with the same composition. Allow for ensemble averaging.</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
 with supercell. Default is 1, i.e. including the adjacent image
-cells along all three directions.</li>
-<li><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</li>
-<li><strong>species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – A list of specie symbols of interest.</li>
-<li><strong>reference_species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – <p>set this option along with
+cells along all three directions.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</p></li>
+<li><p><strong>species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – A list of specie symbols of interest.</p></li>
+<li><p><strong>reference_species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – <p>set this option along with
 ‘species’ parameter to compute radial distribution function.
 eg: species=[“H”], reference_species=[“O”] to compute</p>
 <blockquote>
-<div>O-H pair distribution in a water MD simulation.</div></blockquote>
-</li>
+<div><p>O-H pair distribution in a water MD simulation.</p>
+</div></blockquote>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.get_rdf_plot">
-<code class="descname">get_rdf_plot</code><span class="sig-paren">(</span><em>label=None</em>, <em>xlim=(0.0</em>, <em>8.0)</em>, <em>ylim=(-0.005</em>, <em>3.0)</em>, <em>loc_peak=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.get_rdf_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.get_rdf_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_rdf_plot</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">xlim=(0.0</em>, <em class="sig-param">8.0)</em>, <em class="sig-param">ylim=(-0.005</em>, <em class="sig-param">3.0)</em>, <em class="sig-param">loc_peak=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#RadialDistributionFunction.get_rdf_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.RadialDistributionFunction.get_rdf_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the average RDF function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> (<em>str</em>) – The legend label.</li>
-<li><strong>xlim</strong> (<em>list</em>) – Set the x limits of the current axes.</li>
-<li><strong>ylim</strong> (<em>list</em>) – Set the y limits of the current axes.</li>
-<li><strong>loc_peak</strong> (<em>bool</em>) – Label peaks if True.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – The legend label.</p></li>
+<li><p><strong>xlim</strong> (<em>list</em>) – Set the x limits of the current axes.</p></li>
+<li><p><strong>ylim</strong> (<em>list</em>) – Set the y limits of the current axes.</p></li>
+<li><p><strong>loc_peak</strong> (<em>bool</em>) – Label peaks if True.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis">
-<em class="property">class </em><code class="descname">VanHoveAnalysis</code><span class="sig-paren">(</span><em>diffusion_analyzer</em>, <em>avg_nsteps=50</em>, <em>ngrid=101</em>, <em>rmax=10.0</em>, <em>step_skip=50</em>, <em>sigma=0.1</em>, <em>cell_range=1</em>, <em>species=('Li'</em>, <em>'Na')</em>, <em>reference_species=None</em>, <em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VanHoveAnalysis</code><span class="sig-paren">(</span><em class="sig-param">diffusion_analyzer</em>, <em class="sig-param">avg_nsteps=50</em>, <em class="sig-param">ngrid=101</em>, <em class="sig-param">rmax=10.0</em>, <em class="sig-param">step_skip=50</em>, <em class="sig-param">sigma=0.1</em>, <em class="sig-param">cell_range=1</em>, <em class="sig-param">species=('Li'</em>, <em class="sig-param">'Na')</em>, <em class="sig-param">reference_species=None</em>, <em class="sig-param">indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for van Hove function analysis. In particular, self-part (Gs) and
 distinct-part (Gd) of the van Hove correlation function G(r,t)
@@ -704,59 +626,51 @@ please consider citing the following paper:</p>
 and Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4
 Superionic Conductor”. Chem. Mater. (2015), 27, pp 8318–8325</p>
 <p>Initiation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
-pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</li>
-<li><strong>avg_nsteps</strong> (<em>int</em>) – Number of t0 used for statistical average</li>
-<li><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points</li>
-<li><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always set zero)</li>
-<li><strong>step_skip</strong> (<em>int</em>) – # of time steps skipped during analysis. It defines
-the resolution of the reduced time grid</li>
-<li><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function</li>
-<li><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
+<li><p><strong>avg_nsteps</strong> (<em>int</em>) – Number of t0 used for statistical average</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always set zero)</p></li>
+<li><p><strong>step_skip</strong> (<em>int</em>) – # of time steps skipped during analysis. It defines
+the resolution of the reduced time grid</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
 with supercell. Default is 1, i.e. including the adjacent image
-cells along all three directions.</li>
-<li><strong>species</strong> (<em>[</em><em>string</em><em>]</em>) – a list of specie symbols of interest.</li>
-<li><strong>reference_species</strong> (<em>[</em><em>string</em><em>]</em>) – Set this option along with ‘species’
+cells along all three directions.</p></li>
+<li><p><strong>species</strong> (<em>[</em><em>string</em><em>]</em>) – a list of specie symbols of interest.</p></li>
+<li><p><strong>reference_species</strong> (<em>[</em><em>string</em><em>]</em>) – Set this option along with ‘species’
 parameter to calculate the distinct-part of van Hove function.
 Note that the self-part of van Hove function is always computed
-only for those in “species” parameter.</li>
-<li><strong>indices</strong> (<em>list of int</em>) – If not None, only a subset of atomic indices
+only for those in “species” parameter.</p></li>
+<li><p><strong>indices</strong> (<em>list of int</em>) – If not None, only a subset of atomic indices
 will be selected for the analysis. If this is given, “species”
-parameter will be ignored.</li>
+parameter will be ignored.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">
-<code class="descname">get_1d_plot</code><span class="sig-paren">(</span><em>mode='distinct', times=[0.0], colors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_1d_plot</code><span class="sig-paren">(</span><em class="sig-param">mode='distinct', times=[0.0], colors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the van Hove function at given r or t.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mode</strong> (<em>str</em>) – Specify which part of van Hove function to be plotted.</li>
-<li><strong>times</strong> (<em>list of float</em>) – Time moments (in ps) in which the van Hove
-function will be plotted.</li>
-<li><strong>colors</strong> (<em>list strings/tuples</em>) – Additional color settings. If not set,
-seaborn.color_plaette(“Set1”, 10) will be used.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>str</em>) – Specify which part of van Hove function to be plotted.</p></li>
+<li><p><strong>times</strong> (<em>list of float</em>) – Time moments (in ps) in which the van Hove
+function will be plotted.</p></li>
+<li><p><strong>colors</strong> (<em>list strings/tuples</em>) – Additional color settings. If not set,
+seaborn.color_plaette(“Set1”, 10) will be used.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot">
-<code class="descname">get_3d_plot</code><span class="sig-paren">(</span><em>figsize=(12</em>, <em>8)</em>, <em>type='distinct'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_3d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_3d_plot</code><span class="sig-paren">(</span><em class="sig-param">figsize=(12</em>, <em class="sig-param">8)</em>, <em class="sig-param">type='distinct'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/aimd/van_hove.html#VanHoveAnalysis.get_3d_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot 3D self-part or distinct-part of van Hove function, which is
 specified by the input argument ‘type’.</p>
 </dd></dl>
@@ -806,13 +720,11 @@ specified by the input argument ‘type’.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>

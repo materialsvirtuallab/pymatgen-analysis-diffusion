@@ -19,13 +19,15 @@ addons:
     - python-pip
 install:
   - travis_wait pip install -q -r requirements.txt
-  - travis_wait pip install -q -r requirements-optional.txt
+  - travis_wait pip install -q -r requirements-ci.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
   - python setup.py develop
 # command to run tests, e.g. python setup.py test
-script: nosetests -v pymatgen_diffusion
+script:
+  - pytest --durations=30 pymatgen_diffusion
+  - pycodestyle pymatgen_diffusion
 branches:
   only:
     - master

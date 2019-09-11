@@ -115,7 +115,7 @@ def release_github(ctx):
 
 @task
 def test(ctx):
-    ctx.run("nosetests")
+    ctx.run("pytest pymatgen_diffusion")
 
 
 @task

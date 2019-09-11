@@ -68,8 +68,7 @@ class ProbabilityDensityAnalysis:
         bgrid = rb[:, None] * np.array([0, 1, 0])[None, :]
         cgrid = rc[:, None] * np.array([0, 0, 1])[None, :]
 
-        grid = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None,
-                                                             :]
+        grid = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
 
         # Calculate time-averaged probability density function distribution Pr
         count = Counter()
@@ -87,28 +86,23 @@ class ProbabilityDensityAnalysis:
                 for i in range(3):
                     next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[i] - 1 else 0
 
-                agrid = np.array([corner_i[0], next_i[0]])[:, None] * \
-                        np.array([1, 0, 0])[None, :]
-                bgrid = np.array([corner_i[1], next_i[1]])[:, None] * \
-                        np.array([0, 1, 0])[None, :]
-                cgrid = np.array([corner_i[2], next_i[2]])[:, None] * \
-                        np.array([0, 0, 1])[None, :]
+                agrid = np.array([corner_i[0], next_i[0]])[:, None] * np.array([1, 0, 0])[None, :]
+                bgrid = np.array([corner_i[1], next_i[1]])[:, None] * np.array([0, 1, 0])[None, :]
+                cgrid = np.array([corner_i[2], next_i[2]])[:, None] * np.array([0, 0, 1])[None, :]
 
-                grid_indices = agrid[:, None, None] + bgrid[None, :, None] + \
-                               cgrid[None, None, :]
+                grid_indices = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
                 grid_indices = grid_indices.reshape(8, 3)
 
                 mini_grid = [grid[indx[0], indx[1], indx[2]] for indx in
                              grid_indices]
                 dist_matrix = lattice.get_all_distances(mini_grid, fcoord)
                 indx = \
-                np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[
-                    0][0]
+                    np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[
+                        0][0]
 
                 # 3-index label mapping to single index
-                min_indx = grid_indices[indx][0] * len(rb) * len(rc) + \
-                           grid_indices[indx][1] * len(rc) + grid_indices[indx][
-                               2]
+                min_indx = (grid_indices[indx][0] * len(rb) * len(rc) +
+                            grid_indices[indx][1] * len(rc) + grid_indices[indx][2])
 
                 # make sure the index does not go out of bound.
                 assert 0 <= min_indx < ngrid
@@ -153,7 +147,6 @@ class ProbabilityDensityAnalysis:
         return ProbabilityDensityAnalysis(structure, trajectories,
                                           interval=interval, species=species)
 
-
     def generate_stable_sites(self, p_ratio=0.25, d_cutoff=1.0):
         """
         Obtain a set of low-energy sites from probability density function with
@@ -171,7 +164,7 @@ class ProbabilityDensityAnalysis:
 
         Notes:
             The set of stable sites is stored in the `stable_sites` attribute
-            as a Nx3 numpy array. 
+            as a Nx3 numpy array.
         """
 
         # Set of grid points with high probability density.
@@ -180,7 +173,7 @@ class ProbabilityDensityAnalysis:
         lattice = self.structure.lattice
 
         for (x, y, z) in zip(indices[0], indices[1], indices[2]):
-            grid_fcoords.append([x/self.lens[0], y/self.lens[1], z/self.lens[2]])
+            grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
 
         grid_fcoords = np.array(grid_fcoords)
         dist_matrix = np.array(lattice.get_all_distances(grid_fcoords,
@@ -236,7 +229,6 @@ class ProbabilityDensityAnalysis:
             full_structure.append("X", fcoord)
 
         return full_structure
-
 
     def to_chgcar(self, filename="CHGCAR.vasp"):
         """

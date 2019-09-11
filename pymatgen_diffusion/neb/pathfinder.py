@@ -25,7 +25,7 @@ Algorithms for NEB migration path analysis.
 class IDPPSolver:
     """
     A solver using image dependent pair potential (IDPP) algo to get an improved
-    initial NEB path. For more details about this algo, please refer to 
+    initial NEB path. For more details about this algo, please refer to
     Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
 
     """
@@ -35,7 +35,7 @@ class IDPPSolver:
         Initialization.
 
         Args:
-            structures (list of pmg_structure) : Initial guess of the NEB path 
+            structures (list of pmg_structure) : Initial guess of the NEB path
                 (including initial and final end-point structures).
         """
 
@@ -53,7 +53,7 @@ class IDPPSolver:
         for i in range(1, nimages + 1):
             # Interpolated distance matrices
             dist = structures[0].distance_matrix + i / (nimages + 1) * (
-                structures[-1].distance_matrix - structures[0].distance_matrix)
+                    structures[-1].distance_matrix - structures[0].distance_matrix)
 
             target_dists.append(dist)
 
@@ -93,25 +93,25 @@ class IDPPSolver:
     def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05,
             max_disp=0.05, spring_const=5.0, species=None):
         """
-        Perform iterative minimization of the set of objective functions in an 
-        NEB-like manner. In each iteration, the total force matrix for each 
-        image is constructed, which comprises both the spring forces and true 
-        forces. For more details about the NEB approach, please see the 
+        Perform iterative minimization of the set of objective functions in an
+        NEB-like manner. In each iteration, the total force matrix for each
+        image is constructed, which comprises both the spring forces and true
+        forces. For more details about the NEB approach, please see the
         references, e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000).
 
         Args:
-            maxiter (int): Maximum number of iterations in the minimization 
+            maxiter (int): Maximum number of iterations in the minimization
                 process.
             tol (float): Tolerance of the change of objective functions between
                 consecutive steps.
             gtol (float): Tolerance of maximum force component (absolute value).
-            step_size (float): Step size associated with the displacement of 
+            step_size (float): Step size associated with the displacement of
                 the atoms during the minimization process.
-            max_disp (float): Maximum allowed atomic displacement in each 
+            max_disp (float): Maximum allowed atomic displacement in each
                 iteration.
             spring_const (float): A virtual spring constant used in the NEB-like
                         relaxation process that yields so-called IDPP path.
-            species (list of string): If provided, only those given species are 
+            species (list of string): If provided, only those given species are
                 allowed to move. The atomic positions of other species are
                 obtained via regular linear interpolation approach.
 
@@ -167,7 +167,7 @@ class IDPPSolver:
 
             for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
                 new_site = PeriodicSite(
-                    site.species_and_occu, coords=cart_coords,
+                    site.species, coords=cart_coords,
                     lattice=site.lattice, coords_are_cartesian=True,
                     properties=site.properties)
                 new_sites.append(new_site)
@@ -182,7 +182,7 @@ class IDPPSolver:
     @classmethod
     def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
         """
-        A class method that starts with end-point structures instead. The 
+        A class method that starts with end-point structures instead. The
         initial guess for the IDPP algo is then constructed using linear
         interpolation.
 
@@ -211,7 +211,7 @@ class IDPPSolver:
 
     def _get_funcs_and_forces(self, x):
         """
-        Calculate the set of objective functions as well as their gradients, 
+        Calculate the set of objective functions as well as their gradients,
         i.e. "effective true forces"
         """
         funcs = []
@@ -226,8 +226,7 @@ class IDPPSolver:
                    for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = (trial_dist - target_dists[ni]) * weights[ni] \
-                  / (trial_dist + np.eye(natoms, dtype=np.float64))
+            aux = (trial_dist - target_dists[ni]) * weights[ni] / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
             func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
@@ -246,8 +245,8 @@ class IDPPSolver:
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
-        Calculate the total force on each image structure, which is equal to 
-        the spring force along the tangent + true force perpendicular to the 
+        Calculate the total force on each image structure, which is equal to
+        the spring force along the tangent + true force perpendicular to the
         tangent. Note that the spring force is the modified version in the
         literature (e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000)).
         """
@@ -270,7 +269,7 @@ class IDPPSolver:
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
             total_force = true_forces[ni - 1] + (
-                spring_force - np.dot(flat_ft, tangent) * tangent).reshape(
+                    spring_force - np.dot(flat_ft, tangent) * tangent).reshape(
                 natoms, 3)
             total_forces.append(total_force)
 
@@ -303,7 +302,8 @@ class MigrationPath:
                 self.eindex = i
 
     def __repr__(self):
-        return "Path of %.4f A from %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)" \
+        return "Path of %.4f A from %s [%.3f, %.3f, %.3f] " \
+               "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)" \
                % (self.length, self.isite.specie, self.isite.frac_coords[0], self.isite.frac_coords[1],
                   self.isite.frac_coords[2],
                   self.iindex, self.symm_structure.wyckoff_symbols[self.iindex],
@@ -337,7 +337,7 @@ class MigrationPath:
                        **idpp_kwargs):
         """
         Generate structures for NEB calculation.
-        
+
         Args:
             nimages (int): Defaults to 5. Number of NEB images. Total number of
                 structures returned in nimages+2.
@@ -349,8 +349,8 @@ class MigrationPath:
                 the initial and ending positions of the interstitial, and all
                 other sites of the same specie are removed. E.g., if NEBPaths
                 were obtained using a Li4Fe4P4O16 structure, vac_mode=True would
-                generate structures with formula Li3Fe4P4O16, while 
-                vac_mode=False would generate structures with formula 
+                generate structures with formula Li3Fe4P4O16, while
+                vac_mode=False would generate structures with formula
                 LiFe4P4O16.
             idpp (bool): Defaults to False. If True, the generated structures
                 will be run through the IDPPSolver to generate a better guess
@@ -372,7 +372,7 @@ class MigrationPath:
                 other_sites.append(site)
             else:
                 if vac_mode and (isite.distance(site) > 1e-8 and
-                                         esite.distance(site) > 1e-8):
+                                 esite.distance(site) > 1e-8):
                     migrating_specie_sites.append(site)
 
         start_structure = Structure.from_sites(
@@ -393,9 +393,9 @@ class MigrationPath:
     def write_path(self, fname, **kwargs):
         """
         Write the path to a file for easy viewing.
-        
+
         Args:
-            fname (str): File name. 
+            fname (str): File name.
             \*\*kwargs: Kwargs supported by NEBPath.get_structures.
         """
         sites = []
@@ -418,7 +418,7 @@ class DistinctPathFinder:
         """
         Args:
             structure: Input structure that contains all sites.
-            migrating_specie (Specie-like): The specie that migrates. E.g., 
+            migrating_specie (Specie-like): The specie that migrates. E.g.,
                 "Li".
             max_path_length (float): Maximum length of NEB path in the unit
                 of Angstrom. Defaults to None, which means you are setting the
@@ -444,9 +444,9 @@ class DistinctPathFinder:
                 dists = []
                 neighbors = self.symm_structure.get_neighbors(
                     site0, r=max_r)
-                for nn, dist in sorted(neighbors, key=lambda n: n[-1]):
-                    if nn.specie == self.migrating_specie:
-                        dists.append(dist)
+                for nn in sorted(neighbors, key=lambda nn: nn.distance):
+                    if nn.site.specie == self.migrating_specie:
+                        dists.append(nn.distance)
                 if len(dists) > 2:
                     junc += 1
                 distance_list.append(dists)
@@ -482,10 +482,10 @@ class DistinctPathFinder:
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                for nn, dist in self.symm_structure.get_neighbors(
+                for nn in self.symm_structure.get_neighbors(
                         site0, r=round(self.max_path_length, 3) + 0.01):
-                    if nn.specie == self.migrating_specie:
-                        path = MigrationPath(site0, nn, self.symm_structure)
+                    if nn.site.specie == self.migrating_specie:
+                        path = MigrationPath(site0, nn.site, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
@@ -495,9 +495,9 @@ class DistinctPathFinder:
         Write a file containing all paths, using hydrogen as a placeholder for
         the images. H is chosen as it is the smallest atom. This is extremely
         useful for path visualization in a standard software like VESTA.
-        
+
         Args:
-            fname (str): Filename 
+            fname (str): Filename
             nimages (int): Number of images per path.
             \*\*kwargs: Passthrough kwargs to path.get_structures.
         """
