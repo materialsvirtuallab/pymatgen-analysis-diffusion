@@ -2,8 +2,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper
-from pymatgen_diffusion.neb.full_path_mapper import ComputedEntryPath
+from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper, ComputedEntryPath, get_all_sym_sites
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 from pymatgen.io.vasp import Chgcar
@@ -11,7 +10,13 @@ import unittest
 from pymatgen import Structure
 import numpy as np
 from monty.serialization import loadfn
+<<<<<<< HEAD
+import os 
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+=======
 import os, glob
+>>>>>>> master
 
 __author__ = "Jimmy Shen"
 __version__ = "1.0"
@@ -26,23 +31,41 @@ def get_path(path_str, dirname="./"):
 
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
+<<<<<<< HEAD
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        self.fpm = FullPathMapper(
+            structure=struct, migrating_specie='Li', max_path_length=4)
+=======
         struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
                                               dirname="full_path_files"))
         self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
+>>>>>>> master
 
     def test_get_pos_and_migration_path(self):
         """
         Make sure that we can populate the graph with MigrationPath Objects
         """
         self.fpm._get_pos_and_migration_path(0, 1, 1)
+<<<<<<< HEAD
+        self.assertAlmostEqual(self.fpm.s_graph.graph[0][1][1]['hop'].length,
+                               3.571248, 4)
+
+=======
         self.assertAlmostEqual(self.fpm.s_graph.graph[0][1][1]['hop'].length, 3.571248, 4)
+>>>>>>> master
 
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
+<<<<<<< HEAD
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        self.fpm = FullPathMapper(
+            structure=struct, migrating_specie='Li', max_path_length=4)
+=======
         struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
                                               dirname="full_path_files"))
         self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
+>>>>>>> master
         self.fpm.populate_edges_with_migration_paths()
         self.fpm.group_and_label_hops()
 
@@ -50,11 +73,21 @@ class FullPathMapperComplexTest(unittest.TestCase):
         """
         Check that the set of end points in a group of similiarly labeled hops are all the same
         """
-        edge_labs = np.array([d['hop_label'] for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
+        edge_labs = np.array([
+            d['hop_label']
+            for u, v, d in self.fpm.s_graph.graph.edges(data=True)
+        ])
 
+<<<<<<< HEAD
+        site_labs = np.array(
+            [(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex],
+              d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex])
+             for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
+=======
         site_labs = np.array([(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex],
                                d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex]) for u, v, d in
                               self.fpm.s_graph.graph.edges(data=True)])
+>>>>>>> master
 
         for itr in range(edge_labs.max()):
             sub_set = site_labs[edge_labs == itr]
@@ -67,7 +100,12 @@ class FullPathMapperComplexTest(unittest.TestCase):
         """
         self.fpm.get_unique_hops_dict()
         unique_list = [v for k, v in self.fpm.unique_hops.items()]
+<<<<<<< HEAD
+        all_pairs = [(mg1, mg2) for i1, mg1 in enumerate(unique_list)
+                     for mg2 in unique_list[i1 + 1:]]
+=======
         all_pairs = [(mg1, mg2) for i1, mg1 in enumerate(unique_list) for mg2 in unique_list[i1 + 1:]]
+>>>>>>> master
 
         for migration_path in all_pairs:
             self.assertNotEqual(migration_path[0], migration_path[1])
@@ -75,16 +113,22 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
+<<<<<<< HEAD
+        self.test_ents_MOF = loadfn(
+            f'{dir_path}/full_path_files/Mn6O5F7_cat_migration.json')
+        self.aeccar_MOF = Chgcar.from_file(
+            f'{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp')
+=======
         self.test_ents_MOF = loadfn(get_path("Mn6O5F7_cat_migration.json",
                                              dirname="full_path_files"))
         self.aeccar_MOF = Chgcar.from_file(get_path("AECCAR_Mn6O5F7.vasp",
                                                     dirname="full_path_files"))
+>>>>>>> master
         self.cep = ComputedEntryPath(
             base_struct_entry=self.test_ents_MOF['ent_base'],
             migrating_specie='Li',
             single_cat_entries=self.test_ents_MOF['one_cation'],
-            base_aeccar=self.aeccar_MOF
-        )
+            base_aeccar=self.aeccar_MOF)
 
         # structure matcher used for validation
         self.rough_sm = StructureMatcher(
@@ -100,7 +144,8 @@ class ComputedEntryPathTest(unittest.TestCase):
         (using sloppier tolerences)
         """
         for ent in self.cep.translated_single_cat_entries:
-            li_sites = self.cep.get_all_sym_sites(ent).sites
+            li_sites = get_all_sym_sites(ent, self.cep.base_struct_entry,
+                                         self.cep.migrating_specie).sites
             s0 = self.cep.base_struct_entry.structure.copy()
             s0.insert(0, 'Li', li_sites[0].frac_coords)
             for isite in li_sites[1:]:
@@ -122,10 +167,17 @@ class ComputedEntryPathTest(unittest.TestCase):
         total_chg_per_vol = self.cep.base_aeccar.data['total'].sum(
         ) / self.cep.base_aeccar.ngridpts / self.cep.base_aeccar.structure.volume
         self.assertAlmostEqual(
-            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[2]), total_chg_per_vol)
+            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[2]),
+            total_chg_per_vol)
 
         self.cep._tube_radius = 2
+<<<<<<< HEAD
+        self.assertAlmostEqual(
+            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]),
+            0.12999554582728579)
+=======
         #self.assertAlmostEqual(self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]), 0.12999554582728579)
+>>>>>>> master
 
     def test_populate_edges_with_chg_density_info(self):
         """
@@ -134,7 +186,12 @@ class ComputedEntryPathTest(unittest.TestCase):
         """
         self.cep.populate_edges_with_chg_density_info()
         length_vs_chg = list(
+<<<<<<< HEAD
+            sorted([(d['hop'].length, d['chg_total'])
+                    for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
+=======
             sorted([(d['hop'].length, d['chg_total']) for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
+>>>>>>> master
         prv = None
         for len, chg in length_vs_chg:
             if prv is None:

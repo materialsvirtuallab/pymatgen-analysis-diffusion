@@ -20,14 +20,14 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, ElementCompara
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, generate_full_symmops
 from pymatgen.analysis.local_env import MinimumDistanceNN
 import operator
 import numpy as np
 import networkx as nx
 from itertools import starmap
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
-
+from monty.json import MSONable
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +56,7 @@ def generic_groupby(list_in, comp=operator.eq):
     return list_out
 
 
-class FullPathMapper:
+class FullPathMapper(MSONable):
     """
     Find all hops in a given crystal structure using the StructureGraph.
     Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the
@@ -202,6 +202,7 @@ class ComputedEntryPath(FullPathMapper):
                  max_path_length=4,
                  ltol=0.2,
                  stol=0.3,
+                 full_sites_struct=None,
                  angle_tol=5):
         """
         Pass in a entries for analysis
@@ -219,6 +220,7 @@ class ComputedEntryPath(FullPathMapper):
         self.single_cat_entries = single_cat_entries
         self.base_struct_entry = base_struct_entry
         self.base_aeccar = base_aeccar
+        self.migrating_specie = migrating_specie
         self._tube_radius = 0
         self.sm = StructureMatcher(
             comparator=ElementComparator(),
@@ -229,17 +231,25 @@ class ComputedEntryPath(FullPathMapper):
             angle_tol=angle_tol)
 
         logger.debug('See if the structures all match')
-        for ent in self.single_cat_entries:
-            assert (self.sm.fit(self.base_struct_entry.structure,
-                                ent.structure))
+        fit_ents = []
+        if full_sites_struct:
+            self.full_sites = full_sites_struct
+            self.base_structure_full_sites = self.full_sites.copy()
+            self.base_structure_full_sites.sites.extend(
+                self.base_struct_entry.structure.sites)
+        else:
+            for ent in self.single_cat_entries:
+                if self.sm.fit(self.base_struct_entry.structure, ent.structure):
+                    fit_ents.append(ent)
+            self.single_cat_entries = fit_ents
 
-        self.translated_single_cat_entries = list(
-            map(self.match_ent_to_base, self.single_cat_entries))
-
-        self.full_sites = self.get_full_sites()
-        self.base_structure_full_sites = self.full_sites.copy()
-        self.base_structure_full_sites.sites.extend(
-            self.base_struct_entry.structure.sites)
+            self.translated_single_cat_entries = list(
+                map(self.match_ent_to_base, self.single_cat_entries))
+            self.full_sites = self.get_full_sites()
+            self.base_structure_full_sites = self.full_sites.copy()
+            self.base_structure_full_sites.sites.extend(
+                self.base_struct_entry.structure.sites)
+        
 
         # Initialize
         super(ComputedEntryPath, self).__init__(
@@ -252,7 +262,8 @@ class ComputedEntryPath(FullPathMapper):
         self.populate_edges_with_migration_paths()
         self.group_and_label_hops()
         self.get_unique_hops_dict()
-        self._setup_grids()
+        if base_aeccar:
+            self._setup_grids()
 
     def match_ent_to_base(self, ent):
         """
@@ -271,50 +282,6 @@ class ComputedEntryPath(FullPathMapper):
         new_ent.structure = new_struct
         return new_ent
 
-    def get_all_sym_sites(self, ent):
-        """
-        Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure
-
-        Args:
-          ent(ComputedStructureEntry):  that contains cation
-
-        Returns:
-          Structure: containing all of the symmetry equivalent sites
-
-        """
-
-        sa = SpacegroupAnalyzer(
-            self.base_struct_entry.structure, symprec=0.3, angle_tolerance=10)
-        host_allsites = self.base_struct_entry.structure.copy()
-        host_allsites.remove_species(host_allsites.species)
-        pos_Li = list(
-            filter(lambda isite: isite.species_string == 'Li',
-                   ent.structure.sites))
-
-        for isite in pos_Li:
-            host_allsites.insert(
-                0,
-                'Li',
-                isite.frac_coords,
-                properties={'inserted_energy': ent.energy})
-
-        for op in sa.get_space_group_operations():
-            struct_tmp = host_allsites.copy()
-            struct_tmp.apply_operation(symmop=op, fractional=True)
-            for isite in struct_tmp.sites:
-                if isite.species_string == "Li":
-                    host_allsites.insert(
-                        0,
-                        'Li',
-                        isite.frac_coords,
-                        properties={'inserted_energy': ent.energy})
-
-        host_allsites.merge_sites(
-            mode='average'
-        )  # keeps only one position but average the properties
-
-        return host_allsites
-
     def get_full_sites(self):
         """
         Get each group of symmetry inequivalent sites and combine them
@@ -326,9 +293,15 @@ class ComputedEntryPath(FullPathMapper):
         """
         res = []
         for itr in self.translated_single_cat_entries:
-            res.extend(self.get_all_sym_sites(itr).sites)
+            sub_site_list = get_all_sym_sites(itr, self.base_struct_entry,
+                                              self.migrating_specie)
+            # ic(sub_site_list._sites)
+            res.extend(sub_site_list._sites)
         res = Structure.from_sites(res)
-        res.merge_sites(tol=1.0, mode='average')
+        # ic(res)
+        if len(res) > 1:
+            res.merge_sites(tol=1.0, mode='average')
+        # ic(res)
         return res
 
     def _setup_grids(self):
@@ -363,9 +336,7 @@ class ComputedEntryPath(FullPathMapper):
         # should be using a mesh grid of 5x5x5 (using 3x3x3 misses some fringe cases)
         # but using 3x3x3 is much faster and only crops the cyliners in some rare case
         # if you keep the tube_radius small then this is not a big deal
-        IMA, IMB, IMC = np.meshgrid([-1, 0, 1],
-                                    [-1, 0, 1],
-                                    [-1, 0, 1],
+        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1],
                                     indexing='ij')
 
         # store these
@@ -375,7 +346,9 @@ class ComputedEntryPath(FullPathMapper):
                                   IMB.flatten(),
                                   IMC.flatten()]).T
 
-    def _get_chg_between_sites_tube(self, migration_path, mask_file_seedname=None):
+    def _get_chg_between_sites_tube(self,
+                                    migration_path,
+                                    mask_file_seedname=None):
         """
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
 
@@ -403,15 +376,16 @@ class ComputedEntryPath(FullPathMapper):
         for img in self._images:
             grid_pos = np.dot(self._fcoords + img,
                               self.base_aeccar.structure.lattice.matrix)
-            proj_on_line = np.dot(grid_pos - cart_ipos, cart_epos - cart_ipos) / (
-                np.linalg.norm(cart_epos - cart_ipos))
+            proj_on_line = np.dot(grid_pos - cart_ipos,
+                                  cart_epos - cart_ipos) / (
+                                      np.linalg.norm(cart_epos - cart_ipos))
             dist_to_line = np.linalg.norm(
                 np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos) /
                 (np.linalg.norm(cart_epos - cart_ipos)),
                 axis=-1)
 
-            mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_epos - cart_ipos)) * (
-                        dist_to_line < self._tube_radius)
+            mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(
+                cart_epos - cart_ipos)) * (dist_to_line < self._tube_radius)
             pbc_mask = pbc_mask + mask
         pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
 
@@ -419,10 +393,8 @@ class ComputedEntryPath(FullPathMapper):
             mask_out = VolumetricData(
                 structure=self.base_aeccar.structure.copy(),
                 data={'total': self.base_aeccar.data['total']})
-            mask_out.structure.insert(
-                0, "X", ipos)
-            mask_out.structure.insert(
-                0, "X", epos)
+            mask_out.structure.insert(0, "X", ipos)
+            mask_out.structure.insert(0, "X", epos)
             mask_out.data['total'] = pbc_mask
             isym = self.symm_structure.wyckoff_symbols[migration_path.iindex]
             esym = self.symm_structure.wyckoff_symbols[migration_path.eindex]
@@ -437,3 +409,55 @@ class ComputedEntryPath(FullPathMapper):
         for k, v in self.unique_hops.items():
             chg_tot = self._get_chg_between_sites_tube(v)
             self.add_data_to_similar_edges(k, {'chg_total': chg_tot})
+
+
+def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=10):
+    """
+    Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure
+
+    Args:
+        ent(ComputedStructureEntry): that contains cation
+        migrating_species(string or Elment): 
+
+    Returns:
+        Structure: containing all of the symmetry equivalent sites
+
+    """
+    migrating_specie_el = get_el_sp(migrating_specie)
+    sa = SpacegroupAnalyzer(
+        base_struct_entry.structure,
+        symprec=stol,
+        angle_tolerance=atol)
+    #start with the base structure but empty
+    host_allsites = base_struct_entry.structure.copy()
+    host_allsites.remove_species(host_allsites.species)
+    pos_Li = list(
+        filter(lambda isite: isite.species_string == migrating_specie_el.name,
+               ent.structure.sites))
+    print(pos_Li)
+    for isite in pos_Li:
+        host_allsites.insert(
+            0,
+            migrating_specie_el.name,
+            np.mod(isite.frac_coords, 1),
+            properties={'inserted_energy': ent.energy})
+    #base_ops = sa.get_space_group_operations()
+    #all_ops = generate_full_symmops(base_ops, tol=1.0)
+    for op in sa.get_space_group_operations():
+        logger.debug(f'{op}')
+        struct_tmp = host_allsites.copy()
+        struct_tmp.apply_operation(symmop=op, fractional=True)
+        for isite in struct_tmp.sites:
+            if isite.species_string == migrating_specie_el.name:
+                logger.debug(f'{op}')
+                host_allsites.insert(
+                    0,
+                    migrating_specie_el.name,
+                    np.mod(isite.frac_coords, 1),
+                    properties={'inserted_energy': ent.energy})
+                host_allsites.merge_sites(
+                    mode='average'
+                )  # keeps only one position but average the properties
+
+    return host_allsites
+
