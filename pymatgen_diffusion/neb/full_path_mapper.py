@@ -28,6 +28,7 @@ import networkx as nx
 from itertools import starmap
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 from monty.json import MSONable
+
 logger = logging.getLogger(__name__)
 
 
@@ -249,7 +250,6 @@ class ComputedEntryPath(FullPathMapper):
             self.base_structure_full_sites = self.full_sites.copy()
             self.base_structure_full_sites.sites.extend(
                 self.base_struct_entry.structure.sites)
-        
 
         # Initialize
         super(ComputedEntryPath, self).__init__(
@@ -378,7 +378,7 @@ class ComputedEntryPath(FullPathMapper):
                               self.base_aeccar.structure.lattice.matrix)
             proj_on_line = np.dot(grid_pos - cart_ipos,
                                   cart_epos - cart_ipos) / (
-                                      np.linalg.norm(cart_epos - cart_ipos))
+                               np.linalg.norm(cart_epos - cart_ipos))
             dist_to_line = np.linalg.norm(
                 np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos) /
                 (np.linalg.norm(cart_epos - cart_ipos)),
@@ -417,7 +417,7 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
 
     Args:
         ent(ComputedStructureEntry): that contains cation
-        migrating_species(string or Elment): 
+        migrating_species(string or Elment):
 
     Returns:
         Structure: containing all of the symmetry equivalent sites
@@ -428,21 +428,20 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
         base_struct_entry.structure,
         symprec=stol,
         angle_tolerance=atol)
-    #start with the base structure but empty
+    # start with the base structure but empty
     host_allsites = base_struct_entry.structure.copy()
     host_allsites.remove_species(host_allsites.species)
     pos_Li = list(
         filter(lambda isite: isite.species_string == migrating_specie_el.name,
                ent.structure.sites))
-    print(pos_Li)
     for isite in pos_Li:
         host_allsites.insert(
             0,
             migrating_specie_el.name,
             np.mod(isite.frac_coords, 1),
             properties={'inserted_energy': ent.energy})
-    #base_ops = sa.get_space_group_operations()
-    #all_ops = generate_full_symmops(base_ops, tol=1.0)
+    # base_ops = sa.get_space_group_operations()
+    # all_ops = generate_full_symmops(base_ops, tol=1.0)
     for op in sa.get_space_group_operations():
         logger.debug(f'{op}')
         struct_tmp = host_allsites.copy()
@@ -460,4 +459,3 @@ def get_all_sym_sites(ent, base_struct_entry, migrating_specie, stol=1.0, atol=1
                 )  # keeps only one position but average the properties
 
     return host_allsites
-
