@@ -116,7 +116,9 @@ class VanHoveAnalysis:
         tracking_ions = np.array(tracking_ions)
         ref_ions = np.array(ref_ions)
 
-        gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / float(avg_nsteps) / float(len(ref_indices))
+        gaussians = norm.pdf(interval[:, None], interval[None, :],
+                             sigma) / float(avg_nsteps) / float(
+            len(ref_indices))
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
@@ -142,7 +144,8 @@ class VanHoveAnalysis:
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None,
+                                                                 None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
@@ -154,7 +157,9 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
 
             for it1 in range(avg_nsteps):
-                dcf = (tracking_ions[it0 + it1, :, None, None, :] + images[None, None, :, :] -
+                dcf = (tracking_ions[it0 + it1, :, None, None, :] + images[None,
+                                                                    None, :,
+                                                                    :] -
                        ref_ions[it1, None, :, None, :])
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc ** 2, axis=3)
@@ -327,7 +332,8 @@ class RadialDistributionFunction:
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
+        images = arange[:, None, None] + \
+                 brange[None, :, None] + crange[None, None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
@@ -335,7 +341,8 @@ class RadialDistributionFunction:
         indx0 = np.argmin(zd)
 
         for fcoords, ref_fcoords in zip(fcoords_list, ref_fcoords_list):
-            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
+            dcf = fcoords[:, None, None, :] + \
+                  images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = lattice.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices))
@@ -350,10 +357,12 @@ class RadialDistributionFunction:
             if indx > len(interval) - 1:
                 continue
 
-            ff = 4.0 / 3.0 * np.pi * (interval[indx + 1] ** 3 - interval[indx] ** 3)
+            ff = 4.0 / 3.0 * np.pi * (
+                        interval[indx + 1] ** 3 - interval[indx] ** 3)
 
             rdf[:] += (stats.norm.pdf(interval, interval[indx], sigma) * dn /
-                       float(len(reference_indices)) / ff / self.rho / len(fcoords_list) * dr)
+                       float(len(reference_indices)) / ff / self.rho / len(
+                        fcoords_list) * dr)
             # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(
                 len(reference_indices)) / ff / self.rho / len(
@@ -622,7 +631,8 @@ class EvolutionAnalyzer:
         for structure in self.structures:
             prop_table.append(func(structure, **kwargs))
 
-        index = np.arange(len(self.structures)) * self.time_step * self.step / 1000
+        index = np.arange(
+            len(self.structures)) * self.time_step * self.step / 1000
         columns = np.linspace(0, self.rmax, ngrid)
         df = pds.DataFrame(prop_table, index=index, columns=columns)
 
