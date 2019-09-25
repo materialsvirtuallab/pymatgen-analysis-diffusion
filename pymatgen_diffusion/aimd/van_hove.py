@@ -2,17 +2,21 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, \
+    Iterable, Callable
 from collections import Counter
 import numpy as np
 import itertools
 import pandas as pds
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
+
 from scipy import stats
 from scipy.stats import norm
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
+from pymatgen import Structure
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -31,9 +35,13 @@ class VanHoveAnalysis:
     Superionic Conductor". Chem. Mater. (2015), 27, pp 8318–8325
     """
 
-    def __init__(self, diffusion_analyzer, avg_nsteps=50, ngrid=101, rmax=10.0,
-                 step_skip=50, sigma=0.1, cell_range=1, species=("Li", "Na"),
-                 reference_species=None, indices=None):
+    def __init__(self, diffusion_analyzer: DiffusionAnalyzer,
+                 avg_nsteps: int = 50,
+                 ngrid: int = 101, rmax: float = 10.0,
+                 step_skip: int = 50,
+                 sigma: float = 0.1, cell_range: int = 1,
+                 species: Tuple = ("Li", "Na"),
+                 reference_species: Tuple = None, indices: List = None):
         """
         Initiation.
 
@@ -185,20 +193,20 @@ class VanHoveAnalysis:
         # time interval (in ps) in gsrt and gdrt.
         self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / 1000.0
 
-    def get_3d_plot(self, figsize=(12, 8), type="distinct"):
+    def get_3d_plot(self, figsize: Tuple = (12, 8), mode: str = "distinct"):
         """
         Plot 3D self-part or distinct-part of van Hove function, which is
         specified by the input argument 'type'.
         """
 
-        assert type in ["distinct", "self"]
+        assert mode in ["distinct", "self"]
 
-        if type == "distinct":
+        if mode == "distinct":
             grt = self.gdrt.copy()
             vmax = 4.0
             cb_ticks = [0, 1, 2, 3, 4]
             cb_label = "$G_d$($t$,$r$)"
-        elif type == "self":
+        elif mode == "self":
             grt = self.gsrt.copy()
             vmax = 1.0
             cb_ticks = [0, 1]
@@ -230,7 +238,8 @@ class VanHoveAnalysis:
 
         return plt
 
-    def get_1d_plot(self, mode="distinct", times=[0.0], colors=None):
+    def get_1d_plot(self, mode: str = "distinct", times: List = [0.0],
+                    colors: List = None):
         """
         Plot the van Hove function at given r or t.
 
@@ -284,8 +293,9 @@ class RadialDistributionFunction:
     """
 
     # todo: volume change correction for NpT RDF
-    def __init__(self, structures, indices, reference_indices, ngrid=101,
-                 rmax=10.0, cell_range=1, sigma=0.1):
+    def __init__(self, structures: List, indices: List, reference_indices: List,
+                 ngrid: int = 101, rmax: float = 10.0, cell_range: int = 1,
+                 sigma: float = 0.1):
         """
         Args:
             structures ([Structure]): List of structure
@@ -357,8 +367,8 @@ class RadialDistributionFunction:
             if indx > len(interval) - 1:
                 continue
 
-            ff = 4.0 / 3.0 * np.pi * (
-                        interval[indx + 1] ** 3 - interval[indx] ** 3)
+            ff = 4.0 / 3.0 * np.pi * \
+                 (interval[indx + 1] ** 3 - interval[indx] ** 3)
 
             rdf[:] += (stats.norm.pdf(interval, interval[indx], sigma) * dn /
                        float(len(reference_indices)) / ff / self.rho / len(
@@ -387,8 +397,10 @@ class RadialDistributionFunction:
         self.peak_rdf = [self.rdf[i] for i in self.peak_indices]
 
     @classmethod
-    def from_species(cls, structures, ngrid=101, rmax=10.0, cell_range=1,
-                     sigma=0.1, species=("Li", "Na"), reference_species=None):
+    def from_species(cls, structures: List, ngrid: int = 101,
+                     rmax: float = 10.0, cell_range: int = 1,
+                     sigma: float = 0.1, species: tuple = ("Li", "Na"),
+                     reference_species: tuple = None):
         """
         Initialize using species.
 
@@ -435,8 +447,9 @@ class RadialDistributionFunction:
         return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi *
                          (intervals[1:] ** 3 - intervals[:-1] ** 3))
 
-    def get_rdf_plot(self, label=None, xlim=(0.0, 8.0), ylim=(-0.005, 3.0),
-                     loc_peak=False):
+    def get_rdf_plot(self, label: str = None, xlim: tuple = (0.0, 8.0),
+                     ylim: tuple = (-0.005, 3.0),
+                     loc_peak: bool = False):
         """
         Plot the average RDF function.
 
@@ -474,7 +487,7 @@ class RadialDistributionFunction:
 
         return plt
 
-    def export_rdf(self, filename):
+    def export_rdf(self, filename: str):
         """
         Output RDF data to a csv file.
 
@@ -497,7 +510,8 @@ class RadialDistributionFunction:
 
 
 class EvolutionAnalyzer:
-    def __init__(self, structures, rmax=10, step=1, time_step=2):
+    def __init__(self, structures: List, rmax: float = 10, step: int = 1,
+                 time_step: int = 2):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -526,7 +540,7 @@ class EvolutionAnalyzer:
         self.time_step = time_step
 
     @staticmethod
-    def get_pairs(structure):
+    def get_pairs(structure: Structure):
         """
         Get all element pairs in a structure.
 
@@ -542,7 +556,8 @@ class EvolutionAnalyzer:
         return list(pairs)
 
     @staticmethod
-    def rdf(structure, pair, ngrid=101, rmax=10):
+    def rdf(structure: Structure, pair: Tuple, ngrid: int = 101,
+            rmax: float = 10):
         """
         Process rdf from a given structure and pair.
 
@@ -562,7 +577,8 @@ class EvolutionAnalyzer:
         return r.rdf
 
     @staticmethod
-    def atom_dist(structure, specie, ngrid=101, window=1, direction="c"):
+    def atom_dist(structure: Structure, specie: str, ngrid: int = 101,
+                  window: float = 1, direction: str = "c"):
         """
         Get atomic distribution for a given specie.
 
@@ -601,7 +617,7 @@ class EvolutionAnalyzer:
 
         return np.array(density)
 
-    def get_df(self, func, save_csv=None, **kwargs):
+    def get_df(self, func: Callable, save_csv: str = None, **kwargs):
         """
         Get the data frame for a given pair. This step would be very slow if
         there are hundreds or more structures to parse.
@@ -642,7 +658,7 @@ class EvolutionAnalyzer:
         return df
 
     @staticmethod
-    def get_min_dist(df, tol=1e-10):
+    def get_min_dist(df: pds.DataFrame, tol: float = 1e-10):
         """
         Get the shortest pair distance from the given DataFrame.
 
@@ -661,7 +677,8 @@ class EvolutionAnalyzer:
                 return float(col)
 
     @staticmethod
-    def plot_evolution_from_data(df, x_label=None, cb_label=None,
+    def plot_evolution_from_data(df: pds.DataFrame, x_label: str = None,
+                                 cb_label: str = None,
                                  cmap=plt.cm.plasma):
         """
         Plot the evolution with time for a given DataFrame. It can be RDF,
@@ -704,7 +721,8 @@ class EvolutionAnalyzer:
 
         return plt
 
-    def plot_rdf_evolution(self, pair, cmap=plt.cm.plasma, df=None):
+    def plot_rdf_evolution(self, pair: Tuple, cmap=plt.cm.plasma,
+                           df: pds.DataFrame = None):
         """
         Plot the RDF evolution with time for a given pair.
 
@@ -725,13 +743,14 @@ class EvolutionAnalyzer:
 
         return p
 
-    def plot_atomic_evolution(self, specie, direction="c",
-                              cmap=plt.cm.Blues, df=None):
+    def plot_atomic_evolution(self, specie: str, direction: str = "c",
+                              cmap=plt.cm.Blues,
+                              df: pds.DataFrame = None):
         """
         Plot the atomic distribution evolution with time for a given species.
 
         Args:
-            specie (str ): species string for an element.
+            specie (str): species string for an element.
             direction (str): Choose from "a", "b", "c". Default to "c".
             cmap (color map): the color map used in heat map.
             df (DataFrame): external data, index is the atomic distance in
