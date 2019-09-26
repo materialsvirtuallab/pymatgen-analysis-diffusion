@@ -9,7 +9,6 @@ import numpy as np
 import itertools
 import pandas as pds
 
-from scipy import stats
 from scipy.stats import norm
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
@@ -311,9 +310,11 @@ class RadialDistributionFunction:
                 parameter to compute radial distribution function.
         """
 
-        assert ngrid >= 2, "ngrid should be greater than 1!"
-        assert sigma > 0, "sigma should be a positive number!"
-
+        if ngrid < 2:
+            raise ValueError("ngrid should be greater than 1!")
+        if sigma <= 0:
+            raise ValueError("sigma should be a positive number!")
+        
         lattices, rhos, fcoords_list, ref_fcoords_list = [], [], [], []
 
         dr = rmax / (ngrid - 1)
@@ -368,7 +369,7 @@ class RadialDistributionFunction:
             ff = 4.0 / 3.0 * np.pi * \
                  (interval[indx + 1] ** 3 - interval[indx] ** 3)
 
-            rdf[:] += (stats.norm.pdf(interval, interval[indx], sigma) * dn /
+            rdf[:] += (norm.pdf(interval, interval[indx], sigma) * dn /
                        float(len(reference_indices)) / ff / rho / len(
                         fcoords_list) * dr)
 
@@ -376,7 +377,6 @@ class RadialDistributionFunction:
             raw_rdf[indx] += dn / float(
                 len(reference_indices)) / ff / rho / len(fcoords_list)
 
-        self.dns = dns
         self.rho = rho  # This is the average density
         self.structures = structures
         self.cell_range = cell_range
@@ -391,6 +391,7 @@ class RadialDistributionFunction:
         self.rdf = rdf
         self.raw_rdf = raw_rdf
         self.interval = interval
+
         # Finding peak based on smeared RDF
         self.peak_indices = find_peaks(rdf)[0]
         self.peak_r = [self.interval[i] for i in self.peak_indices]
