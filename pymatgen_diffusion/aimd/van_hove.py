@@ -39,8 +39,9 @@ class VanHoveAnalysis:
                  ngrid: int = 101, rmax: float = 10.0,
                  step_skip: int = 50,
                  sigma: float = 0.1, cell_range: int = 1,
-                 species: Tuple = ("Li", "Na"),
-                 reference_species: Tuple = None, indices: List = None):
+                 species: Union[Tuple, List] = ("Li", "Na"),
+                 reference_species: Union[Tuple, List] = None,
+                 indices: List = None):
         """
         Initiation.
 
@@ -314,7 +315,10 @@ class RadialDistributionFunction:
             raise ValueError("ngrid should be greater than 1!")
         if sigma <= 0:
             raise ValueError("sigma should be a positive number!")
-        
+
+        if len(indices) < 1:
+            raise ValueError("Given species are not in the structure!")
+
         lattices, rhos, fcoords_list, ref_fcoords_list = [], [], [], []
 
         dr = rmax / (ngrid - 1)
@@ -346,9 +350,11 @@ class RadialDistributionFunction:
             ref_fcoords_list.append(all_fcoords[reference_indices, :])
 
         rho = sum(rhos) / len(rhos)  # The average density
+        self.rhos = rhos
+        self.rho = rho  # This is the average density
 
-        for fcoords, ref_fcoords, latt, rho in zip(
-                fcoords_list, ref_fcoords_list, lattices, rhos):
+        for fcoords, ref_fcoords, latt in zip(
+                fcoords_list, ref_fcoords_list, lattices):
             dcf = fcoords[:, None, None, :] + \
                   images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
@@ -368,16 +374,17 @@ class RadialDistributionFunction:
             # Volume of the thin shell
             ff = 4.0 / 3.0 * np.pi * \
                  (interval[indx + 1] ** 3 - interval[indx] ** 3)
-
-            rdf[:] += (norm.pdf(interval, interval[indx], sigma) * dn /
-                       float(len(reference_indices)) / ff / rho / len(
-                        fcoords_list) * dr)
+            # print(norm.pdf(interval, interval[indx], sigma) * dn /
+            #            float(len(reference_indices)) / ff / rho / len(
+            #             fcoords_list) * dr)
+            rdf[:] += norm.pdf(interval, interval[indx], sigma) * dn / \
+                      float(len(reference_indices)) / ff / rho / \
+                      len(fcoords_list) * dr
 
             # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(
                 len(reference_indices)) / ff / rho / len(fcoords_list)
 
-        self.rho = rho  # This is the average density
         self.structures = structures
         self.cell_range = cell_range
         self.rmax = rmax
@@ -400,8 +407,9 @@ class RadialDistributionFunction:
     @classmethod
     def from_species(cls, structures: List, ngrid: int = 101,
                      rmax: float = 10.0, cell_range: int = 1,
-                     sigma: float = 0.1, species: tuple = ("Li", "Na"),
-                     reference_species: tuple = None):
+                     sigma: float = 0.1,
+                     species: Union[Tuple, List] = ("Li", "Na"),
+                     reference_species: Union[Tuple, List] = None):
         """
         Initialize using species.
 

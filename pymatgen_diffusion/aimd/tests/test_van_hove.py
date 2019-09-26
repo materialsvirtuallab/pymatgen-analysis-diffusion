@@ -9,33 +9,30 @@ __date__ = "01/16"
 
 import unittest
 import os
-import json
-
 import numpy as np
 import matplotlib
+from copy import deepcopy
 
-matplotlib.use("pdf")
-
+from monty.serialization import loadfn
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen_diffusion.aimd.van_hove import VanHoveAnalysis, \
     RadialDistributionFunction, EvolutionAnalyzer
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 
+matplotlib.use("pdf")
 tests_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class VanHoveTest(unittest.TestCase):
     def test_van_hove(self):
-        data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        with open(data_file, "r") as j:
-            data = json.load(j)
-        obj = DiffusionAnalyzer.from_dict(data)
+        # Parse the DiffusionAnalyzer object from json file directly
+        obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
         vh = VanHoveAnalysis(diffusion_analyzer=obj, avg_nsteps=5, ngrid=101,
-                             rmax=10.0,
-                             step_skip=5, sigma=0.1, species=["Li", "Na"])
+                             rmax=10.0, step_skip=5, sigma=0.1,
+                             species=["Li", "Na"])
 
-        check = np.shape(vh.gsrt) == (20, 101) and np.shape(vh.gdrt) == (
-            20, 101)
+        check = np.shape(vh.gsrt) == (20, 101) and \
+                np.shape(vh.gdrt) == (20, 101)
         self.assertTrue(check)
         self.assertAlmostEqual(vh.gsrt[0, 0], 3.98942280401, 10)
         self.assertAlmostEqual(vh.gdrt[10, 0], 9.68574868168, 10)
@@ -43,10 +40,8 @@ class VanHoveTest(unittest.TestCase):
 
 class RDFTest(unittest.TestCase):
     def test_rdf(self):
-        data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        with open(data_file, "r") as j:
-            data = json.load(j)
-        obj = DiffusionAnalyzer.from_dict(data)
+        # Parse the DiffusionAnalyzer object from json file directly
+        obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
         structure_list = []
         for i, s in enumerate(obj.get_drift_corrected_structures()):
@@ -74,6 +69,21 @@ class RDFTest(unittest.TestCase):
         check = np.shape(obj.rdf)[0] == 101 and np.argmax(obj.rdf) == 34
         self.assertTrue(check)
         self.assertAlmostEqual(obj.rdf.max(), 1.634448, 4)
+
+        # Test init using structures w/ different lattices
+        s0 = deepcopy(structure_list[0])
+        sl_1 = [s0, s0, s0 * [1, 2, 1]]
+        sl_2 = [s0 * [2, 1, 1], s0, s0]
+
+        obj_1 = RadialDistributionFunction(
+            structures=sl_1, ngrid=101, rmax=10.0, cell_range=1,
+            sigma=0.1, indices=indices, reference_indices=indices)
+        obj_2 = RadialDistributionFunction(
+            structures=sl_2, ngrid=101, rmax=10.0, cell_range=1,
+            sigma=0.1, indices=indices, reference_indices=indices)
+
+        self.assertEqual(obj_1.rho, obj_2.rho)
+        self.assertEqual(obj_1.rdf[0], obj_2.rdf[0])
 
     def test_rdf_coordination_number(self):
         # create a simple cubic lattice
@@ -131,10 +141,8 @@ class RDFTest(unittest.TestCase):
 
 class EvolutionAnalyzerTest(unittest.TestCase):
     def test_get_df(self):
-        data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        with open(data_file, "r") as j:
-            data = json.load(j)
-        obj = DiffusionAnalyzer.from_dict(data)
+        # Parse the DiffusionAnalyzer object from json file directly
+        obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
         structure_list = []
         for i, s in enumerate(obj.get_drift_corrected_structures()):
