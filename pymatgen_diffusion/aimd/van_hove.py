@@ -2,8 +2,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, \
-    Iterable, Callable
+from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, \
+    Sequence, Iterable, Callable
 from collections import Counter
 import numpy as np
 import itertools
@@ -292,7 +292,6 @@ class RadialDistributionFunction:
     structures.
     """
 
-    # todo: volume change correction for NpT RDF
     def __init__(self, structures: List, indices: List, reference_indices: List,
                  ngrid: int = 101, rmax: float = 10.0, cell_range: int = 1,
                  sigma: float = 0.1):
@@ -301,7 +300,8 @@ class RadialDistributionFunction:
             structures ([Structure]): List of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
-            rmax (float): Maximum of radial grid (the minimum is always zero).
+            rmax (float): Maximum of radial grid (the minimum is always zero)
+                in Angstrom.
             cell_range (int): Range of translational vector elements associated
                 with supercell. Default is 1, i.e. including the adjacent image
                 cells along all three directions.
@@ -311,24 +311,10 @@ class RadialDistributionFunction:
                 parameter to compute radial distribution function.
         """
 
-        if ngrid < 2:
-            raise ValueError("ngrid should be greater than 1!")
-        if sigma <= 0:
-            raise ValueError("sigma should be a positive number!")
+        assert ngrid >= 2, "ngrid should be greater than 1!"
+        assert sigma > 0, "sigma should be a positive number!"
 
-        lattice = structures[0].lattice
-
-        if len(indices) < 1:
-            raise ValueError("Given species are not in the structure!")
-
-        self.rho = float(len(indices)) / lattice.volume
-        fcoords_list = []
-        ref_fcoords_list = []
-
-        for s in structures:
-            all_fcoords = np.array(s.frac_coords)
-            fcoords_list.append(all_fcoords[indices, :])
-            ref_fcoords_list.append(all_fcoords[reference_indices, :])
+        lattices, rhos, fcoords_list, ref_fcoords_list = [], [], [], []
 
         dr = rmax / (ngrid - 1)
         interval = np.linspace(0.0, rmax, ngrid)
@@ -337,7 +323,7 @@ class RadialDistributionFunction:
 
         dns = Counter()
 
-        # generate the translational vectors
+        # Generate the translational vectors
         r = np.arange(-cell_range, cell_range + 1)
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
@@ -346,14 +332,25 @@ class RadialDistributionFunction:
                  brange[None, :, None] + crange[None, None, :]
         images = images.reshape((len(r) ** 3, 3))
 
-        # find the zero image vector
+        # Find the zero image vector
         zd = np.sum(images ** 2, axis=1)
         indx0 = np.argmin(zd)
 
-        for fcoords, ref_fcoords in zip(fcoords_list, ref_fcoords_list):
+        for s in structures:
+            latt = s.lattice
+            lattices.append(latt)
+            rhos.append(float(len(indices)) / latt.volume)
+            all_fcoords = np.array(s.frac_coords)
+            fcoords_list.append(all_fcoords[indices, :])
+            ref_fcoords_list.append(all_fcoords[reference_indices, :])
+
+        rho = sum(rhos) / len(rhos)  # The average density
+
+        for fcoords, ref_fcoords, latt, rho in zip(
+                fcoords_list, ref_fcoords_list, lattices, rhos):
             dcf = fcoords[:, None, None, :] + \
                   images[None, None, :, :] - ref_fcoords[None, :, None, :]
-            dcc = lattice.get_cartesian_coords(dcf)
+            dcc = latt.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices))
                      for v in range(len(reference_indices))
@@ -367,17 +364,20 @@ class RadialDistributionFunction:
             if indx > len(interval) - 1:
                 continue
 
+            # Volume of the thin shell
             ff = 4.0 / 3.0 * np.pi * \
                  (interval[indx + 1] ** 3 - interval[indx] ** 3)
 
             rdf[:] += (stats.norm.pdf(interval, interval[indx], sigma) * dn /
-                       float(len(reference_indices)) / ff / self.rho / len(
+                       float(len(reference_indices)) / ff / rho / len(
                         fcoords_list) * dr)
+
             # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(
-                len(reference_indices)) / ff / self.rho / len(
-                fcoords_list)
+                len(reference_indices)) / ff / rho / len(fcoords_list)
 
+        self.dns = dns
+        self.rho = rho  # This is the average density
         self.structures = structures
         self.cell_range = cell_range
         self.rmax = rmax
@@ -443,6 +443,7 @@ class RadialDistributionFunction:
         Returns:
             numpy array
         """
+        # Note: The average density from all input structures is used here.
         intervals = np.append(self.interval, self.interval[-1] + self.dr)
         return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi *
                          (intervals[1:] ** 3 - intervals[:-1] ** 3))
