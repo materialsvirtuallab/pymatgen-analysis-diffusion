@@ -10,24 +10,20 @@ import unittest
 from pymatgen import Structure
 import numpy as np
 from monty.serialization import loadfn
-import os, glob
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 __author__ = "Jimmy Shen"
 __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-def get_path(path_str, dirname="./"):
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, dirname, path_str)
-    return path
-
-
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
-                                              dirname="full_path_files"))
-        self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        self.fpm = FullPathMapper(
+            structure=struct, migrating_specie='Li', max_path_length=4)
 
     def test_get_pos_and_migration_path(self):
         """
@@ -40,9 +36,9 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file(get_path("MnO2_full_Li.vasp",
-                                              dirname="full_path_files"))
-        self.fpm = FullPathMapper(structure=struct, migrating_specie='Li', max_path_length=4)
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        self.fpm = FullPathMapper(
+            structure=struct, migrating_specie='Li', max_path_length=4)
         self.fpm.populate_edges_with_migration_paths()
         self.fpm.group_and_label_hops()
 
@@ -80,10 +76,10 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
-        self.test_ents_MOF = loadfn(get_path("Mn6O5F7_cat_migration.json",
-                                             dirname="full_path_files"))
-        self.aeccar_MOF = Chgcar.from_file(get_path("AECCAR_Mn6O5F7.vasp",
-                                                    dirname="full_path_files"))
+        self.test_ents_MOF = loadfn(
+            f'{dir_path}/full_path_files/Mn6O5F7_cat_migration.json')
+        self.aeccar_MOF = Chgcar.from_file(
+            f'{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp')
         self.cep = ComputedEntryPath(
             base_struct_entry=self.test_ents_MOF['ent_base'],
             migrating_specie='Li',
@@ -133,7 +129,7 @@ class ComputedEntryPathTest(unittest.TestCase):
         self.cep._tube_radius = 2
         self.assertAlmostEqual(
             self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]),
-            0.12999554582728579)
+            0.188, 3)
 
     def test_populate_edges_with_chg_density_info(self):
         """
@@ -142,7 +138,8 @@ class ComputedEntryPathTest(unittest.TestCase):
         """
         self.cep.populate_edges_with_chg_density_info()
         length_vs_chg = list(
-            sorted([(d['hop'].length, d['chg_total']) for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
+            sorted([(d['hop'].length, d['chg_total'])
+                    for u, v, d in self.cep.s_graph.graph.edges(data=True)]))
         prv = None
         for len, chg in length_vs_chg:
             if prv is None:
