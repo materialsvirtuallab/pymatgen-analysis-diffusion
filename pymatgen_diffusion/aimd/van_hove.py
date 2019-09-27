@@ -135,8 +135,7 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [lattice.get_distance_and_image(tracking_ions[it1][u],
-                                                        tracking_ions[
-                                                            it0 + it1][u],
+                                                        tracking_ions[it0 + it1][u],
                                                         jimage=image)[0] for u
                          in range(len(indices))]
                 dists = filter(lambda e: e < rmax, dists)
@@ -152,8 +151,7 @@ class VanHoveAnalysis:
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None,
-                                                                 None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None,None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
@@ -165,9 +163,7 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
 
             for it1 in range(avg_nsteps):
-                dcf = (tracking_ions[it0 + it1, :, None, None, :] + images[None,
-                                                                    None, :,
-                                                                    :] -
+                dcf = (tracking_ions[it0 + it1, :, None, None, :] + images[None, None, :, :] -
                        ref_ions[it1, None, :, None, :])
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc ** 2, axis=3)
@@ -276,7 +272,7 @@ class VanHoveAnalysis:
             plt.plot(self.interval, grt[index], color=colors[i], label=label,
                      linewidth=4.0)
 
-        plt.xlabel("$r$ ($\AA$)")
+        plt.xlabel(r"$r$ ($\AA$)")
         plt.ylabel(ylabel)
         plt.legend(loc='upper right', fontsize=36)
         plt.xlim(0.0, self.interval[-1] - 1.0)
@@ -333,8 +329,7 @@ class RadialDistributionFunction:
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + \
-                 brange[None, :, None] + crange[None, None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # Find the zero image vector
@@ -355,8 +350,7 @@ class RadialDistributionFunction:
 
         for fcoords, ref_fcoords, latt in zip(
                 fcoords_list, ref_fcoords_list, lattices):
-            dcf = fcoords[:, None, None, :] + \
-                  images[None, None, :, :] - ref_fcoords[None, :, None, :]
+            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
             d2 = np.sum(dcc ** 2, axis=3)
             dists = [d2[u, v, j] ** 0.5 for u in range(len(indices))
@@ -377,9 +371,8 @@ class RadialDistributionFunction:
             # print(norm.pdf(interval, interval[indx], sigma) * dn /
             #            float(len(reference_indices)) / ff / rho / len(
             #             fcoords_list) * dr)
-            rdf[:] += norm.pdf(interval, interval[indx], sigma) * dn / \
-                      float(len(reference_indices)) / ff / rho / \
-                      len(fcoords_list) * dr
+            rdf[:] += (norm.pdf(interval, interval[indx], sigma) * dn / float(len(reference_indices)) / ff / rho /
+                       len(fcoords_list) * dr)
 
             # additional dr factor renormalises overlapping gaussians.
             raw_rdf[indx] += dn / float(
@@ -776,27 +769,3 @@ class EvolutionAnalyzer:
         p = self.plot_evolution_from_data(df=df, x_label=x_label,
                                           cb_label=cb_label, cmap=cmap)
         return p
-
-
-if __name__ == "__main__":
-    # import os
-    # import json
-    #
-    # tests_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-    #                          "tests")
-    # data_file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-    # data = json.load(open(data_file, "r"))
-    # obj = DiffusionAnalyzer.from_dict(data)
-    # structure_list = []
-    # for i, s in enumerate(obj.get_drift_corrected_structures()):
-    #     structure_list.append(s)
-    #     if i == 9: break
-    #
-    # s = structure_list[0]
-    # indices = [i for (i, site) in enumerate(s) if
-    #            site.species_string in ["Na", "P", "S"]]
-    # obj = RadialDistributionFunction(
-    #     structures=structure_list, ngrid=101, rmax=10.0, cell_range=1,
-    #     sigma=0.1, indices=indices, reference_indices=indices)
-
-    pass
