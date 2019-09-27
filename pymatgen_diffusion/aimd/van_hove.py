@@ -151,7 +151,7 @@ class VanHoveAnalysis:
         arange = r[:, None] * np.array([1, 0, 0])[None, :]
         brange = r[:, None] * np.array([0, 1, 0])[None, :]
         crange = r[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] + crange[None,None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
@@ -366,8 +366,7 @@ class RadialDistributionFunction:
                 continue
 
             # Volume of the thin shell
-            ff = 4.0 / 3.0 * np.pi * \
-                 (interval[indx + 1] ** 3 - interval[indx] ** 3)
+            ff = 4.0 / 3.0 * np.pi * (interval[indx + 1] ** 3 - interval[indx] ** 3)
             # print(norm.pdf(interval, interval[indx], sigma) * dn /
             #            float(len(reference_indices)) / ff / rho / len(
             #             fcoords_list) * dr)
