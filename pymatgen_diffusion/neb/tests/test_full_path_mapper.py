@@ -127,6 +127,7 @@ class ComputedEntryPathTest(unittest.TestCase):
             total_chg_per_vol)
 
         self.cep._tube_radius = 2
+
         self.assertAlmostEqual(
             self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]),
             0.188, 3)
