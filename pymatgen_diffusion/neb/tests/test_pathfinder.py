@@ -86,7 +86,7 @@ class DistinctPathFinderTest(PymatgenTest):
         paths[0].write_path("pathfindertest_idpp_vac.cif", idpp=True)
         paths[0].write_path("pathfindertest_idpp_nonvac.cif", idpp=True, vac_mode=False)
         self.assertEqual(str(paths[0]),
-                         "Path of 3.0328 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.250, 1.000] (ind: 0, Wyckoff: 16a)")
+                         "Path of 3.0329 A from Li [0.000, 0.500, 1.000] (ind: 0, Wyckoff: 16a) to Li [-0.000, 0.750, 1.000] (ind: 0, Wyckoff: 16a)")
 
         p = DistinctPathFinder(s, "Li", max_path_length=6)
         paths = p.get_paths()

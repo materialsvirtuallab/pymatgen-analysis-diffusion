@@ -444,9 +444,9 @@ class DistinctPathFinder:
                 dists = []
                 neighbors = self.symm_structure.get_neighbors(
                     site0, r=max_r)
-                for nn in sorted(neighbors, key=lambda nn: nn.distance):
-                    if nn.site.specie == self.migrating_specie:
-                        dists.append(nn.distance)
+                for nn in sorted(neighbors, key=lambda nn: nn.nn_distance):
+                    if nn.specie == self.migrating_specie:
+                        dists.append(nn.nn_distance)
                 if len(dists) > 2:
                     junc += 1
                 distance_list.append(dists)
@@ -484,8 +484,8 @@ class DistinctPathFinder:
                 site0 = sites[0]
                 for nn in self.symm_structure.get_neighbors(
                         site0, r=round(self.max_path_length, 3) + 0.01):
-                    if nn.site.specie == self.migrating_specie:
-                        path = MigrationPath(site0, nn.site, self.symm_structure)
+                    if nn.specie == self.migrating_specie:
+                        path = MigrationPath(site0, nn, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)

@@ -5,7 +5,6 @@
 __author__ = "Iek-Heng Chu"
 __date__ = "01/16"
 
-
 import unittest
 import os
 import json
@@ -28,7 +27,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         trajectories = np.load(traj_file)
         structure = Structure.from_file(struc_file, False)
 
-        #ProbabilityDensityAnalysis object
+        # ProbabilityDensityAnalysis object
         pda = ProbabilityDensityAnalysis(structure, trajectories, interval=0.5)
         dV = pda.structure.lattice.volume / pda.lens[0] / pda.lens[1] / pda.lens[2]
         Pr_tot = np.sum(pda.Pr) * dV
@@ -42,7 +41,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         data = json.load(open(file, "r"))
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
-        #ProbabilityDensityAnalysis object
+        # ProbabilityDensityAnalysis object
         pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer,
                                                                  interval=0.5)
         dV = pda.structure.lattice.volume / pda.lens[0] / pda.lens[1] / pda.lens[2]
@@ -72,6 +71,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         self.assertEqual(s.composition["X"], 50)
         self.assertAlmostEqual(s[177].frac_coords[2], 0.57446809)
 
+
 class SiteOccupancyTest(unittest.TestCase):
 
     def test_site_occupancy(self):
@@ -81,9 +81,9 @@ class SiteOccupancyTest(unittest.TestCase):
         trajectories = np.load(traj_file)
         structure = Structure.from_file(struc_file, False)
 
-        coords_ref= [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
+        coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
-        #SiteOccupancyAnalyzer object
+        # SiteOccupancyAnalyzer object
         socc = SiteOccupancyAnalyzer(structure, coords_ref, trajectories,
                                      species=("Li", "Na"))
         site_occ = socc.site_occ
@@ -100,14 +100,15 @@ class SiteOccupancyTest(unittest.TestCase):
         structure = diff_analyzer.structure
         coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
-        #SiteOccupancyAnalyzer object
+        # SiteOccupancyAnalyzer object
         socc = SiteOccupancyAnalyzer.from_diffusion_analyzer(coords_ref,
-                                                            diffusion_analyzer=diff_analyzer)
+                                                             diffusion_analyzer=diff_analyzer)
         site_occ = socc.site_occ
         self.assertAlmostEqual(np.sum(site_occ), len(coords_ref), 12)
         self.assertAlmostEqual(site_occ[1], 0.98, 12)
         self.assertAlmostEqual(site_occ[26], 0.97, 12)
         self.assertEqual(len(coords_ref), 48)
+
 
 if __name__ == "__main__":
     unittest.main()

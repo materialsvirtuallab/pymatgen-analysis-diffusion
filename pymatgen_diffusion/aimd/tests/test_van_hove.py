@@ -153,7 +153,7 @@ class EvolutionAnalyzerTest(unittest.TestCase):
         atom_dist = eva.get_df(EvolutionAnalyzer.atom_dist, specie="Na",
                                direction="c")
         check = np.shape(rdf) == (10, 101) and np.shape(atom_dist) == (
-            10, 101) and eva.pairs[0] == ("Na", "Na")
+            10, 101) and ("Na", "Na") in eva.pairs
         self.assertTrue(check)
         self.assertAlmostEqual(max(np.array(rdf)[0]), 1.772465, 4)
 
