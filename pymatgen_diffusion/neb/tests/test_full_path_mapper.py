@@ -130,7 +130,7 @@ class ComputedEntryPathTest(unittest.TestCase):
 
         self.assertAlmostEqual(
             self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]),
-            0.188, 3)
+            0.19531840655905952, 3)
 
     def test_populate_edges_with_chg_density_info(self):
         """
