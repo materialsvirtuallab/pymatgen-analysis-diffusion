@@ -1,4 +1,4 @@
 numpy==1.18.1
 scipy==1.4.1
-pymatgen==2020.1.10
+pymatgen==2020.1.28
 matplotlib==3.1.2
