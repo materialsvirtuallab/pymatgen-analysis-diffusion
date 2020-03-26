@@ -336,13 +336,14 @@ class RadialDistributionFunctionFast:
         counts[unique] = val_counts
         return counts
 
-    def get_rdf(self, pair, is_average=True):
+    def get_rdf(self, ref_species: Union[str, List[str]],
+                species: Union[str, List[str]], is_average=True):
         """
         Args:
-            pair (tuple): (reference_specie, specie),
-                The reference specie is at the center of the rdf.
-                For example ('Al', 'O') computes 'O'
-                distribution around 'Al'
+            ref_species (list of species or just single specie str): the reference species.
+                The rdfs are calculated with these species at the center
+            species (list of species or just single specie str): the species that we are interested in.
+                The rdfs are calculated on these species.
             is_average (bool): whether to take the average over
                 all structures
 
@@ -350,59 +351,73 @@ class RadialDistributionFunctionFast:
             (x, rdf) x is the radial points, and rdf is the rdf value.
         """
         if self.n_jobs > 1:
-            all_rdfs = Parallel(n_jobs=self.n_jobs)(self.get_one_rdf(pair, i) for i in range(self.n_structures))
+            all_rdfs = Parallel(n_jobs=self.n_jobs)(
+                self.get_one_rdf(ref_species, species, i) for i in range(self.n_structures))
             all_rdfs = [i[1] for i in all_rdfs]
         else:
-            all_rdfs = [self.get_one_rdf(pair, i)[1] for i in range(self.n_structures)]
+            all_rdfs = [self.get_one_rdf(ref_species, species, i)[1] for i in range(self.n_structures)]
         if is_average:
             all_rdfs = np.mean(all_rdfs, axis=0)
         return self.r, all_rdfs
 
-    def get_one_rdf(self, pair, index=0):
+    def get_one_rdf(self, ref_species: Union[str, List[str]],
+                    species: Union[str, List[str]], index=0):
         """
         Get the RDF for one structure, indicated by the index of the structure
         in all structures
 
         Args:
-            pair (tuple): (reference_specie, specie),
-                The reference specie is at the center of the rdf.
-                For example ('Al', 'O') computes 'O'
-                distribution around 'Al'
+            ref_species (list of species or just single specie str): the reference species.
+                The rdfs are calculated with these species at the center
+            species (list of species or just single specie str): the species that we are interested in.
+                The rdfs are calculated on these species.
             index (int): structure index in the list
 
         Returns:
             (x, rdf) x is the radial points, and rdf is the rdf value.
         """
-        c_element, n_element = pair
-        indices = (self.center_elements[index] == c_element) & \
-                  (self.neighbor_elements[index] == n_element) & \
+        if isinstance(ref_species, str):
+            ref_species = [ref_species]
+
+        if isinstance(species, str):
+            species = [species]
+
+        indices = (np.isin(self.center_elements[index], ref_species)) & \
+                  (np.isin(self.neighbor_elements[index], species)) & \
                   (self.distances[index] >= self.rmin - self.dr / 2.0) & \
                   (self.distances[index] <= self.rmax + self.dr / 2.0) & \
                   (self.distances[index] > 1e-8)
 
+        density = sum([self.density[index][i] for i in species])
+        natoms = sum([self.natoms[index][i] for i in ref_species])
         distances = self.distances[index][indices]
         counts = self._dist_to_counts(distances)
-        rdf_temp = counts / self.density[index][n_element] / \
-            self.volumes / self.natoms[index][c_element]
+        rdf_temp = counts / density / \
+            self.volumes / natoms
         if self.sigma > 1e-8:
             rdf_temp = gaussian_filter1d(rdf_temp, self.sigma)
         return self.r, rdf_temp
 
-    def get_coordination_number(self, pair, is_average=True):
+    def get_coordination_number(self, ref_species, species, is_average=True):
         """
         returns running coordination number
 
         Args:
-            pair (tuple): (reference specie, specie)
+            ref_species (list of species or just single specie str): the reference species.
+                The rdfs are calculated with these species at the center
+            species (list of species or just single specie str): the species that we are interested in.
+                The rdfs are calculated on these species.
             is_average (bool): whether to take structural average
 
         Returns:
             numpy array
         """
         # Note: The average density from all input structures is used here.
-        c_element, n_element = pair
-        all_rdf = self.get_rdf(pair, is_average=False)[1]
-        cn = [np.cumsum(rdf * self.density[i][n_element] * 4.0 * np.pi * self.r**2 * self.dr)
+        all_rdf = self.get_rdf(ref_species, species, is_average=False)[1]
+        if isinstance(species, str):
+            species = [species]
+        density = [sum([i[j] for j in species]) for i in self.density]
+        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr)
               for i, rdf in enumerate(all_rdf)]
         if is_average:
             cn = np.mean(cn, axis=0)

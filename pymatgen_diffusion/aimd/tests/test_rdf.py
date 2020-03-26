@@ -26,7 +26,7 @@ class RDFTest(unittest.TestCase):
         obj = RadialDistributionFunctionFast(structures=structure_list, ngrid=101,
                                              rmax=10.0, sigma=0.1)
 
-        r, s_na_rdf = obj.get_rdf(("S", "Na"))
+        r, s_na_rdf = obj.get_rdf("S", "Na")
         self.assertTrue(s_na_rdf.shape == (101, ))
 
         self.assertAlmostEqual(r[np.argmax(s_na_rdf)], 2.9000, 4)
@@ -40,7 +40,7 @@ class RDFTest(unittest.TestCase):
         structure = Structure(lattice, atom_list, coords)
         rdf = RadialDistributionFunctionFast(structures=[structure],
             rmax=5.0, sigma=0.01, ngrid=500)
-        self.assertEqual(np.round(rdf.get_coordination_number(('S', 'S'))[1][110], 2), 6.0)
+        self.assertEqual(np.round(rdf.get_coordination_number('S', 'S')[1][110], 2), 6.0)
 
 
 if __name__ == "__main__":
