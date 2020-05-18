@@ -2,4 +2,4 @@ numpy==1.18.4
 scipy==1.4.1
 pymatgen==2020.4.29
 matplotlib==3.2.1
-joblib==0.15.0
+joblib==0.15.1
