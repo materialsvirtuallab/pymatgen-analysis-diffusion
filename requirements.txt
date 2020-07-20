@@ -1,5 +1,5 @@
 numpy==1.18.5
 scipy==1.5.1
-pymatgen==2020.7.16
+pymatgen==2020.7.18
 matplotlib==3.3.0
 joblib==0.16.0
