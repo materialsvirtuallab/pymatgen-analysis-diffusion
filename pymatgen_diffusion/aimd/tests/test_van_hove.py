@@ -82,8 +82,8 @@ class RDFTest(unittest.TestCase):
             structures=sl_2, ngrid=101, rmax=10.0, cell_range=1,
             sigma=0.1, indices=indices, reference_indices=indices)
 
-        self.assertEqual(obj_1.rho, obj_2.rho)
-        self.assertEqual(obj_1.rdf[0], obj_2.rdf[0])
+        self.assertAlmostEqual(obj_1.rho, obj_2.rho)
+        self.assertAlmostEqual(obj_1.rdf[0], obj_2.rdf[0])
 
     def test_rdf_coordination_number(self):
         # create a simple cubic lattice
