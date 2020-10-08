@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen_diffusion.neb package &#8212; pymatgen-diffusion 2019.8.18 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen_diffusion.neb package &#8212; pymatgen-diffusion 2020.10.8 documentation</title>
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="pymatgen_diffusion.aimd package" href="pymatgen_diffusion.aimd.html" />
@@ -41,9 +41,10 @@
         <li class="right" >
           <a href="pymatgen_diffusion.aimd.html" title="pymatgen_diffusion.aimd package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2019.8.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2020.10.8 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen_diffusion</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="pymatgen_diffusion.html" accesskey="U">pymatgen_diffusion package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen_diffusion.neb package</a></li> 
       </ul>
     </div>  
 
@@ -65,9 +66,9 @@
 <div class="section" id="module-pymatgen_diffusion.neb.full_path_mapper">
 <span id="pymatgen-diffusion-neb-full-path-mapper-module"></span><h2>pymatgen_diffusion.neb.full_path_mapper module<a class="headerlink" href="#module-pymatgen_diffusion.neb.full_path_mapper" title="Permalink to this headline">¶</a></h2>
 <p>Created on April 01, 2019</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath">
-<em class="property">class </em><code class="sig-name descname">ComputedEntryPath</code><span class="sig-paren">(</span><em class="sig-param">base_struct_entry</em>, <em class="sig-param">single_cat_entries</em>, <em class="sig-param">migrating_specie</em>, <em class="sig-param">base_aeccar=None</em>, <em class="sig-param">max_path_length=4</em>, <em class="sig-param">ltol=0.2</em>, <em class="sig-param">stol=0.3</em>, <em class="sig-param">angle_tol=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ComputedEntryPath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_struct_entry</span></em>, <em class="sig-param"><span class="n">single_cat_entries</span></em>, <em class="sig-param"><span class="n">migrating_specie</span></em>, <em class="sig-param"><span class="n">base_aeccar</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_path_length</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">ltol</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">stol</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">full_sites_struct</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">angle_tol</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper" title="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen_diffusion.neb.full_path_mapper.FullPathMapper</span></code></a></p>
 <p>Generate the full migration network using computed entires for intercollation andvacancy limits
 - Map the relaxed sites of a material back to the empty host lattice
@@ -88,24 +89,7 @@
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_all_sym_sites">
-<code class="sig-name descname">get_all_sym_sites</code><span class="sig-paren">(</span><em class="sig-param">ent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.get_all_sym_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_all_sym_sites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ent</strong> (<em>ComputedStructureEntry</em>) – that contains cation</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>containing all of the symmetry equivalent sites</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Structure</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_full_sites">
 <code class="sig-name descname">get_full_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.get_full_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.get_full_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get each group of symmetry inequivalent sites and combine them</p>
@@ -113,9 +97,9 @@
 <p>Returns: a Structure with all possible Li sites, the enregy of the structure is stored as a site property</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.match_ent_to_base">
-<code class="sig-name descname">match_ent_to_base</code><span class="sig-paren">(</span><em class="sig-param">ent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.match_ent_to_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.match_ent_to_base" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">match_ent_to_base</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ent</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.match_ent_to_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.match_ent_to_base" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the structure of one entry to match the base structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -130,19 +114,20 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.populate_edges_with_chg_density_info">
-<code class="sig-name descname">populate_edges_with_chg_density_info</code><span class="sig-paren">(</span><em class="sig-param">tube_radius=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.populate_edges_with_chg_density_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.populate_edges_with_chg_density_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">populate_edges_with_chg_density_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tube_radius</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#ComputedEntryPath.populate_edges_with_chg_density_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.ComputedEntryPath.populate_edges_with_chg_density_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper">
-<em class="property">class </em><code class="sig-name descname">FullPathMapper</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">migrating_specie</em>, <em class="sig-param">max_path_length=10</em>, <em class="sig-param">symprec=0.1</em>, <em class="sig-param">vac_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">FullPathMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">migrating_specie</span></em>, <em class="sig-param"><span class="n">max_path_length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">vac_mode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Find all hops in a given crystal structure using the StructureGraph.
-Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the structure
+Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the
+structure
 The equivalence of the hops is checked using the MigrationPath.__eq__ funciton.
 The funtions here are reponsible for distinguishing the individual hops and analysis</p>
 <dl class="field-list simple">
@@ -158,13 +143,13 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.add_data_to_similar_edges">
-<code class="sig-name descname">add_data_to_similar_edges</code><span class="sig-paren">(</span><em class="sig-param">taget_label</em>, <em class="sig-param">data={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.add_data_to_similar_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.add_data_to_similar_edges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_data_to_similar_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">taget_label</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.add_data_to_similar_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.add_data_to_similar_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert data to all edges with the same label</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_only_sites">
 <code class="sig-name descname">get_only_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.get_only_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_only_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a copy of the structure with only the sites</p>
@@ -179,7 +164,7 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_unique_hops_dict">
 <code class="sig-name descname">get_unique_hops_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.get_unique_hops_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.get_unique_hops_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the list of the unique objects
@@ -187,13 +172,13 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p></li>
 :rtype: dictionary {label</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.group_and_label_hops">
 <code class="sig-name descname">group_and_label_hops</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.group_and_label_hops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.group_and_label_hops" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.populate_edges_with_migration_paths">
 <code class="sig-name descname">populate_edges_with_migration_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#FullPathMapper.populate_edges_with_migration_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.FullPathMapper.populate_edges_with_migration_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Populate the edges with the data for the Migration Paths</p>
@@ -201,7 +186,7 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p></li>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen_diffusion.neb.full_path_mapper.generic_groupby">
 <code class="sig-name descname">generic_groupby</code><span class="sig-paren">(</span><em class="sig-param">list_in</em>, <em class="sig-param">comp=&lt;built-in function eq&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#generic_groupby"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.generic_groupby" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group a list of unsortable objects</p>
@@ -218,19 +203,47 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt id="pymatgen_diffusion.neb.full_path_mapper.get_all_sym_sites">
+<code class="sig-name descname">get_all_sym_sites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ent</span></em>, <em class="sig-param"><span class="n">base_struct_entry</span></em>, <em class="sig-param"><span class="n">migrating_specie</span></em>, <em class="sig-param"><span class="n">stol</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/full_path_mapper.html#get_all_sym_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.full_path_mapper.get_all_sym_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ent</strong> (<em>ComputedStructureEntry</em>) – that contains cation</p></li>
+<li><p><strong>migrating_species</strong> (<em>string</em><em> or </em><em>Elment</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>containing all of the symmetry equivalent sites</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Structure</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-pymatgen_diffusion.neb.io">
 <span id="pymatgen-diffusion-neb-io-module"></span><h2>pymatgen_diffusion.neb.io module<a class="headerlink" href="#module-pymatgen_diffusion.neb.io" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.io.MVLCINEBEndPointSet">
-<em class="property">class </em><code class="sig-name descname">MVLCINEBEndPointSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#MVLCINEBEndPointSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.MVLCINEBEndPointSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MVLCINEBEndPointSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#MVLCINEBEndPointSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.MVLCINEBEndPointSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITRelaxSet</span></code></p>
 <p>Class for writing NEB end points relaxation inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>kwargs</strong> – Same as those supported by DictSet.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.io.MVLCINEBSet">
-<em class="property">class </em><code class="sig-name descname">MVLCINEBSet</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#MVLCINEBSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.MVLCINEBSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MVLCINEBSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#MVLCINEBSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.MVLCINEBSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITNEBSet</span></code></p>
 <p>MAVRL-tested settings for CI-NEB calculations. Note that these parameters
 requires the VTST modification of VASP from the Henkelman group. See
@@ -245,11 +258,15 @@ settings.</p></li>
 </ul>
 </dd>
 </dl>
+<p>Args:
+structures: List of Structure objects.
+unset_encut (bool): Whether to unset ENCUT.
+<a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: Other kwargs supported by <code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code>.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen_diffusion.neb.io.get_endpoint_dist">
-<code class="sig-name descname">get_endpoint_dist</code><span class="sig-paren">(</span><em class="sig-param">ep_0</em>, <em class="sig-param">ep_1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#get_endpoint_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.get_endpoint_dist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_endpoint_dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ep_0</span></em>, <em class="sig-param"><span class="n">ep_1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#get_endpoint_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.get_endpoint_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a list of site distances between two endpoints, assuming periodic
 boundary conditions.
 :param ep_0: the first endpoint structure.
@@ -266,9 +283,9 @@ boundary conditions.
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen_diffusion.neb.io.get_endpoints_from_index">
-<code class="sig-name descname">get_endpoints_from_index</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#get_endpoints_from_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.get_endpoints_from_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_endpoints_from_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">site_indices</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/io.html#get_endpoints_from_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.io.get_endpoints_from_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class reads in one perfect structure and the two endpoint structures
 are generated using site_indices.</p>
 <dl class="field-list simple">
@@ -294,9 +311,9 @@ are generated using site_indices.</p>
 </div>
 <div class="section" id="module-pymatgen_diffusion.neb.pathfinder">
 <span id="pymatgen-diffusion-neb-pathfinder-module"></span><h2>pymatgen_diffusion.neb.pathfinder module<a class="headerlink" href="#module-pymatgen_diffusion.neb.pathfinder" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.pathfinder.DistinctPathFinder">
-<em class="property">class </em><code class="sig-name descname">DistinctPathFinder</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">migrating_specie</em>, <em class="sig-param">max_path_length=None</em>, <em class="sig-param">symprec=0.1</em>, <em class="sig-param">perc_mode='&gt;1d'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#DistinctPathFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.DistinctPathFinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DistinctPathFinder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">migrating_specie</span></em>, <em class="sig-param"><span class="n">max_path_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">perc_mode</span><span class="o">=</span><span class="default_value">'&gt;1d'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#DistinctPathFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.DistinctPathFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Determines symmetrically distinct paths between existing sites.
 The path info can then be used to set up either vacancy or interstitial
@@ -318,7 +335,7 @@ If you just want to check the min 1D percolation, set it to “1d”.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.DistinctPathFinder.get_paths">
 <code class="sig-name descname">get_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#DistinctPathFinder.get_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.DistinctPathFinder.get_paths" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -328,9 +345,9 @@ If you just want to check the min 1D percolation, set it to “1d”.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.DistinctPathFinder.write_all_paths">
-<code class="sig-name descname">write_all_paths</code><span class="sig-paren">(</span><em class="sig-param">fname</em>, <em class="sig-param">nimages=5</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#DistinctPathFinder.write_all_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.DistinctPathFinder.write_all_paths" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_all_paths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em>, <em class="sig-param"><span class="n">nimages</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#DistinctPathFinder.write_all_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.DistinctPathFinder.write_all_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a file containing all paths, using hydrogen as a placeholder for
 the images. H is chosen as it is the smallest atom. This is extremely
 useful for path visualization in a standard software like VESTA.</p>
@@ -347,9 +364,9 @@ useful for path visualization in a standard software like VESTA.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.pathfinder.IDPPSolver">
-<em class="property">class </em><code class="sig-name descname">IDPPSolver</code><span class="sig-paren">(</span><em class="sig-param">structures</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">IDPPSolver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A solver using image dependent pair potential (IDPP) algo to get an improved
 initial NEB path. For more details about this algo, please refer to
@@ -361,9 +378,9 @@ Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).</p>
 (including initial and final end-point structures).</p>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.IDPPSolver.from_endpoints">
-<em class="property">classmethod </em><code class="sig-name descname">from_endpoints</code><span class="sig-paren">(</span><em class="sig-param">endpoints</em>, <em class="sig-param">nimages=5</em>, <em class="sig-param">sort_tol=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.from_endpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.from_endpoints" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_endpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">endpoints</span></em>, <em class="sig-param"><span class="n">nimages</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">sort_tol</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.from_endpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.from_endpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method that starts with end-point structures instead. The
 initial guess for the IDPP algo is then constructed using linear
 interpolation.</p>
@@ -380,14 +397,14 @@ to increase the value in some cases.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.IDPPSolver.get_unit_vector">
-<em class="property">static </em><code class="sig-name descname">get_unit_vector</code><span class="sig-paren">(</span><em class="sig-param">vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.get_unit_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.get_unit_vector" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_unit_vector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.get_unit_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.get_unit_vector" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.IDPPSolver.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">maxiter=1000</em>, <em class="sig-param">tol=1e-05</em>, <em class="sig-param">gtol=0.001</em>, <em class="sig-param">step_size=0.05</em>, <em class="sig-param">max_disp=0.05</em>, <em class="sig-param">spring_const=5.0</em>, <em class="sig-param">species=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">maxiter</span><span class="o">=</span><span class="default_value">1000</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">gtol</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">step_size</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">max_disp</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">spring_const</span><span class="o">=</span><span class="default_value">5.0</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#IDPPSolver.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.IDPPSolver.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform iterative minimization of the set of objective functions in an
 NEB-like manner. In each iteration, the total force matrix for each
 image is constructed, which comprises both the spring forces and true
@@ -420,9 +437,9 @@ obtained via regular linear interpolation approach.</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationPath">
-<em class="property">class </em><code class="sig-name descname">MigrationPath</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">esite</em>, <em class="sig-param">symm_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MigrationPath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">isite</span></em>, <em class="sig-param"><span class="n">esite</span></em>, <em class="sig-param"><span class="n">symm_structure</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A convenience container representing a migration path.</p>
 <dl class="field-list simple">
@@ -434,9 +451,9 @@ obtained via regular linear interpolation approach.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationPath.get_structures">
-<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param">nimages=5</em>, <em class="sig-param">vac_mode=True</em>, <em class="sig-param">idpp=False</em>, <em class="sig-param">**idpp_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath.get_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nimages</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">vac_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">idpp</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">idpp_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath.get_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate structures for NEB calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -468,16 +485,16 @@ analysis.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationPath.length">
 <em class="property">property </em><code class="sig-name descname">length</code><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath.length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 (float) Length of migration path.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationPath.write_path">
-<code class="sig-name descname">write_path</code><span class="sig-paren">(</span><em class="sig-param">fname</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath.write_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath.write_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationPath.write_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationPath.write_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the path to a file for easy viewing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -498,6 +515,7 @@ analysis.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -541,7 +559,7 @@ analysis.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>

@@ -15,7 +15,7 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen-diffusion",
     packages=find_packages(),
-    version="2019.8.18",
+    version="2020.10.8",
     install_requires=["pymatgen>=2019.10.3", "monty>=3.0.2"],
     extras_require={},
     package_data={},

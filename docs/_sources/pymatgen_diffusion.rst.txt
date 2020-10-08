@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 6
 
    pymatgen_diffusion.aimd
    pymatgen_diffusion.neb

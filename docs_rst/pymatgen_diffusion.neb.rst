@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 6
 
 
 Submodules
@@ -33,7 +34,6 @@ pymatgen\_diffusion.neb.pathfinder module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

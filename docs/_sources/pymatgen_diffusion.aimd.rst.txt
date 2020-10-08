@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 6
 
 
 Submodules
@@ -26,6 +27,14 @@ pymatgen\_diffusion.aimd.pathway module
    :undoc-members:
    :show-inheritance:
 
+pymatgen\_diffusion.aimd.rdf module
+-----------------------------------
+
+.. automodule:: pymatgen_diffusion.aimd.rdf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pymatgen\_diffusion.aimd.van\_hove module
 -----------------------------------------
 
@@ -33,7 +42,6 @@ pymatgen\_diffusion.aimd.van\_hove module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

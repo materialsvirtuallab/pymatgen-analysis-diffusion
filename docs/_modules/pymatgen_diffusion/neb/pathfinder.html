@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen_diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2019.8.18 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen_diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2020.10.8 documentation</title>
     <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 
@@ -37,8 +37,9 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2019.8.18 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2020.10.8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen_diffusion.neb.pathfinder</a></li> 
       </ul>
     </div>  
 
@@ -52,9 +53,9 @@
 <span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -75,17 +76,17 @@
 <div class="viewcode-block" id="IDPPSolver"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver">[docs]</a><span class="k">class</span> <span class="nc">IDPPSolver</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A solver using image dependent pair potential (IDPP) algo to get an improved</span>
-<span class="sd">    initial NEB path. For more details about this algo, please refer to </span>
+<span class="sd">    initial NEB path. For more details about this algo, please refer to</span>
 <span class="sd">    Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            structures (list of pmg_structure) : Initial guess of the NEB path </span>
+<span class="sd">            structures (list of pmg_structure) : Initial guess of the NEB path</span>
 <span class="sd">                (including initial and final end-point structures).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -103,7 +104,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="c1"># Interpolated distance matrices</span>
             <span class="n">dist</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">+</span> <span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">-</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span>
+                    <span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">-</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span>
 
             <span class="n">target_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
 
@@ -143,25 +144,25 @@
 <div class="viewcode-block" id="IDPPSolver.run"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
             <span class="n">max_disp</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">spring_const</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform iterative minimization of the set of objective functions in an </span>
-<span class="sd">        NEB-like manner. In each iteration, the total force matrix for each </span>
-<span class="sd">        image is constructed, which comprises both the spring forces and true </span>
-<span class="sd">        forces. For more details about the NEB approach, please see the </span>
+<span class="sd">        Perform iterative minimization of the set of objective functions in an</span>
+<span class="sd">        NEB-like manner. In each iteration, the total force matrix for each</span>
+<span class="sd">        image is constructed, which comprises both the spring forces and true</span>
+<span class="sd">        forces. For more details about the NEB approach, please see the</span>
 <span class="sd">        references, e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            maxiter (int): Maximum number of iterations in the minimization </span>
+<span class="sd">            maxiter (int): Maximum number of iterations in the minimization</span>
 <span class="sd">                process.</span>
 <span class="sd">            tol (float): Tolerance of the change of objective functions between</span>
 <span class="sd">                consecutive steps.</span>
 <span class="sd">            gtol (float): Tolerance of maximum force component (absolute value).</span>
-<span class="sd">            step_size (float): Step size associated with the displacement of </span>
+<span class="sd">            step_size (float): Step size associated with the displacement of</span>
 <span class="sd">                the atoms during the minimization process.</span>
-<span class="sd">            max_disp (float): Maximum allowed atomic displacement in each </span>
+<span class="sd">            max_disp (float): Maximum allowed atomic displacement in each</span>
 <span class="sd">                iteration.</span>
 <span class="sd">            spring_const (float): A virtual spring constant used in the NEB-like</span>
 <span class="sd">                        relaxation process that yields so-called IDPP path.</span>
-<span class="sd">            species (list of string): If provided, only those given species are </span>
+<span class="sd">            species (list of string): If provided, only those given species are</span>
 <span class="sd">                allowed to move. The atomic positions of other species are</span>
 <span class="sd">                obtained via regular linear interpolation approach.</span>
 
@@ -232,7 +233,7 @@
 <div class="viewcode-block" id="IDPPSolver.from_endpoints"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.IDPPSolver.from_endpoints">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A class method that starts with end-point structures instead. The </span>
+<span class="sd">        A class method that starts with end-point structures instead. The</span>
 <span class="sd">        initial guess for the IDPP algo is then constructed using linear</span>
 <span class="sd">        interpolation.</span>
 
@@ -261,7 +262,7 @@
 
     <span class="k">def</span> <span class="nf">_get_funcs_and_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the set of objective functions as well as their gradients, </span>
+<span class="sd">        Calculate the set of objective functions as well as their gradients,</span>
 <span class="sd">        i.e. &quot;effective true forces&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">funcs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -276,8 +277,7 @@
                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">)]</span>
 
             <span class="n">trial_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">aux</span> <span class="o">=</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> \
-                  <span class="o">/</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
 
             <span class="c1"># Objective function</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span>
@@ -296,8 +296,8 @@
 
     <span class="k">def</span> <span class="nf">_get_total_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the total force on each image structure, which is equal to </span>
-<span class="sd">        the spring force along the tangent + true force perpendicular to the </span>
+<span class="sd">        Calculate the total force on each image structure, which is equal to</span>
+<span class="sd">        the spring force along the tangent + true force perpendicular to the</span>
 <span class="sd">        tangent. Note that the spring force is the modified version in the</span>
 <span class="sd">        literature (e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000)).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -320,7 +320,7 @@
             <span class="c1"># Total force</span>
             <span class="n">flat_ft</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">total_force</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span>
-                <span class="n">spring_force</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">flat_ft</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)</span> <span class="o">*</span> <span class="n">tangent</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                    <span class="n">spring_force</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">flat_ft</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)</span> <span class="o">*</span> <span class="n">tangent</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
                 <span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">total_forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_force</span><span class="p">)</span>
 
@@ -332,7 +332,7 @@
 <span class="sd">    A convenience container representing a migration path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">symm_structure</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">symm_structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            isite: Initial site</span>
@@ -352,8 +352,9 @@
             <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">([</span><span class="n">esite</span><span class="p">],</span> <span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eindex</span> <span class="o">=</span> <span class="n">i</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Path of </span><span class="si">%.4f</span><span class="s2"> A from </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] (ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] (ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">)&quot;</span> \
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Path of </span><span class="si">%.4f</span><span class="s2"> A from </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] &quot;</span> \
+               <span class="s2">&quot;(ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] (ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">)&quot;</span> \
                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                   <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                   <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="p">],</span>
@@ -368,13 +369,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eindex</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -387,7 +388,7 @@
                        <span class="o">**</span><span class="n">idpp_kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate structures for NEB calculation.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            nimages (int): Defaults to 5. Number of NEB images. Total number of</span>
 <span class="sd">                structures returned in nimages+2.</span>
@@ -399,8 +400,8 @@
 <span class="sd">                the initial and ending positions of the interstitial, and all</span>
 <span class="sd">                other sites of the same specie are removed. E.g., if NEBPaths</span>
 <span class="sd">                were obtained using a Li4Fe4P4O16 structure, vac_mode=True would</span>
-<span class="sd">                generate structures with formula Li3Fe4P4O16, while </span>
-<span class="sd">                vac_mode=False would generate structures with formula </span>
+<span class="sd">                generate structures with formula Li3Fe4P4O16, while</span>
+<span class="sd">                vac_mode=False would generate structures with formula</span>
 <span class="sd">                LiFe4P4O16.</span>
 <span class="sd">            idpp (bool): Defaults to False. If True, the generated structures</span>
 <span class="sd">                will be run through the IDPPSolver to generate a better guess</span>
@@ -422,7 +423,7 @@
                 <span class="n">other_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">vac_mode</span> <span class="ow">and</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span> <span class="ow">and</span>
-                                         <span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">):</span>
+                                 <span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">):</span>
                     <span class="n">migrating_specie_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
 
         <span class="n">start_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span>
@@ -443,9 +444,9 @@
 <div class="viewcode-block" id="MigrationPath.write_path"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.pathfinder.MigrationPath.write_path">[docs]</a>    <span class="k">def</span> <span class="nf">write_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the path to a file for easy viewing.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            fname (str): File name. </span>
+<span class="sd">            fname (str): File name.</span>
 <span class="sd">            \*\*kwargs: Kwargs supported by NEBPath.get_structures.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
@@ -463,12 +464,12 @@
 <span class="sd">    for atomic mechanism, and does not work for correlated migration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="p">,</span> <span class="n">max_path_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="p">,</span> <span class="n">max_path_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">perc_mode</span><span class="o">=</span><span class="s2">&quot;&gt;1d&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure: Input structure that contains all sites.</span>
-<span class="sd">            migrating_specie (Specie-like): The specie that migrates. E.g., </span>
+<span class="sd">            migrating_specie (Specie-like): The specie that migrates. E.g.,</span>
 <span class="sd">                &quot;Li&quot;.</span>
 <span class="sd">            max_path_length (float): Maximum length of NEB path in the unit</span>
 <span class="sd">                of Angstrom. Defaults to None, which means you are setting the</span>
@@ -494,9 +495,9 @@
                 <span class="n">dists</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
                     <span class="n">site0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">max_r</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">nn</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
-                        <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">nn</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">nn</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
+                        <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="n">junc</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">distance_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
@@ -534,8 +535,8 @@
                 <span class="n">site0</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
                         <span class="n">site0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
-                        <span class="n">path</span> <span class="o">=</span> <span class="n">MigrationPath</span><span class="p">(</span><span class="n">site0</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">nn</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">MigrationPath</span><span class="p">(</span><span class="n">site0</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">)</span>
                         <span class="n">paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
@@ -545,9 +546,9 @@
 <span class="sd">        Write a file containing all paths, using hydrogen as a placeholder for</span>
 <span class="sd">        the images. H is chosen as it is the smallest atom. This is extremely</span>
 <span class="sd">        useful for path visualization in a standard software like VESTA.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            fname (str): Filename </span>
+<span class="sd">            fname (str): Filename</span>
 <span class="sd">            nimages (int): Number of images per path.</span>
 <span class="sd">            \*\*kwargs: Passthrough kwargs to path.get_structures.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -563,6 +564,7 @@
         <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -583,7 +585,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
