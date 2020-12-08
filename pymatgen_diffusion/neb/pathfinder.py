@@ -328,6 +328,9 @@ class MigrationPath:
         if self.symm_structure != other.symm_structure:
             return False
 
+        if abs(self.length - other.length) > 1e-3:
+            return False
+
         return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
             (other.isite, other.msite, other.esite)
