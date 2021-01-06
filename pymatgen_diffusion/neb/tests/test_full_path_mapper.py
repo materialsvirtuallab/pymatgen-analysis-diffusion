@@ -94,7 +94,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
         ]
 
         for migration_path in all_pairs:
-            self.assertNotEqual(migration_path[0], migration_path[1])
+            self.assertNotEqual(migration_path[0]["hop"], migration_path[1]["hop"])
 
     def test_add_data_to_similar_edges(self):
         # passing normal data
@@ -128,11 +128,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"], 5)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 5)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 4)
 
     def test_get_intercollating_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
