@@ -50,9 +50,10 @@ class FullPathMapperComplexTest(unittest.TestCase):
         self.fpm_li.populate_edges_with_migration_paths()
         self.fpm_li.group_and_label_hops()
 
-        # Perticularity difficult pathfinding since both the starting and ending positions are outside the unit cell
+        # Particularity difficult pathfinding since both the starting and ending positions are outside the unit cell
+        struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
         self.fpm_mg = FullPathMapper(
-            structure=struct, migrating_specie="Li", max_path_length=2
+            structure=struct, migrating_specie="Mg", max_path_length=2
         )
         self.fpm_mg.populate_edges_with_migration_paths()
         self.fpm_mg.group_and_label_hops()
@@ -153,6 +154,13 @@ class FullPathMapperComplexTest(unittest.TestCase):
         # print(p_strings)
         self.assertIn("4->2->5->3->4", p_strings)
         self.assertIn("7->2->4->3->7", p_strings)
+
+        self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
+        paths = [*self.fpm_mg.get_intercollating_path()]
+        p_strings = {
+            "->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths
+        }
+        self.assertIn("1->0->1", p_strings)
 
 
 class ComputedEntryPathTest(unittest.TestCase):
