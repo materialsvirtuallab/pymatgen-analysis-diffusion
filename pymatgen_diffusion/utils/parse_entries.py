@@ -8,18 +8,13 @@ Functions for combining many ComputedEntry objects into FullPathMapper objects.
 
 from pymatgen import Structure, Lattice, Composition
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen_diffusion.neb.full_path_mapper import generic_groupby
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 import numpy as np
 from itertools import chain
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-import gridfs
-import zlib
-import json
 import logging
-from monty.serialization import MontyDecoder
 from typing import Union, List
 
 __author__ = "Jimmy Shen"
@@ -31,7 +26,6 @@ __date__ = "July 21, 2019"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-compat = MaterialsProjectCompatibility("Advanced")
 
 
 def process_ents(
@@ -330,37 +324,3 @@ def process_ents_old(
                 )
 
     return grouped_entries
-
-
-def get_aeccar_from_store(tstore, task_id):
-    """
-    Read the AECCAR grid_fs data into a Chgcar object
-
-    Args:
-        tstore (MongoStore): MongoStore for the tasks database
-        task_id: The task_id of the material entry
-
-    Returns:
-        pymatgen Chrgcar object: The AECCAR data from a given task
-    """
-    m_task = tstore.query_one({"task_id": task_id})
-    try:
-        fs_id = m_task["calcs_reversed"][0]["aeccar0_fs_id"]
-    except BaseException:
-        logger.info("AECCAR0 Missing from task # {}".format(task_id))
-        return None
-
-    fs = gridfs.GridFS(tstore._collection.database, "aeccar0_fs")
-    chgcar_json = zlib.decompress(fs.get(fs_id).read())
-    aeccar0 = json.loads(chgcar_json, cls=MontyDecoder)
-
-    try:
-        fs_id = m_task["calcs_reversed"][0]["aeccar2_fs_id"]
-    except BaseException:
-        logger.info("AECCAR2 Missing from task # {}".format(task_id))
-        return None
-
-    fs = gridfs.GridFS(tstore._collection.database, "aeccar2_fs")
-    chgcar_json = zlib.decompress(fs.get(fs_id).read())
-    aeccar2 = json.loads(chgcar_json, cls=MontyDecoder)
-    return aeccar0 + aeccar2
