@@ -720,7 +720,13 @@ class ComputedEntryPath(FullPathMapper):
                 {"position": ifrac, "average_charge": ichg}
                 for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
             ]
-            v.update(dict(chg_total=chg_tot, max_avg_chg=max_chg, images=images,))
+            v.update(
+                dict(
+                    chg_total=chg_tot,
+                    max_avg_chg=max_chg,
+                    images=images,
+                )
+            )
             self.add_data_to_similar_edges(k, {"max_avg_chg": max_chg})
 
     def get_least_chg_path(self):
