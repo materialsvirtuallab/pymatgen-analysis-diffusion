@@ -1,8 +1,11 @@
 # coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
+from copy import deepcopy
 
-from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper, ComputedEntryPath, get_all_sym_sites
+from neb.pathfinder import MigrationPath
+from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper, ComputedEntryPath, get_all_sym_sites, \
+    get_hop_site_sequence
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 from pymatgen.io.vasp import Chgcar
@@ -37,10 +40,16 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
-        self.fpm = FullPathMapper(
+        self.fpm_li = FullPathMapper(
             structure=struct, migrating_specie='Li', max_path_length=4)
-        self.fpm.populate_edges_with_migration_paths()
-        self.fpm.group_and_label_hops()
+        self.fpm_li.populate_edges_with_migration_paths()
+        self.fpm_li.group_and_label_hops()
+
+        # Perticularity difficult pathfinding since both the starting and ending positions are outside the unit cell
+        self.fpm_mg = FullPathMapper(
+            structure=struct, migrating_specie='Li', max_path_length=2)
+        self.fpm_mg.populate_edges_with_migration_paths()
+        self.fpm_mg.group_and_label_hops()
 
     def test_group_and_label_hops(self):
         """
@@ -48,13 +57,13 @@ class FullPathMapperComplexTest(unittest.TestCase):
         """
         edge_labs = np.array([
             d['hop_label']
-            for u, v, d in self.fpm.s_graph.graph.edges(data=True)
+            for u, v, d in self.fpm_li.s_graph.graph.edges(data=True)
         ])
 
         site_labs = np.array(
             [(d['hop'].symm_structure.wyckoff_symbols[d['hop'].iindex],
               d['hop'].symm_structure.wyckoff_symbols[d['hop'].eindex])
-             for u, v, d in self.fpm.s_graph.graph.edges(data=True)])
+             for u, v, d in self.fpm_li.s_graph.graph.edges(data=True)])
 
         for itr in range(edge_labs.max()):
             sub_set = site_labs[edge_labs == itr]
@@ -65,14 +74,60 @@ class FullPathMapperComplexTest(unittest.TestCase):
         """
         Check that the unique hops are inequilvalent
         """
-        self.fpm.get_unique_hops_dict()
-        unique_list = [v for k, v in self.fpm.unique_hops.items()]
+        self.fpm_li._populate_unique_hops_dict()
+        unique_list = [v for k, v in self.fpm_li.unique_hops.items()]
         all_pairs = [(mg1, mg2) for i1, mg1 in enumerate(unique_list)
                      for mg2 in unique_list[i1 + 1:]]
 
         for migration_path in all_pairs:
             self.assertNotEqual(migration_path[0], migration_path[1])
 
+    def test_add_data_to_similar_edges(self):
+        # passing normal data
+        self.fpm_li.add_data_to_similar_edges(0, {'key0' : 'data'})
+        for u,v,d in self.fpm_li.s_graph.graph.edges(data=True):
+            if d['hop_label'] == 0:
+                self.assertEqual(d['key0'], 'data')
+
+        # passing ordered list data
+        migration_path = self.fpm_li.unique_hops[1]['hop']
+        self.fpm_li.add_data_to_similar_edges(1, {'key1' : [1,2,3]}, m_path=migration_path)
+        for u,v,d in self.fpm_li.s_graph.graph.edges(data=True):
+            if d['hop_label'] == 1:
+                self.assertEqual(d['key1'], [1,2,3])
+
+        # passing ordered list with direction
+        migration_path_reversed = MigrationPath(isite=migration_path.esite, esite=migration_path.isite, symm_structure=migration_path.symm_structure)
+        self.fpm_li.add_data_to_similar_edges(2, {'key2' : [1,2,3]}, m_path=migration_path_reversed)
+        for u,v,d in self.fpm_li.s_graph.graph.edges(data=True):
+            if d['hop_label'] == 2:
+                self.assertEqual(d['key2'], [3,2,1])
+
+    def test_assign_cost_to_graph(self):
+        self.fpm_li.assign_cost_to_graph() # use 'hop_distance'
+        for u,v,d in self.fpm_li.s_graph.graph.edges(data=True):
+            self.assertAlmostEqual(d['cost'], d['hop_distance'], 5)
+
+        self.fpm_li.assign_cost_to_graph(cost_keys=['hop_distance', 'hop_distance'])
+        for u,v,d in self.fpm_li.s_graph.graph.edges(data=True):
+            self.assertAlmostEqual(d['cost'], d['hop_distance'] * d['hop_distance'], 5)
+
+    def test_get_intercollating_path(self):
+        self.fpm_li.assign_cost_to_graph() # use 'hop_distance'
+        paths = [*self.fpm_li.get_intercollating_path()]
+        # for ipath in paths:
+        #     print("ipath:", ipath)
+        #     [(hop['iindex'], hop['eindex'] ) for hop in ipath]
+        p_strings = {"->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths}
+        # print(p_strings)
+        self.assertIn("7->4->7", p_strings)
+        # convert each pathway to a string representation
+
+        paths = [*self.fpm_li.get_intercollating_path(max_val=2.0)]
+        p_strings = {"->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths}
+        # print(p_strings)
+        self.assertIn("4->2->5->3->4", p_strings)
+        self.assertIn("7->2->4->3->7", p_strings)
 
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
@@ -123,14 +178,14 @@ class ComputedEntryPathTest(unittest.TestCase):
         total_chg_per_vol = self.cep.base_aeccar.data['total'].sum(
         ) / self.cep.base_aeccar.ngridpts / self.cep.base_aeccar.structure.volume
         self.assertAlmostEqual(
-            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[2]),
+            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[2]['hop']),
             total_chg_per_vol)
 
         self.cep._tube_radius = 2
 
         self.assertAlmostEqual(
-            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]),
-            0.19531840655905952, 3)
+            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]['hop']),
+            0.188952739835188, 3)
 
     def test_populate_edges_with_chg_density_info(self):
         """
