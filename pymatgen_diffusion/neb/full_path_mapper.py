@@ -39,11 +39,13 @@ from typing import Callable
 logger = logging.getLogger(__name__)
 
 # Magic Numbers
-BASE_COLLISION_R = 1.0 # Eliminate cation sites that are too close to the sites in the base structure
-SITE_MERGE_R = 1.0 # Merge cation sites that are too close together
+BASE_COLLISION_R = (
+    1.0  # Eliminate cation sites that are too close to the sites in the base structure
+)
+SITE_MERGE_R = 1.0  # Merge cation sites that are too close together
 
 
-def generic_groupby(list_in: list, comp: Callable=operator.eq):
+def generic_groupby(list_in: list, comp: Callable = operator.eq):
     """
     Group a list of unsortable objects
 
@@ -88,7 +90,7 @@ class FullPathMapper(MSONable):
         max_path_length=10,
         symprec=0.1,
         vac_mode=False,
-        name: str=None
+        name: str = None,
     ):
         """
         Args:
@@ -179,7 +181,9 @@ class FullPathMapper(MSONable):
         """
         hops = [
             (g_index, val)
-            for g_index, val in nx.get_edge_attributes(self.s_graph.graph, "hop").items()
+            for g_index, val in nx.get_edge_attributes(
+                self.s_graph.graph, "hop"
+            ).items()
         ]
         labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
         new_attr = {
@@ -303,12 +307,13 @@ class FullPathMapper(MSONable):
             for path_u, path_v in zip(path[:-1], path[1:]):
                 # for each pair print the lowest costs hop that does not go back to the original out-of-bound cell
                 lowest_cost_dict = None
-                all_edge_data = [*GG.get_edge_data(path_u, path_v, default={}).items()] + [*GG.get_edge_data(path_v, path_u,default={}).items()]
+                all_edge_data = [
+                    *GG.get_edge_data(path_u, path_v, default={}).items()
+                ] + [*GG.get_edge_data(path_v, path_u, default={}).items()]
                 for k, tmp_d in all_edge_data:
-                    if (
-                        {tmp_d['iindex'], tmp_d['eindex']} == {path_u, path_v}
-                        and tmp_d["to_jimage"] != d["to_jimage"]
-                    ):
+                    if {tmp_d["iindex"], tmp_d["eindex"]} == {path_u, path_v} and tmp_d[
+                        "to_jimage"
+                    ] != d["to_jimage"]:
                         if (
                             not lowest_cost_dict
                             or tmp_d["cost"] < lowest_cost_dict["cost"]
@@ -530,7 +535,7 @@ class ComputedEntryPath(FullPathMapper):
         bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)), endpoint=False)
         cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)), endpoint=False)
         # move the grid points to the center
-        aa,bb,dd = map(_shift_grid, [aa, bb, cc])
+        aa, bb, dd = map(_shift_grid, [aa, bb, cc])
 
         # mesh grid for each unit cell
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
@@ -550,7 +555,7 @@ class ComputedEntryPath(FullPathMapper):
         aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)), endpoint=False)
         bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)), endpoint=False)
         cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)), endpoint=False)
-        aa,bb,cc = map(_shift_grid, [aa, bb, cc])
+        aa, bb, cc = map(_shift_grid, [aa, bb, cc])
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
         dist_from_pos = self.base_aeccar.structure.lattice.get_all_distances(
             fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
@@ -606,7 +611,7 @@ class ComputedEntryPath(FullPathMapper):
         if radius is None:
             rr = self._tube_radius
         if not rr > 0:
-            raise ValueError(f"The integration radius must be positive.")
+            raise ValueError("The integration radius must be positive.")
 
         npf = self._get_pathfinder_from_hop(migration_path)
         # get the charge in a sphere around each point
@@ -694,8 +699,11 @@ class ComputedEntryPath(FullPathMapper):
                 )
             )
 
-        return self.base_aeccar.data['total'][pbc_mask].sum(
-        ) / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume
+        return (
+            self.base_aeccar.data["total"][pbc_mask].sum()
+            / self.base_aeccar.ngridpts
+            / self.base_aeccar.structure.volume
+        )
 
     def populate_edges_with_chg_density_info(self, tube_radius=1):
         self._tube_radius = tube_radius
@@ -848,7 +856,9 @@ def get_all_sym_sites(
                 )  # keeps only remove duplicates
     return host_allsites
 
+
 # Utility functions
+
 
 def _shift_grid(vv):
     """
@@ -873,18 +883,19 @@ def get_hop_site_sequence(hop_list: List[Dict]) -> List:
     """
     hops = iter(hop_list)
     ihop = next(hops)
-    site_seq = [ihop['eindex'], ihop['iindex']]
+    site_seq = [ihop["eindex"], ihop["iindex"]]
     for ihop in hops:
-        if ihop['iindex'] == site_seq[-1]:
-            site_seq.append(ihop['eindex'])
-        elif ihop['eindex'] == site_seq[-1]:
-            site_seq.append(ihop['iindex'])
+        if ihop["iindex"] == site_seq[-1]:
+            site_seq.append(ihop["eindex"])
+        elif ihop["eindex"] == site_seq[-1]:
+            site_seq.append(ihop["iindex"])
         else:
             raise RuntimeError("The sequence of sites for the path is invalid.")
     return site_seq
 
+
 """
-Note the current pathway algorithm no longer needs supercells but the following 
+Note the current pathway algorithm no longer needs supercells but the following
 functions might still be useful for other applications
 
 Finding all possible pathways in the periodic network is not possible.
@@ -896,6 +907,7 @@ migration events using the following procedure:
 """
 
 # Utility Functions for comparing UC and SC hops
+
 
 def almost(a, b):
     # return true if the values are almost equal
@@ -987,5 +999,3 @@ def map_hop_sc2uc(sc_hop, fpm_uc):
                 hop_label=d["hop_label"],
             )
     raise AssertionError("Looking for a SC hop without a matching UC hop")
-
-
