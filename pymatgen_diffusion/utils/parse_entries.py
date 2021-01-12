@@ -8,14 +8,12 @@ Functions for combining many ComputedEntry objects into FullPathMapper objects.
 
 from pymatgen import Structure, Lattice, Composition
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen_diffusion.neb.full_path_mapper import generic_groupby
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-import numpy as np
 from itertools import chain
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import logging
-from typing import Union, List
+from typing import Union, List, Dict
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -29,18 +27,19 @@ logger.setLevel(logging.INFO)
 
 
 def process_ents(
-    all_ents_base,
-    all_ents_insert,
-    symprec=0.01,
-    ltol=0.2,
-    stol=0.3,
-    angle_tol=5,
-    working_ion="Li",
-    use_strict_tol=False,
-):
+    all_ents_base: List,
+    all_ents_insert: List,
+    symprec: float = 0.01,
+    ltol: float = 0.2,
+    stol: float = 0.3,
+    angle_tol: float = 5.0,
+    working_ion: str = "Li",
+    use_strict_tol: bool = False,
+) -> List[Dict]:
     """
-    Return grouped entries based on how many inserted entries were grouped together
-    For the inserted structure map each on onto this base structure
+    Process a list of base entries and inserted entries to create input for migration path analysis
+    Each inserted entries can be mapped to more than one base entry.
+    Return groups of inserted entries based ranked by the number of inserted entries in each group
 
     Args:
         all_ents_base: Full list of base entires
@@ -55,9 +54,8 @@ def process_ents(
             stol parameter for more strict matching.
 
     Returns:
-        list: List of dictionaries that each contain {'base' :
-        ComputedStructureEntry, 'inserted' : [ComputedStructureEntry]}
-
+        list: List of dictionaries that each contain
+        {'base' : ComputedStructureEntry, 'inserted' : [ComputedStructureEntry]}
     """
 
     if use_strict_tol:
@@ -144,9 +142,7 @@ def get_matched_structure_mapping(
         )
     except TypeError:
         return None
-    # s1_supercell == True makes supercell using s1
     sc = s1 * sc_m
-    #     sc.translate_sites(list(range(len(sc))), -total_t)
     sc.lattice = Lattice.from_parameters(
         *sc.lattice.abc, *sc.lattice.angles, vesta=True
     )
@@ -154,24 +150,20 @@ def get_matched_structure_mapping(
 
 
 def get_inserted_on_base(
-    base_ent, inserted_ent, sm
+    base_ent: ComputedStructureEntry,
+    inserted_ent: ComputedStructureEntry,
+    sm: StructureMatcher,
 ) -> Union[None, List[ComputedStructureEntry]]:
     """
-    Create a new entries with:
-    - The exact atomic positions as the base
-    - All of the ignored species inserted at corresponding positions in the
-        base cell
-    - The energy of each new structure is
-        1/num_ignored * (E_inserted - k * E_base)
-        where k is the supercell size in terms of the unit cell
-
+    For a structured-matched pair of base and inserted entries, map all of the
+    Li positions in the inserted entry to positions in the base entry and return a new computed entry
     Args:
-        base_ent:
-        inserted_ent:
-        sm:
+        base_ent: The entry for the host structure
+        inserted_ent: The entry for the inserted structure
+        sm: StructureMatcher object used to obtain the mapping
 
     Returns:
-        :
+        List of entries for each working ion in the list of
 
     """
     mapped_result = get_matched_structure_mapping(
@@ -211,116 +203,3 @@ def get_inserted_on_base(
         res.append(new_entry)
 
     return res
-
-
-def process_ents_old(
-    all_ents_base,
-    all_ents_insert,
-    symprec=0.01,
-    ltol=0.2,
-    stol=0.3,
-    angle_tol=5,
-    working_ion="Li",
-    only_single_cat=False,
-    use_strict_tol=False,
-):
-    """
-    Group the entries for generating ComputedEntryPath objects  jk
-
-    Args:
-        all_ents_base: Full list of base entires
-        all_ents_insert: Full list of inserted entires
-        symprec:  symmetry parameter for SpacegroupAnalyzer
-        ltol: Fractional length tolerance for StructureMatcher
-        stol: Site tolerance for StructureMatcher
-        angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
-        working_ion: String for the working ion
-        only_single_cat: If True, only use single cation insertions so the
-            site energy is more accurate
-        use_strict_tol: halve the ltol and stol parameter for more strict
-        matching.
-
-    Returns:
-        list: List of dictionaries that each contain
-            {'base' : ComputedStructureEntry,
-            'inserted' : [ComputedStructureEntry]}
-
-    """
-
-    sm_no_wion = StructureMatcher(
-        comparator=ElementComparator(),
-        primitive_cell=False,
-        ignored_species=[working_ion],
-        ltol=ltol,
-        stol=stol,
-        angle_tol=angle_tol,
-    )
-
-    sm_no_wion_strict = StructureMatcher(
-        comparator=ElementComparator(),
-        primitive_cell=False,
-        ignored_species=[working_ion],
-        ltol=ltol / 2.0,
-        stol=stol / 2.0,
-        angle_tol=angle_tol,
-    )
-    # grouping of inserted strutures with base structures
-    all_sga = [
-        SpacegroupAnalyzer(
-            itr_base_ent.structure, symprec=symprec, angle_tolerance=angle_tol
-        )
-        for itr_base_ent in all_ents_base
-    ]
-    id_and_symm = [
-        (ient.entry_id, len(all_sga[itr_ent].get_space_group_operations()))
-        for itr_ent, ient in enumerate(all_ents_base)
-    ]
-    logger.debug(
-        f"The number of symmetry operations for each material is: \
-            {id_and_symm}"
-    )
-    base_struct_labels = generic_groupby(
-        all_ents_base, lambda x, y: sm_no_wion.fit(x.structure, y.structure)
-    )
-    # get best structure
-    grouped_entries = []
-    # for each similar group of base structures get the entry with the most
-    # number of symmetry operations
-    # Most of the time this will not be neccessary but structure matcher does
-    # not work exactly the same way as SpaceGroupAnalyzer
-    for itr in np.unique(base_struct_labels):
-        indices_base = [i for i, x in enumerate(base_struct_labels) if x == itr]
-        best_base_index = sorted(
-            indices_base,
-            key=lambda index_base: len(
-                all_sga[index_base].get_space_group_operations()
-            ),
-        )[-1]
-        grouped_entries.append(dict(base=all_ents_base[best_base_index], inserted=[]))
-
-    # insert_struct_labels = np.unique(
-    #     generic_groupby(all_ents_insert, lambda x, y: sm_no_wion.fit(
-    #         x.structure, y.structure)))
-    # return  all_ents_base[best_base_index],  all_ents_insert
-    for insert_ent in all_ents_insert:
-        # print(insert_ent.entry_id)
-        if (
-            only_single_cat
-            and insert_ent.structure.composition.as_dict()[working_ion] > 1
-        ):
-            # print("too many")
-            continue
-        for itr_dict in grouped_entries:
-            if use_strict_tol:
-                sm_sites = sm_no_wion_strict
-            else:
-                sm_sites = sm_no_wion
-            # print(sm_sites.ltol, sm_sites.stol)
-            if sm_sites.fit(insert_ent.structure, itr_dict["base"].structure):
-                itr_dict["inserted"].append(insert_ent)
-            else:
-                logger.debug(
-                    f"Inserted material {insert_ent.entry_id} does not match with the base  {itr_dict['base'].entry_id}"
-                )
-
-    return grouped_entries

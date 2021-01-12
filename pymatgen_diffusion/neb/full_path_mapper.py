@@ -17,6 +17,10 @@ from copy import deepcopy
 import logging
 from typing import Union, List, Dict
 
+from neb.periodic_dijkstra import (
+    periodic_dijkstra,
+    get_optimal_pathway_rev,
+)
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.core.structure import Composition
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
@@ -32,7 +36,6 @@ from itertools import starmap
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 from monty.json import MSONable
 from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
-from networkx.exception import NetworkXNoPath
 import copy
 from typing import Callable
 
@@ -268,18 +271,19 @@ class FullPathMapper(MSONable):
                 f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self.name}"
             )
 
-        for u, v, k, d in self.s_graph.graph.edges(data=True, keys=True):
+        # for u, v, k, d in self.s_graph.graph.edges(data=True, keys=True):
+        for u in self.s_graph.graph.nodes():
             # for each hop that leave the UC cut that hop and get the path to other cell
-            if d["to_jimage"] == (0, 0, 0):
-                continue
-            if d["cost"] > max_val:
-                continue
+            # if d["to_jimage"] == (0, 0, 0):
+            #     continue
+            # if d["cost"] > max_val:
+            #     continue
             # Create a copy of the graph that is only composed of internal hops
             GG = deepcopy(self.s_graph.graph)
             # Trim this network so you cant loop back to the same node
             # print('----before', [(tmp_u, tmp_v, tmp_k, tmp_d['cost']) \
             #   for tmp_u, tmp_v, tmp_k, tmp_d in GG.edges(data=True, keys=True)])
-            GG.remove_edge(u, v, key=k)
+            # GG.remove_edge(u, v, key=k)
 
             # Trim the higher cost edges from the network
             cut_edges = []
@@ -288,42 +292,58 @@ class FullPathMapper(MSONable):
                     cut_edges.append((tmp_u, tmp_v, tmp_k))
             for tmp_u, tmp_v, tmp_k in cut_edges:
                 GG.remove_edge(tmp_u, tmp_v, key=tmp_k)
-
             # iterating over all the edges
             # if an edge lands outside the boundary, we just ask the network for a path
             # that links the in-bound node of that edge and a in-bound copy of the final edge
             # print(f"HOP OUT : {u}, {v}")
-            try:
-                path = nx.dijkstra_path(
-                    GG.to_undirected(), source=u, target=v, weight="cost"
-                )
-            except NetworkXNoPath:
-                logger.debug("No pathway found")
+            # for _, v, k, d in GG.edges(data=True, keys=True):
+            #     print(_, v, k, d['to_jimage'], d['cost'])
+            # pprint(_get_adjacency_with_images(GG.to_undirected()))
+            best_ans, path_parent = periodic_dijkstra(
+                GG, sources={u}, weight="cost", max_image=1
+            )
+            all_paths = []
+            for idx, jimage in path_parent.keys():
+                if idx == u and jimage != (0, 0, 0):
+                    path = [*get_optimal_pathway_rev(path_parent, (idx, jimage))][::-1]
+                    assert path[-1][0] == u
+                    all_paths.append(path)
+
+            if len(all_paths) == 0:
                 continue
-
             # The first hop must be one that leaves the 000 unit cell
-            path_hops = [d]
+            path = min(all_paths, key=lambda x: best_ans[x[-1]])
 
-            for path_u, path_v in zip(path[:-1], path[1:]):
-                # for each pair print the lowest costs hop that does not go back to the original out-of-bound cell
-                lowest_cost_dict = None
-                all_edge_data = [
-                    *GG.get_edge_data(path_u, path_v, default={}).items()
-                ] + [*GG.get_edge_data(path_v, path_u, default={}).items()]
+            # get the sequence of MigrationPaths objects the represent the pathway
+            path_hops = []
+            for (idx1, jimage1), (idx2, jimage2) in zip(path[:-1], path[1:]):
+                # for each pair of points in the periodic graph path look for end points in the original graph
+                # the index pair has to be u->v with u <= v
+                # once that is determined look up all such pairs in the graph and see if relative image
+                # displacement +/- (jimage1 - jimage2) is present on of of the edges
+                # Note: there should only ever be one valid to_jimage for a u->v pair
+                i1_, i2_ = sorted((idx1, idx2))
+                all_edge_data = [*GG.get_edge_data(i1_, i2_, default={}).items()]
+                image_diff = np.subtract(jimage2, jimage1)
+                found_ = 0
                 for k, tmp_d in all_edge_data:
-                    if {tmp_d["iindex"], tmp_d["eindex"]} == {path_u, path_v} and tmp_d[
-                        "to_jimage"
-                    ] != d["to_jimage"]:
-                        if (
-                            not lowest_cost_dict
-                            or tmp_d["cost"] < lowest_cost_dict["cost"]
-                        ):
-                            lowest_cost_dict = tmp_d
-                path_hops.append(lowest_cost_dict)
+                    if tmp_d["to_jimage"] in {tuple(image_diff), tuple(-image_diff)}:
+                        path_hops.append(tmp_d)
+                        found_ += 1
+                if found_ != 1:
+                    raise RuntimeError("More than on edge mathched in original graph.")
+            yield u, path_hops
 
-            # if a None is present it means we have a loop.
-            if None not in path_hops:
-                yield path_hops
+            # # # if a None is present it means we have a loop.
+            # if None not in path_hops:
+            #     # The periodic nature of the graph is very difficult to deal with during path finding
+            #     # If you have points hops (using a 10x10 periodic cell):
+            #     # [B] (6,0) -> [C] (5, 1)
+            #     # [C] (5,1) -> [A] (5, -1)
+            #     # [A] (5,9) -> [B] (6, 10) # pbc wrapped not noticed by pathfinding
+            #     #
+            #
+            #     yield path_hops
 
     def modify_path(self, paths):
         """
@@ -878,18 +898,22 @@ def _shift_grid(vv):
     return vv + step / 2.0
 
 
-def get_hop_site_sequence(hop_list: List[Dict]) -> List:
+def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str]) -> List:
     """
     Read in a list of hop dictionaries and print the sequence of sites.
-    Requires the first hop in the list to leave the cell
-        Ex. site_1 (in UC000) -> site_2 (in UC001) then we can consider site 2 a terminal site in the path
-        and print the sequence of sites in the path
+    Args:
+        hop_list: a list of the data on a sequence of hops
+        start_u: the site index of the starting sites
     Returns:
         String representation of the hop sequence
     """
     hops = iter(hop_list)
     ihop = next(hops)
-    site_seq = [ihop["eindex"], ihop["iindex"]]
+    if ihop["eindex"] == start_u:
+        site_seq = [ihop["eindex"], ihop["iindex"]]
+    else:
+        site_seq = [ihop["iindex"], ihop["eindex"]]
+
     for ihop in hops:
         if ihop["iindex"] == site_seq[-1]:
             site_seq.append(ihop["eindex"])

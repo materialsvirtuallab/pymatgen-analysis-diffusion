@@ -1,6 +1,8 @@
 # coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
+
+from neb.periodic_dijkstra import _get_adjacency_with_images
 from pymatgen_diffusion.neb.full_path_mapper import (
     FullPathMapper,
     ComputedEntryPath,
@@ -134,31 +136,50 @@ class FullPathMapperComplexTest(unittest.TestCase):
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
             self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 4)
 
+    def test_periodic_dijkstra(self):
+        self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
+
+        # test the connection graph
+        sgraph = self.fpm_li.s_graph
+        G = sgraph.graph.to_undirected()
+        conn_dict = _get_adjacency_with_images(G)
+        for u in conn_dict.keys():
+            for v in conn_dict[u]:
+                for k, d in conn_dict[u][v].items():
+                    neg_image = tuple(-dim_ for dim_ in d["to_jimage"])
+                    opposite_connections = [
+                        d2_["to_jimage"] for k2_, d2_ in conn_dict[v][u].items()
+                    ]
+                    self.assertIn(neg_image, opposite_connections)
+
     def test_get_intercollating_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         paths = [*self.fpm_li.get_intercollating_path()]
+        # for u,v,k,d in self.fpm_li.s_graph.graph.edges(data=True, keys=True):
+        #     print(u,v,k,d['cost'])
         # for ipath in paths:
         #     print("ipath:", ipath)
         #     [(hop['iindex'], hop['eindex'] ) for hop in ipath]
         p_strings = {
-            "->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths
+            "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
+            for u, ipath in paths
         }
         # print(p_strings)
-        self.assertIn("7->4->7", p_strings)
+        self.assertIn("7->5->7", p_strings)
         # convert each pathway to a string representation
 
         paths = [*self.fpm_li.get_intercollating_path(max_val=2.0)]
         p_strings = {
-            "->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths
+            "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
+            for u, ipath in paths
         }
-        # print(p_strings)
-        self.assertIn("4->2->5->3->4", p_strings)
-        self.assertIn("7->2->4->3->7", p_strings)
+        self.assertIn("5->3->7->2->5", p_strings)  # manually check this
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
         paths = [*self.fpm_mg.get_intercollating_path()]
         p_strings = {
-            "->".join(map(str, get_hop_site_sequence(ipath))) for ipath in paths
+            "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
+            for u, ipath in paths
         }
         self.assertIn("1->0->1", p_strings)
 
