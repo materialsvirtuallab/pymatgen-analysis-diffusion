@@ -2,7 +2,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from neb.periodic_dijkstra import _get_adjacency_with_images
+from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
 from pymatgen_diffusion.neb.full_path_mapper import (
     FullPathMapper,
     ComputedEntryPath,

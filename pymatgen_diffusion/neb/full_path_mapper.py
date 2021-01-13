@@ -17,7 +17,7 @@ from copy import deepcopy
 import logging
 from typing import Union, List, Dict
 
-from neb.periodic_dijkstra import (
+from pymatgen_diffusion.neb.periodic_dijkstra import (
     periodic_dijkstra,
     get_optimal_pathway_rev,
 )
