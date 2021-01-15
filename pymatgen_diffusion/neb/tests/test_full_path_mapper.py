@@ -159,14 +159,16 @@ class FullPathMapperComplexTest(unittest.TestCase):
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
-        self.assertIn("7->5->7", p_strings)
+        self.assertIn("5->7->5", p_strings)
         # convert each pathway to a string representation
         paths = [*self.fpm_li.get_intercalating_path(max_val=2.0)]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
-        self.assertIn("5->3->7->2->5", p_strings)  # manually check this
+
+        # After checking trimming the graph more hops are needed for the same path
+        self.assertIn("5->3->7->2->5", p_strings)
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
         paths = [*self.fpm_mg.get_intercalating_path()]
