@@ -152,23 +152,16 @@ class FullPathMapperComplexTest(unittest.TestCase):
                     ]
                     self.assertIn(neg_image, opposite_connections)
 
-    def test_get_intercollating_path(self):
+    def test_get_intercalating_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_intercollating_path()]
-        # for u,v,k,d in self.fpm_li.s_graph.graph.edges(data=True, keys=True):
-        #     print(u,v,k,d['cost'])
-        # for ipath in paths:
-        #     print("ipath:", ipath)
-        #     [(hop['iindex'], hop['eindex'] ) for hop in ipath]
+        paths = [*self.fpm_li.get_intercalating_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
-        # print(p_strings)
         self.assertIn("7->5->7", p_strings)
         # convert each pathway to a string representation
-
-        paths = [*self.fpm_li.get_intercollating_path(max_val=2.0)]
+        paths = [*self.fpm_li.get_intercalating_path(max_val=2.0)]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -176,7 +169,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
         self.assertIn("5->3->7->2->5", p_strings)  # manually check this
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_mg.get_intercollating_path()]
+        paths = [*self.fpm_mg.get_intercalating_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
