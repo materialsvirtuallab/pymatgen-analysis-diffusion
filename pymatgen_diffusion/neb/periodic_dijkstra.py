@@ -117,7 +117,7 @@ def periodic_dijkstra(
                     path_parent[next_index_pair] = (cur_idx, cur_image)
                     heapq.heappush(pq, (new_cost, next_index_pair))
 
-    # return best_ans, path_parent
+    return best_ans, path_parent
 
 
 def periodic_dijkstra_on_sgraph(
