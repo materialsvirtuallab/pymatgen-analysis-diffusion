@@ -84,9 +84,6 @@ def periodic_dijkstra(
     """
 
     conn_dict = _get_adjacency_with_images(G.to_undirected())
-    # pprint(conn_dict[0][4])
-    # print('=====')
-    # pprint(conn_dict[4][0])
 
     # use a default dict since we don't know how far out to search
     best_ans = defaultdict(lambda: math.inf)
