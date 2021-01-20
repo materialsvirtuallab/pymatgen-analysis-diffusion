@@ -84,9 +84,6 @@ def periodic_dijkstra(
     """
 
     conn_dict = _get_adjacency_with_images(G.to_undirected())
-    # pprint(conn_dict[0][4])
-    # print('=====')
-    # pprint(conn_dict[4][0])
 
     # use a default dict since we don't know how far out to search
     best_ans = defaultdict(lambda: math.inf)
@@ -99,7 +96,8 @@ def periodic_dijkstra(
         min_val, (cur_idx, cur_image) = heapq.heappop(pq)
         if target_reached(cur_idx, cur_image):
             return best_ans
-        best_ans[(cur_idx, cur_image)] = min_val
+        if min_val < best_ans[(cur_idx, cur_image)]:
+            best_ans[(cur_idx, cur_image)] = min_val
         for next_node, keyed_data in conn_dict[cur_idx].items():
             for k, d in keyed_data.items():
                 # get the node index, image pair
@@ -112,9 +110,10 @@ def periodic_dijkstra(
                 new_cost = min_val + d[weight]
 
                 if new_cost < best_ans[next_index_pair]:
-                    best_ans[(next_node, new_image)] = new_cost
-                    path_parent[(next_node, new_image)] = (cur_idx, cur_image)
-                    heapq.heappush(pq, (new_cost, (next_node, new_image)))
+                    best_ans[next_index_pair] = new_cost
+                    path_parent[next_index_pair] = (cur_idx, cur_image)
+                    heapq.heappush(pq, (new_cost, next_index_pair))
+
     return best_ans, path_parent
 
 
