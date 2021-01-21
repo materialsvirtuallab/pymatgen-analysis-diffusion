@@ -9,7 +9,7 @@ from pymatgen import Structure
 import numpy as np
 import os
 
-from pymatgen_diffusion.utils.get_db_data import get_inserted_on_base, process_ents
+from pymatgen_diffusion.utils.parse_entries import get_inserted_on_base, process_ents
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + "/../../neb/tests/"
 
@@ -18,7 +18,7 @@ __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-class GetDbDataSimplTest(unittest.TestCase):
+class ParseEntriesSimplTest(unittest.TestCase):
     def setUp(self):
         struct_uc = Structure.from_dict(
             {
