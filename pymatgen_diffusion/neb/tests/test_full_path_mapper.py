@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
-
 from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
 from pymatgen_diffusion.neb.full_path_mapper import (
     FullPathMapper,
@@ -177,6 +176,12 @@ class FullPathMapperComplexTest(unittest.TestCase):
             for u, ipath in paths
         }
         self.assertIn("1->0->1", p_strings)
+
+    def test_not_matching_first(self):
+        structure = Structure.from_file("./pathfinder_files/Li6MnO4.json")
+        fpm_lmo = FullPathMapper(structure, "Li", max_path_length=4)
+        for u, v, d in fpm_lmo.s_graph.graph.edges(data=True):
+            self.assertIn(d["hop"].eindex, {0, 1})
 
 
 class ComputedEntryPathTest(unittest.TestCase):
