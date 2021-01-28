@@ -127,7 +127,7 @@ class FullPathMapper(MSONable):
         # Generate the graph edges between these all the sites
         self.s_graph = StructureGraph.with_local_env_strategy(
             self.only_sites,
-            MinimumDistanceNN(tol=np.infty, cutoff=max_path_length, get_all_sites=True),
+            MinimumDistanceNN(cutoff=max_path_length, get_all_sites=True),
         )  # weights in this graph are the distances
         self.s_graph.set_node_attributes()
         self.populate_edges_with_migration_paths()
