@@ -153,7 +153,9 @@ def periodic_dijkstra_on_sgraph(
 
 
 def get_optimal_pathway_rev(path_parent: dict, leaf_node: tuple):
-    # follow a leaf node all the way up to source.
+    """
+    follow a leaf node all the way up to source.
+    """
     cur = leaf_node
     while cur in path_parent:
         yield cur

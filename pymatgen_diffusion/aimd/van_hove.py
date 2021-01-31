@@ -2,6 +2,10 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Van Hove analysis for correlations.
+"""
+
 from typing import List, Tuple, Union, Callable
 from collections import Counter
 import numpy as np
@@ -306,6 +310,10 @@ class VanHoveAnalysis:
 
 
 class EvolutionAnalyzer:
+    """
+    Analyze the evolution of structures during AIMD simulations.
+    """
+
     def __init__(
         self, structures: List, rmax: float = 10, step: int = 1, time_step: int = 2
     ):

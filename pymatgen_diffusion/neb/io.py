@@ -2,6 +2,10 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Generate input fiels for NEB calculations.
+"""
+
 import copy
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet
@@ -16,6 +20,11 @@ class MVLCINEBEndPointSet(MITRelaxSet):
     """
 
     def __init__(self, structure, **kwargs):
+        r"""
+        Args:
+            structure: Structure
+            \*\*kwargs: Keyword args supported by VaspInputSets.
+        """
         user_incar_settings = kwargs.get("user_incar_settings", {})
         defaults = {
             "ISIF": 2,
@@ -40,15 +49,14 @@ class MVLCINEBSet(MITNEBSet):
     MAVRL-tested settings for CI-NEB calculations. Note that these parameters
     requires the VTST modification of VASP from the Henkelman group. See
     http://theory.cm.utexas.edu/vtsttools/
-
-    Args:
-        nimages (int): Number of NEB images (excluding start and ending
-            structures).
-        user_incar_settings (dict): A dict specifying additional incar
-            settings.
     """
 
     def __init__(self, structures, **kwargs):
+        r"""
+        Args:
+            structure: Structure
+            \*\*kwargs: Keyword args supported by VaspInputSets.
+        """
         user_incar_settings = kwargs.get("user_incar_settings", {})
 
         # CI-NEB settings

@@ -2,22 +2,18 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+ Algorithms for diffusion pathway analysis
+"""
+
 import numpy as np
 from collections import Counter
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import fcluster, linkage
 
-__author__ = "Iek-Heng Chu"
-__version__ = "1.0"
-__date__ = "05/15"
-
-"""
- Algorithms for diffusion pathway analysis
-"""
-
 
 class ProbabilityDensityAnalysis:
-    """
+    r"""
     Compute the time-averaged probability density distribution of selected
     species on a "uniform" (in terms of fractional coordinates) 3-D grid.
     Note that \int_{\Omega}d^3rP(r) = 1

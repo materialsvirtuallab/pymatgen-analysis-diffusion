@@ -2,6 +2,10 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+RDF implementation.
+"""
+
 from typing import List, Tuple, Union
 from collections import Counter
 from multiprocessing import cpu_count
@@ -300,6 +304,10 @@ class RadialDistributionFunction:
 
 
 class RadialDistributionFunctionFast:
+    """
+    Fast radial distribution analysis.
+    """
+
     def __init__(
         self,
         structures: Union[Structure, List[Structure]],
@@ -310,8 +318,7 @@ class RadialDistributionFunctionFast:
         n_jobs=None,
     ):
         """
-        Fast radial distribution analysis. This method calculates
-        rdf on `np.linspace(rmin, rmax, ngrid)` points.
+        This method calculates rdf on `np.linspace(rmin, rmax, ngrid)` points.
 
         Args:
             structures (list of pymatgen Structures): structures to compute RDF
@@ -320,7 +327,6 @@ class RadialDistributionFunctionFast:
             ngrid (int): number of grid points, defaults to 101
             sigma (float): smooth parameter
             n_jobs (int): number of CPUs in processing
-
         """
         if n_jobs is None:
             n_jobs = 1

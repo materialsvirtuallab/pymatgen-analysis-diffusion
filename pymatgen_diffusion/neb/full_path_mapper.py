@@ -710,6 +710,10 @@ class ComputedEntryPath(FullPathMapper):
         )
 
     def populate_edges_with_chg_density_info(self, tube_radius=1):
+        """
+        Args:
+            tube_radius: Tube radius.
+        """
         self._tube_radius = tube_radius
         for k, v in self.unique_hops.items():
             # charge in tube
@@ -924,7 +928,9 @@ migration events using the following procedure:
 
 
 def almost(a, b):
-    # return true if the values are almost equal
+    """
+    return true if the values are almost equal
+    """
     SMALL_VAL = 1e-4
     try:
         return all([almost(i, j) for i, j in zip(list(a), list(b))])
