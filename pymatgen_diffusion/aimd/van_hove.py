@@ -493,7 +493,10 @@ class EvolutionAnalyzer:
 
     @staticmethod
     def plot_evolution_from_data(
-        df: pds.DataFrame, x_label: str = None, cb_label: str = None, cmap=plt.cm.plasma  # pylint: disable=E1101
+        df: pds.DataFrame,
+        x_label: str = None,
+        cb_label: str = None,
+        cmap=plt.cm.plasma,  # pylint: disable=E1101
     ):
         """
         Plot the evolution with time for a given DataFrame. It can be RDF,
@@ -546,7 +549,10 @@ class EvolutionAnalyzer:
         return plt
 
     def plot_rdf_evolution(
-        self, pair: Tuple, cmap=plt.cm.plasma, df: pds.DataFrame = None  # pylint: disable=E1101
+        self,
+        pair: Tuple,
+        cmap=plt.cm.plasma,
+        df: pds.DataFrame = None,  # pylint: disable=E1101
     ):
         """
         Plot the RDF evolution with time for a given pair.
