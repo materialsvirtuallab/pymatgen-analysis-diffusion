@@ -41,7 +41,7 @@ class MVLCINEBEndPointSet(MITRelaxSet):
             defaults.update(user_incar_settings)
         kwargs["user_incar_settings"] = defaults
 
-        super(MVLCINEBEndPointSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
 
 class MVLCINEBSet(MITNEBSet):
@@ -82,7 +82,7 @@ class MVLCINEBSet(MITNEBSet):
 
         kwargs["user_incar_settings"] = defaults
 
-        super(MVLCINEBSet, self).__init__(structures, **kwargs)
+        super().__init__(structures, **kwargs)
 
 
 def get_endpoints_from_index(structure, site_indices):

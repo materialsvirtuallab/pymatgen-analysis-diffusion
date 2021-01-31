@@ -6,13 +6,13 @@
 Algorithms for NEB migration path analysis.
 """
 
+import itertools
+import warnings
+
+import numpy as np
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-import warnings
-import numpy as np
-import itertools
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"

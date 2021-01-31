@@ -8,12 +8,11 @@ adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
 
-import numpy as np
 import random
 import warnings
 
+import numpy as np
 from pymatgen.util.coord import all_distances, pbc_diff
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -74,7 +73,8 @@ class Kmeans:
         # We can get the labels too by calling getLabels(dataSet, centroids)
         return centroids, labels, ss
 
-    def get_labels(self, points, centroids):
+    @staticmethod
+    def get_labels(points, centroids):
         """
         For each element in the dataset, chose the closest centroid.
         Make that centroid the element's label.
@@ -87,7 +87,8 @@ class Kmeans:
         min_dists = np.min(dists, axis=1)
         return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
 
-    def get_centroids(self, points, labels, k, centroids):
+    @staticmethod
+    def get_centroids(points, labels, k, centroids):
         """
         Each centroid is the geometric mean of the points that
         have that centroid's label. Important: If a centroid is empty (no

@@ -6,10 +6,11 @@
  Algorithms for diffusion pathway analysis
 """
 
-import numpy as np
 from collections import Counter
-from scipy.spatial.distance import squareform
+
+import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 
 
 class ProbabilityDensityAnalysis:

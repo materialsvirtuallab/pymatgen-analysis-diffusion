@@ -6,19 +6,18 @@
 RDF implementation.
 """
 
-from typing import List, Tuple, Union
 from collections import Counter
+from math import ceil
 from multiprocessing import cpu_count
+from typing import List, Tuple, Union
 
 import numpy as np
-from math import ceil
 from joblib import delayed, Parallel
-from scipy.stats import norm
-from scipy.signal import find_peaks
-from scipy.ndimage import gaussian_filter1d
-
-from pymatgen.util.plotting import pretty_plot
 from pymatgen.core import Structure
+from pymatgen.util.plotting import pretty_plot
+from scipy.ndimage import gaussian_filter1d
+from scipy.signal import find_peaks
+from scipy.stats import norm
 
 
 class RadialDistributionFunction:
@@ -337,7 +336,7 @@ class RadialDistributionFunctionFast:
             structures = [structures]
         self.structures = structures
         # Number of atoms in all structures should be the same
-        assert len(set([len(i) for i in self.structures])) == 1
+        assert len({len(i) for i in self.structures}) == 1
         elements = [[i.specie for i in j.sites] for j in self.structures]
         unique_elements_on_sites = [len(set(i)) == 1 for i in list(zip(*elements))]
 

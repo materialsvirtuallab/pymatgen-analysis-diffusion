@@ -6,17 +6,17 @@
 Van Hove analysis for correlations.
 """
 
-from typing import List, Tuple, Union, Callable
-from collections import Counter
-import numpy as np
 import itertools
-import pandas as pds
+from collections import Counter
+from typing import List, Tuple, Union, Callable
 
-from scipy.stats import norm
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pds
+from pymatgen import Structure
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
-from pymatgen import Structure
+from scipy.stats import norm
 
 from .rdf import RadialDistributionFunction
 
@@ -482,17 +482,18 @@ class EvolutionAnalyzer:
             tol (float): any float number less than tol is considered as zero.
 
         Returns:
-            The shorted pair distance throughout the table.
+            The shortest pair distance throughout the table.
         """
         # TODO: Add unittest
         for i, col in enumerate(df.columns):
             min_dist = df.min(axis="index")[i]
             if min_dist > tol:
                 return float(col)
+        raise RuntimeError("Getting min dist failed.")
 
     @staticmethod
     def plot_evolution_from_data(
-        df: pds.DataFrame, x_label: str = None, cb_label: str = None, cmap=plt.cm.plasma
+        df: pds.DataFrame, x_label: str = None, cb_label: str = None, cmap=plt.cm.plasma  # pylint: disable=E1101
     ):
         """
         Plot the evolution with time for a given DataFrame. It can be RDF,
@@ -545,7 +546,7 @@ class EvolutionAnalyzer:
         return plt
 
     def plot_rdf_evolution(
-        self, pair: Tuple, cmap=plt.cm.plasma, df: pds.DataFrame = None
+        self, pair: Tuple, cmap=plt.cm.plasma, df: pds.DataFrame = None  # pylint: disable=E1101
     ):
         """
         Plot the RDF evolution with time for a given pair.
@@ -572,7 +573,7 @@ class EvolutionAnalyzer:
         self,
         specie: str,
         direction: str = "c",
-        cmap=plt.cm.Blues,
+        cmap=plt.cm.Blues,  # pylint: disable=E1101
         df: pds.DataFrame = None,
     ):
         """
