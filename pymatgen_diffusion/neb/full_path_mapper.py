@@ -12,7 +12,6 @@ __maintainer__ = "Jimmy Shen"
 __email__ = "jmmshn@lbl.gov"
 __date__ = "April 11, 2019"
 
-import copy
 import logging
 import operator
 from collections import defaultdict
@@ -23,7 +22,6 @@ from typing import Union, List, Dict
 
 import networkx as nx
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
