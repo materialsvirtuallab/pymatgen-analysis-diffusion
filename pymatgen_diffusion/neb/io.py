@@ -7,7 +7,7 @@ import copy
 from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet
 from pymatgen.core import Structure
 
-__author__ = 'Austen'
+__author__ = "Austen"
 
 
 class MVLCINEBEndPointSet(MITRelaxSet):
@@ -25,7 +25,7 @@ class MVLCINEBEndPointSet(MITRelaxSet):
             "ISYM": 0,
             "LCHARG": False,
             "LDAU": False,
-            "NELMIN": 4
+            "NELMIN": 4,
         }
 
         if user_incar_settings != {}:
@@ -67,7 +67,7 @@ class MVLCINEBSet(MITNEBSet):
             "LORBIT": 0,
             "NSW": 200,
             "POTIM": 0,
-            "SPRING": -5
+            "SPRING": -5,
         }
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
@@ -94,8 +94,9 @@ def get_endpoints_from_index(structure, site_indices):
     if len(site_indices) != 2 or len(set(site_indices)) != 2:
         raise ValueError("Invalid indices!")
     if structure[site_indices[0]].specie != structure[site_indices[1]].specie:
-        raise ValueError("The site indices must be "
-                         "associated with identical species!")
+        raise ValueError(
+            "The site indices must be " "associated with identical species!"
+        )
 
     s = structure.copy()
     sites = s.sites

@@ -14,16 +14,15 @@ adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
 
-__author__ = 'Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Shyue Ping Ong'
-__email__ = 'ongsp@ucsd.edu'
-__date__ = '3/18/15'
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2013, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "3/18/15"
 
 
 class Kmeans:
-
     def __init__(self, max_iterations=1000):
         self.max_iterations = max_iterations
 
@@ -41,8 +40,11 @@ class Kmeans:
             provide the index for each point, and ss in the final sum squared
             distances.
         """
-        centroids = np.array(random.sample(list(points), k)) \
-            if initial_centroids is None else initial_centroids
+        centroids = (
+            np.array(random.sample(list(points), k))
+            if initial_centroids is None
+            else initial_centroids
+        )
 
         # Initialize book keeping vars.
         iterations = 0
@@ -123,7 +125,8 @@ class KmeansPBC(Kmeans):
                 c = np.zeros(n)
                 for j in ind:
                     dist, image = self.lattice.get_distance_and_image(
-                        centroids[i], points[j])
+                        centroids[i], points[j]
+                    )
                     c += points[j] + image
                 c /= len(ind)
                 c = np.mod(c, 1)

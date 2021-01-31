@@ -1,13 +1,17 @@
 # coding: utf-8
 
 from pymatgen.core import Structure
-from pymatgen_diffusion.neb.io import MVLCINEBEndPointSet, MVLCINEBSet, \
-    get_endpoints_from_index, get_endpoint_dist
+from pymatgen_diffusion.neb.io import (
+    MVLCINEBEndPointSet,
+    MVLCINEBSet,
+    get_endpoints_from_index,
+    get_endpoint_dist,
+)
 
 import unittest
 import os
 
-__author__ = 'hat003'
+__author__ = "hat003"
 
 test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
@@ -48,11 +52,13 @@ SIGMA   =  0.05"""
         self.assertEqual(incar_string, incar_expect)
 
     def test_incar_user_setting(self):
-        user_incar_settings = {"ALGO": "Normal",
-                               "EDIFFG": -0.05,
-                               "NELECT": 576,
-                               "NPAR": 4,
-                               "NSW": 100,}
+        user_incar_settings = {
+            "ALGO": "Normal",
+            "EDIFFG": -0.05,
+            "NELECT": 576,
+            "NPAR": 4,
+            "NSW": 100,
+        }
         m = MVLCINEBEndPointSet(self.endpoint, user_incar_settings=user_incar_settings)
         incar_string = m.incar.get_string(sort_keys=True)
         incar_expect = """ALGO = Normal
@@ -82,14 +88,16 @@ SIGMA = 0.05"""
 
 class MVLCINEBSetTest(unittest.TestCase):
 
-    structures = [Structure.from_file(get_path("POSCAR" + str(i),
-                                               dirname="io_files")) for i in range(3)]
+    structures = [
+        Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files"))
+        for i in range(3)
+    ]
 
     def test_incar(self):
         m = MVLCINEBSet(self.structures)
 
         incar_string = m.incar.get_string(sort_keys=True)
-        incar_expect ="""ALGO = Fast
+        incar_expect = """ALGO = Fast
 EDIFF = 5e-05
 EDIFFG = -0.02
 ENCUT = 520
@@ -118,10 +126,7 @@ SPRING = -5"""
         self.assertEqual(incar_string.strip(), incar_expect.strip())
 
     def test_incar_user_setting(self):
-        user_incar_settings = {"IOPT": 3,
-                               "EDIFFG": -0.05,
-                               "NPAR": 4,
-                               "ISIF": 3}
+        user_incar_settings = {"IOPT": 3, "EDIFFG": -0.05, "NPAR": 4, "ISIF": 3}
         m = MVLCINEBSet(self.structures, user_incar_settings=user_incar_settings)
         incar_string = m.incar.get_string(sort_keys=True, pretty=True)
         incar_expect = """ALGO    =  Fast
@@ -159,17 +164,21 @@ class UtilityTest(unittest.TestCase):
     """
     Unit test for outside methods in io.py
     """
+
     structure = Structure.from_file(get_path("POSCAR", dirname="io_files"))
 
     def test_get_endpoints_from_index(self):
-        endpoints = get_endpoints_from_index(structure=self.structure,
-                                             site_indices=[0, 1])
+        endpoints = get_endpoints_from_index(
+            structure=self.structure, site_indices=[0, 1]
+        )
         ep_0 = endpoints[0].as_dict()
         ep_1 = endpoints[1].as_dict()
-        ep_0_expect = Structure.from_file(get_path("POSCAR_ep0",
-                                                   dirname="io_files")).as_dict()
-        ep_1_expect = Structure.from_file(get_path("POSCAR_ep1",
-                                                   dirname="io_files")).as_dict()
+        ep_0_expect = Structure.from_file(
+            get_path("POSCAR_ep0", dirname="io_files")
+        ).as_dict()
+        ep_1_expect = Structure.from_file(
+            get_path("POSCAR_ep1", dirname="io_files")
+        ).as_dict()
 
         self.assertEqual(ep_0, ep_0_expect)
         self.assertEqual(ep_1, ep_1_expect)
@@ -183,5 +192,5 @@ class UtilityTest(unittest.TestCase):
         self.assertEqual(min(distances), 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
