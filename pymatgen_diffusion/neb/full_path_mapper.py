@@ -406,9 +406,9 @@ class FullPathMapper(MSONable):
 
 class ComputedEntryPath(FullPathMapper):
     """
-    Generate the full migration network using computed entires for intercollation andvacancy limits
+    Generate the full migration network using computed entires for intercalation and vacancy limits
     - Map the relaxed sites of a material back to the empty host lattice
-    - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom
+    - Apply symmetry operations of the empty lattice to obtain the other positions of the intercalated atom
     - Get the symmetry inequivalent hops
     - Get the migration barriers for each inequivalent hop
     """
@@ -417,33 +417,34 @@ class ComputedEntryPath(FullPathMapper):
         self,
         base_struct_entry,
         single_cat_entries,
-        migrating_specie,
+        mobile_specie,
         base_aeccar=None,
-        max_path_length=4,
+        max_hop_length=4,
         ltol=0.2,
         stol=0.3,
-        symprec=0.1,
         angle_tol=5,
+        symprec=0.1,
         full_sites_struct=None,
     ):
         """
         Pass in a entries for analysis
 
         Args:
-          base_struct_entry: the structure without a working ion for us to analyze the migration
-          single_cat_entries: list of structures containing a single cation at different positions
+          base_struct_entry (pymatgen ComputedStructureEntry): the structure without a working ion for us to analyze the migration
+          single_cat_entries (pymatgen ComputedStructureEntry): list of structures containing a single cation at different positions
           base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
           migration_specie: a String symbol or Element for the cation. (Default value = 'Li')
           ltol: parameter for StructureMatcher (Default value = 0.2)
           stol: parameter for StructureMatcher (Default value = 0.3)
-          symprec: parameter for SpacegroupAnalyzer (Default value = 0.3)
           angle_tol: parameter for StructureMatcher (Default value = 5)
+          symprec: parameter for SpacegroupAnalyzer (Default value = 0.3)
+          full_sites_struct: structure containing only mobile ion sites (no base structure)
         """
 
         self.single_cat_entries = single_cat_entries
         self.base_struct_entry = base_struct_entry
         self.base_aeccar = base_aeccar
-        self.migrating_specie = migrating_specie
+        self.mobile_specie = mobile_specie
         self.ltol = ltol
         self.stol = stol
         self.symprec = symprec
@@ -454,7 +455,7 @@ class ComputedEntryPath(FullPathMapper):
         self.sm = StructureMatcher(
             comparator=ElementComparator(),
             primitive_cell=False,
-            ignored_species=[migrating_specie],
+            ignored_species=[mobile_specie],
             ltol=ltol,
             stol=stol,
             angle_tol=angle_tol,
@@ -483,14 +484,13 @@ class ComputedEntryPath(FullPathMapper):
                 self.base_struct_entry.structure.sites
             )
 
-        # Initialize
+
         super(ComputedEntryPath, self).__init__(
-            structure=self.base_structure_full_sites,
-            migrating_specie=migrating_specie,
-            max_path_length=max_path_length,
+            base_structure=self.base_struct_entry.structure,
+            mobile_specie=self.mobile_specie,
+            sites_structure=self.full_sites,
+            max_hop_length=max_hop_length,
             symprec=symprec,
-            vac_mode=False,
-            name=base_struct_entry.entry_id,
         )
 
         self.populate_edges_with_migration_paths()
@@ -498,11 +498,6 @@ class ComputedEntryPath(FullPathMapper):
         self._populate_unique_hops_dict()
         if base_aeccar:
             self._setup_grids()
-
-    def from_dbs(self):
-        """
-        Populate the object using entries from MP-like databases
-        """
 
     def _from_dbs(self):
         """
@@ -542,7 +537,7 @@ class ComputedEntryPath(FullPathMapper):
             sub_site_list = get_all_sym_sites(
                 itr,
                 self.base_struct_entry,
-                self.migrating_specie,
+                self.mobile_specie,
                 symprec=self.symprec,
                 angle_tol=self.angle_tol,
             )
@@ -608,9 +603,9 @@ class ComputedEntryPath(FullPathMapper):
         mid_struct = self.base_aeccar.structure.copy()
 
         # the moving ion is always inserted on the zero index
-        start_struct.insert(0, self.migrating_specie, ipos, properties=dict(magmom=0))
-        end_struct.insert(0, self.migrating_specie, epos, properties=dict(magmom=0))
-        mid_struct.insert(0, self.migrating_specie, mpos, properties=dict(magmom=0))
+        start_struct.insert(0, self.mobile_specie, ipos, properties=dict(magmom=0))
+        end_struct.insert(0, self.mobile_specie, epos, properties=dict(magmom=0))
+        mid_struct.insert(0, self.mobile_specie, mpos, properties=dict(magmom=0))
 
         chgpot = ChgcarPotential(self.base_aeccar, normalize=False)
         npf = NEBPathfinder(
@@ -827,8 +822,8 @@ class ComputedEntryPath(FullPathMapper):
             base_task_id=self.base_struct_entry.entry_id,
             base_structure=self.base_struct_entry.structure.as_dict(),
             inserted_ids=[ent.entry_id for ent in self.single_cat_entries],
-            migrating_specie=self.migrating_specie.name,
-            max_path_length=self.max_path_length,
+            mobile_specie=self.mobile_specie.name,
+            max_hop_length=self.max_hop_length,
             ltol=self.ltol,
             stol=self.stol,
             full_sites_struct=self.full_sites.as_dict(),
