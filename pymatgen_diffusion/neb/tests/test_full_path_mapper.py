@@ -29,9 +29,14 @@ __date__ = "April 10, 2019"
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
         base_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_base.vasp")
-        sites_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_only_Li.vasp")
+        sites_struct = Structure.from_file(
+            f"{dir_path}/full_path_files/MnO2_only_Li.vasp"
+        )
         self.fpm = FullPathMapper(
-            base_structure=base_struct, mobile_specie="Li", sites_structure=sites_struct, max_hop_length=4
+            base_structure=base_struct,
+            mobile_specie="Li",
+            sites_structure=sites_struct,
+            max_hop_length=4,
         )
 
     def test_get_pos_and_migration_path(self):
@@ -47,9 +52,14 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
         base_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_base.vasp")
-        sites_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_only_Li.vasp")
+        sites_struct = Structure.from_file(
+            f"{dir_path}/full_path_files/MnO2_only_Li.vasp"
+        )
         self.fpm_li = FullPathMapper(
-            base_structure=base_struct, mobile_specie="Li", sites_structure=sites_struct, max_hop_length=4
+            base_structure=base_struct,
+            mobile_specie="Li",
+            sites_structure=sites_struct,
+            max_hop_length=4,
         )
         self.fpm_li.populate_edges_with_migration_paths()
         self.fpm_li.group_and_label_hops()
@@ -57,9 +67,14 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
         # Particularity difficult pathfinding since both the starting and ending positions are outside the unit cell
         mg_struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
-        au_struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom_base.vasp")
+        au_struct = Structure.from_file(
+            f"{dir_path}/full_path_files/Mg_2atom_base.vasp"
+        )
         self.fpm_mg = FullPathMapper(
-            base_structure=au_struct, mobile_specie="Mg", sites_structure = mg_struct, max_hop_length=2
+            base_structure=au_struct,
+            mobile_specie="Mg",
+            sites_structure=mg_struct,
+            max_hop_length=2,
         )
         self.fpm_mg.populate_edges_with_migration_paths()
         self.fpm_mg.group_and_label_hops()
@@ -139,7 +154,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"]**2, 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'

@@ -484,7 +484,6 @@ class ComputedEntryPath(FullPathMapper):
                 self.base_struct_entry.structure.sites
             )
 
-
         super(ComputedEntryPath, self).__init__(
             base_structure=self.base_struct_entry.structure,
             mobile_specie=self.mobile_specie,
