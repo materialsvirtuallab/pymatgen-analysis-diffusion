@@ -1,3 +1,10 @@
+# coding: utf-8
+# Copyright (c) Materials Virtual Lab.
+# Distributed under the terms of the BSD License.
+"""
+Functions to take entrys -> migrations graphs -> NEB inputs
+"""
+
 from pymatgen import Structure
 import numpy as np
 import logging
@@ -11,10 +18,6 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper, ComputedEntryPath
 from typing import Tuple, List, Union, Dict
-
-"""
-Created on July 21, 2019
-"""
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
