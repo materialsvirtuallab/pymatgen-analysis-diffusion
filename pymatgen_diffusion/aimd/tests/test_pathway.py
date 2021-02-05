@@ -10,8 +10,10 @@ import os
 import json
 
 import numpy as np
-from pymatgen_diffusion.aimd.pathway import ProbabilityDensityAnalysis, \
-    SiteOccupancyAnalyzer
+from pymatgen_diffusion.aimd.pathway import (
+    ProbabilityDensityAnalysis,
+    SiteOccupancyAnalyzer,
+)
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.core import Structure
 
@@ -19,7 +21,6 @@ tests_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class ProbabilityDensityTest(unittest.TestCase):
-
     def test_probability(self):
         traj_file = os.path.join(tests_dir, "cNa3PS4_trajectories.npy")
         struc_file = os.path.join(tests_dir, "cNa3PS4.cif")
@@ -42,8 +43,9 @@ class ProbabilityDensityTest(unittest.TestCase):
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
-        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer,
-                                                                 interval=0.5)
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
+            diffusion_analyzer=diff_analyzer, interval=0.5
+        )
         dV = pda.structure.lattice.volume / pda.lens[0] / pda.lens[1] / pda.lens[2]
         Pr_tot = np.sum(pda.Pr) * dV
 
@@ -58,7 +60,8 @@ class ProbabilityDensityTest(unittest.TestCase):
 
         # ProbabilityDensityAnalysis object
         pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
-            diffusion_analyzer=diff_analyzer, interval=0.1)
+            diffusion_analyzer=diff_analyzer, interval=0.1
+        )
         pda.generate_stable_sites(p_ratio=0.25, d_cutoff=1.5)
 
         self.assertEqual(len(pda.stable_sites), 50)
@@ -73,7 +76,6 @@ class ProbabilityDensityTest(unittest.TestCase):
 
 
 class SiteOccupancyTest(unittest.TestCase):
-
     def test_site_occupancy(self):
         traj_file = os.path.join(tests_dir, "cNa3PS4_trajectories.npy")
         struc_file = os.path.join(tests_dir, "cNa3PS4.cif")
@@ -84,8 +86,9 @@ class SiteOccupancyTest(unittest.TestCase):
         coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
         # SiteOccupancyAnalyzer object
-        socc = SiteOccupancyAnalyzer(structure, coords_ref, trajectories,
-                                     species=("Li", "Na"))
+        socc = SiteOccupancyAnalyzer(
+            structure, coords_ref, trajectories, species=("Li", "Na")
+        )
         site_occ = socc.site_occ
         self.assertAlmostEqual(np.sum(site_occ), len(coords_ref), 12)
         self.assertAlmostEqual(site_occ[11], 0.98, 12)
@@ -101,8 +104,9 @@ class SiteOccupancyTest(unittest.TestCase):
         coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
         # SiteOccupancyAnalyzer object
-        socc = SiteOccupancyAnalyzer.from_diffusion_analyzer(coords_ref,
-                                                             diffusion_analyzer=diff_analyzer)
+        socc = SiteOccupancyAnalyzer.from_diffusion_analyzer(
+            coords_ref, diffusion_analyzer=diff_analyzer
+        )
         site_occ = socc.site_occ
         self.assertAlmostEqual(np.sum(site_occ), len(coords_ref), 12)
         self.assertAlmostEqual(site_occ[1], 0.98, 12)

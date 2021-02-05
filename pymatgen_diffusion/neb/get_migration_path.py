@@ -25,39 +25,35 @@ __date__ = "April 11, 2019"
 
 logger = logging.getLogger(__name__)
 
-# Commented out for now will delete in the future
-# compat = MaterialsProjectCompatibility("Advanced")
-# # color
-# colors = plt.get_cmap("tab10").colors
-# colors_hex = [rgb2hex(itr) for itr in colors]
 
-
-def get_cep_from_group(
-    base_entry,
-    inserted_entries,
-    working_ion="Li",
-    ltol=0.2,
-    stol=0.3,
-    initial_max_dist=4.0,
-    angle_tol=5,
-    only_use_single=False,
-):
-    """Using a single base_entry and a list of inserted entries, generate an ComputedEntryPath object
+def get_cep_from_grouped_entries(
+    base_entry: ComputedStructureEntry,
+    inserted_entries: List[ComputedStructureEntry],
+    migrating_species: str = "Li",
+    ltol: float = 0.2,
+    stol: float = 0.3,
+    angle_tol: float = 5,
+    initial_max_dist: float = 4.0,
+    only_use_single: bool = False,
+) -> ComputedEntryPath:
+    """
 
     Args:
         base_entry (ComputedStructureEntry): Base entry for empty structure
         inserted_entries (list[ComputedStructureEntry]): List of structures with one or more working ions
-        working_ion (str, optional): Name of working_ion. Defaults to 'Li'.
+        migrating_species (str, optional): Name of migrating_species. Defaults to 'Li'.
         ltol (float, optional): Fractional length tolerance. Defaults to 0.2.
         stol (float, optional): Site tolerance in Angstrom. Defaults to 0.3.
-        angle_tol (int, optional): Angle tolerance in degrees. Defaults to 5.
+        angle_tol (float, optional): Angle tolerance in degrees. Defaults to 5.
+        initial_max_dist (float, optional): initial distance threshold for connecting sites
+        only_use_single: (bool, optional): only allow single cation insertions to be used to generate the CEP
 
     Returns:
         ComputedEntryPath: Object containing all of the symmetry equivalent hops in a system
     """
 
     if "aeccar" in base_entry.data.keys():
-        # check this first because cep initi will delete this
+        # check this first because cep init will delete this
         get_chg_path = True
     else:
         get_chg_path = False
@@ -65,14 +61,14 @@ def get_cep_from_group(
     single_inserted = []
     for entry in inserted_entries:
         # generate entries from single cation sites
-        num_working = entry.composition.as_dict()[working_ion]
+        num_working = entry.composition.as_dict()[migrating_species]
         if only_use_single and num_working > 1:
             continue
         for itr, isite in enumerate(entry.structure.sites):
-            if isite.species_string == working_ion:
+            if isite.species_string == migrating_species:
                 new_struct = base_entry.structure.copy()
                 new_struct.insert(
-                    0, working_ion, isite.frac_coords, properties=dict(magmom=0)
+                    0, migrating_species, isite.frac_coords, properties=dict(magmom=0)
                 )
                 new_entry = ComputedStructureEntry(
                     structure=new_struct,
@@ -88,7 +84,7 @@ def get_cep_from_group(
             cep = ComputedEntryPath(
                 base_entry,
                 single_cat_entries=single_inserted,
-                migrating_specie=working_ion,
+                migrating_specie=migrating_species,
                 base_aeccar=base_entry.data["aeccar"],
                 max_path_length=max_dist,
                 ltol=ltol,
@@ -100,7 +96,7 @@ def get_cep_from_group(
             cep = ComputedEntryPath(
                 base_entry,
                 single_cat_entries=single_inserted,
-                migrating_specie=working_ion,
+                migrating_specie=migrating_species,
                 base_aeccar=None,
                 max_path_length=max_dist,
             )
@@ -121,7 +117,7 @@ def get_sc_fromstruct(
     min_atoms: int = 80,
     max_atoms: int = 240,
     min_length: float = 10.0,
-):
+) -> List[List[int]]:
     """
     Generate the best supercell from a unitcell.
     The CubicSupercellTransformation from PMG is much faster but don't iterate over as many
@@ -153,8 +149,8 @@ def _get_sc_from_struct_pmg(
     base_struct: Structure,
     min_atoms: int = 80,
     max_atoms: int = 240,
-    min_length: float = 15.0,
-):
+    min_length: float = 10.0,
+) -> List[List[int]]:
     """
     Generate the best supercell from a unitcell using the pymatgen CubicSupercellTransformation
 
@@ -164,8 +160,8 @@ def _get_sc_from_struct_pmg(
         min_atoms: Minimum number of atoms allowed in the supercell.
         min_length: Minimum length of the smallest supercell lattice vector.
 
-
     Returns:
+        3x3 matrix: supercell matrix
 
     """
     cst = CubicSupercellTransformation(
@@ -179,15 +175,16 @@ def _get_sc_from_struct_pmg(
     return cst.transformation_matrix
 
 
-def _get_sc_from_struct_ase(base_struct, min_atoms=80, max_atoms=240):
-    """generate the best supercell from a unitcell
+def _get_sc_from_struct_ase(
+    base_struct, min_atoms=80, max_atoms=240
+) -> List[List[int]]:
+    """generate the best supercell from a unitcell using ASE's method, is slower but more exhaustive
 
     Args:
         base_struct (pymatgen.Structure): unit cell
         min_size (int, optional): Minimum number of atoms in the desired supercell. Defaults to 80.
 
     Returns:
-        pymatgen.Structure: supercell
         3x3 matrix: supercell matrix
     """
 
@@ -195,6 +192,8 @@ def _get_sc_from_struct_ase(base_struct, min_atoms=80, max_atoms=240):
     num_cells_max = int(np.ceil(max_atoms / base_struct.num_sites))
     res = []
     for icell in range(num_cells_min, num_cells_max):
+        if icell % 2 != 0 or icell % 3 != 0:
+            continue  # cells with many factors are more lifely to be square
         atoms = AseAtomsAdaptor().get_atoms(base_struct)
         logger.info(f"Getting cell shape {icell} x unit cell")
         sc_mat = find_optimal_cell_shape(atoms.cell, icell, "sc")
@@ -209,7 +208,7 @@ def _get_sc_from_struct_ase(base_struct, min_atoms=80, max_atoms=240):
             return sc_mat
 
     else:
-        best_case = sorted(res, key=lambda x: x["deviation"])[0]
+        best_case = min(res, key=lambda x: x["deviation"])
     logger.warning(
         f"Could not find case with deviation from cubic was less than 0.3 using the ASE cubic supercell finder \
         \nThe best one had a deviation of {best_case['deviation']}"

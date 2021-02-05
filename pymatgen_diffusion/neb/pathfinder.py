@@ -2,21 +2,21 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Algorithms for NEB migration path analysis.
+"""
+
+import itertools
+import warnings
+
+import numpy as np
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-import warnings
-import numpy as np
-import itertools
-
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
-
-"""
-Algorithms for NEB migration path analysis.
-"""
 
 
 # TODO: (1) ipython notebook example files, unittests
@@ -27,7 +27,6 @@ class IDPPSolver:
     A solver using image dependent pair potential (IDPP) algo to get an improved
     initial NEB path. For more details about this algo, please refer to
     Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
-
     """
 
     def __init__(self, structures):
@@ -262,6 +261,11 @@ class IDPPSolver:
 
     @staticmethod
     def get_unit_vector(vec):
+        """
+        Calculate the unit vector of a vector.
+        Args:
+            vec: Vector.
+        """
         return vec / np.sqrt(np.sum(vec ** 2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
@@ -402,7 +406,7 @@ class MigrationPath:
         )
 
     def get_structures(self, nimages=5, vac_mode=True, idpp=False, **idpp_kwargs):
-        """
+        r"""
         Generate structures for NEB calculation.
 
         Args:
@@ -461,7 +465,7 @@ class MigrationPath:
         return structures
 
     def write_path(self, fname, **kwargs):
-        """
+        r"""
         Write the path to a file for easy viewing.
 
         Args:
@@ -567,7 +571,7 @@ class DistinctPathFinder:
         return sorted(paths, key=lambda p: p.length)
 
     def write_all_paths(self, fname, nimages=5, **kwargs):
-        """
+        r"""
         Write a file containing all paths, using hydrogen as a placeholder for
         the images. H is chosen as it is the smallest atom. This is extremely
         useful for path visualization in a standard software like VESTA.

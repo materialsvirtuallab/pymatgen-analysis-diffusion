@@ -12,34 +12,34 @@ __maintainer__ = "Jimmy Shen"
 __email__ = "jmmshn@lbl.gov"
 __date__ = "April 11, 2019"
 
+import logging
+import operator
+import numpy as np
+import networkx as nx
+
 from collections import defaultdict
 from copy import deepcopy
-import logging
+from itertools import starmap
+from typing import Callable
 from typing import Union, List, Dict
 
-from monty.dev import deprecated
+from monty.json import MSONable
+from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
+from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
+from pymatgen.core import Structure, PeriodicSite
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Composition
+from pymatgen.io.vasp import VolumetricData
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from pymatgen_diffusion.neb.pathfinder import MigrationPath
 from pymatgen_diffusion.neb.periodic_dijkstra import (
     periodic_dijkstra,
     get_optimal_pathway_rev,
 )
-from pymatgen.io.vasp import VolumetricData
-from pymatgen.core.structure import Composition
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core import Structure, PeriodicSite
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.local_env import MinimumDistanceNN
-import operator
-import numpy as np
-import networkx as nx
-from itertools import starmap
-from pymatgen_diffusion.neb.pathfinder import MigrationPath
-from monty.json import MSONable
-from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
-import copy
-from typing import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class FullPathMapper(MSONable):
         self,
         structure,
         migrating_specie,
-        max_path_length=10,
+        max_path_length=4.0,
         symprec=0.1,
         vac_mode=False,
         name: str = None,
@@ -188,12 +188,7 @@ class FullPathMapper(MSONable):
         """
         Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label
         """
-        hops = [
-            (g_index, val)
-            for g_index, val in nx.get_edge_attributes(
-                self.s_graph.graph, "hop"
-            ).items()
-        ]
+        hops = list(nx.get_edge_attributes(self.s_graph.graph, "hop").items())
         labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
         new_attr = {
             g_index: {"hop_label": labs[edge_index]}
@@ -327,52 +322,6 @@ class FullPathMapper(MSONable):
                     raise RuntimeError("More than on edge mathched in original graph.")
             yield u, path_hops
 
-    @deprecated(
-        "Should no longer be needed after new implementation of path finding -- Jan 2021."
-    )
-    def modify_path(self, paths):
-        """
-        This takes the results of get_intercalating_path() and turn them into an ordered path:
-        The last hop is out of the unit cell, all previous hops stay within the unitcell
-
-        Returns:
-        list of ordered paths
-        """
-
-        for one_path in paths:
-            if one_path[0][2]["to_jimage"] != (0, 0, 0):
-                one_path = one_path[::-1]
-
-            m_path = []
-
-            if set(one_path[0][0:2]) == set(
-                one_path[1][0:2]
-            ):  # in case there is only 2 hops
-                if one_path[0][0] == one_path[1][0]:
-                    new_pos0 = one_path[0][1]
-                    new_pos1 = one_path[0][0]
-                    new_hop = (new_pos0, new_pos1, one_path[0][2])
-                    m_path.append(new_hop)
-                    m_path.append(one_path[1])
-            else:
-                start = list(set(one_path[0][0:2]) & set(one_path[-1][0:2]))[0]
-                previous_point = start
-                for one_hop_info in one_path:
-                    one_hop = one_hop_info[0:2]
-                    if one_hop[0] == previous_point:
-                        m_path.append(one_hop_info)
-                    if one_hop[1] == previous_point:
-                        i_point = one_hop[1]
-                        e_point = one_hop[0]
-                        info = one_hop_info[2]
-                        new_info = copy.deepcopy(info)
-                        new_info["to_jimage"] = tuple([-u for u in info["to_jimage"]])
-                        new_hop = (i_point, e_point, new_info)
-                        m_path.append(new_hop)
-
-                    previous_point = m_path[-1][1]
-            yield m_path
-
 
 class ComputedEntryPath(FullPathMapper):
     """
@@ -420,7 +369,6 @@ class ComputedEntryPath(FullPathMapper):
         self.angle_tol = angle_tol
         self.angle_tol = angle_tol
         self._tube_radius = None
-        self.full_sites_struct = full_sites_struct
         self.sm = StructureMatcher(
             comparator=ElementComparator(),
             primitive_cell=False,
@@ -454,7 +402,7 @@ class ComputedEntryPath(FullPathMapper):
             )
 
         # Initialize
-        super(ComputedEntryPath, self).__init__(
+        super().__init__(
             structure=self.base_structure_full_sites,
             migrating_specie=migrating_specie,
             max_path_length=max_path_length,
@@ -469,17 +417,6 @@ class ComputedEntryPath(FullPathMapper):
         if base_aeccar:
             self._setup_grids()
 
-    def from_dbs(self):
-        """
-        Populate the object using entries from MP-like databases
-        """
-
-    def _from_dbs(self):
-        """
-        Populate the object using entries from MP-like databases
-
-        """
-
     def match_ent_to_base(self, ent):
         """
         Transform the structure of one entry to match the base structure
@@ -491,12 +428,13 @@ class ComputedEntryPath(FullPathMapper):
           ComputedStructureEntry: entry with modified structure
 
         """
-        new_ent = deepcopy(ent)
-        new_struct = self.sm.get_s2_like_s1(
-            self.base_struct_entry.structure, ent.structure
-        )
-        new_ent.structure = new_struct
-        return new_ent
+        # new_ent = deepcopy(ent)
+        struct = ent.structure.copy()
+        new_struct = self.sm.get_s2_like_s1(self.base_struct_entry.structure, struct)
+        d = ent.as_dict()
+        d["structure"] = new_struct
+        new_entry = ComputedStructureEntry.from_dict(d)
+        return new_entry
 
     def get_full_sites(self):
         """
@@ -614,7 +552,7 @@ class ComputedEntryPath(FullPathMapper):
         """
         if radius is None:
             rr = self._tube_radius
-        if not rr > 0:
+        if rr <= 0:
             raise ValueError("The integration radius must be positive.")
 
         npf = self._get_pathfinder_from_hop(migration_path)
@@ -634,10 +572,9 @@ class ComputedEntryPath(FullPathMapper):
             )
         if output_positions:
             return max(avg_chg), avg_chg, centers
-        elif chg_along_path:
+        if chg_along_path:
             return max(avg_chg), avg_chg
-        else:
-            return max(avg_chg)
+        return max(avg_chg)
 
     def _get_chg_between_sites_tube(self, migration_path, mask_file_seedname=None):
         """
@@ -710,6 +647,10 @@ class ComputedEntryPath(FullPathMapper):
         )
 
     def populate_edges_with_chg_density_info(self, tube_radius=1):
+        """
+        Args:
+            tube_radius: Tube radius.
+        """
         self._tube_radius = tube_radius
         for k, v in self.unique_hops.items():
             # charge in tube
@@ -924,17 +865,16 @@ migration events using the following procedure:
 
 
 def almost(a, b):
-    # return true if the values are almost equal
+    """
+    return true if the values are almost equal
+    """
     SMALL_VAL = 1e-4
     try:
         return all([almost(i, j) for i, j in zip(list(a), list(b))])
     except BaseException:
-        if (isinstance(a, float) or isinstance(a, int)) and (
-            isinstance(b, float) or isinstance(b, int)
-        ):
+        if isinstance(a, (int, float)) and isinstance(b, (int, float)):
             return abs(a - b) < SMALL_VAL
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
 
 def check_uc_hop(sc_hop, uc_hop):
@@ -979,7 +919,7 @@ def check_uc_hop(sc_hop, uc_hop):
             tmp_e = uc_epos + idir
             if almost(tmp_i, sc_ipos) and almost(tmp_e, sc_epos):
                 return idir, False
-            elif almost(tmp_e, sc_ipos) and almost(tmp_i, sc_epos):
+            if almost(tmp_e, sc_ipos) and almost(tmp_i, sc_epos):
                 return idir, True
     return None
 
