@@ -5,19 +5,20 @@
 Functions to take entrys -> migrations graphs -> NEB inputs
 """
 
-from pymatgen import Structure
-import numpy as np
 import logging
+from typing import Dict, List, Tuple, Union
 
+import numpy as np
+from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape
+from pymatgen import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.ase import AseAtomsAdaptor
-from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
+
+from pymatgen_diffusion.neb.full_path_mapper import ComputedEntryPath, FullPathMapper
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
-from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper, ComputedEntryPath
-from typing import Tuple, List, Union, Dict
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -55,11 +56,7 @@ def get_cep_from_grouped_entries(
         ComputedEntryPath: Object containing all of the symmetry equivalent hops in a system
     """
 
-    if "aeccar" in base_entry.data.keys():
-        # check this first because cep init will delete this
-        get_chg_path = True
-    else:
-        get_chg_path = False
+    get_chg_path = "aeccar" in base_entry.data.keys()
 
     single_inserted = []
     for entry in inserted_entries:
@@ -107,8 +104,7 @@ def get_cep_from_grouped_entries(
             if "aeccar" in base_entry.data.keys():
                 del cep.base_struct_entry.data["aeccar"]
             break
-        else:
-            max_dist += 0.2
+        max_dist += 0.2
 
     if cep is not None and get_chg_path:
         cep.populate_edges_with_chg_density_info()
@@ -278,7 +274,8 @@ def get_start_end_structs(
             {'start': start structure, 'end': end structure, 'base': empty structure}
         }
     """
-    base = Structure.from_sites([isite for isite in fpm.symm_structure.copy()])
+    struct = fpm.symm_structure.copy()
+    base = Structure.from_sites(struct.sites)
     base.remove_species([fpm.migrating_specie])
     sc_mat = get_sc_fromstruct(
         base, min_atoms=min_atoms, max_atoms=max_atoms, min_length=min_length

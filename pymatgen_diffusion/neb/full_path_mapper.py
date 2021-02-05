@@ -14,31 +14,29 @@ __date__ = "April 11, 2019"
 
 import logging
 import operator
-import numpy as np
-import networkx as nx
-
 from collections import defaultdict
 from copy import deepcopy
 from itertools import starmap
-from typing import Callable
-from typing import Union, List, Dict
+from typing import Callable, Dict, List, Union
 
+import networkx as nx
+import numpy as np
 from monty.json import MSONable
-from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-from pymatgen.core import Structure, PeriodicSite
+from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder
+from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+from pymatgen.core import PeriodicSite, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Composition
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 from pymatgen_diffusion.neb.periodic_dijkstra import (
-    periodic_dijkstra,
     get_optimal_pathway_rev,
+    periodic_dijkstra,
 )
 
 logger = logging.getLogger(__name__)
