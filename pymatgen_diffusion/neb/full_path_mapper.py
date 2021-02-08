@@ -100,13 +100,9 @@ class MigrationGraph(MSONable):
         The sites are decorated with Migration graph objects and then grouped together based on their equivalence.
 
         Args:
-            structure: Input potential_field that contains all sites.
-            migrating_specie (Specie-like): The specie that migrates. E.g.,
-                "Li".
-            max_path_length (float): Maximum length of NEB path in the unit
-                of Angstrom. Defaults to None, which means you are setting the
-                value to the min cutoff until finding 1D or >1D percolating paths.
-            symprec (float): Symmetry precision to determine equivalence.
+            structure: Input structure that contains all sites.
+            migration_graph: The StructureGraph object that defined the migration network
+            symprec (float): Symmetry precision to determine equivalence of migration events
         """
         self.structure = structure
         self.migration_graph = migration_graph
@@ -114,11 +110,13 @@ class MigrationGraph(MSONable):
         self.vac_mode = vac_mode
         if self.vac_mode:
             raise NotImplementedError("Vacancy mode is not yet implemented")
-        self.unique_hops = None
         # Generate the graph edges between these all the sites
-        self.migration_graph.set_node_attributes()
+        self.migration_graph.set_node_attributes()  # popagate the sites properties to the graph nodes
+        # For poperies like unique_hops we might be interested in modifying them after creation
+        # So let's not convert them into properties for now.  (Awaiting rewrite once the usage becomes more clear.)
         self._populate_edges_with_migration_paths()
         self._group_and_label_hops()
+        self.unique_hops = None
         self._populate_unique_hops_dict()
 
     @property
@@ -144,6 +142,8 @@ class MigrationGraph(MSONable):
         Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
 
         Args:
+            structure: Input structure that contains all sites.
+            migrating_specie: The specie that migrates. E.g. "Li".
             nn: The specific local environment object used to connect the migrating ion sites.
 
         Returns:
@@ -161,7 +161,9 @@ class MigrationGraph(MSONable):
         Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
 
         Args:
-            nn: The specific local environment object used to connect the migrating ion sites.
+            max_distance: Maximum length of NEB path in the unit
+                of Angstrom. Defaults to None, which means you are setting the
+                value to the min cutoff until finding 1D or >1D percolating paths.
 
         Returns:
             A constructed MigrationGraph object
@@ -375,6 +377,36 @@ def get_only_sites(structure: Structure, migrating_specie: str) -> Structure:
         )
     )
     return Structure.from_sites(migrating_ion_sites)
+
+
+class ChargeBarrierGraph(MigrationGraph):
+    """
+    A Migration graph with additional charge density analysis on the charge density of the host material
+    """
+
+    def __init__(
+        self,
+        structure: Structure,
+        migration_graph: StructureGraph,
+        potential_field: VolumetricData,
+        **kwargs,
+    ):
+        """
+        Construct the MigrationGraph object using a VolumetricData object.
+        The graph is constructure using the structure, and cost values are assigned based on charge density analysis.
+
+        Args:
+            potential_field: Input VolumetricData object that describes the field does
+                not have to contains all the metastable sites.
+            migrating_specie (Specie-like): The specie that migrates. E.g.,
+                "Li".
+            symprec (float): Symmetry precision to determine equivalence.
+        """
+        self.potential_field = potential_field
+        super.__init__(
+            strcture=structure,
+            migration_graph=migration_graph,
+        )
 
 
 class ComputedEntryGraph(MigrationGraph):

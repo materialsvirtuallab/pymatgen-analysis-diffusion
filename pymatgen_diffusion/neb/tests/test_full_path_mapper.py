@@ -182,6 +182,17 @@ class FullPathMapperComplexTest(unittest.TestCase):
             self.assertIn(d["hop"].eindex, {0, 1})
 
 
+# class ChargeBarrierGraphTest(unittest.TestCase)
+#     def setUp(self):
+#         self.test_ents_MOF = loadfn(
+#             f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
+#         )
+#         self.aeccar_MOF = Chgcar.from_file(
+#             f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
+#         )
+#         self.cbg = ChargeBarrierGraph.with_distance()
+
+
 class ComputedEntryPathTest(unittest.TestCase):
     def setUp(self):
         self.test_ents_MOF = loadfn(
