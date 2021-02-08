@@ -44,7 +44,7 @@ def get_ent_from_db(
     get_initial: bool = False,
 ):
     """
-    Get the migration path information in the form of a ComputedEntryPath
+    Get the migration path information in the form of a ComputedEntryGraph
     object from the an atomate data stack
 
     The algorithm gets all tasks with structures that are valid (i.e. matches a

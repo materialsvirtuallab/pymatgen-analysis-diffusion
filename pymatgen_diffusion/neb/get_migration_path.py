@@ -17,7 +17,7 @@ from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
 
-from pymatgen_diffusion.neb.full_path_mapper import ComputedEntryPath, FullPathMapper
+from pymatgen_diffusion.neb.full_path_mapper import ComputedEntryGraph, MigrationGraph
 from pymatgen_diffusion.neb.pathfinder import MigrationPath
 
 __author__ = "Jimmy Shen"
@@ -39,7 +39,7 @@ def get_cep_from_grouped_entries(
     angle_tol: float = 5,
     initial_max_dist: float = 4.0,
     only_use_single: bool = False,
-) -> ComputedEntryPath:
+) -> ComputedEntryGraph:
     """
 
     Args:
@@ -53,7 +53,7 @@ def get_cep_from_grouped_entries(
         only_use_single: (bool, optional): only allow single cation insertions to be used to generate the CEP
 
     Returns:
-        ComputedEntryPath: Object containing all of the symmetry equivalent hops in a system
+        ComputedEntryGraph: Object containing all of the symmetry equivalent hops in a system
     """
 
     get_chg_path = "aeccar" in base_entry.data.keys()
@@ -81,7 +81,7 @@ def get_cep_from_grouped_entries(
     cep = None
     while max_dist < 10.0:
         if "aeccar" in base_entry.data.keys():
-            cep = ComputedEntryPath(
+            cep = ComputedEntryGraph(
                 base_entry,
                 single_cat_entries=single_inserted,
                 migrating_specie=migrating_species,
@@ -93,7 +93,7 @@ def get_cep_from_grouped_entries(
             )
             # since the aeccar is already stored we can removed it from the entry
         else:
-            cep = ComputedEntryPath(
+            cep = ComputedEntryGraph(
                 base_entry,
                 single_cat_entries=single_inserted,
                 migrating_specie=migrating_species,
@@ -252,7 +252,7 @@ def get_start_end_structs_from_hop(
 
 
 def get_start_end_structs(
-    fpm: FullPathMapper,
+    fpm: MigrationGraph,
     min_length: float = 10.0,
     store_base=True,
     min_atoms: int = 80,

@@ -3,7 +3,7 @@
 # Distributed under the terms of the BSD License.
 
 """
-Functions for combining many ComputedEntry objects into FullPathMapper objects.
+Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
 
 from pymatgen import Structure, Lattice, Composition
