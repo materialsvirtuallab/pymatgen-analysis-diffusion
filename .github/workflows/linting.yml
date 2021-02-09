@@ -22,6 +22,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt --quiet
-    - name: pycodestyle
+#    - name: mypy
+#      run: |
+#        mypy pymatgen_diffusion
+    - name: flake8
       run: |
-        pycodestyle pymatgen_diffusion
+        flake8 --count --show-source --statistics pymatgen_diffusion
+        # exit-zero treats all errors as warnings.
+        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen_diffusion
+    - name: pydocstyle
+      run: |
+        pydocstyle --count pymatgen_diffusion
+    - name: pylint
+      run: |
+        pylint pymatgen_diffusion

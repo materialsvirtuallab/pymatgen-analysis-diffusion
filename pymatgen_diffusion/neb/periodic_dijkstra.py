@@ -12,12 +12,12 @@ __email__ = "jmmshn@lbl.gov"
 __date__ = "April 11, 2019"
 
 import heapq
-import numpy as np
 import math
-
-from typing import Dict
-from networkx.classes.graph import Graph
 from collections import defaultdict
+from typing import Dict
+
+import numpy as np
+from networkx.classes.graph import Graph
 from pymatgen.analysis.graphs import StructureGraph
 
 
@@ -153,7 +153,9 @@ def periodic_dijkstra_on_sgraph(
 
 
 def get_optimal_pathway_rev(path_parent: dict, leaf_node: tuple):
-    # follow a leaf node all the way up to source.
+    """
+    follow a leaf node all the way up to source.
+    """
     cur = leaf_node
     while cur in path_parent:
         yield cur

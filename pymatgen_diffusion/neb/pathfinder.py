@@ -2,21 +2,21 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Algorithms for NEB migration path analysis.
+"""
+
+import itertools
+import warnings
+
+import numpy as np
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-import warnings
-import numpy as np
-import itertools
-
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
-
-"""
-Algorithms for NEB migration path analysis.
-"""
 
 
 # TODO: (1) ipython notebook example files, unittests
@@ -27,7 +27,6 @@ class IDPPSolver:
     A solver using image dependent pair potential (IDPP) algo to get an improved
     initial NEB path. For more details about this algo, please refer to
     Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
-
     """
 
     def __init__(self, structures):
@@ -53,7 +52,8 @@ class IDPPSolver:
         for i in range(1, nimages + 1):
             # Interpolated distance matrices
             dist = structures[0].distance_matrix + i / (nimages + 1) * (
-                    structures[-1].distance_matrix - structures[0].distance_matrix)
+                structures[-1].distance_matrix - structures[0].distance_matrix
+            )
 
             target_dists.append(dist)
 
@@ -67,10 +67,10 @@ class IDPPSolver:
         # distance matrix.
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
-            avg_dist = (target_dists[ni]
-                        + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (avg_dist ** 4 +
-                                 np.eye(natoms, dtype=np.float64) * 1e-8)
+            avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
+            weights[ni] = 1.0 / (
+                avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8
+            )
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -79,7 +79,8 @@ class IDPPSolver:
             if ni not in [0, nimages + 1]:
                 for j in range(i + 1, natoms):
                     img = latt.get_distance_and_image(
-                        frac_coords, structures[ni][j].frac_coords)[1]
+                        frac_coords, structures[ni][j].frac_coords
+                    )[1]
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
                     translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
@@ -90,8 +91,16 @@ class IDPPSolver:
         self.target_dists = target_dists
         self.nimages = nimages
 
-    def run(self, maxiter=1000, tol=1e-5, gtol=1e-3, step_size=0.05,
-            max_disp=0.05, spring_const=5.0, species=None):
+    def run(
+        self,
+        maxiter=1000,
+        tol=1e-5,
+        gtol=1e-3,
+        step_size=0.05,
+        max_disp=0.05,
+        spring_const=5.0,
+        species=None,
+    ):
         """
         Perform iterative minimization of the set of objective functions in an
         NEB-like manner. In each iteration, the total force matrix for each
@@ -127,8 +136,9 @@ class IDPPSolver:
             indices = list(range(len(self.structures[0])))
         else:
             species = [get_el_sp(sp) for sp in species]
-            indices = [i for i, site in enumerate(self.structures[0])
-                       if site.specie in species]
+            indices = [
+                i for i, site in enumerate(self.structures[0]) if site.specie in species
+            ]
 
             if len(indices) == 0:
                 raise ValueError("The given species are not in the system!")
@@ -138,15 +148,16 @@ class IDPPSolver:
             # Get the sets of objective functions, true and total force
             # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
-            tot_forces = self._get_total_forces(coords, true_forces,
-                                                spring_const=spring_const)
+            tot_forces = self._get_total_forces(
+                coords, true_forces, spring_const=spring_const
+            )
 
             # Each atom is allowed to move up to max_disp
             disp_mat = step_size * tot_forces[:, indices, :]
-            disp_mat = np.where(np.abs(disp_mat) > max_disp,
-                                np.sign(disp_mat) * max_disp,
-                                disp_mat)
-            coords[1:(self.nimages + 1), indices] += disp_mat
+            disp_mat = np.where(
+                np.abs(disp_mat) > max_disp, np.sign(disp_mat) * max_disp, disp_mat
+            )
+            coords[1 : (self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
             tot_res = np.sum(np.abs(old_funcs - funcs))
@@ -158,8 +169,8 @@ class IDPPSolver:
 
         else:
             warnings.warn(
-                "Maximum iteration number is reached without convergence!",
-                UserWarning)
+                "Maximum iteration number is reached without convergence!", UserWarning
+            )
 
         for ni in range(self.nimages):
             # generate the improved image structure
@@ -167,9 +178,12 @@ class IDPPSolver:
 
             for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
                 new_site = PeriodicSite(
-                    site.species, coords=cart_coords,
-                    lattice=site.lattice, coords_are_cartesian=True,
-                    properties=site.properties)
+                    site.species,
+                    coords=cart_coords,
+                    lattice=site.lattice,
+                    coords_are_cartesian=True,
+                    properties=site.properties,
+                )
                 new_sites.append(new_site)
 
             idpp_structures.append(Structure.from_sites(new_sites))
@@ -194,16 +208,19 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1,
-                                              autosort_tol=sort_tol)
+            images = endpoints[0].interpolate(
+                endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol
+            )
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
-                warnings.warn("Auto sorting is turned off because it is unable"
-                              " to match the end-point structures!",
-                              UserWarning)
-                images = endpoints[0].interpolate(endpoints[1],
-                                                  nimages=nimages + 1,
-                                                  autosort_tol=0)
+                warnings.warn(
+                    "Auto sorting is turned off because it is unable"
+                    " to match the end-point structures!",
+                    UserWarning,
+                )
+                images = endpoints[0].interpolate(
+                    endpoints[1], nimages=nimages + 1, autosort_tol=0
+                )
             else:
                 raise e
 
@@ -222,11 +239,14 @@ class IDPPSolver:
         target_dists = self.target_dists
 
         for ni in range(len(x) - 2):
-            vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i]
-                   for i in range(natoms)]
+            vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i] for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = (trial_dist - target_dists[ni]) * weights[ni] / (trial_dist + np.eye(natoms, dtype=np.float64))
+            aux = (
+                (trial_dist - target_dists[ni])
+                * weights[ni]
+                / (trial_dist + np.eye(natoms, dtype=np.float64))
+            )
 
             # Objective function
             func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
@@ -241,6 +261,11 @@ class IDPPSolver:
 
     @staticmethod
     def get_unit_vector(vec):
+        """
+        Calculate the unit vector of a vector.
+        Args:
+            vec: Vector.
+        """
         return vec / np.sqrt(np.sum(vec ** 2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
@@ -263,14 +288,15 @@ class IDPPSolver:
             tangent = self.get_unit_vector(tangent)
 
             # Spring force
-            spring_force = spring_const * (np.linalg.norm(vec1) -
-                                           np.linalg.norm(vec2)) * tangent
+            spring_force = (
+                spring_const * (np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
+            )
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
             total_force = true_forces[ni - 1] + (
-                    spring_force - np.dot(flat_ft, tangent) * tangent).reshape(
-                natoms, 3)
+                spring_force - np.dot(flat_ft, tangent) * tangent
+            ).reshape(natoms, 3)
             total_forces.append(total_force)
 
         return np.array(total_forces)
@@ -290,10 +316,12 @@ class MigrationPath:
         """
         self.isite = isite
         self.esite = esite
+        self.iindex = None
+        self.eindex = None
         self.symm_structure = symm_structure
         self.msite = PeriodicSite(
-            esite.specie,
-            (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
+            esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
+        )
         sg = self.symm_structure.spacegroup
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
             if sg.are_symmetrically_equivalent([isite], [sites[0]]):
@@ -301,14 +329,55 @@ class MigrationPath:
             if sg.are_symmetrically_equivalent([esite], [sites[0]]):
                 self.eindex = i
 
+        # if no index was identified then loop over each site until something is found
+        if self.iindex is None:
+            for i, sites in enumerate(self.symm_structure.equivalent_sites):
+                for itr_site in sites:
+                    if sg.are_symmetrically_equivalent([isite], [itr_site]):
+                        self.iindex = i
+                        break
+                else:
+                    continue
+                break
+        if self.eindex is None:
+            for i, sites in enumerate(self.symm_structure.equivalent_sites):
+                for itr_site in sites:
+                    if sg.are_symmetrically_equivalent([esite], [itr_site]):
+                        self.eindex = i
+                        break
+                else:
+                    continue
+                break
+
+        if self.iindex is None:
+            raise RuntimeError(
+                f"No symmetrically equivalent site was found for {isite}"
+            )
+        if self.eindex is None:
+            raise RuntimeError(
+                f"No symmetrically equivalent site was found for {esite}"
+            )
+
     def __repr__(self):
-        return "Path of %.4f A from %s [%.3f, %.3f, %.3f] " \
-               "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)" \
-               % (self.length, self.isite.specie, self.isite.frac_coords[0], self.isite.frac_coords[1],
-                  self.isite.frac_coords[2],
-                  self.iindex, self.symm_structure.wyckoff_symbols[self.iindex],
-                  self.esite.specie, self.esite.frac_coords[0], self.esite.frac_coords[1], self.esite.frac_coords[2],
-                  self.eindex, self.symm_structure.wyckoff_symbols[self.eindex])
+        return (
+            "Path of %.4f A from %s [%.3f, %.3f, %.3f] "
+            "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)"
+            % (
+                self.length,
+                self.isite.specie,
+                self.isite.frac_coords[0],
+                self.isite.frac_coords[1],
+                self.isite.frac_coords[2],
+                self.iindex,
+                self.symm_structure.wyckoff_symbols[self.iindex],
+                self.esite.specie,
+                self.esite.frac_coords[0],
+                self.esite.frac_coords[1],
+                self.esite.frac_coords[2],
+                self.eindex,
+                self.symm_structure.wyckoff_symbols[self.eindex],
+            )
+        )
 
     @property
     def length(self):
@@ -333,12 +402,11 @@ class MigrationPath:
 
         return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
-            (other.isite, other.msite, other.esite)
+            (other.isite, other.msite, other.esite),
         )
 
-    def get_structures(self, nimages=5, vac_mode=True, idpp=False,
-                       **idpp_kwargs):
-        """
+    def get_structures(self, nimages=5, vac_mode=True, idpp=False, **idpp_kwargs):
+        r"""
         Generate structures for NEB calculation.
 
         Args:
@@ -374,18 +442,21 @@ class MigrationPath:
             if site.specie != isite.specie:
                 other_sites.append(site)
             else:
-                if vac_mode and (isite.distance(site) > 1e-8 and
-                                 esite.distance(site) > 1e-8):
+                if vac_mode and (
+                    isite.distance(site) > 1e-8 and esite.distance(site) > 1e-8
+                ):
                     migrating_specie_sites.append(site)
 
         start_structure = Structure.from_sites(
-            [self.isite] + migrating_specie_sites + other_sites)
+            [self.isite] + migrating_specie_sites + other_sites
+        )
         end_structure = Structure.from_sites(
-            [self.esite] + migrating_specie_sites + other_sites)
+            [self.esite] + migrating_specie_sites + other_sites
+        )
 
-        structures = start_structure.interpolate(end_structure,
-                                                 nimages=nimages + 1,
-                                                 pbc=False)
+        structures = start_structure.interpolate(
+            end_structure, nimages=nimages + 1, pbc=False
+        )
 
         if idpp:
             solver = IDPPSolver(structures)
@@ -394,7 +465,7 @@ class MigrationPath:
         return structures
 
     def write_path(self, fname, **kwargs):
-        """
+        r"""
         Write the path to a file for easy viewing.
 
         Args:
@@ -416,8 +487,14 @@ class DistinctPathFinder:
     for atomic mechanism, and does not work for correlated migration.
     """
 
-    def __init__(self, structure, migrating_specie, max_path_length=None,
-                 symprec=0.1, perc_mode=">1d"):
+    def __init__(
+        self,
+        structure,
+        migrating_specie,
+        max_path_length=None,
+        symprec=0.1,
+        perc_mode=">1d",
+    ):
         """
         Args:
             structure: Input structure that contains all sites.
@@ -445,8 +522,7 @@ class DistinctPathFinder:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
                 dists = []
-                neighbors = self.symm_structure.get_neighbors(
-                    site0, r=max_r)
+                neighbors = self.symm_structure.get_neighbors(site0, r=max_r)
                 for nn in sorted(neighbors, key=lambda nn: nn.nn_distance):
                     if nn.specie == self.migrating_specie:
                         dists.append(nn.nn_distance)
@@ -486,7 +562,8 @@ class DistinctPathFinder:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
                 for nn in self.symm_structure.get_neighbors(
-                        site0, r=round(self.max_path_length, 3) + 0.01):
+                    site0, r=round(self.max_path_length, 3) + 0.01
+                ):
                     if nn.specie == self.migrating_specie:
                         path = MigrationPath(site0, nn, self.symm_structure)
                         paths.add(path)
@@ -494,7 +571,7 @@ class DistinctPathFinder:
         return sorted(paths, key=lambda p: p.length)
 
     def write_all_paths(self, fname, nimages=5, **kwargs):
-        """
+        r"""
         Write a file containing all paths, using hydrogen as a placeholder for
         the images. H is chosen as it is the smallest atom. This is extremely
         useful for path visualization in a standard software like VESTA.
@@ -507,7 +584,8 @@ class DistinctPathFinder:
         sites = []
         for p in self.get_paths():
             structures = p.get_structures(
-                nimages=nimages, species=[self.migrating_specie], **kwargs)
+                nimages=nimages, species=[self.migrating_specie], **kwargs
+            )
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:

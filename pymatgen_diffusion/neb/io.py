@@ -2,12 +2,16 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Generate input fiels for NEB calculations.
+"""
+
 import copy
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet
 from pymatgen.core import Structure
 
-__author__ = 'Austen'
+__author__ = "Austen"
 
 
 class MVLCINEBEndPointSet(MITRelaxSet):
@@ -16,6 +20,11 @@ class MVLCINEBEndPointSet(MITRelaxSet):
     """
 
     def __init__(self, structure, **kwargs):
+        r"""
+        Args:
+            structure: Structure
+            \*\*kwargs: Keyword args supported by VaspInputSets.
+        """
         user_incar_settings = kwargs.get("user_incar_settings", {})
         defaults = {
             "ISIF": 2,
@@ -25,14 +34,14 @@ class MVLCINEBEndPointSet(MITRelaxSet):
             "ISYM": 0,
             "LCHARG": False,
             "LDAU": False,
-            "NELMIN": 4
+            "NELMIN": 4,
         }
 
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
         kwargs["user_incar_settings"] = defaults
 
-        super(MVLCINEBEndPointSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
 
 class MVLCINEBSet(MITNEBSet):
@@ -40,15 +49,14 @@ class MVLCINEBSet(MITNEBSet):
     MAVRL-tested settings for CI-NEB calculations. Note that these parameters
     requires the VTST modification of VASP from the Henkelman group. See
     http://theory.cm.utexas.edu/vtsttools/
-
-    Args:
-        nimages (int): Number of NEB images (excluding start and ending
-            structures).
-        user_incar_settings (dict): A dict specifying additional incar
-            settings.
     """
 
     def __init__(self, structures, **kwargs):
+        r"""
+        Args:
+            structure: Structure
+            \*\*kwargs: Keyword args supported by VaspInputSets.
+        """
         user_incar_settings = kwargs.get("user_incar_settings", {})
 
         # CI-NEB settings
@@ -67,14 +75,14 @@ class MVLCINEBSet(MITNEBSet):
             "LORBIT": 0,
             "NSW": 200,
             "POTIM": 0,
-            "SPRING": -5
+            "SPRING": -5,
         }
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
 
         kwargs["user_incar_settings"] = defaults
 
-        super(MVLCINEBSet, self).__init__(structures, **kwargs)
+        super().__init__(structures, **kwargs)
 
 
 def get_endpoints_from_index(structure, site_indices):
@@ -94,8 +102,9 @@ def get_endpoints_from_index(structure, site_indices):
     if len(site_indices) != 2 or len(set(site_indices)) != 2:
         raise ValueError("Invalid indices!")
     if structure[site_indices[0]].specie != structure[site_indices[1]].specie:
-        raise ValueError("The site indices must be "
-                         "associated with identical species!")
+        raise ValueError(
+            "The site indices must be " "associated with identical species!"
+        )
 
     s = structure.copy()
     sites = s.sites

@@ -2,29 +2,36 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-import numpy as np
-import random
-import warnings
-
-from pymatgen.util.coord import all_distances, pbc_diff
-
 """
 This module implements clustering algorithms to determine centroids, with
 adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
 
-__author__ = 'Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Shyue Ping Ong'
-__email__ = 'ongsp@ucsd.edu'
-__date__ = '3/18/15'
+import random
+import warnings
+
+import numpy as np
+from pymatgen.util.coord import all_distances, pbc_diff
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2013, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "3/18/15"
 
 
 class Kmeans:
+    """
+    Simple kmeans clustering.
+    """
 
-    def __init__(self, max_iterations=1000):
+    def __init__(self, max_iterations: int = 1000):
+        """
+        Args:
+            max_iterations (int): Maximum number of iterations to run KMeans algo.
+        """
         self.max_iterations = max_iterations
 
     def cluster(self, points, k, initial_centroids=None):
@@ -41,8 +48,11 @@ class Kmeans:
             provide the index for each point, and ss in the final sum squared
             distances.
         """
-        centroids = np.array(random.sample(list(points), k)) \
-            if initial_centroids is None else initial_centroids
+        centroids = (
+            np.array(random.sample(list(points), k))
+            if initial_centroids is None
+            else initial_centroids
+        )
 
         # Initialize book keeping vars.
         iterations = 0
@@ -63,18 +73,33 @@ class Kmeans:
         # We can get the labels too by calling getLabels(dataSet, centroids)
         return centroids, labels, ss
 
-    def get_labels(self, points, centroids):
-        # For each element in the dataset, chose the closest centroid.
-        # Make that centroid the element's label.
+    @staticmethod
+    def get_labels(points, centroids):
+        """
+        For each element in the dataset, chose the closest centroid.
+        Make that centroid the element's label.
+
+        Args:
+            points: List of points
+            centroids: List of centroids
+        """
         dists = all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
         return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
 
-    def get_centroids(self, points, labels, k, centroids):
-        # Each centroid is the geometric mean of the points that
-        # have that centroid's label. Important: If a centroid is empty (no
-        # points have that centroid's label) you should randomly re-initialize
-        # it.
+    @staticmethod
+    def get_centroids(points, labels, k, centroids):
+        """
+        Each centroid is the geometric mean of the points that
+        have that centroid's label. Important: If a centroid is empty (no
+        points have that centroid's label) you should randomly re-initialize it.
+
+        Args:
+            points: List of points
+            labels: List of labels
+            k: Number of means
+            centroids: List of centroids
+        """
         labels = np.array(labels)
         centroids = []
         for i in range(k):
@@ -86,6 +111,14 @@ class Kmeans:
         return np.array(centroids)
 
     def should_stop(self, old_centroids, centroids, iterations):
+        """
+        Check for stopping conditions.
+
+        Args:
+            old_centroids: List of old centroids
+            centroids: List of centroids
+            iterations: Number of iterations thus far.
+        """
         if iterations > self.max_iterations:
             warnings.warn("Max iterations %d reached!" % self.max_iterations)
             return True
@@ -102,18 +135,39 @@ class KmeansPBC(Kmeans):
     """
 
     def __init__(self, lattice, max_iterations=1000):
+        """
+        Args:
+            lattice: Lattice
+            max_iterations: Maximum number of iterations to run KMeans.
+        """
         self.lattice = lattice
         self.max_iterations = max_iterations
 
     def get_labels(self, points, centroids):
+        """
+        For each element in the dataset, chose the closest centroid.
+        Make that centroid the element's label.
+
+        Args:
+            points: List of points
+            centroids: List of centroids
+        """
         dists = self.lattice.get_all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
         return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
 
     def get_centroids(self, points, labels, k, centroids):
-        # Each centroid is the geometric mean of the points that
-        # have that centroid's label. Important: If a centroid is empty (no points have
-        # that centroid's label) you should randomly re-initialize it.
+        """
+        Each centroid is the geometric mean of the points that
+        have that centroid's label. Important: If a centroid is empty (no
+        points have that centroid's label) you should randomly re-initialize it.
+
+        Args:
+            points: List of points
+            labels: List of labels
+            k: Number of means
+            centroids: List of centroids
+        """
         m, n = points.shape
         labels = np.array(labels)
         new_centroids = []
@@ -123,7 +177,8 @@ class KmeansPBC(Kmeans):
                 c = np.zeros(n)
                 for j in ind:
                     dist, image = self.lattice.get_distance_and_image(
-                        centroids[i], points[j])
+                        centroids[i], points[j]
+                    )
                     c += points[j] + image
                 c /= len(ind)
                 c = np.mod(c, 1)
@@ -134,6 +189,14 @@ class KmeansPBC(Kmeans):
         return np.array(new_centroids)
 
     def should_stop(self, old_centroids, centroids, iterations):
+        """
+        Check for stopping conditions.
+
+        Args:
+            old_centroids: List of old centroids
+            centroids: List of centroids
+            iterations: Number of iterations thus far.
+        """
         if iterations > self.max_iterations:
             warnings.warn("Max iterations %d reached!" % self.max_iterations)
             return True
@@ -146,6 +209,12 @@ class KmeansPBC(Kmeans):
 
 
 def get_random_centroid(points):
+    """
+    Generate a random centroid based on points.
+
+    Args:
+        points: List of points.
+    """
     m, n = points.shape
     maxd = np.max(points, axis=0)
     mind = np.min(points, axis=0)
@@ -153,6 +222,13 @@ def get_random_centroid(points):
 
 
 def get_random_centroids(points, k):
+    """
+    Generate k random centroids based on points.
+
+    Args:
+        points: List of points.
+        k: Number of means.
+    """
     centroids = []
     for i in range(k):
         centroids.append(get_random_centroid(points))

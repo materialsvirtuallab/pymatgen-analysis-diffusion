@@ -2,18 +2,21 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, \
-    Sequence, Iterable, Callable
-from collections import Counter
-import numpy as np
-import itertools
-import pandas as pds
+"""
+Van Hove analysis for correlations.
+"""
 
-from scipy.stats import norm
+import itertools
+from collections import Counter
+from typing import List, Tuple, Union, Callable
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pds
+from pymatgen import Structure
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
-from pymatgen import Structure
+from scipy.stats import norm
 
 from .rdf import RadialDistributionFunction
 
@@ -34,14 +37,19 @@ class VanHoveAnalysis:
     Superionic Conductor". Chem. Mater. (2015), 27, pp 8318–8325
     """
 
-    def __init__(self, diffusion_analyzer: DiffusionAnalyzer,
-                 avg_nsteps: int = 50,
-                 ngrid: int = 101, rmax: float = 10.0,
-                 step_skip: int = 50,
-                 sigma: float = 0.1, cell_range: int = 1,
-                 species: Union[Tuple, List] = ("Li", "Na"),
-                 reference_species: Union[Tuple, List] = None,
-                 indices: List = None):
+    def __init__(
+        self,
+        diffusion_analyzer: DiffusionAnalyzer,
+        avg_nsteps: int = 50,
+        ngrid: int = 101,
+        rmax: float = 10.0,
+        step_skip: int = 50,
+        sigma: float = 0.1,
+        cell_range: int = 1,
+        species: Union[Tuple, List] = ("Li", "Na"),
+        reference_species: Union[Tuple, List] = None,
+        indices: List = None,
+    ):
         """
         Initiation.
 
@@ -92,13 +100,17 @@ class VanHoveAnalysis:
         structure = diffusion_analyzer.structure
 
         if indices is None:
-            indices = [j for j, site in enumerate(structure)
-                       if site.specie.symbol in species]
+            indices = [
+                j for j, site in enumerate(structure) if site.specie.symbol in species
+            ]
 
         ref_indices = indices
         if reference_species:
-            ref_indices = [j for j, site in enumerate(structure)
-                           if site.specie.symbol in reference_species]
+            ref_indices = [
+                j
+                for j, site in enumerate(structure)
+                if site.specie.symbol in reference_species
+            ]
 
         rho = float(len(indices)) / lattice.volume
 
@@ -115,8 +127,7 @@ class VanHoveAnalysis:
         aux_factor = 4.0 * np.pi * interval ** 2
         aux_factor[0] = np.pi * dr ** 2
 
-        for i, ss in enumerate(
-                diffusion_analyzer.get_drift_corrected_structures()):
+        for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
             tracking_ions.append(all_fcoords[indices, :])
             ref_ions.append(all_fcoords[ref_indices, :])
@@ -124,9 +135,11 @@ class VanHoveAnalysis:
         tracking_ions = np.array(tracking_ions)
         ref_ions = np.array(ref_ions)
 
-        gaussians = norm.pdf(interval[:, None], interval[None, :],
-                             sigma) / float(avg_nsteps) / float(
-            len(ref_indices))
+        gaussians = (
+            norm.pdf(interval[:, None], interval[None, :], sigma)
+            / float(avg_nsteps)
+            / float(len(ref_indices))
+        )
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
@@ -134,10 +147,12 @@ class VanHoveAnalysis:
             dns = Counter()
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
-                dists = [lattice.get_distance_and_image(tracking_ions[it1][u],
-                                                        tracking_ions[it0 + it1][u],
-                                                        jimage=image)[0] for u
-                         in range(len(indices))]
+                dists = [
+                    lattice.get_distance_and_image(
+                        tracking_ions[it1][u], tracking_ions[it0 + it1][u], jimage=image
+                    )[0]
+                    for u in range(len(indices))
+                ]
                 dists = filter(lambda e: e < rmax, dists)
 
                 r_indices = [int(dist / dr) for dist in dists]
@@ -163,13 +178,20 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
 
             for it1 in range(avg_nsteps):
-                dcf = (tracking_ions[it0 + it1, :, None, None, :] + images[None, None, :, :] -
-                       ref_ions[it1, None, :, None, :])
+                dcf = (
+                    tracking_ions[it0 + it1, :, None, None, :]
+                    + images[None, None, :, :]
+                    - ref_ions[it1, None, :, None, :]
+                )
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc ** 2, axis=3)
-                dists = [d2[u, v, j] ** 0.5 for u in range(len(indices))
-                         for v in range(len(ref_indices))
-                         for j in range(len(r) ** 3) if u != v or j != indx0]
+                dists = [
+                    d2[u, v, j] ** 0.5
+                    for u in range(len(indices))
+                    for v in range(len(ref_indices))
+                    for j in range(len(r) ** 3)
+                    if u != v or j != indx0
+                ]
                 dists = filter(lambda e: e < rmax, dists)
 
                 r_indices = [int(dist / dr) for dist in dists]
@@ -208,10 +230,12 @@ class VanHoveAnalysis:
             cb_ticks = [0, 1]
             cb_label = "4$\pi r^2G_s$($t$,$r$)"
 
-        y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(
-            len(self.interval) - 1)
-        x = np.arange(
-            np.shape(grt)[0]) * self.timeskip
+        y = (
+            np.arange(np.shape(grt)[1])
+            * self.interval[-1]
+            / float(len(self.interval) - 1)
+        )
+        x = np.arange(np.shape(grt)[0]) * self.timeskip
         X, Y = np.meshgrid(x, y, indexing="ij")
 
         ticksize = int(figsize[0] * 2.5)
@@ -234,8 +258,9 @@ class VanHoveAnalysis:
 
         return plt
 
-    def get_1d_plot(self, mode: str = "distinct", times: List = [0.0],
-                    colors: List = None):
+    def get_1d_plot(
+        self, mode: str = "distinct", times: List = [0.0], colors: List = None
+    ):
         """
         Plot the van Hove function at given r or t.
 
@@ -248,6 +273,7 @@ class VanHoveAnalysis:
         """
         if colors is None:
             import seaborn as sns
+
             colors = sns.color_palette("Set1", 10)
 
         assert mode in ["distinct", "self"]
@@ -269,12 +295,13 @@ class VanHoveAnalysis:
             index = min(index, np.shape(grt)[0] - 1)
             new_time = index * self.timeskip
             label = str(new_time) + " ps"
-            plt.plot(self.interval, grt[index], color=colors[i], label=label,
-                     linewidth=4.0)
+            plt.plot(
+                self.interval, grt[index], color=colors[i], label=label, linewidth=4.0
+            )
 
         plt.xlabel(r"$r$ ($\AA$)")
         plt.ylabel(ylabel)
-        plt.legend(loc='upper right', fontsize=36)
+        plt.legend(loc="upper right", fontsize=36)
         plt.xlim(0.0, self.interval[-1] - 1.0)
         plt.ylim(ylim[0], ylim[1])
         plt.tight_layout()
@@ -283,8 +310,13 @@ class VanHoveAnalysis:
 
 
 class EvolutionAnalyzer:
-    def __init__(self, structures: List, rmax: float = 10, step: int = 1,
-                 time_step: int = 2):
+    """
+    Analyze the evolution of structures during AIMD simulations.
+    """
+
+    def __init__(
+        self, structures: List, rmax: float = 10, step: int = 1, time_step: int = 2
+    ):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -329,8 +361,7 @@ class EvolutionAnalyzer:
         return list(pairs)
 
     @staticmethod
-    def rdf(structure: Structure, pair: Tuple, ngrid: int = 101,
-            rmax: float = 10):
+    def rdf(structure: Structure, pair: Tuple, ngrid: int = 101, rmax: float = 10):
         """
         Process rdf from a given structure and pair.
 
@@ -344,14 +375,24 @@ class EvolutionAnalyzer:
             rdf (np.array)
         """
         r = RadialDistributionFunction.from_species(
-            [structure], ngrid=ngrid, rmax=rmax, sigma=0.1, species=(pair[0]),
-            reference_species=(pair[1]))
+            [structure],
+            ngrid=ngrid,
+            rmax=rmax,
+            sigma=0.1,
+            species=(pair[0]),
+            reference_species=(pair[1]),
+        )
 
         return r.rdf
 
     @staticmethod
-    def atom_dist(structure: Structure, specie: str, ngrid: int = 101,
-                  window: float = 1, direction: str = "c"):
+    def atom_dist(
+        structure: Structure,
+        specie: str,
+        ngrid: int = 101,
+        window: float = 1,
+        direction: str = "c",
+    ):
         """
         Get atomic distribution for a given specie.
 
@@ -373,8 +414,7 @@ class EvolutionAnalyzer:
         else:
             raise ValueError("Choose from a, b and c!")
 
-        atom_list = [site for site in structure.sites
-                     if site.species_string == specie]
+        atom_list = [site for site in structure.sites if site.species_string == specie]
         atom_total = structure.composition[specie]
         density = []
 
@@ -382,8 +422,10 @@ class EvolutionAnalyzer:
             atoms = []
             for j in [-1, 0, 1]:
                 temp = [
-                    s for s in atom_list if
-                    i - window < s.coords[ind] % l + l * j < i + window]
+                    s
+                    for s in atom_list
+                    if i - window < s.coords[ind] % l + l * j < i + window
+                ]
                 atoms.extend(temp)
 
             density.append(len(atoms) / atom_total)
@@ -420,8 +462,7 @@ class EvolutionAnalyzer:
         for structure in self.structures:
             prop_table.append(func(structure, **kwargs))
 
-        index = np.arange(
-            len(self.structures)) * self.time_step * self.step / 1000
+        index = np.arange(len(self.structures)) * self.time_step * self.step / 1000
         columns = np.linspace(0, self.rmax, ngrid)
         df = pds.DataFrame(prop_table, index=index, columns=columns)
 
@@ -441,18 +482,22 @@ class EvolutionAnalyzer:
             tol (float): any float number less than tol is considered as zero.
 
         Returns:
-            The shorted pair distance throughout the table.
+            The shortest pair distance throughout the table.
         """
         # TODO: Add unittest
         for i, col in enumerate(df.columns):
             min_dist = df.min(axis="index")[i]
             if min_dist > tol:
                 return float(col)
+        raise RuntimeError("Getting min dist failed.")
 
     @staticmethod
-    def plot_evolution_from_data(df: pds.DataFrame, x_label: str = None,
-                                 cb_label: str = None,
-                                 cmap=plt.cm.plasma):
+    def plot_evolution_from_data(
+        df: pds.DataFrame,
+        x_label: str = None,
+        cb_label: str = None,
+        cmap=plt.cm.plasma,  # pylint: disable=E1101
+    ):
         """
         Plot the evolution with time for a given DataFrame. It can be RDF,
         atomic distribution or other characterization data we might
@@ -470,32 +515,45 @@ class EvolutionAnalyzer:
             matplotlib.axes._subplots.AxesSubplot object
         """
         import seaborn as sns
+
         sns.set_style("white")
 
-        plt.rcParams['axes.linewidth'] = 1.5
-        plt.rcParams["font.family"] = 'sans-serif'
-        plt.rcParams['xtick.labelsize'] = 20
-        plt.rcParams['ytick.labelsize'] = 20
-        plt.rcParams['xtick.major.pad'] = 10
+        plt.rcParams["axes.linewidth"] = 1.5
+        plt.rcParams["font.family"] = "sans-serif"
+        plt.rcParams["xtick.labelsize"] = 20
+        plt.rcParams["ytick.labelsize"] = 20
+        plt.rcParams["xtick.major.pad"] = 10
 
         fig, ax = plt.subplots(figsize=(12, 8), facecolor="w")
-        ax = sns.heatmap(df, linewidths=0, cmap=cmap, annot=False, cbar=True,
-                         xticklabels=10, yticklabels=25, rasterized=True)
+        ax = sns.heatmap(
+            df,
+            linewidths=0,
+            cmap=cmap,
+            annot=False,
+            cbar=True,
+            xticklabels=10,
+            yticklabels=25,
+            rasterized=True,
+        )
         ax.set_ylim(ax.get_ylim()[::-1])
         ax.collections[0].colorbar.set_label(cb_label, fontsize=30)
 
         plt.xticks(rotation="horizontal")
 
         plt.xlabel(x_label, fontsize=30)
-        plt.ylabel('Time (ps)', fontsize=30)
+        plt.ylabel("Time (ps)", fontsize=30)
 
         plt.yticks(rotation="horizontal")
         plt.tight_layout()
 
         return plt
 
-    def plot_rdf_evolution(self, pair: Tuple, cmap=plt.cm.plasma,
-                           df: pds.DataFrame = None):
+    def plot_rdf_evolution(
+        self,
+        pair: Tuple,
+        cmap=plt.cm.plasma,
+        df: pds.DataFrame = None,  # pylint: disable=E1101
+    ):
         """
         Plot the RDF evolution with time for a given pair.
 
@@ -511,14 +569,19 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
         x_label, cb_label = "$r$ ({}-{}) ($\\rm\AA$)".format(*pair), "$g(r)$"
-        p = self.plot_evolution_from_data(df=df, x_label=x_label,
-                                          cb_label=cb_label, cmap=cmap)
+        p = self.plot_evolution_from_data(
+            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
+        )
 
         return p
 
-    def plot_atomic_evolution(self, specie: str, direction: str = "c",
-                              cmap=plt.cm.Blues,
-                              df: pds.DataFrame = None):
+    def plot_atomic_evolution(
+        self,
+        specie: str,
+        direction: str = "c",
+        cmap=plt.cm.Blues,  # pylint: disable=E1101
+        df: pds.DataFrame = None,
+    ):
         """
         Plot the atomic distribution evolution with time for a given species.
 
@@ -532,10 +595,14 @@ class EvolutionAnalyzer:
             matplotlib.axes._subplots.AxesSubplot object
         """
         if df is None:
-            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie,
-                             direction=direction)
-        x_label, cb_label = "Atomic distribution along {} ".format(
-            direction), "Probability"
-        p = self.plot_evolution_from_data(df=df, x_label=x_label,
-                                          cb_label=cb_label, cmap=cmap)
+            df = self.get_df(
+                func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction
+            )
+        x_label, cb_label = (
+            "Atomic distribution along {} ".format(direction),
+            "Probability",
+        )
+        p = self.plot_evolution_from_data(
+            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
+        )
         return p

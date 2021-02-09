@@ -23,6 +23,7 @@ jobs:
       run: |
         export PATH=$HOME/miniconda3/bin:$PATH
         export MPLBACKEND=Agg
+        python -m pip install --upgrade pip
         pip install --quiet --ignore-installed -r requirements.txt -r requirements-ci.txt
         pip install -e .
     - name: pytest
