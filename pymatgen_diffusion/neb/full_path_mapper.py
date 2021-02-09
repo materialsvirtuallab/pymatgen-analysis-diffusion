@@ -389,6 +389,7 @@ class ChargeBarrierGraph(MigrationGraph):
         structure: Structure,
         migration_graph: StructureGraph,
         potential_field: VolumetricData,
+        potential_data_key: str,
         **kwargs,
     ):
         """
@@ -403,9 +404,306 @@ class ChargeBarrierGraph(MigrationGraph):
             symprec (float): Symmetry precision to determine equivalence.
         """
         self.potential_field = potential_field
-        super.__init__(
-            strcture=structure,
-            migration_graph=migration_graph,
+        self.potential_data_key = potential_data_key
+        super().__init__(structure=structure, migration_graph=migration_graph, **kwargs)
+        self._setup_grids()
+
+    def _setup_grids(self):
+        """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
+
+        # set up the grid
+        aa = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False
+        )
+        bb = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False
+        )
+        cc = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False
+        )
+        # move the grid points to the center
+        aa, bb, dd = map(_shift_grid, [aa, bb, cc])
+
+        # mesh grid for each unit cell
+        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
+
+        # should be using a mesh grid of 5x5x5 (using 3x3x3 misses some fringe cases)
+        # but using 3x3x3 is much faster and only crops the cyliners in some rare case
+        # if you keep the tube_radius small then this is not a big deal
+        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing="ij")
+
+        # store these
+        self._uc_grid_shape = AA.shape
+        self._fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
+        self._images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
+
+    def _dist_mat(self, pos_frac):
+        # return a matrix that contains the distances to pos_frac
+        aa = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False
+        )
+        bb = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False
+        )
+        cc = np.linspace(
+            0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False
+        )
+        aa, bb, cc = map(_shift_grid, [aa, bb, cc])
+        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
+        dist_from_pos = self.potential_field.structure.lattice.get_all_distances(
+            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
+            fcoords2=pos_frac,
+        )
+        return dist_from_pos.reshape(AA.shape)
+
+    def _get_pathfinder_from_hop(self, migration_path: MigrationPath, n_images=20):
+        # get migration pathfinder objects which contains the paths
+        ipos = migration_path.isite.frac_coords
+        epos = migration_path.esite.frac_coords
+        mpos = migration_path.esite.frac_coords
+
+        start_struct = self.potential_field.structure.copy()
+        end_struct = self.potential_field.structure.copy()
+        mid_struct = self.potential_field.structure.copy()
+
+        # the moving ion is always inserted on the zero index
+        start_struct.insert(
+            0, migration_path.isite.species_string, ipos, properties=dict(magmom=0)
+        )
+        end_struct.insert(
+            0, migration_path.isite.species_string, epos, properties=dict(magmom=0)
+        )
+        mid_struct.insert(
+            0, migration_path.isite.species_string, mpos, properties=dict(magmom=0)
+        )
+
+        chgpot = ChgcarPotential(self.potential_field, normalize=False)
+        npf = NEBPathfinder(
+            start_struct,
+            end_struct,
+            relax_sites=[0],
+            v=chgpot.get_v(),
+            n_images=n_images,
+            mid_struct=mid_struct,
+        )
+        return npf
+
+    def _get_avg_chg_at_max(
+        self, migration_path, radius=None, chg_along_path=False, output_positions=False
+    ):
+        """obtain the maximum average charge along the path
+
+        Args:
+            migration_path (MigrationPath): MigrationPath object that represents a given hop
+            radius (float, optional): radius of sphere to perform the average.
+                    Defaults to None, which used the _tube_radius instead
+            chg_along_path (bool, optional): If True, also return the entire list of average
+                    charges along the path for plotting.
+                    Defaults to False.
+            output_positions (bool, optional): If True, also return the entire list of average
+                    charges along the path for plotting.
+                    Defaults to False.
+
+        Returns:
+            [float]: maximum of the charge density, (optional: entire list of charge density)
+        """
+        if radius is None:
+            rr = self._tube_radius
+        if rr <= 0:
+            raise ValueError("The integration radius must be positive.")
+
+        npf = self._get_pathfinder_from_hop(migration_path)
+        # get the charge in a sphere around each point
+        centers = [image.sites[0].frac_coords for image in npf.images]
+        avg_chg = []
+        for ict in centers:
+            dist_mat = self._dist_mat(ict)
+            mask = dist_mat < rr
+            vol_sphere = self.potential_field.structure.volume * (
+                mask.sum() / self.potential_field.ngridpts
+            )
+            avg_chg.append(
+                np.sum(self.potential_field.data[self.potential_data_key] * mask)
+                / self.potential_field.ngridpts
+                / vol_sphere
+            )
+        if output_positions:
+            return max(avg_chg), avg_chg, centers
+        if chg_along_path:
+            return max(avg_chg), avg_chg
+        return max(avg_chg)
+
+    def _get_chg_between_sites_tube(self, migration_path, mask_file_seedname=None):
+        """
+        Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
+
+        Args:
+            migration_path: MigrationPath object that represents a given hop
+            mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
+                visualization) (Default value = None)
+
+        Returns:
+            float: The total charge density in a tube that connects two sites of a given edges of the graph
+
+        """
+        try:
+            self._tube_radius
+        except NameError:
+            logger.warning(
+                "The radius of the tubes for charge analysis need to be defined first."
+            )
+        ipos = migration_path.isite.frac_coords
+        epos = migration_path.esite.frac_coords
+
+        cart_ipos = np.dot(ipos, self.potential_field.structure.lattice.matrix)
+        cart_epos = np.dot(epos, self.potential_field.structure.lattice.matrix)
+        pbc_mask = np.zeros(self._uc_grid_shape, dtype=bool).flatten()
+        for img in self._images:
+            grid_pos = np.dot(
+                self._fcoords + img, self.potential_field.structure.lattice.matrix
+            )
+            proj_on_line = np.dot(grid_pos - cart_ipos, cart_epos - cart_ipos) / (
+                np.linalg.norm(cart_epos - cart_ipos)
+            )
+            dist_to_line = np.linalg.norm(
+                np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos)
+                / (np.linalg.norm(cart_epos - cart_ipos)),
+                axis=-1,
+            )
+
+            mask = (
+                (proj_on_line >= 0)
+                * (proj_on_line < np.linalg.norm(cart_epos - cart_ipos))
+                * (dist_to_line < self._tube_radius)
+            )
+            pbc_mask = pbc_mask + mask
+        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
+
+        if mask_file_seedname:
+            mask_out = VolumetricData(
+                structure=self.potential_field.structure.copy(),
+                data={"total": self.potential_field.data["total"]},
+            )
+            mask_out.structure.insert(0, "X", ipos)
+            mask_out.structure.insert(0, "X", epos)
+            mask_out.data[self.potential_data_key] = pbc_mask
+            isym = self.symm_structure.wyckoff_symbols[migration_path.iindex]
+            esym = self.symm_structure.wyckoff_symbols[migration_path.eindex]
+            mask_out.write_file(
+                "{}_{}_{}_tot({:0.2f}).vasp".format(
+                    mask_file_seedname,
+                    isym,
+                    esym,
+                    mask_out.data[self.potential_data_key].sum(),
+                )
+            )
+
+        return (
+            self.potential_field.data[self.potential_data_key][pbc_mask].sum()
+            / self.potential_field.ngridpts
+            / self.potential_field.structure.volume
+        )
+
+    def populate_edges_with_chg_density_info(self, tube_radius=1):
+        """
+        Args:
+            tube_radius: Tube radius.
+        """
+        self._tube_radius = tube_radius
+        for k, v in self.unique_hops.items():
+            # charge in tube
+            chg_tot = self._get_chg_between_sites_tube(v["hop"])
+            self.add_data_to_similar_edges(k, {"chg_total": chg_tot})
+
+            # max charge in sphere
+            max_chg, avg_chg_list, frac_coords_list = self._get_avg_chg_at_max(
+                v["hop"], chg_along_path=True, output_positions=True
+            )
+            images = [
+                {"position": ifrac, "average_charge": ichg}
+                for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
+            ]
+            v.update(
+                dict(
+                    chg_total=chg_tot,
+                    max_avg_chg=max_chg,
+                    images=images,
+                )
+            )
+            self.add_data_to_similar_edges(k, {"max_avg_chg": max_chg})
+
+    def get_least_chg_path(self):
+        """
+        obtain an intercollating pathway through the material that has the least amount of charge
+        Returns:
+            list of hops
+        """
+        min_chg = 100000000
+        min_path = []
+        all_paths = self.get_intercalating_path()
+        for path in all_paths:
+            sum_chg = np.sum([hop[2]["chg_total"] for hop in path])
+            sum_length = np.sum([hop[2]["hop"].length for hop in path])
+            avg_chg = sum_chg / sum_length
+            if avg_chg < min_chg:
+                min_chg = sum_chg
+                min_path = path
+        return min_path
+
+    def get_summary_dict(self):
+        """
+        Dictionary format, for saving to database
+        """
+        hops = []
+        for u, v, d in self.migration_graph.graph.edges(data=True):
+            dd = defaultdict(lambda: None)
+            dd.update(d)
+            hops.append(
+                dict(
+                    hop_label=dd["hop_label"],
+                    iinddex=u,
+                    einddex=v,
+                    to_jimage=dd["to_jimage"],
+                    ipos=dd["ipos"],
+                    epos=dd["epos"],
+                    ipos_cart=dd["ipos_cart"],
+                    epos_cart=dd["epos_cart"],
+                    max_avg_chg=dd["max_avg_chg"],
+                    chg_total=dd["chg_total"],
+                )
+            )
+        unique_hops = []
+        for k, d in self.unique_hops.items():
+            dd = defaultdict(lambda: None)
+            dd.update(d)
+            unique_hops.append(
+                dict(
+                    hop_label=dd["hop_label"],
+                    iinddex=dd["iinddex"],
+                    einddex=dd["einddex"],
+                    to_jimage=dd["to_jimage"],
+                    ipos=dd["ipos"],
+                    epos=dd["epos"],
+                    ipos_cart=dd["ipos_cart"],
+                    epos_cart=dd["epos_cart"],
+                    max_avg_chg=dd["max_avg_chg"],
+                    chg_total=dd["chg_total"],
+                    images=dd["images"],
+                )
+            )
+        unique_hops = sorted(unique_hops, key=lambda x: x["hop_label"])
+        return dict(
+            base_task_id=self.base_struct_entry.entry_id,
+            base_structure=self.base_struct_entry.structure.as_dict(),
+            inserted_ids=[ent.entry_id for ent in self.single_cat_entries],
+            migrating_specie=self.migrating_specie.name,
+            max_path_length=self.max_path_length,
+            ltol=self.ltol,
+            stol=self.stol,
+            full_sites_struct=self.full_sites.as_dict(),
+            angle_tol=self.angle_tol,
+            hops=hops,
+            unique_hops=unique_hops,
         )
 
 
@@ -554,285 +852,6 @@ class ComputedEntryGraph(MigrationGraph):
         if len(res) > 1:
             res.merge_sites(tol=SITE_MERGE_R, mode="average")
         return res
-
-    def _setup_grids(self):
-        """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
-
-        # set up the grid
-        aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)), endpoint=False)
-        bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)), endpoint=False)
-        cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)), endpoint=False)
-        # move the grid points to the center
-        aa, bb, dd = map(_shift_grid, [aa, bb, cc])
-
-        # mesh grid for each unit cell
-        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
-
-        # should be using a mesh grid of 5x5x5 (using 3x3x3 misses some fringe cases)
-        # but using 3x3x3 is much faster and only crops the cyliners in some rare case
-        # if you keep the tube_radius small then this is not a big deal
-        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing="ij")
-
-        # store these
-        self._uc_grid_shape = AA.shape
-        self._fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
-        self._images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
-
-    def _dist_mat(self, pos_frac):
-        # return a matrix that contains the distances to pos_frac
-        aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)), endpoint=False)
-        bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)), endpoint=False)
-        cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)), endpoint=False)
-        aa, bb, cc = map(_shift_grid, [aa, bb, cc])
-        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
-        dist_from_pos = self.base_aeccar.structure.lattice.get_all_distances(
-            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
-            fcoords2=pos_frac,
-        )
-        return dist_from_pos.reshape(AA.shape)
-
-    def _get_pathfinder_from_hop(self, migration_path, n_images=20):
-        # get migration pathfinder objects which contains the paths
-        ipos = migration_path.isite.frac_coords
-        epos = migration_path.esite.frac_coords
-        mpos = migration_path.esite.frac_coords
-
-        start_struct = self.base_aeccar.structure.copy()
-        end_struct = self.base_aeccar.structure.copy()
-        mid_struct = self.base_aeccar.structure.copy()
-
-        # the moving ion is always inserted on the zero index
-        start_struct.insert(0, self.migrating_specie, ipos, properties=dict(magmom=0))
-        end_struct.insert(0, self.migrating_specie, epos, properties=dict(magmom=0))
-        mid_struct.insert(0, self.migrating_specie, mpos, properties=dict(magmom=0))
-
-        chgpot = ChgcarPotential(self.base_aeccar, normalize=False)
-        npf = NEBPathfinder(
-            start_struct,
-            end_struct,
-            relax_sites=[0],
-            v=chgpot.get_v(),
-            n_images=n_images,
-            mid_struct=mid_struct,
-        )
-        return npf
-
-    def _get_avg_chg_at_max(
-        self, migration_path, radius=None, chg_along_path=False, output_positions=False
-    ):
-        """obtain the maximum average charge along the path
-
-        Args:
-            migration_path (MigrationPath): MigrationPath object that represents a given hop
-            radius (float, optional): radius of sphere to perform the average.
-                    Defaults to None, which used the _tube_radius instead
-            chg_along_path (bool, optional): If True, also return the entire list of average
-                    charges along the path for plotting.
-                    Defaults to False.
-            output_positions (bool, optional): If True, also return the entire list of average
-                    charges along the path for plotting.
-                    Defaults to False.
-
-        Returns:
-            [float]: maximum of the charge density, (optional: entire list of charge density)
-        """
-        if radius is None:
-            rr = self._tube_radius
-        if rr <= 0:
-            raise ValueError("The integration radius must be positive.")
-
-        npf = self._get_pathfinder_from_hop(migration_path)
-        # get the charge in a sphere around each point
-        centers = [image.sites[0].frac_coords for image in npf.images]
-        avg_chg = []
-        for ict in centers:
-            dist_mat = self._dist_mat(ict)
-            mask = dist_mat < rr
-            vol_sphere = self.base_aeccar.structure.volume * (
-                mask.sum() / self.base_aeccar.ngridpts
-            )
-            avg_chg.append(
-                np.sum(self.base_aeccar.data["total"] * mask)
-                / self.base_aeccar.ngridpts
-                / vol_sphere
-            )
-        if output_positions:
-            return max(avg_chg), avg_chg, centers
-        if chg_along_path:
-            return max(avg_chg), avg_chg
-        return max(avg_chg)
-
-    def _get_chg_between_sites_tube(self, migration_path, mask_file_seedname=None):
-        """
-        Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
-
-        Args:
-            migration_path: MigrationPath object that represents a given hop
-            mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
-                visualization) (Default value = None)
-
-        Returns:
-            float: The total charge density in a tube that connects two sites of a given edges of the graph
-
-        """
-        try:
-            self._tube_radius
-        except NameError:
-            logger.warning(
-                "The radius of the tubes for charge analysis need to be defined first."
-            )
-        ipos = migration_path.isite.frac_coords
-        epos = migration_path.esite.frac_coords
-        if not self.base_aeccar:
-            return 0
-
-        cart_ipos = np.dot(ipos, self.base_aeccar.structure.lattice.matrix)
-        cart_epos = np.dot(epos, self.base_aeccar.structure.lattice.matrix)
-        pbc_mask = np.zeros(self._uc_grid_shape, dtype=bool).flatten()
-        for img in self._images:
-            grid_pos = np.dot(
-                self._fcoords + img, self.base_aeccar.structure.lattice.matrix
-            )
-            proj_on_line = np.dot(grid_pos - cart_ipos, cart_epos - cart_ipos) / (
-                np.linalg.norm(cart_epos - cart_ipos)
-            )
-            dist_to_line = np.linalg.norm(
-                np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos)
-                / (np.linalg.norm(cart_epos - cart_ipos)),
-                axis=-1,
-            )
-
-            mask = (
-                (proj_on_line >= 0)
-                * (proj_on_line < np.linalg.norm(cart_epos - cart_ipos))
-                * (dist_to_line < self._tube_radius)
-            )
-            pbc_mask = pbc_mask + mask
-        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
-
-        if mask_file_seedname:
-            mask_out = VolumetricData(
-                structure=self.base_aeccar.structure.copy(),
-                data={"total": self.base_aeccar.data["total"]},
-            )
-            mask_out.structure.insert(0, "X", ipos)
-            mask_out.structure.insert(0, "X", epos)
-            mask_out.data["total"] = pbc_mask
-            isym = self.symm_structure.wyckoff_symbols[migration_path.iindex]
-            esym = self.symm_structure.wyckoff_symbols[migration_path.eindex]
-            mask_out.write_file(
-                "{}_{}_{}_tot({:0.2f}).vasp".format(
-                    mask_file_seedname, isym, esym, mask_out.data["total"].sum()
-                )
-            )
-
-        return (
-            self.base_aeccar.data["total"][pbc_mask].sum()
-            / self.base_aeccar.ngridpts
-            / self.base_aeccar.structure.volume
-        )
-
-    def populate_edges_with_chg_density_info(self, tube_radius=1):
-        """
-        Args:
-            tube_radius: Tube radius.
-        """
-        self._tube_radius = tube_radius
-        for k, v in self.unique_hops.items():
-            # charge in tube
-            chg_tot = self._get_chg_between_sites_tube(v["hop"])
-            self.add_data_to_similar_edges(k, {"chg_total": chg_tot})
-
-            # max charge in sphere
-            max_chg, avg_chg_list, frac_coords_list = self._get_avg_chg_at_max(
-                v["hop"], chg_along_path=True, output_positions=True
-            )
-            images = [
-                {"position": ifrac, "average_charge": ichg}
-                for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
-            ]
-            v.update(
-                dict(
-                    chg_total=chg_tot,
-                    max_avg_chg=max_chg,
-                    images=images,
-                )
-            )
-            self.add_data_to_similar_edges(k, {"max_avg_chg": max_chg})
-
-    def get_least_chg_path(self):
-        """
-        obtain an intercollating pathway through the material that has the least amount of charge
-        Returns:
-            list of hops
-        """
-        min_chg = 100000000
-        min_path = []
-        all_paths = self.get_intercalating_path()
-        for path in all_paths:
-            sum_chg = np.sum([hop[2]["chg_total"] for hop in path])
-            sum_length = np.sum([hop[2]["hop"].length for hop in path])
-            avg_chg = sum_chg / sum_length
-            if avg_chg < min_chg:
-                min_chg = sum_chg
-                min_path = path
-        return min_path
-
-    def get_summary_dict(self):
-        """
-        Dictionary format, for saving to database
-        """
-        hops = []
-        for u, v, d in self.migration_graph.graph.edges(data=True):
-            dd = defaultdict(lambda: None)
-            dd.update(d)
-            hops.append(
-                dict(
-                    hop_label=dd["hop_label"],
-                    iinddex=u,
-                    einddex=v,
-                    to_jimage=dd["to_jimage"],
-                    ipos=dd["ipos"],
-                    epos=dd["epos"],
-                    ipos_cart=dd["ipos_cart"],
-                    epos_cart=dd["epos_cart"],
-                    max_avg_chg=dd["max_avg_chg"],
-                    chg_total=dd["chg_total"],
-                )
-            )
-        unique_hops = []
-        for k, d in self.unique_hops.items():
-            dd = defaultdict(lambda: None)
-            dd.update(d)
-            unique_hops.append(
-                dict(
-                    hop_label=dd["hop_label"],
-                    iinddex=dd["iinddex"],
-                    einddex=dd["einddex"],
-                    to_jimage=dd["to_jimage"],
-                    ipos=dd["ipos"],
-                    epos=dd["epos"],
-                    ipos_cart=dd["ipos_cart"],
-                    epos_cart=dd["epos_cart"],
-                    max_avg_chg=dd["max_avg_chg"],
-                    chg_total=dd["chg_total"],
-                    images=dd["images"],
-                )
-            )
-        unique_hops = sorted(unique_hops, key=lambda x: x["hop_label"])
-        return dict(
-            base_task_id=self.base_struct_entry.entry_id,
-            base_structure=self.base_struct_entry.structure.as_dict(),
-            inserted_ids=[ent.entry_id for ent in self.single_cat_entries],
-            migrating_specie=self.migrating_specie.name,
-            max_path_length=self.max_path_length,
-            ltol=self.ltol,
-            stol=self.stol,
-            full_sites_struct=self.full_sites.as_dict(),
-            angle_tol=self.angle_tol,
-            hops=hops,
-            unique_hops=unique_hops,
-        )
 
 
 def get_all_sym_sites(

@@ -8,6 +8,7 @@ from pymatgen_diffusion.neb.full_path_mapper import (
     get_all_sym_sites,
     get_hop_site_sequence,
     MigrationPath,
+    ChargeBarrierGraph,
 )
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
@@ -182,15 +183,67 @@ class FullPathMapperComplexTest(unittest.TestCase):
             self.assertIn(d["hop"].eindex, {0, 1})
 
 
-# class ChargeBarrierGraphTest(unittest.TestCase)
-#     def setUp(self):
-#         self.test_ents_MOF = loadfn(
-#             f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
-#         )
-#         self.aeccar_MOF = Chgcar.from_file(
-#             f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
-#         )
-#         self.cbg = ChargeBarrierGraph.with_distance()
+class ChargeBarrierGraphTest(unittest.TestCase):
+    def setUp(self):
+        self.full_sites_MOF = loadfn(
+            f"{dir_path}/full_path_files/LixMn6O5F7_full_sites.json"
+        )
+        self.aeccar_MOF = Chgcar.from_file(
+            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
+        )
+        self.cbg = ChargeBarrierGraph.with_distance(
+            structure=self.full_sites_MOF,
+            migrating_specie="Li",
+            max_distance=4,
+            potential_field=self.aeccar_MOF,
+            potential_data_key="total",
+        )
+
+    def test_integration(self):
+        """
+        Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
+        """
+        self.cbg._tube_radius = 10000
+        total_chg_per_vol = (
+            self.cbg.potential_field.data["total"].sum()
+            / self.cbg.potential_field.ngridpts
+            / self.cbg.potential_field.structure.volume
+        )
+        self.assertAlmostEqual(
+            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[2]["hop"]),
+            total_chg_per_vol,
+        )
+
+        self.cbg._tube_radius = 2
+
+        self.assertAlmostEqual(
+            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
+            0.188952739835188,
+            3,
+        )
+
+    def test_populate_edges_with_chg_density_info(self):
+        """
+        Test that all of the sites with similar lengths have similar charge densities,
+        this will not always be true, but it valid in this Mn6O5F7
+        """
+        self.cbg.populate_edges_with_chg_density_info()
+        length_vs_chg = list(
+            sorted(
+                [
+                    (d["hop"].length, d["chg_total"])
+                    for u, v, d in self.cbg.migration_graph.graph.edges(data=True)
+                ]
+            )
+        )
+        prv = None
+        for length, chg in length_vs_chg:
+            if prv is None:
+                prv = (length, chg)
+                continue
+
+            if 1.05 > length / prv[0] > 0.95:
+                self.assertAlmostEqual(chg, prv[1], 3)
 
 
 class ComputedEntryPathTest(unittest.TestCase):
