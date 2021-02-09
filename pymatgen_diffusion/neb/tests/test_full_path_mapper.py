@@ -28,14 +28,10 @@ __date__ = "April 10, 2019"
 
 class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
-        base_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_base.vasp")
-        sites_struct = Structure.from_file(
-            f"{dir_path}/full_path_files/MnO2_only_Li.vasp"
-        )
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = FullPathMapper(
-            base_structure=base_struct,
+            base_structure=struct,
             mobile_specie="Li",
-            sites_structure=sites_struct,
             max_hop_length=4,
         )
 

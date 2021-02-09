@@ -92,7 +92,7 @@ class FullPathMapper(MSONable):
         self,
         base_structure,
         mobile_specie,
-        sites_structure,
+        sites_structure=None,
         max_hop_length=10,
         symprec=0.1,
     ):
@@ -105,8 +105,10 @@ class FullPathMapper(MSONable):
         on their equivalence.
 
         Args:
-            base_structure (Structure): Base framework structure,
-                does not contain any mobile sites.
+            base_structure (Structure): Structure with base framework and
+                mobile sites. When used with sites_structure argument,
+                only the base framework structure, does not contain any
+                mobile sites.
             mobile_specie (str): Corresponds to the specie that moves
                 within the base framework structure. E.g., "Li".
             sites_structure (Structure): Structure of sites (corresponding
@@ -115,9 +117,15 @@ class FullPathMapper(MSONable):
                 to count as nearest neighbors and form a hop (in Angstroms).
             symprec (float): Symmetry precision to determine equivalence.
         """
-        self.base_structure = base_structure
         self.mobile_specie = mobile_specie
-        self.sites_structure = sites_structure
+        if sites_structure is None:
+            base_sites = [s for s in base_structure if str(s.specie) != mobile_specie]
+            mobile_sites = [s for s in base_structure if str(s.specie) == mobile_specie]
+            self.base_structure = Structure.from_sites(base_sites)
+            self.sites_structure = Structure.from_sites(mobile_sites)
+        else:
+            self.base_structure = base_structure
+            self.sites_structure = sites_structure
 
         # combine base and sites_structure into a structure with both
         sites_list = self.sites_structure.sites + self.base_structure.sites
