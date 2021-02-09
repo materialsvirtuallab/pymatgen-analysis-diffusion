@@ -358,8 +358,10 @@ class ComputedEntryPath(FullPathMapper):
         Pass in a entries for analysis
 
         Args:
-          base_struct_entry (pymatgen ComputedStructureEntry): the structure without a working ion for us to analyze the migration
-          single_cat_entries (pymatgen ComputedStructureEntry): list of structures containing a single cation at different positions
+          base_struct_entry (pymatgen ComputedStructureEntry): the structure without a working ion
+           for us to analyze the migration
+          single_cat_entries (pymatgen ComputedStructureEntry): list of structures containing a
+            single cation at different positions
           base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
           migration_specie: a String symbol or Element for the cation. (Default value = 'Li')
           ltol: parameter for StructureMatcher (Default value = 0.2)
@@ -412,7 +414,7 @@ class ComputedEntryPath(FullPathMapper):
                 self.base_struct_entry.structure.sites
             )
 
-        super(ComputedEntryPath, self).__init__(
+        super().__init__(
             base_structure=self.base_struct_entry.structure,
             mobile_specie=self.mobile_specie,
             sites_structure=self.full_sites,
