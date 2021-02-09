@@ -195,7 +195,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
     def test_not_matching_first(self):
         structure = Structure.from_file(f"{dir_path}/pathfinder_files/Li6MnO4.json")
-        fpm_lmo = FullPathMapper(structure, "Li", max_path_length=4)
+        fpm_lmo = FullPathMapper(structure, "Li", max_hop_length=4)
         for u, v, d in fpm_lmo.s_graph.graph.edges(data=True):
             self.assertIn(d["hop"].eindex, {0, 1})
 
