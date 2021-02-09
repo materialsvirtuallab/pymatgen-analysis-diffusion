@@ -29,7 +29,6 @@ from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Composition
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
