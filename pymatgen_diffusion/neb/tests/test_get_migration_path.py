@@ -33,7 +33,7 @@ def entries():
 
     sga = SpacegroupAnalyzer(struct)
     # Add a the same fake energy to each group of symmetrically equivalent sites
-    # If the code works properly, three fake inserted_energy (inserted structure energy - base energy)/n_Li
+    # If the code works properly, three fake insertion_energy (inserted structure energy - base energy)/n_Li
     # should be decorated on the sites of the structure in the cep
     symm_struct = sga.get_symmetrized_structure()
     for gnum, site_group in enumerate(symm_struct.equivalent_sites):
@@ -59,7 +59,7 @@ def test_get_cep_from_grouped_entries(entries):
         migrating_species="Li",
     )
     assert {
-        int(isite.properties["inserted_energy"]) for isite in cep.full_sites.sites
+        int(isite.properties["insertion_energy"]) for isite in cep.full_sites.sites
     } == {0, 1, 2}
 
 

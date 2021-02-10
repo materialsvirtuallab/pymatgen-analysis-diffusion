@@ -1,0 +1,107 @@
+{
+  "li_ent": {
+    "@module": "pymatgen.entries.computed_entries",
+    "@class": "ComputedEntry",
+    "energy": -2.0,
+    "composition": {
+      "Li": 1.0
+    },
+    "energy_adjustments": [],
+    "parameters": {
+      "run_type": "GGA",
+      "is_hubbard": false,
+      "pseudo_potential": {
+        "functional": "PBE",
+        "labels": [
+          "Li_sv"
+        ],
+        "pot_type": "paw"
+      },
+      "hubbards": {},
+      "potcar_symbols": [
+        "PBE Li_sv"
+      ],
+      "oxide_type": "None"
+    },
+    "data": {
+      "oxide_type": "None"
+    },
+    "entry_id": "mp-135",
+    "correction": 0.0,
+    "@version": "2020.12.18"
+  },
+  "struct_uc": {
+    "@module": "pymatgen.core.structure",
+    "@class": "Structure",
+    "charge": null,
+    "lattice": {
+      "matrix": [
+        [
+          3.0,
+          0.0,
+          0.0
+        ],
+        [
+          1.5,
+          2.598,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.0
+        ]
+      ],
+      "a": 3.0,
+      "b": 2.999933999273984,
+      "c": 6.0,
+      "alpha": 90.0,
+      "beta": 90.0,
+      "gamma": 59.99927221917263,
+      "volume": 46.763999999999996
+    },
+    "sites": [
+      {
+        "species": [
+          {
+            "element": "B",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.0,
+          0.0,
+          0.5
+        ],
+        "xyz": [
+          0.0,
+          0.0,
+          3.0
+        ],
+        "label": "B",
+        "properties": {}
+      },
+      {
+        "species": [
+          {
+            "element": "N",
+            "occu": 1
+          }
+        ],
+        "abc": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "xyz": [
+          2.25,
+          1.299,
+          3.0
+        ],
+        "label": "N",
+        "properties": {}
+      }
+    ],
+    "@version": "2020.12.18"
+  }
+}

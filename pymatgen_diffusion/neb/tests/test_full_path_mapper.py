@@ -1,23 +1,21 @@
 # coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
-from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
-from pymatgen_diffusion.neb.full_path_mapper import (
-    MigrationGraph,
-    ComputedEntryGraph,
-    get_all_sym_sites,
-    get_hop_site_sequence,
-    MigrationPath,
-    ChargeBarrierGraph,
-)
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-from pymatgen.io.vasp import Chgcar
+import os
 import unittest
-from pymatgen import Structure
+
 import numpy as np
 from monty.serialization import loadfn
-import os
+from pymatgen import Structure
+from pymatgen.io.vasp import Chgcar
+
+from pymatgen_diffusion.neb.full_path_mapper import (
+    ChargeBarrierGraph,
+    MigrationGraph,
+    MigrationPath,
+    get_hop_site_sequence,
+)
+from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -254,90 +252,23 @@ class ComputedEntryPathTest(unittest.TestCase):
         self.aeccar_MOF = Chgcar.from_file(
             f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
         )
-        self.cep = ComputedEntryGraph(
-            base_struct_entry=self.test_ents_MOF["ent_base"],
-            migrating_specie="Li",
-            single_cat_entries=self.test_ents_MOF["one_cation"],
-            base_aeccar=self.aeccar_MOF,
+        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
+
+        self.full_struct = MigrationGraph.get_structure_from_entries(
+            base_entries=[self.test_ents_MOF["ent_base"]],
+            inserted_entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )[0]
+
+    def test_migration_graph_construction(self):
+        self.assertEqual(self.full_struct.composition["Li"], 8)
+        mg = MigrationGraph.with_distance(
+            self.full_struct, migrating_specie="Li", max_distance=4.0
         )
+        self.assertEqual(len(mg.migration_graph.structure), 8)
 
-        # structure matcher used for validation
-        self.rough_sm = StructureMatcher(
-            comparator=ElementComparator(),
-            primitive_cell=False,
-            ltol=0.5,
-            stol=0.5,
-            angle_tol=7,
-        )
 
-    def test_get_all_sym_sites(self):
-        """
-        Inserting a Li into each one of the proposed structures should result in an equivalent structure
-        (using sloppier tolerences)
-        """
-        for ent in self.cep.translated_single_cat_entries:
-            li_sites = get_all_sym_sites(
-                ent, self.cep.base_struct_entry, self.cep.migrating_specie
-            ).sites
-            s0 = self.cep.base_struct_entry.structure.copy()
-            s0.insert(0, "Li", li_sites[0].frac_coords)
-            for isite in li_sites[1:]:
-                s1 = self.cep.base_struct_entry.structure.copy()
-                s1.insert(0, "Li", isite.frac_coords)
-                self.assertTrue(self.rough_sm.fit(s0, s1))
-
-    def test_get_full_sites(self):
-        """
-        For Mn6O5F7 there should be 8 symmetry inequivalent final relaxed positions
-        """
-        self.assertEqual(len(self.cep.full_sites), 8)
-
-    def test_integration(self):
-        """
-        Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
-        """
-        self.cep._tube_radius = 10000
-        total_chg_per_vol = (
-            self.cep.base_aeccar.data["total"].sum()
-            / self.cep.base_aeccar.ngridpts
-            / self.cep.base_aeccar.structure.volume
-        )
-        self.assertAlmostEqual(
-            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[2]["hop"]),
-            total_chg_per_vol,
-        )
-
-        self.cep._tube_radius = 2
-
-        self.assertAlmostEqual(
-            self.cep._get_chg_between_sites_tube(self.cep.unique_hops[0]["hop"]),
-            0.188952739835188,
-            3,
-        )
-
-    def test_populate_edges_with_chg_density_info(self):
-        """
-        Test that all of the sites with similar lengths have similar charge densities,
-        this will not always be true, but it valid in this Mn6O5F7
-        """
-        self.cep.populate_edges_with_chg_density_info()
-        length_vs_chg = list(
-            sorted(
-                [
-                    (d["hop"].length, d["chg_total"])
-                    for u, v, d in self.cep.migration_graph.graph.edges(data=True)
-                ]
-            )
-        )
-        prv = None
-        for len, chg in length_vs_chg:
-            if prv is None:
-                prv = (len, chg)
-                continue
-
-            if len / prv[0] < 1.05 and len / prv[0] > 0.95:
-                self.assertAlmostEqual(chg, prv[1], 3)
-
+#
 
 if __name__ == "__main__":
     unittest.main()

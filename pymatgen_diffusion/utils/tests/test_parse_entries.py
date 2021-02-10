@@ -1,6 +1,7 @@
 # coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
+from monty.serialization import loadfn
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -9,51 +10,26 @@ from pymatgen import Structure
 import numpy as np
 import os
 
-from pymatgen_diffusion.utils.parse_entries import get_inserted_on_base, process_ents
+from pymatgen_diffusion.utils.parse_entries import (
+    get_inserted_on_base,
+    process_entries,
+    get_insertion_energy,
+    get_sym_migration_ion_sites,
+    _filter_and_merge,
+)
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "/../../neb/tests/"
+dir_path = os.path.dirname(os.path.realpath(__file__)) + "/test_files"
 
 __author__ = "Jimmy Shen"
 __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-class ParseEntriesSimplTest(unittest.TestCase):
+class ParseEntriesTest(unittest.TestCase):
     def setUp(self):
-        struct_uc = Structure.from_dict(
-            {
-                "@module": "pymatgen.core.structure",
-                "@class": "Structure",
-                "charge": None,
-                "lattice": {
-                    "matrix": [[3, 0, 0], [1.5, 2.598, 0], [0, 0, 6]],
-                    "a": 3,
-                    "b": 3,
-                    "c": 6,
-                    "alpha": 90,
-                    "beta": 90,
-                    "gamma": 60,
-                    "volume": 46.77,
-                },
-                "sites": [
-                    {
-                        "species": [{"element": "B", "occu": 1}],
-                        "abc": [0, 0, 0.5],
-                        "xyz": [0, 0, 3],
-                        "label": "B",
-                        "properties": {},
-                    },
-                    {
-                        "species": [{"element": "N", "occu": 1}],
-                        "abc": [0.5, 0.5, 0.5],
-                        "xyz": [2.25, 1.299, 3],
-                        "label": "N",
-                        "properties": {},
-                    },
-                ],
-            }
-        )
-
+        d = loadfn(f"{dir_path}/parse_entry_test_vars.json")
+        struct_uc = d["struct_uc"]
+        self.li_ent = d["li_ent"]
         e_uc = 100
         self.base = ComputedStructureEntry(structure=struct_uc, energy=e_uc)
 
@@ -72,41 +48,94 @@ class ParseEntriesSimplTest(unittest.TestCase):
 
         self.sm = StructureMatcher(ignored_species=["Li"], primitive_cell=False)
 
-    def _is_valid_inserted_ent(self, mapped_ents):
+        self.struct_inserted_1Li1 = get_inserted_on_base(
+            self.base, self.inserted_1Li1, self.li_ent, self.sm
+        )
+        self.struct_inserted_1Li2 = get_inserted_on_base(
+            self.base, self.inserted_1Li2, self.li_ent, self.sm
+        )
+        self.struct_inserted_2Li = get_inserted_on_base(
+            self.base, self.inserted_2Li, self.li_ent, self.sm
+        )
+
+    def _is_valid_inserted_ent(self, mapped_struct):
         res = True
-        for ient in mapped_ents:
-            for isite in ient.structure.sites:
-                if isite.species_string == "Li":
-                    tt = isite.frac_coords - np.floor(isite.frac_coords)
-                    if list(tt) in [[0.75, 0.75, 0.5], [0.25, 0.25, 0.5]]:
-                        res = True
-                    else:
-                        return False
+        for isite in mapped_struct.sites:
+            if isite.species_string == "Li":
+                tt = isite.frac_coords - np.floor(isite.frac_coords)
+                if list(tt) in [[0.75, 0.75, 0.5], [0.25, 0.25, 0.5]]:
+                    res = True
+                else:
+                    return False
         return res
 
     def test_get_inserted_on_base(self):
-        mapped_ents = get_inserted_on_base(self.base, self.inserted_1Li1, self.sm)
-        self.assertTrue(self._is_valid_inserted_ent(mapped_ents))
-        self.assertEqual(mapped_ents[0].energy, 103)
-        mapped_ents = get_inserted_on_base(self.base, self.inserted_1Li2, self.sm)
-        self.assertTrue(self._is_valid_inserted_ent(mapped_ents))
-        self.assertEqual(mapped_ents[0].energy, 105)
-        mapped_ents = get_inserted_on_base(self.base, self.inserted_2Li, self.sm)
-        self.assertTrue(self._is_valid_inserted_ent(mapped_ents))
-        self.assertEqual(mapped_ents[0].energy, 102)
+        mapped_struct = get_inserted_on_base(
+            self.base, self.inserted_1Li1, self.li_ent, self.sm
+        )
+        self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
+        self.assertEqual(mapped_struct[0].properties["insertion_energy"], 5.0)
+        mapped_struct = get_inserted_on_base(
+            self.base, self.inserted_1Li2, self.li_ent, self.sm
+        )
+        self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
+        self.assertEqual(mapped_struct[0].properties["insertion_energy"], 7.0)
+        mapped_struct = get_inserted_on_base(
+            self.base, self.inserted_2Li, self.li_ent, self.sm
+        )
+        self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
+        self.assertEqual(mapped_struct[0].properties["insertion_energy"], 4.0)
 
     def test_process_ents(self):
         base_2_ent = ComputedStructureEntry(
             structure=self.base.structure * [[1, 1, 0], [1, -1, 0], [0, 0, 2]],
             energy=self.base.energy * 4,
         )
-        res = process_ents(
-            [base_2_ent, self.base], [self.inserted_1Li1, self.inserted_2Li]
+        res = process_entries(
+            [base_2_ent, self.base],
+            [self.inserted_2Li],
+            migrating_ion_entry=self.li_ent,
         )
         for itr_group in res:
-            base_energy = itr_group["base"].energy
-            for i_insert in itr_group["inserted"]:
-                self.assertTrue(i_insert.energy - base_energy in [2, 3])
+            for i_insert_site in itr_group["inserted"]:
+                if i_insert_site.species_string == "Li":
+                    self.assertEqual(i_insert_site.properties["insertion_energy"], 4)
+
+    def test_filter_and_merge(self):
+        combined_struct = Structure.from_sites(
+            self.struct_inserted_1Li1.sites
+            + self.struct_inserted_1Li2.sites
+            + self.struct_inserted_2Li.sites
+        )
+        filtered_struct = _filter_and_merge(combined_struct)
+        for i_insert_site in filtered_struct:
+            if i_insert_site.species_string == "Li":
+                self.assertIn(i_insert_site.properties["insertion_energy"], {4.5, 5.5})
+
+    def test_get_insertion_energy(self):
+        insert_energy = get_insertion_energy(self.base, self.inserted_1Li1, self.li_ent)
+        basex2_ = ComputedStructureEntry(
+            structure=self.base.structure * [1, 1, 2], energy=self.base.energy * 2
+        )
+        insert_energyx2 = get_insertion_energy(basex2_, self.inserted_1Li1, self.li_ent)
+        self.assertAlmostEqual(insert_energyx2, insert_energy)
+        self.assertAlmostEqual(insert_energy, 5)  # 3 + 2 where 2 is from the Li energy
+        insert_energy = get_insertion_energy(self.base, self.inserted_2Li, self.li_ent)
+        self.assertAlmostEqual(insert_energy, 4)
+
+    def test_get_all_sym_sites(self):
+        struct11 = get_sym_migration_ion_sites(
+            self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li"
+        )
+        self.assertEquals(struct11.composition["Li"], 4)
+        struct12 = get_sym_migration_ion_sites(
+            self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li"
+        )
+        self.assertEquals(struct12.composition["Li"], 4)
+        struct22 = get_sym_migration_ion_sites(
+            self.base.structure, self.inserted_2Li.structure, migrating_ion="Li"
+        )
+        self.assertEquals(struct22.composition["Li"], 8)
 
 
 if __name__ == "__main__":

@@ -16,21 +16,19 @@ import logging
 import operator
 from collections import defaultdict
 from copy import deepcopy
+from functools import cached_property
 from itertools import starmap
 from typing import Callable, Dict, List, Union
-from functools import cached_property
 
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
+from pymatgen import Composition
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import NearNeighbors, MinimumDistanceNN
+from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
 from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core import PeriodicSite, Structure
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Composition
-from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -39,14 +37,9 @@ from pymatgen_diffusion.neb.periodic_dijkstra import (
     get_optimal_pathway_rev,
     periodic_dijkstra,
 )
+from pymatgen_diffusion.utils.parse_entries import process_entries
 
 logger = logging.getLogger(__name__)
-
-# Magic Numbers
-BASE_COLLISION_R = (
-    1.0  # Eliminate cation sites that are too close to the sites in the base structure
-)
-SITE_MERGE_R = 1.0  # Merge cation sites that are too close together
 
 
 def generic_groupby(list_in: list, comp: Callable = operator.eq):
@@ -149,7 +142,7 @@ class MigrationGraph(MSONable):
         Returns:
             A constructed MigrationGraph object
         """
-        only_sites = get_only_sites(structure, migrating_specie)
+        only_sites = get_only_sites_from_structure(structure, migrating_specie)
         migration_graph = StructureGraph.with_local_env_strategy(only_sites, nn)
         return cls(structure=structure, migration_graph=migration_graph, **kwargs)
 
@@ -168,12 +161,33 @@ class MigrationGraph(MSONable):
         Returns:
             A constructed MigrationGraph object
         """
-        only_sites = get_only_sites(structure, migrating_specie)
+        only_sites = get_only_sites_from_structure(structure, migrating_specie)
         migration_graph = StructureGraph.with_local_env_strategy(
             only_sites,
             MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
         )
         return cls(structure=structure, migration_graph=migration_graph, **kwargs)
+
+    @staticmethod
+    def get_structure_from_entries(
+        base_entries: List[ComputedStructureEntry],
+        inserted_entries: List[ComputedStructureEntry],
+        migrating_ion_entry: ComputedEntry,
+        **kwargs,
+    ):
+        l_base_and_inserted = process_entries(
+            base_entries=base_entries,
+            inserted_entries=inserted_entries,
+            migrating_ion_entry=migrating_ion_entry,
+            **kwargs,
+        )
+        res = []
+        for group in l_base_and_inserted:
+            all_sites = group["base"].copy().sites
+            for isite in group["inserted"]:
+                all_sites.append(isite)
+            res.append(Structure.from_sites(all_sites))
+        return res
 
     def _get_pos_and_migration_path(self, u, v, w):
         """
@@ -354,29 +368,8 @@ class MigrationGraph(MSONable):
                         path_hops.append(tmp_d)
                         found_ += 1
                 if found_ != 1:
-                    raise RuntimeError("More than on edge mathched in original graph.")
+                    raise RuntimeError("More than one edge matched in original graph.")
             yield u, path_hops
-
-
-def get_only_sites(structure: Structure, migrating_specie: str) -> Structure:
-    """
-    Get a copy of the structure with only the migrating sites.
-
-    Args:
-        structure: The full_structure that contains all the sites
-        migrating_specie: The name of migrating species
-
-    Returns:
-      Structure: Structure with all possible migrating ion sites
-
-    """
-    migrating_ion_sites = list(
-        filter(
-            lambda site: site.species == Composition({migrating_specie: 1}),
-            structure.sites,
-        )
-    )
-    return Structure.from_sites(migrating_ion_sites)
 
 
 class ChargeBarrierGraph(MigrationGraph):
@@ -707,213 +700,233 @@ class ChargeBarrierGraph(MigrationGraph):
         )
 
 
-class ComputedEntryGraph(MigrationGraph):
-    """
-    Generate the full migration network using computed entires for intercollation andvacancy limits
-    - Map the relaxed sites of a material back to the empty host lattice
-    - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom
-    - Get the symmetry inequivalent hops
-    - Get the migration barriers for each inequivalent hop
-    """
+# class ComputedEntryGraph(MigrationGraph):
+#     """
+#     Generate the full migration network using computed entires for intercollation andvacancy limits
+#     - Map the relaxed sites of a material back to the empty host lattice
+#     - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom
+#     - Get the symmetry inequivalent hops
+#     - Get the migration barriers for each inequivalent hop
+#     """
+#
+#     def __init__(
+#         self,
+#         base_struct_entry,
+#         single_cat_entries,
+#         migrating_specie,
+#         base_aeccar=None,
+#         max_path_length=4,
+#         ltol=0.2,
+#         stol=0.3,
+#         symprec=0.1,
+#         angle_tol=5,
+#         full_sites_struct=None,
+#     ):
+#         """
+#         Pass in a entries for analysis
+#
+#         Args:
+#           base_struct_entry: the structure without a working ion for us to analyze the migration
+#           single_cat_entries: list of structures containing a single cation at different positions
+#           base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
+#           migration_specie: a String symbol or Element for the cation. (Default value = 'Li')
+#           ltol: parameter for StructureMatcher (Default value = 0.2)
+#           stol: parameter for StructureMatcher (Default value = 0.3)
+#           symprec: parameter for SpacegroupAnalyzer (Default value = 0.3)
+#           angle_tol: parameter for StructureMatcher (Default value = 5)
+#         """
+#
+#         self.single_cat_entries = single_cat_entries
+#         self.base_struct_entry = base_struct_entry
+#         self.base_aeccar = base_aeccar
+#         self.migrating_specie = migrating_specie
+#         self.ltol = ltol
+#         self.stol = stol
+#         self.symprec = symprec
+#         self.angle_tol = angle_tol
+#         self.angle_tol = angle_tol
+#         self._tube_radius = None
+#         self.sm = StructureMatcher(
+#             comparator=ElementComparator(),
+#             primitive_cell=False,
+#             ignored_species=[migrating_specie],
+#             ltol=ltol,
+#             stol=stol,
+#             angle_tol=angle_tol,
+#         )
+#
+#         logger.debug("See if the structures all match")
+#         fit_ents = []
+#         if full_sites_struct:
+#             self.full_sites = full_sites_struct
+#             self.base_structure_full_sites = self.full_sites.copy()
+#             self.base_structure_full_sites.sites.extend(
+#                 self.base_struct_entry.structure.sites
+#             )
+#         else:
+#             for inserted_entry in self.single_cat_entries:
+#                 if self.sm.fit(self.base_struct_entry.structure, inserted_entry.structure):
+#                     fit_ents.append(inserted_entry)
+#             self.single_cat_entries = fit_ents
+#
+#             self.translated_single_cat_entries = list(
+#                 map(self.match_ent_to_base, self.single_cat_entries)
+#             )
+#             self.full_sites = self.get_full_sites()
+#             self.base_structure_full_sites = self.full_sites.copy()
+#             self.base_structure_full_sites.sites.extend(
+#                 self.base_struct_entry.structure.sites
+#             )
+#
+#         # Initialize
+#         super().__init__(
+#             structure=self.base_structure_full_sites,
+#             migrating_specie=migrating_specie,
+#             max_path_length=max_path_length,
+#             symprec=symprec,
+#             vac_mode=False,
+#             name=base_struct_entry.entry_id,
+#         )
+#
+#         self._populate_edges_with_migration_paths()
+#         self._group_and_label_hops()
+#         self._populate_unique_hops_dict()
+#         if base_aeccar:
+#             self._setup_grids()
+#
+#     def match_ent_to_base(self, inserted_entry):
+#         """
+#         Transform the potential_field of one entry to match the base potential_field
+#
+#         Args:
+#           inserted_entry:
+#
+#         Returns:
+#           ComputedStructureEntry: entry with modified potential_field
+#
+#         """
+#         # new_ent = deepcopy(inserted_entry)
+#         struct = inserted_entry.structure.copy()
+#         new_struct = self.sm.get_s2_like_s1(self.base_struct_entry.structure, struct)
+#         d = inserted_entry.as_dict()
+#         d["structure"] = new_struct
+#         new_entry = ComputedStructureEntry.from_dict(d)
+#         return new_entry
+#
+#     def get_full_sites(self):
+#         """
+#         Get each group of symmetry inequivalent sites and combine them
+#
+#         Args:
+#
+#         Returns: a Structure with all possible Li sites, the enregy of the structure is stored as a site property
+#
+#         """
+#         res = []
+#         for itr in self.translated_single_cat_entries:
+#             sub_site_list = get_sym_migration_ion_sites(
+#                 itr,
+#                 self.base_struct_entry,
+#                 self.migrating_specie,
+#                 symprec=self.symprec,
+#                 angle_tol=self.angle_tol,
+#             )
+#             # ic(sub_site_list._sites)
+#             res.extend(sub_site_list._sites)
+#         # check to see if the sites collide with the base struture
+#         filtered_res = []
+#         for itr in res:
+#             col_sites = self.base_struct_entry.structure.get_sites_in_sphere(
+#                 itr.coords, BASE_COLLISION_R
+#             )
+#             if len(col_sites) == 0:
+#                 filtered_res.append(itr)
+#         res = Structure.from_sites(filtered_res)
+#         if len(res) > 1:
+#             res.merge_sites(tol=SITE_MERGE_R, mode="average")
+#         return res
 
-    def __init__(
-        self,
-        base_struct_entry,
-        single_cat_entries,
-        migrating_specie,
-        base_aeccar=None,
-        max_path_length=4,
-        ltol=0.2,
-        stol=0.3,
-        symprec=0.1,
-        angle_tol=5,
-        full_sites_struct=None,
-    ):
-        """
-        Pass in a entries for analysis
 
-        Args:
-          base_struct_entry: the structure without a working ion for us to analyze the migration
-          single_cat_entries: list of structures containing a single cation at different positions
-          base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
-          migration_specie: a String symbol or Element for the cation. (Default value = 'Li')
-          ltol: parameter for StructureMatcher (Default value = 0.2)
-          stol: parameter for StructureMatcher (Default value = 0.3)
-          symprec: parameter for SpacegroupAnalyzer (Default value = 0.3)
-          angle_tol: parameter for StructureMatcher (Default value = 5)
-        """
-
-        self.single_cat_entries = single_cat_entries
-        self.base_struct_entry = base_struct_entry
-        self.base_aeccar = base_aeccar
-        self.migrating_specie = migrating_specie
-        self.ltol = ltol
-        self.stol = stol
-        self.symprec = symprec
-        self.angle_tol = angle_tol
-        self.angle_tol = angle_tol
-        self._tube_radius = None
-        self.sm = StructureMatcher(
-            comparator=ElementComparator(),
-            primitive_cell=False,
-            ignored_species=[migrating_specie],
-            ltol=ltol,
-            stol=stol,
-            angle_tol=angle_tol,
-        )
-
-        logger.debug("See if the structures all match")
-        fit_ents = []
-        if full_sites_struct:
-            self.full_sites = full_sites_struct
-            self.base_structure_full_sites = self.full_sites.copy()
-            self.base_structure_full_sites.sites.extend(
-                self.base_struct_entry.structure.sites
-            )
-        else:
-            for ent in self.single_cat_entries:
-                if self.sm.fit(self.base_struct_entry.structure, ent.structure):
-                    fit_ents.append(ent)
-            self.single_cat_entries = fit_ents
-
-            self.translated_single_cat_entries = list(
-                map(self.match_ent_to_base, self.single_cat_entries)
-            )
-            self.full_sites = self.get_full_sites()
-            self.base_structure_full_sites = self.full_sites.copy()
-            self.base_structure_full_sites.sites.extend(
-                self.base_struct_entry.structure.sites
-            )
-
-        # Initialize
-        super().__init__(
-            structure=self.base_structure_full_sites,
-            migrating_specie=migrating_specie,
-            max_path_length=max_path_length,
-            symprec=symprec,
-            vac_mode=False,
-            name=base_struct_entry.entry_id,
-        )
-
-        self._populate_edges_with_migration_paths()
-        self._group_and_label_hops()
-        self._populate_unique_hops_dict()
-        if base_aeccar:
-            self._setup_grids()
-
-    def match_ent_to_base(self, ent):
-        """
-        Transform the potential_field of one entry to match the base potential_field
-
-        Args:
-          ent:
-
-        Returns:
-          ComputedStructureEntry: entry with modified potential_field
-
-        """
-        # new_ent = deepcopy(ent)
-        struct = ent.structure.copy()
-        new_struct = self.sm.get_s2_like_s1(self.base_struct_entry.structure, struct)
-        d = ent.as_dict()
-        d["potential_field"] = new_struct
-        new_entry = ComputedStructureEntry.from_dict(d)
-        return new_entry
-
-    def get_full_sites(self):
-        """
-        Get each group of symmetry inequivalent sites and combine them
-
-        Args:
-
-        Returns: a Structure with all possible Li sites, the enregy of the structure is stored as a site property
-
-        """
-        res = []
-        for itr in self.translated_single_cat_entries:
-            sub_site_list = get_all_sym_sites(
-                itr,
-                self.base_struct_entry,
-                self.migrating_specie,
-                symprec=self.symprec,
-                angle_tol=self.angle_tol,
-            )
-            # ic(sub_site_list._sites)
-            res.extend(sub_site_list._sites)
-        # check to see if the sites collide with the base struture
-        filtered_res = []
-        for itr in res:
-            col_sites = self.base_struct_entry.structure.get_sites_in_sphere(
-                itr.coords, BASE_COLLISION_R
-            )
-            if len(col_sites) == 0:
-                filtered_res.append(itr)
-        res = Structure.from_sites(filtered_res)
-        if len(res) > 1:
-            res.merge_sites(tol=SITE_MERGE_R, mode="average")
-        return res
-
-
-def get_all_sym_sites(
-    ent, base_struct_entry, migrating_specie, symprec=2.0, angle_tol=10
-):
-    """
-    Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure
-
-    Args:
-        ent(ComputedStructureEntry): that contains cation
-        migrating_species(string or Elment):
-
-    Returns:
-        Structure: containing all of the symmetry equivalent sites
-
-    """
-    migrating_specie_el = get_el_sp(migrating_specie)
-    sa = SpacegroupAnalyzer(
-        base_struct_entry.structure, symprec=symprec, angle_tolerance=angle_tol
-    )
-    # start with the base structure but empty
-    host_allsites = base_struct_entry.structure.copy()
-    host_allsites.remove_species(host_allsites.species)
-    pos_Li = list(
-        filter(
-            lambda isite: isite.species_string == migrating_specie_el.name,
-            ent.structure.sites,
-        )
-    )
-
-    # energy difference per site
-    inserted_energy = (ent.energy - base_struct_entry.energy) / len(pos_Li)
-
-    for isite in pos_Li:
-        host_allsites.insert(
-            0,
-            migrating_specie_el.name,
-            np.mod(isite.frac_coords, 1),
-            properties=dict(inserted_energy=inserted_energy, magmom=0),
-        )
-    # base_ops = sa.get_space_group_operations()
-    # all_ops = generate_full_symmops(base_ops, tol=1.0)
-    for op in sa.get_space_group_operations():
-        logger.debug(f"{op}")
-        struct_tmp = host_allsites.copy()
-        struct_tmp.apply_operation(symmop=op, fractional=True)
-        for isite in struct_tmp.sites:
-            if isite.species_string == migrating_specie_el.name:
-                logger.debug(f"{op}")
-                host_allsites.insert(
-                    0,
-                    migrating_specie_el.name,
-                    np.mod(isite.frac_coords, 1),
-                    properties=dict(inserted_energy=inserted_energy, magmom=0),
-                )
-                host_allsites.merge_sites(
-                    tol=SITE_MERGE_R, mode="delete"
-                )  # keeps only remove duplicates
-    return host_allsites
+# def get_all_sym_sites(
+#     ent, base_struct_entry, migrating_specie, symprec=2.0, angle_tol=10
+# ):
+#     """
+#     Return all of the symmetry equivalent sites by applying the symmetry operation of the empty structure
+#
+#     Args:
+#         ent(ComputedStructureEntry): that contains cation
+#         migrating_species(string or Element):
+#
+#     Returns:
+#         Structure: containing all of the symmetry equivalent sites
+#
+#     """
+#     migrating_specie_el = get_el_sp(migrating_specie)
+#     sa = SpacegroupAnalyzer(
+#         base_struct_entry.structure, symprec=symprec, angle_tolerance=angle_tol
+#     )
+#     # start with the base structure but empty
+#     host_allsites = base_struct_entry.structure.copy()
+#     host_allsites.remove_species(host_allsites.species)
+#     pos_Li = list(
+#         filter(
+#             lambda isite: isite.species_string == migrating_specie_el.name,
+#             ent.structure.sites,
+#         )
+#     )
+#
+#     # energy difference per site
+#     inserted_energy = (ent.energy - base_struct_entry.energy) / len(pos_Li)
+#
+#     for isite in pos_Li:
+#         host_allsites.insert(
+#             0,
+#             migrating_specie_el.name,
+#             np.mod(isite.frac_coords, 1),
+#             properties=dict(insertion_energy=inserted_energy, magmom=0),
+#         )
+#     # base_ops = sa.get_space_group_operations()
+#     # all_ops = generate_full_symmops(base_ops, tol=1.0)
+#     for op in sa.get_space_group_operations():
+#         logger.debug(f"{op}")
+#         struct_tmp = host_allsites.copy()
+#         struct_tmp.apply_operation(symmop=op, fractional=True)
+#         for isite in struct_tmp.sites:
+#             if isite.species_string == migrating_specie_el.name:
+#                 logger.debug(f"{op}")
+#                 host_allsites.insert(
+#                     0,
+#                     migrating_specie_el.name,
+#                     np.mod(isite.frac_coords, 1),
+#                     properties=dict(inserted_energy=inserted_energy, magmom=0),
+#                 )
+#                 host_allsites.merge_sites(
+#                     tol=SITE_MERGE_R, mode="delete"
+#                 )  # keeps only remove duplicates
+#     return host_allsites
 
 
 # Utility functions
+def get_only_sites_from_structure(
+    structure: Structure, migrating_specie: str
+) -> Structure:
+    """
+    Get a copy of the structure with only the migrating sites.
+
+    Args:
+        structure: The full_structure that contains all the sites
+        migrating_specie: The name of migrating species
+
+    Returns:
+      Structure: Structure with all possible migrating ion sites
+    """
+    migrating_ion_sites = list(
+        filter(
+            lambda site: site.species == Composition({migrating_specie: 1}),
+            structure.sites,
+        )
+    )
+    return Structure.from_sites(migrating_ion_sites)
 
 
 def _shift_grid(vv):
@@ -965,6 +978,7 @@ migration events using the following procedure:
 - Look for a hop that leaves the SC like A->B (B on the outside)
 - then at A look for a pathway to the image of B inside the SC
 """
+
 
 # Utility Functions for comparing UC and SC hops
 
