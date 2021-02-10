@@ -268,7 +268,5 @@ class ComputedEntryPathTest(unittest.TestCase):
         self.assertEqual(len(mg.migration_graph.structure), 8)
 
 
-#
-
 if __name__ == "__main__":
     unittest.main()
