@@ -166,7 +166,28 @@ class MigrationGraph(MSONable):
         inserted_entries: List[ComputedStructureEntry],
         migrating_ion_entry: ComputedEntry,
         **kwargs,
-    ):
+    ) -> List[Structure]:
+        """
+        Read in a list of base entries and inserted entries.  Return a list of structures that contains metastable
+        sites for the migration species decorated with a "insertion_energy" property.
+
+        Args:
+            base_entries: List of entries that only contains the host lattice
+            inserted_entries: List of entries that contains the inserted structures
+            migrating_ion_entry: The metallic phase of the working ion, used to calculate insertion energies.
+
+        Additional Kwargs:
+            symprec:  symmetry parameter for SpacegroupAnalyzer
+            ltol: Fractional length tolerance for StructureMatcher
+            stol: Site tolerance for StructureMatcher
+            angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
+            only_single_cat: If True, only use single cation insertions so the
+            site energy is more accurate use_strict_tol: halve the ltol and
+            stol parameter for more strict matching.
+
+        Returns:
+
+        """
         l_base_and_inserted = process_entries(
             base_entries=base_entries,
             inserted_entries=inserted_entries,
@@ -239,15 +260,15 @@ class MigrationGraph(MSONable):
                 unique_hops[d["hop_label"]] = d
         self.unique_hops = unique_hops
 
-    @cached_property
-    def unique_hops(self):
-        # reversed so that the first instance represents the group of distinct hops
-        ihop_data = list(reversed(list(self.migration_graph.graph.edges(data=True))))
-        for u, v, d in ihop_data:
-            d["iindex"] = u
-            d["eindex"] = v
-            d["hop_distance"] = d["hop"].length
-        return {d["hop_label"]: d for u, v, d in ihop_data}
+    # @cached_property
+    # def unique_hops(self):
+    #     # reversed so that the first instance represents the group of distinct hops
+    #     ihop_data = list(reversed(list(self.migration_graph.graph.edges(data=True))))
+    #     for u, v, d in ihop_data:
+    #         d["iindex"] = u
+    #         d["eindex"] = v
+    #         d["hop_distance"] = d["hop"].length
+    #     return {d["hop_label"]: d for u, v, d in ihop_data}
 
     def add_data_to_similar_edges(
         self, target_label: Union[int, str], data: dict, m_path: MigrationPath = None

@@ -47,11 +47,11 @@ def process_entries(
     Args:
         base_entries: Full list of base entires
         inserted_entries: Full list of inserted entires
+        migrating_ion_entry: The metallic phase of the working ion, used to calculate insertion energies.
         symprec:  symmetry parameter for SpacegroupAnalyzer
         ltol: Fractional length tolerance for StructureMatcher
         stol: Site tolerance for StructureMatcher
         angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
-        working_ion: String for the working ion
         only_single_cat: If True, only use single cation insertions so the
             site energy is more accurate use_strict_tol: halve the ltol and
             stol parameter for more strict matching.
