@@ -29,7 +29,9 @@ class FullPathMapperSimpleTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = FullPathMapper(
-            structure=struct, migrating_specie="Li", max_path_length=4
+            base_structure=struct,
+            mobile_specie="Li",
+            max_hop_length=4,
         )
 
     def test_get_pos_and_migration_path(self):
@@ -44,20 +46,34 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        base_struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_base.vasp")
+        sites_struct = Structure.from_file(
+            f"{dir_path}/full_path_files/MnO2_only_Li.vasp"
+        )
         self.fpm_li = FullPathMapper(
-            structure=struct, migrating_specie="Li", max_path_length=4
+            base_structure=base_struct,
+            mobile_specie="Li",
+            sites_structure=sites_struct,
+            max_hop_length=4,
         )
         self.fpm_li.populate_edges_with_migration_paths()
         self.fpm_li.group_and_label_hops()
+        self.fpm_li._populate_unique_hops_dict()
 
         # Particularity difficult pathfinding since both the starting and ending positions are outside the unit cell
-        struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
+        mg_struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
+        au_struct = Structure.from_file(
+            f"{dir_path}/full_path_files/Mg_2atom_base.vasp"
+        )
         self.fpm_mg = FullPathMapper(
-            structure=struct, migrating_specie="Mg", max_path_length=2
+            base_structure=au_struct,
+            mobile_specie="Mg",
+            sites_structure=mg_struct,
+            max_hop_length=2,
         )
         self.fpm_mg.populate_edges_with_migration_paths()
         self.fpm_mg.group_and_label_hops()
+        self.fpm_mg._populate_unique_hops_dict()
 
     def test_group_and_label_hops(self):
         """
@@ -129,11 +145,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.s_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
@@ -151,16 +167,16 @@ class FullPathMapperComplexTest(unittest.TestCase):
                     ]
                     self.assertIn(neg_image, opposite_connections)
 
-    def test_get_intercalating_path(self):
+    def test_get_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_intercalating_path()]
+        paths = [*self.fpm_li.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
         self.assertIn("5->7->5", p_strings)
         # convert each pathway to a string representation
-        paths = [*self.fpm_li.get_intercalating_path(max_val=2.0)]
+        paths = [*self.fpm_li.get_path(max_val=2.0)]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -170,7 +186,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
         self.assertIn("5->3->7->2->5", p_strings)
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_mg.get_intercalating_path()]
+        paths = [*self.fpm_mg.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -179,7 +195,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
 
     def test_not_matching_first(self):
         structure = Structure.from_file(f"{dir_path}/pathfinder_files/Li6MnO4.json")
-        fpm_lmo = FullPathMapper(structure, "Li", max_path_length=4)
+        fpm_lmo = FullPathMapper(structure, "Li", max_hop_length=4)
         for u, v, d in fpm_lmo.s_graph.graph.edges(data=True):
             self.assertIn(d["hop"].eindex, {0, 1})
 
@@ -194,7 +210,7 @@ class ComputedEntryPathTest(unittest.TestCase):
         )
         self.cep = ComputedEntryPath(
             base_struct_entry=self.test_ents_MOF["ent_base"],
-            migrating_specie="Li",
+            mobile_specie="Li",
             single_cat_entries=self.test_ents_MOF["one_cation"],
             base_aeccar=self.aeccar_MOF,
         )
@@ -215,7 +231,7 @@ class ComputedEntryPathTest(unittest.TestCase):
         """
         for ent in self.cep.translated_single_cat_entries:
             li_sites = get_all_sym_sites(
-                ent, self.cep.base_struct_entry, self.cep.migrating_specie
+                ent, self.cep.base_struct_entry, self.cep.mobile_specie
             ).sites
             s0 = self.cep.base_struct_entry.structure.copy()
             s0.insert(0, "Li", li_sites[0].frac_coords)
