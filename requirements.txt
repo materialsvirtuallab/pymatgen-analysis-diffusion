@@ -3,4 +3,4 @@ scipy==1.6.0
 pymatgen==2021.2.8.1
 matplotlib==3.3.4
 joblib==1.0.0
-ase==3.20.1
+ase==3.21.1
