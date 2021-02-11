@@ -10,6 +10,7 @@ import itertools
 import warnings
 
 import numpy as np
+from pymatgen import Site
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -20,6 +21,7 @@ __date__ = "March 14, 2017"
 
 
 # TODO: (1) ipython notebook example files, unittests
+from pymatgen.symmetry.structure import SymmetrizedStructure
 
 
 class IDPPSolver:
@@ -307,7 +309,7 @@ class MigrationPath:
     A convenience container representing a migration path.
     """
 
-    def __init__(self, isite, esite, symm_structure):
+    def __init__(self, isite: Site, esite: Site, symm_structure: SymmetrizedStructure):
         """
         Args:
             isite: Initial site
