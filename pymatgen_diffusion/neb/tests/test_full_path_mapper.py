@@ -12,7 +12,7 @@ from pymatgen.io.vasp import Chgcar
 from pymatgen_diffusion.neb.full_path_mapper import (
     ChargeBarrierGraph,
     MigrationGraph,
-    MigrationPath,
+    MigrationHop,
     get_hop_site_sequence,
 )
 from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
@@ -33,7 +33,7 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 
     def test_get_pos_and_migration_path(self):
         """
-        Make sure that we can populate the graph with MigrationPath Objects
+        Make sure that we can populate the graph with MigrationHop Objects
         """
         self.fpm._get_pos_and_migration_path(0, 1, 1)
         self.assertAlmostEqual(
@@ -111,7 +111,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
                 self.assertEqual(d["key1"], [1, 2, 3])
 
         # passing ordered list with direction
-        migration_path_reversed = MigrationPath(
+        migration_path_reversed = MigrationHop(
             isite=migration_path.esite,
             esite=migration_path.isite,
             symm_structure=migration_path.symm_structure,

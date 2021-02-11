@@ -7,7 +7,6 @@ Created on April 01, 2019
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
-__version__ = "0.1"
 __maintainer__ = "Jimmy Shen"
 __email__ = "jmmshn@lbl.gov"
 __date__ = "April 11, 2019"
@@ -16,7 +15,6 @@ import logging
 import operator
 from collections import defaultdict
 from copy import deepcopy
-from functools import cached_property
 from itertools import starmap
 from typing import Callable, Dict, List, Union
 
@@ -31,8 +29,9 @@ from pymatgen.core import PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.structure import SymmetrizedStructure
 
-from pymatgen_diffusion.neb.pathfinder import MigrationPath
+from pymatgen_diffusion.neb.pathfinder import MigrationHop
 from pymatgen_diffusion.neb.periodic_dijkstra import (
     get_optimal_pathway_rev,
     periodic_dijkstra,
@@ -73,7 +72,7 @@ class MigrationGraph(MSONable):
     Find all hops in a given crystal structure using the StructureGraph.
     Each hop is an edge in the StructureGraph object and each node is a position of the migrating species in the
     structure
-    The equivalence of the hops is checked using the MigrationPath.__eq__ function.
+    The equivalence of the hops is checked using the MigrationHop.__eq__ function.
     The functions here are responsible for distinguishing the individual hops and analysis
     """
 
@@ -115,13 +114,16 @@ class MigrationGraph(MSONable):
         """
         return self.migration_graph.structure
 
-    @cached_property
+    @property
     def symm_structure(self):
         """
         The symmetrized structure with the present item's symprce value
         """
         a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
-        return a.get_symmetrized_structure()
+        sym_struct = a.get_symmetrized_structure()
+        if not isinstance(sym_struct, SymmetrizedStructure):
+            raise RuntimeError("Symmetrized structure could not be generated.")
+        return sym_struct
 
     @classmethod
     def with_local_env_strategy(
@@ -204,7 +206,7 @@ class MigrationGraph(MSONable):
 
     def _get_pos_and_migration_path(self, u, v, w):
         """
-        insert a single MigrationPath object on a graph edge
+        insert a single MigrationHop object on a graph edge
         Args:
           u (int): index of initial node
           v (int): index of final node
@@ -222,8 +224,7 @@ class MigrationGraph(MSONable):
         edge["epos"] = f_site.frac_coords
         edge["ipos_cart"] = np.dot(i_site.frac_coords, self.only_sites.lattice.matrix)
         edge["epos_cart"] = np.dot(f_site.frac_coords, self.only_sites.lattice.matrix)
-
-        edge["hop"] = MigrationPath(i_site, f_site, self.symm_structure)
+        edge["hop"] = MigrationHop(i_site, f_site, self.symm_structure)
 
     def _populate_edges_with_migration_paths(self):
         """
@@ -235,7 +236,7 @@ class MigrationGraph(MSONable):
 
     def _group_and_label_hops(self):
         """
-        Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label
+        Group the MigrationHop objects together and label all the symmetrically equlivaelnt hops with the same label
         """
         hops = list(nx.get_edge_attributes(self.migration_graph.graph, "hop").items())
         labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
@@ -261,7 +262,7 @@ class MigrationGraph(MSONable):
         self.unique_hops = unique_hops
 
     def add_data_to_similar_edges(
-        self, target_label: Union[int, str], data: dict, m_path: MigrationPath = None
+        self, target_label: Union[int, str], data: dict, m_path: MigrationHop = None
     ):
         """
         Insert data to all edges with the same label
@@ -448,7 +449,7 @@ class ChargeBarrierGraph(MigrationGraph):
         )
         return dist_from_pos.reshape(AA.shape)
 
-    def _get_pathfinder_from_hop(self, migration_path: MigrationPath, n_images=20):
+    def _get_pathfinder_from_hop(self, migration_path: MigrationHop, n_images=20):
         # get migration pathfinder objects which contains the paths
         ipos = migration_path.isite.frac_coords
         epos = migration_path.esite.frac_coords
@@ -485,7 +486,7 @@ class ChargeBarrierGraph(MigrationGraph):
     ):
         """obtain the maximum average charge along the path
         Args:
-            migration_path (MigrationPath): MigrationPath object that represents a given hop
+            migration_path (MigrationHop): MigrationPath object that represents a given hop
             radius (float, optional): radius of sphere to perform the average.
                     Defaults to None, which used the _tube_radius instead
             chg_along_path (bool, optional): If True, also return the entire list of average
@@ -527,7 +528,7 @@ class ChargeBarrierGraph(MigrationGraph):
         """
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
         Args:
-            migration_path: MigrationPath object that represents a given hop
+            migration_path: MigrationHop object that represents a given hop
             mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
                 visualization) (Default value = None)
         Returns:
@@ -783,8 +784,8 @@ def check_uc_hop(sc_hop, uc_hop):
     See if hop in the 2X2X2 supercell and a unit cell hop
     are equilvalent under lattice translation
     Args:
-        sc_hop: MigrationPath object form pymatgen-diffusion.
-        uc_hop: MigrationPath object form pymatgen-diffusion.
+        sc_hop: MigrationHop object form pymatgen-diffusion.
+        uc_hop: MigrationHop object form pymatgen-diffusion.
     Return:
         image vector of lenght 3
         Is the UC hop flip of the SC hop
@@ -827,7 +828,7 @@ def map_hop_sc2uc(sc_hop, fpm_uc):
     """
     Map a given hop in the SC onto the UC.
     Args:
-        sc_hop: MigrationPath object form pymatgen-diffusion.
+        sc_hop: MigrationHop object form pymatgen-diffusion.
         fpm_uc: MigrationGraph object from pymatgen-diffusion.
     Note:
         For now assume that the SC is exactly 2x2x2 of the UC.
