@@ -1,0 +1,33 @@
+{
+  "li_ent": {
+    "@module": "pymatgen.entries.computed_entries",
+    "@class": "ComputedEntry",
+    "energy": -2.0,
+    "composition": {
+      "Li": 1.0
+    },
+    "energy_adjustments": [],
+    "parameters": {
+      "run_type": "GGA",
+      "is_hubbard": false,
+      "pseudo_potential": {
+        "functional": "PBE",
+        "labels": [
+          "Li_sv"
+        ],
+        "pot_type": "paw"
+      },
+      "hubbards": {},
+      "potcar_symbols": [
+        "PBE Li_sv"
+      ],
+      "oxide_type": "None"
+    },
+    "data": {
+      "oxide_type": "None"
+    },
+    "entry_id": "mp-135",
+    "correction": 0.0,
+    "@version": "2020.12.18"
+  }
+}
