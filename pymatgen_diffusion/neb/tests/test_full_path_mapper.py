@@ -40,6 +40,19 @@ class FullPathMapperSimpleTest(unittest.TestCase):
             self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4
         )
 
+    def test_structure_is_base(self):
+        """
+        Check whether MigrationGraph can be constructed with structure_is_base = True
+        """
+        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
+        base_struct = Structure.from_sites([s for s in struct if str(s.specie) != "Li"])
+        mg = MigrationGraph(
+            structure=base_struct,
+            migration_graph=self.fpm.migration_graph,
+            structure_is_base=True,
+        )
+        self.assertTrue(mg.structure == self.fpm.structure)
+
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):
@@ -126,11 +139,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
@@ -148,16 +161,16 @@ class FullPathMapperComplexTest(unittest.TestCase):
                     ]
                     self.assertIn(neg_image, opposite_connections)
 
-    def test_get_intercalating_path(self):
+    def test_get_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_intercalating_path()]
+        paths = [*self.fpm_li.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
         self.assertIn("5->7->5", p_strings)
         # convert each pathway to a string representation
-        paths = [*self.fpm_li.get_intercalating_path(max_val=2.0)]
+        paths = [*self.fpm_li.get_path(max_val=2.0)]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -167,7 +180,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
         self.assertIn("5->3->7->2->5", p_strings)
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_mg.get_intercalating_path()]
+        paths = [*self.fpm_mg.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
