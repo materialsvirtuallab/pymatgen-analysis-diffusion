@@ -5,14 +5,14 @@
 """
 Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
-import numpy as np
-from pymatgen import Structure, Lattice, Composition
-from pymatgen.entries.computed_entries import ComputedStructureEntry, ComputedEntry
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 import logging
-from typing import List, Dict
+from typing import Dict, List
+
+import numpy as np
+from pymatgen import Composition, Lattice, Structure
+from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -188,8 +188,8 @@ def get_inserted_on_base(
     )
     if mapped_result is None:
         return None
-    else:
-        sc_m, total_t = mapped_result
+
+    sc_m, total_t = mapped_result
     insertion_energy = get_insertion_energy(base_ent, inserted_ent, migrating_ion_entry)
 
     new_struct = base_ent.structure.copy()
