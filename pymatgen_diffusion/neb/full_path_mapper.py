@@ -2,7 +2,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 """
-Created on April 01, 2019
+Migraiton Graph Analysis
 """
 
 __author__ = "Jimmy Shen"

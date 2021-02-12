@@ -193,7 +193,8 @@ class MigrationHopTest(PymatgenTest):
         base = self.lifepo.copy()
         base.remove_species(["Li"])
         start, end, b_sc = get_start_end_structures(
-            self.m_hop,
+            self.m_hop.isite,
+            self.m_hop.esite,
             base_struct=base,
             sc_mat=[[2, 1, 0], [-1, 1, 0], [0, 0, 1]],
             vac_mode=False,

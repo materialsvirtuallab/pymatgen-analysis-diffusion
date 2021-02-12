@@ -1,3 +1,9 @@
+# coding: utf-8
+# Copyright (c) Materials Virtual Lab.
+# Distributed under the terms of the BSD License.
+"""
+Functions for creating supercells for NEB calculations
+"""
 import logging
 from typing import List, Tuple, Union
 
