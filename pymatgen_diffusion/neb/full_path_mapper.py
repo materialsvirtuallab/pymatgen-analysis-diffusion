@@ -236,6 +236,8 @@ class MigrationGraph(MSONable):
             lattice=self.only_sites.lattice,
         )
         # Positions might be useful for plotting
+        edge["isite"] = i_site
+        edge["esite"] = e_site
         edge["ipos"] = i_site.frac_coords
         edge["epos"] = e_site.frac_coords
         edge["ipos_cart"] = np.dot(i_site.frac_coords, self.only_sites.lattice.matrix)
@@ -409,6 +411,32 @@ class MigrationGraph(MSONable):
                 if found_ != 1:
                     raise RuntimeError("More than one edge matched in original graph.")
             yield u, path_hops
+
+    def add_properties_from_dict(self, unique_hop_dict):
+        for uhop in unique_hop_dict.values():
+            uc_isite = PeriodicSite.from_dict(uhop["isite"])
+            uc_esite = PeriodicSite.from_dict(uhop["esite"])
+            m_path = MigrationPath(uc_isite, uc_esite, self.symm_structure)
+            data = uhop["properties"]
+
+            sites_eq = self.symm_structure.spacegroup.are_symmetrically_equivalent
+            for hop_label, hop in self.unique_hops.items():
+                if sites_eq([uc_isite], [hop["isite"]], symm_prec=self.symprec):
+                    if sites_eq([uc_esite], [hop["esite"]], symm_prec=self.symprec):
+                        self.add_data_to_similar_edges(
+                            target_label=hop_label,
+                            data=data,
+                            m_path=m_path,
+                            store_under_properties=True,
+                        )
+                elif sites_eq([uc_isite], [hop["esite"]], symm_prec=self.symprec):
+                    if sites_eq([uc_esite], [hop["isite"]], symm_prec=self.symprec):
+                        self.add_data_to_similar_edges(
+                            target_label=hop_label,
+                            data=data,
+                            m_path=m_path,
+                            store_under_properties=True,
+                        )
 
 
 class ChargeBarrierGraph(MigrationGraph):
