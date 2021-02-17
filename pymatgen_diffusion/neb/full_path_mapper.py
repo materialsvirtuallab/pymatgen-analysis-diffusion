@@ -104,9 +104,11 @@ class MigrationGraph(MSONable):
             symprec (float): Symmetry precision to determine equivalence
              of migration events
         """
+        self.structure_is_base = structure_is_base
         if structure_is_base is True:
             sites = migration_graph.structure.sites + structure.sites
             self.structure = Structure.from_sites(sites)
+            self.structure_is_base = False
         else:
             self.structure = structure
 
