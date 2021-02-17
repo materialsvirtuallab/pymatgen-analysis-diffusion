@@ -82,7 +82,6 @@ class MigrationGraph(MSONable):
         self,
         structure: Structure,
         migration_graph: StructureGraph,
-        structure_is_base=False,
         symprec=0.1,
         vac_mode=False,
     ):
@@ -104,14 +103,7 @@ class MigrationGraph(MSONable):
             symprec (float): Symmetry precision to determine equivalence
              of migration events
         """
-        self.structure_is_base = structure_is_base
-        if structure_is_base is True:
-            sites = migration_graph.structure.sites + structure.sites
-            self.structure = Structure.from_sites(sites)
-            self.structure_is_base = False
-        else:
-            self.structure = structure
-
+        self.structure = structure
         self.migration_graph = migration_graph
         self.symprec = symprec
         self.vac_mode = vac_mode
@@ -176,6 +168,12 @@ class MigrationGraph(MSONable):
             only_sites,
             MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
         )
+        return cls(structure=structure, migration_graph=migration_graph, **kwargs)
+
+    @classmethod
+    def with_base_structure(cls,base_structure: Structure, migration_graph: StructureGraph, **kwargs):
+        sites = migration_graph.structure.sites + base_structure.sites
+        structure = Structure.from_sites(sites)
         return cls(structure=structure, migration_graph=migration_graph, **kwargs)
 
     @staticmethod
