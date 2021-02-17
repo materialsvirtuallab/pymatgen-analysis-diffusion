@@ -171,7 +171,9 @@ class MigrationGraph(MSONable):
         return cls(structure=structure, migration_graph=migration_graph, **kwargs)
 
     @classmethod
-    def with_base_structure(cls,base_structure: Structure, migration_graph: StructureGraph, **kwargs):
+    def with_base_structure(
+        cls, base_structure: Structure, migration_graph: StructureGraph, **kwargs
+    ):
         sites = migration_graph.structure.sites + base_structure.sites
         structure = Structure.from_sites(sites)
         return cls(structure=structure, migration_graph=migration_graph, **kwargs)
