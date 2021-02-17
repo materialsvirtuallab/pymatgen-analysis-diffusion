@@ -46,10 +46,8 @@ class FullPathMapperSimpleTest(unittest.TestCase):
         """
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         base_struct = Structure.from_sites([s for s in struct if str(s.specie) != "Li"])
-        mg = MigrationGraph(
-            structure=base_struct,
-            migration_graph=self.fpm.migration_graph,
-            structure_is_base=True,
+        mg = MigrationGraph.with_base_structure(
+            base_structure=base_struct, migration_graph=self.fpm.migration_graph
         )
         self.assertTrue(mg.structure == self.fpm.structure)
 
