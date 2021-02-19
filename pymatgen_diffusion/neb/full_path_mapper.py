@@ -444,7 +444,7 @@ class MigrationGraph(MSONable):
             data = {}
             for k in property_keys:
                 if k in uhop.keys():
-                    data.update({k:uhop[k]})
+                    data.update({k: uhop[k]})
 
             for hop_label, hop in self.unique_hops.items():
                 if m_path == hop["hop"]:
