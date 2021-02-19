@@ -299,21 +299,6 @@ class MigrationGraph(MSONable):
         nx.set_edge_attributes(self.migration_graph.graph, new_attr)
         return new_attr
 
-    # def _populate_unique_hops_dict(self):
-    #     """
-    #     Populate the unique hops
-    #     """
-    #     # reversed so that the first instance represents the group of distinct hops
-    #     unique_hops = dict()
-    #     for u, v, d in self.migration_graph.graph.edges(data=True):
-    #         d["iindex"] = u
-    #         d["eindex"] = v
-    #         d["properties"]["hop_distance"] = d["hop"].length
-    #         if d["hop_label"] not in unique_hops:
-    #             unique_hops[d["hop_label"]] = d
-    #     self.unique_hops = unique_hops
-    #
-
     def add_data_to_similar_edges(
         self,
         target_label: Union[int, str],
