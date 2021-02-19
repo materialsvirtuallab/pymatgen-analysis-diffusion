@@ -12,7 +12,7 @@ from pymatgen.io.vasp import Chgcar
 from pymatgen_diffusion.neb.full_path_mapper import (
     ChargeBarrierGraph,
     MigrationGraph,
-    MigrationPath,
+    MigrationHop,
     get_hop_site_sequence,
 )
 from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
@@ -24,7 +24,7 @@ __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-class FullPathMapperSimpleTest(unittest.TestCase):
+class MigrationGraphSimpleTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = MigrationGraph.with_distance(
@@ -33,15 +33,45 @@ class FullPathMapperSimpleTest(unittest.TestCase):
 
     def test_get_pos_and_migration_path(self):
         """
-        Make sure that we can populate the graph with MigrationPath Objects
+        Make sure that we can populate the graph with MigrationHop Objects
         """
         self.fpm._get_pos_and_migration_path(0, 1, 1)
         self.assertAlmostEqual(
             self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4
         )
 
+    def test_get_summary_dict(self):
+        summary_dict = self.fpm.get_summary_dict()
+        print(summary_dict["unique_hops"])
+        self.assertTrue("hop_label", summary_dict["hops"][0])
+        self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
-class FullPathMapperComplexTest(unittest.TestCase):
+
+class MigrationGraphFromEntriesTest(unittest.TestCase):
+    def setUp(self):
+        self.test_ents_MOF = loadfn(
+            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
+        )
+        self.aeccar_MOF = Chgcar.from_file(
+            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
+        )
+        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
+
+        self.full_struct = MigrationGraph.get_structure_from_entries(
+            base_entries=[self.test_ents_MOF["ent_base"]],
+            inserted_entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )[0]
+
+    def test_migration_graph_construction(self):
+        self.assertEqual(self.full_struct.composition["Li"], 8)
+        mg = MigrationGraph.with_distance(
+            self.full_struct, migrating_specie="Li", max_distance=4.0
+        )
+        self.assertEqual(len(mg.migration_graph.structure), 8)
+
+
+class MigrationGraphComplexTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm_li = MigrationGraph.with_distance(
@@ -111,7 +141,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
                 self.assertEqual(d["key1"], [1, 2, 3])
 
         # passing ordered list with direction
-        migration_path_reversed = MigrationPath(
+        migration_path_reversed = MigrationHop(
             isite=migration_path.esite,
             esite=migration_path.isite,
             symm_structure=migration_path.symm_structure,
@@ -126,11 +156,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["hop_distance"] * d["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
@@ -148,16 +178,16 @@ class FullPathMapperComplexTest(unittest.TestCase):
                     ]
                     self.assertIn(neg_image, opposite_connections)
 
-    def test_get_intercalating_path(self):
+    def test_get_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_intercalating_path()]
+        paths = [*self.fpm_li.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
         }
         self.assertIn("5->7->5", p_strings)
         # convert each pathway to a string representation
-        paths = [*self.fpm_li.get_intercalating_path(max_val=2.0)]
+        paths = [*self.fpm_li.get_path(max_val=2.0)]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -167,7 +197,7 @@ class FullPathMapperComplexTest(unittest.TestCase):
         self.assertIn("5->3->7->2->5", p_strings)
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_mg.get_intercalating_path()]
+        paths = [*self.fpm_mg.get_path()]
         p_strings = {
             "->".join(map(str, get_hop_site_sequence(ipath, start_u=u)))
             for u, ipath in paths
@@ -213,6 +243,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
 
         self.cbg._tube_radius = 2
+        self.cbg.populate_edges_with_chg_density_info()
 
         self.assertAlmostEqual(
             self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
@@ -225,7 +256,6 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
         """
-        self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
             sorted(
                 [
@@ -243,29 +273,10 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             if 1.05 > length / prv[0] > 0.95:
                 self.assertAlmostEqual(chg, prv[1], 3)
 
-
-class ComputedEntryPathTest(unittest.TestCase):
-    def setUp(self):
-        self.test_ents_MOF = loadfn(
-            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
-        )
-        self.aeccar_MOF = Chgcar.from_file(
-            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
-        )
-        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
-
-        self.full_struct = MigrationGraph.get_structure_from_entries(
-            base_entries=[self.test_ents_MOF["ent_base"]],
-            inserted_entries=self.test_ents_MOF["one_cation"],
-            migrating_ion_entry=self.li_ent,
-        )[0]
-
-    def test_migration_graph_construction(self):
-        self.assertEqual(self.full_struct.composition["Li"], 8)
-        mg = MigrationGraph.with_distance(
-            self.full_struct, migrating_specie="Li", max_distance=4.0
-        )
-        self.assertEqual(len(mg.migration_graph.structure), 8)
+    def test_get_summary_dict(self):
+        summary_dict = self.cbg.get_summary_dict()
+        self.assertTrue("chg_total", summary_dict["hops"][0])
+        self.assertTrue("chg_total", summary_dict["unique_hops"][0])
 
 
 if __name__ == "__main__":
