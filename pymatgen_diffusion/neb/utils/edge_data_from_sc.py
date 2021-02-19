@@ -11,13 +11,12 @@ __date__ = "February 2, 2021"
 from pymatgen import Structure, PeriodicSite
 import numpy as np
 from typing import Tuple, Union
-from pymatgen_diffusion.neb.full_path_mapper import FullPathMapper
-from pymatgen_diffusion.neb.pathfinder import MigrationPath
+from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen_diffusion.utils.parse_entries import get_matched_structure_mapping
 
 
-def add_edge_data_from_sc(fpm, i_sc, e_sc, data_array, key="custom_key"):
+def add_edge_data_from_sc(mg, i_sc, e_sc, data_array, key="custom_key"):
     """
     Add a data entry and key to edges within FullPathMapper object with the same hop_label.
     These hops are equivalent by symmetry to the 2 positions given in the supercell structures.
@@ -28,7 +27,7 @@ def add_edge_data_from_sc(fpm, i_sc, e_sc, data_array, key="custom_key"):
         data_array: The data to be added to the edges
         key: Key of the edge attribute to be added
     """
-    wi = fpm.migrating_specie.name
+    wi = list(mg.migration_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
@@ -36,9 +35,9 @@ def add_edge_data_from_sc(fpm, i_sc, e_sc, data_array, key="custom_key"):
             "The number of working ions in each supercell structure should be one"
         )
     isite, esite = i_wi[0], e_wi[0]
-    uhop_index = get_unique_hop(fpm, i_sc, isite, esite)
+    uhop_index = get_unique_hop(mg, i_sc, isite, esite)
     add_dict = {key: data_array}
-    fpm.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
+    mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
 
 
 # the functions below are taken from repo cath_scripts by Jimmy Shen
@@ -100,21 +99,21 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
             return np.add(site.frac_coords, image)
 
 
-def mg_eq(mg1, mg2, symm_prec=0.0001):
+def mh_eq(mh1, mh2, symm_prec=0.0001):
     """
     Allow for symmetric matching of MigrationPath objects with variable precession
     Args:
-        mg1: MigrationPath object
-        mg2: MigrationPath object
+        mh1: MigrationHop object
+        mh2: MigrationHop object
         symm_prec: tolerence
 
     Returns:
 
     """
-    assert mg1.symm_structure == mg2.symm_structure
-    if mg1.symm_structure.spacegroup.are_symmetrically_equivalent(
-        (mg1.isite, mg1.msite, mg1.esite),
-        (mg2.isite, mg2.msite, mg2.esite),
+    assert mh1.symm_structure == mh2.symm_structure
+    if mh1.symm_structure.spacegroup.are_symmetrically_equivalent(
+        (mh1.isite, mh1.msite, mh1.esite),
+        (mh2.isite, mh2.msite, mh2.esite),
         symm_prec=symm_prec,
     ):
         return True
@@ -122,7 +121,7 @@ def mg_eq(mg1, mg2, symm_prec=0.0001):
 
 
 def get_unique_hop(
-    fpm: FullPathMapper,
+    mg: MigrationGraph,
     sc: Structure,
     isite: PeriodicSite,
     esite: PeriodicSite,
@@ -130,27 +129,28 @@ def get_unique_hop(
     """Get the unique hop label that correspond to two end positions in the SC
 
     Args:
-        fpm: Object containing the migration analysis
+        mg: Object containing the migration analysis
         sc: Structure of the supercell used for the NEB calculation
         isite: Initial position in the supercell
         esite: Final position in the supercell
 
     Returns:
         The index of the unique hop
-
     """
-    sm = StructureMatcher(ignored_species=[fpm.migrating_specie])
-    uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, fpm.symm_structure, sc, sm)
-    mg_from_sc = MigrationPath(uc_isite, uc_esite, symm_structure=fpm.symm_structure)
+    sm = StructureMatcher(
+        ignored_species=[
+            list(mg.migration_graph.graph.edges(data=True))[0][2][
+                "hop"
+            ].isite.specie.name
+        ]
+    )
+    uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
+    mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure)
     result = []
-    for k, v in fpm.unique_hops.items():
-        # may be change the tolerance here.
-        if mg_eq(v["hop"], mg_from_sc, symm_prec=0.05):
+    for k, v in mg.unique_hops.items():
+        # tolerance may be changed here
+        if mh_eq(v["hop"], mh_from_sc, symm_prec=0.05):
             result.append(k)
-
-        # if v['hop'] == mg_from_sc:
-        #     print('Matched old way')
-        #     result.append(k)
 
     if len(result) > 1:
         raise ValueError("Too many matches between UC and SC")
@@ -158,7 +158,7 @@ def get_unique_hop(
         raise ValueError("No matches between UC and SC")
 
     # makesure that the midpint is also the same
-    assert fpm.symm_structure.spacegroup.are_symmetrically_equivalent(
-        [uc_msite], [mg_from_sc.msite]
+    assert mg.symm_structure.spacegroup.are_symmetrically_equivalent(
+        [uc_msite], [mh_from_sc.msite]
     )
     return result[0]
