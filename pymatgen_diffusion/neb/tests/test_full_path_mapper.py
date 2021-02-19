@@ -226,6 +226,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
 
         self.cbg._tube_radius = 2
+        self.cbg.populate_edges_with_chg_density_info()
 
         self.assertAlmostEqual(
             self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
@@ -238,7 +239,6 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
         """
-        self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
             sorted(
                 [
@@ -255,6 +255,11 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
             if 1.05 > length / prv[0] > 0.95:
                 self.assertAlmostEqual(chg, prv[1], 3)
+
+    def test_get_summary_dict(self):
+        summary_dict = self.cbg.get_summary_dict()
+        self.assertTrue("chg_total", summary_dict["hops"][0])
+        self.assertTrue("chg_total", summary_dict["unique_hops"][0])
 
 
 class ComputedEntryPathTest(unittest.TestCase):
@@ -279,6 +284,14 @@ class ComputedEntryPathTest(unittest.TestCase):
             self.full_struct, migrating_specie="Li", max_distance=4.0
         )
         self.assertEqual(len(mg.migration_graph.structure), 8)
+
+    def test_get_summary_dict(self):
+        mg = MigrationGraph.with_distance(
+            self.full_struct, migrating_specie="Li", max_distance=4.0
+        )
+        summary_dict = mg.get_summary_dict()
+        self.assertTrue("hop_label", summary_dict["hops"][0])
+        self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
 
 if __name__ == "__main__":
