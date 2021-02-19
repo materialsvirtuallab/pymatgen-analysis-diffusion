@@ -137,11 +137,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
