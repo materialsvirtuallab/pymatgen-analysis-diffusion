@@ -2,6 +2,10 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""
+Function to add edge data to MigrationGraph through 2 SC structures
+"""
+
 __author__ = "Haoming Li"
 __copyright__ = "Copyright 2021, The Materials Project"
 __maintainer__ = "Haoming Li"
