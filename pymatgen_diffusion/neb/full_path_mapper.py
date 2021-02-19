@@ -23,7 +23,6 @@ from typing import Callable, Dict, List, Union
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
-from pydash import get
 from pymatgen import Composition
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
@@ -442,7 +441,10 @@ class MigrationGraph(MSONable):
             uc_isite = PeriodicSite.from_dict(uhop["isite"])
             uc_esite = PeriodicSite.from_dict(uhop["esite"])
             m_path = MigrationPath(uc_isite, uc_esite, self.symm_structure)
-            data = {k: get(uhop, k) for k in property_keys}
+            data = {}
+            for k in property_keys:
+                if k in uhop.keys():
+                    data.update({k:uhop[k]})
 
             for hop_label, hop in self.unique_hops.items():
                 if m_path == hop["hop"]:
