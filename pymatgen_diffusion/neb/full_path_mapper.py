@@ -159,6 +159,21 @@ class MigrationGraph(MSONable):
         return {d["hop_label"]: d for u, v, d in ihop_data}
 
     @classmethod
+    def with_base_structure(
+        cls, base_structure: Structure, migration_graph: StructureGraph, **kwargs
+    ) -> "MigrationGraph":
+        """
+        Args:
+            base_structure: base framework structure that does not contain any
+             migrating sites.
+        Returns:
+            A constructed MigrationGraph object
+        """
+        sites = migration_graph.structure.sites + base_structure.sites
+        structure = Structure.from_sites(sites)
+        return cls(structure=structure, migration_graph=migration_graph, **kwargs)
+
+    @classmethod
     def with_local_env_strategy(
         cls, structure: Structure, migrating_specie: str, nn: NearNeighbors, **kwargs
     ) -> "MigrationGraph":

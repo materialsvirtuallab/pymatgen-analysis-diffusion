@@ -42,7 +42,6 @@ class MigrationGraphSimpleTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.fpm.get_summary_dict()
-        print(summary_dict["unique_hops"])
         self.assertTrue("hop_label", summary_dict["hops"][0])
         self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
