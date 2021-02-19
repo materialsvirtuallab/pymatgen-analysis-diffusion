@@ -80,6 +80,7 @@ class MigrationGraph(MSONable):
         self,
         structure: Structure,
         migration_graph: StructureGraph,
+        structure_is_base=False,
         symprec=0.1,
         vac_mode=False,
     ):
@@ -99,7 +100,12 @@ class MigrationGraph(MSONable):
              of migration events
             vac_mode (Bool): indicates whether vacancy mode should be used
         """
-        self.structure = structure
+        if structure_is_base is True:
+            sites = migration_graph.structure.sites + structure.sites
+            self.structure = Structure.from_sites(sites)
+        else:
+            self.structure = structure
+
         self.migration_graph = migration_graph
         self.symprec = symprec
         self.vac_mode = vac_mode
@@ -313,7 +319,10 @@ class MigrationGraph(MSONable):
 
         for u, v, d in self.migration_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
-                d.update(data)
+                if store_under_properties is True:
+                    d["properties"].update(data)
+                else:
+                    d.update(data)
                 if m_path is not None:
                     # Try to override the data.
                     if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
@@ -328,7 +337,10 @@ class MigrationGraph(MSONable):
                                 )
                             if not isinstance(data[k], list):
                                 continue
-                            d[k] = d[k][::-1]  # flip the data in the array
+                            if store_under_properties is True:
+                                d["properties"][k] = d["properties"][k][::-1]
+                            else:
+                                d[k] = d[k][::-1]  # flip the data in the array
 
     def assign_cost_to_graph(self, cost_keys=["hop_distance"]):
         """
@@ -338,7 +350,7 @@ class MigrationGraph(MSONable):
                 The SC Graph is decorated with a "cost" key that is the product of the different keys here
         """
         for k, v in self.unique_hops.items():
-            cost_val = np.prod([v[ik] for ik in cost_keys])
+            cost_val = np.prod([v["properties"][ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
 
     def get_path(self, max_val=100000):
