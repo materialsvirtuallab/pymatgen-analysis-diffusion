@@ -24,7 +24,7 @@ __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-class FullPathMapperSimpleTest(unittest.TestCase):
+class MigrationGraphSimpleTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = MigrationGraph.with_distance(
@@ -40,8 +40,38 @@ class FullPathMapperSimpleTest(unittest.TestCase):
             self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4
         )
 
+    def test_get_summary_dict(self):
+        summary_dict = self.fpm.get_summary_dict()
+        print(summary_dict["unique_hops"])
+        self.assertTrue("hop_label", summary_dict["hops"][0])
+        self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
-class FullPathMapperComplexTest(unittest.TestCase):
+
+class MigrationGraphFromEntriesTest(unittest.TestCase):
+    def setUp(self):
+        self.test_ents_MOF = loadfn(
+            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
+        )
+        self.aeccar_MOF = Chgcar.from_file(
+            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
+        )
+        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
+
+        self.full_struct = MigrationGraph.get_structure_from_entries(
+            base_entries=[self.test_ents_MOF["ent_base"]],
+            inserted_entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )[0]
+
+    def test_migration_graph_construction(self):
+        self.assertEqual(self.full_struct.composition["Li"], 8)
+        mg = MigrationGraph.with_distance(
+            self.full_struct, migrating_specie="Li", max_distance=4.0
+        )
+        self.assertEqual(len(mg.migration_graph.structure), 8)
+
+
+class MigrationGraphComplexTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm_li = MigrationGraph.with_distance(
@@ -247,38 +277,6 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         summary_dict = self.cbg.get_summary_dict()
         self.assertTrue("chg_total", summary_dict["hops"][0])
         self.assertTrue("chg_total", summary_dict["unique_hops"][0])
-
-
-class ComputedEntryPathTest(unittest.TestCase):
-    def setUp(self):
-        self.test_ents_MOF = loadfn(
-            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
-        )
-        self.aeccar_MOF = Chgcar.from_file(
-            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
-        )
-        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
-
-        self.full_struct = MigrationGraph.get_structure_from_entries(
-            base_entries=[self.test_ents_MOF["ent_base"]],
-            inserted_entries=self.test_ents_MOF["one_cation"],
-            migrating_ion_entry=self.li_ent,
-        )[0]
-
-    def test_migration_graph_construction(self):
-        self.assertEqual(self.full_struct.composition["Li"], 8)
-        mg = MigrationGraph.with_distance(
-            self.full_struct, migrating_specie="Li", max_distance=4.0
-        )
-        self.assertEqual(len(mg.migration_graph.structure), 8)
-
-    def test_get_summary_dict(self):
-        mg = MigrationGraph.with_distance(
-            self.full_struct, migrating_specie="Li", max_distance=4.0
-        )
-        summary_dict = mg.get_summary_dict()
-        self.assertTrue("hop_label", summary_dict["hops"][0])
-        self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
 
 if __name__ == "__main__":

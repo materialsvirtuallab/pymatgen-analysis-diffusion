@@ -427,8 +427,6 @@ class MigrationGraph(MSONable):
             new_hop = get_keys(d)
             new_hop["iindex"] = u
             new_hop["eindex"] = v
-            assert u == d["iindex"]
-            assert v == d["eindex"]
             hops.append(new_hop)
 
         unique_hops = []
