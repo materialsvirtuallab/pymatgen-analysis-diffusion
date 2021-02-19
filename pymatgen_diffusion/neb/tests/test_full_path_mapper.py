@@ -245,11 +245,8 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         # self.cbg.populate_edges_with_chg_density_info()
 
         # find this particular hop
-        ipos, epos = [0.33079153, 0.18064031, 0.67945924], [
-            0.33587514,
-            -0.3461259,
-            1.15269302,
-        ]
+        ipos = [0.33079153, 0.18064031, 0.67945924]
+        epos = [0.33587514, -0.3461259, 1.15269302]
         isite = PeriodicSite("Li", ipos, self.cbg.structure.lattice)
         esite = PeriodicSite("Li", epos, self.cbg.structure.lattice)
         ref_hop = MigrationHop(
