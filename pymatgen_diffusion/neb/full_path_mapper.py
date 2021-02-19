@@ -150,6 +150,9 @@ class MigrationGraph(MSONable):
 
     @property
     def unique_hops(self):
+        """
+        The unique hops dictionary keyed by the hop label
+        """
         # reversed so that the first instance represents the group of distinct hops
         ihop_data = list(reversed(list(self.migration_graph.graph.edges(data=True))))
         for u, v, d in ihop_data:
