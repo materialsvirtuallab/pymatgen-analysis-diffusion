@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
-from pymatgen import Structure
+from pymatgen import Structure, PeriodicSite
 from pymatgen.io.vasp import Chgcar
 
 from pymatgen_diffusion.neb.full_path_mapper import (
@@ -242,10 +242,26 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
 
         self.cbg._tube_radius = 2
-        self.cbg.populate_edges_with_chg_density_info()
+        # self.cbg.populate_edges_with_chg_density_info()
+
+        # find this particular hop
+        ipos, epos = [0.33079153, 0.18064031, 0.67945924], [
+            0.33587514,
+            -0.3461259,
+            1.15269302,
+        ]
+        isite = PeriodicSite("Li", ipos, self.cbg.structure.lattice)
+        esite = PeriodicSite("Li", epos, self.cbg.structure.lattice)
+        ref_hop = MigrationHop(
+            isite=isite, esite=esite, symm_structure=self.cbg.symm_structure
+        )
+        hop_idx = -1
+        for k, d in self.cbg.unique_hops.items():
+            if d["hop"] == ref_hop:
+                hop_idx = k
 
         self.assertAlmostEqual(
-            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
+            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[hop_idx]["hop"]),
             0.188952739835188,
             3,
         )
@@ -255,7 +271,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
         """
-        self.cbg._tube_radius = 10000
+        self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
             sorted(
                 [
