@@ -225,12 +225,12 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             potential_field=self.aeccar_MOF,
             potential_data_key="total",
         )
+        self.cbg._tube_radius = 10000
 
     def test_integration(self):
         """
         Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
-        self.cbg._tube_radius = 10000
         total_chg_per_vol = (
             self.cbg.potential_field.data["total"].sum()
             / self.cbg.potential_field.ngridpts
@@ -255,6 +255,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
         """
+        self.cbg._tube_radius = 10000
         length_vs_chg = list(
             sorted(
                 [
