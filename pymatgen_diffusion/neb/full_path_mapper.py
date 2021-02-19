@@ -302,7 +302,6 @@ class MigrationGraph(MSONable):
         target_label: Union[int, str],
         data: dict,
         m_path: MigrationHop = None,
-        store_under_properties=False,
     ):
         """
         Insert data to all edges with the same label
@@ -315,10 +314,7 @@ class MigrationGraph(MSONable):
 
         for u, v, d in self.migration_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
-                if store_under_properties is True:
-                    d["properties"].update(data)
-                else:
-                    d.update(data)
+                d.update(data)
                 if m_path is not None:
                     # Try to override the data.
                     if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
@@ -333,10 +329,7 @@ class MigrationGraph(MSONable):
                                 )
                             if not isinstance(data[k], list):
                                 continue
-                            if store_under_properties is True:
-                                d["properties"][k] = d["properties"][k][::-1]
-                            else:
-                                d[k] = d[k][::-1]  # flip the data in the array
+                            d[k] = d[k][::-1]  # flip the data in the array
 
     def assign_cost_to_graph(self, cost_keys=["hop_distance"]):
         """
@@ -346,7 +339,7 @@ class MigrationGraph(MSONable):
                 The SC Graph is decorated with a "cost" key that is the product of the different keys here
         """
         for k, v in self.unique_hops.items():
-            cost_val = np.prod([v["properties"][ik] for ik in cost_keys])
+            cost_val = np.prod([v[ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
 
     def get_path(self, max_val=100000):
