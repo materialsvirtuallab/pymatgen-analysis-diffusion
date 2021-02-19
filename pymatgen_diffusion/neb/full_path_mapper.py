@@ -30,7 +30,7 @@ from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
-from pymatgen_diffusion.neb.pathfinder import MigrationPath
+from pymatgen_diffusion.neb.pathfinder import MigrationHop
 from pymatgen_diffusion.neb.periodic_dijkstra import (
     get_optimal_pathway_rev,
     periodic_dijkstra,
@@ -257,7 +257,7 @@ class MigrationGraph(MSONable):
 
     def _get_pos_and_migration_path(self, u, v, w):
         """
-        insert a single MigrationPath object on a graph edge
+        insert a single MigrationHop object on a graph edge
         Args:
           u (int): index of initial node
           v (int): index of final node
@@ -276,7 +276,7 @@ class MigrationGraph(MSONable):
         edge["ipos_cart"] = np.dot(i_site.frac_coords, self.only_sites.lattice.matrix)
         edge["epos_cart"] = np.dot(e_site.frac_coords, self.only_sites.lattice.matrix)
 
-        edge["hop"] = MigrationPath(i_site, e_site, self.symm_structure)
+        edge["hop"] = MigrationHop(i_site, e_site, self.symm_structure)
 
     def _populate_edges_with_migration_paths(self):
         """
@@ -288,7 +288,7 @@ class MigrationGraph(MSONable):
 
     def _group_and_label_hops(self):
         """
-        Group the MigrationPath objects together and label all the symmetrically equlivaelnt hops with the same label
+        Group the MigrationHop objects together and label all the symmetrically equlivaelnt hops with the same label
         """
         hops = list(nx.get_edge_attributes(self.migration_graph.graph, "hop").items())
         labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
@@ -318,7 +318,7 @@ class MigrationGraph(MSONable):
         self,
         target_label: Union[int, str],
         data: dict,
-        m_path: MigrationPath = None,
+        m_path: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
@@ -406,7 +406,7 @@ class MigrationGraph(MSONable):
             # The first hop must be one that leaves the 000 unit cell
             path = min(all_paths, key=lambda x: best_ans[x[-1]])
 
-            # get the sequence of MigrationPath objects the represent the pathway
+            # get the sequence of MigrationHop objects the represent the pathway
             path_hops = []
             for (idx1, jimage1), (idx2, jimage2) in zip(path[:-1], path[1:]):
                 # for each pair of points in the periodic graph path look for end points in the original graph
@@ -540,7 +540,7 @@ class ChargeBarrierGraph(MigrationGraph):
         )
         return dist_from_pos.reshape(AA.shape)
 
-    def _get_pathfinder_from_hop(self, migration_path: MigrationPath, n_images=20):
+    def _get_pathfinder_from_hop(self, migration_path: MigrationHop, n_images=20):
         # get migration pathfinder objects which contains the paths
         ipos = migration_path.isite.frac_coords
         epos = migration_path.esite.frac_coords
@@ -577,7 +577,7 @@ class ChargeBarrierGraph(MigrationGraph):
     ):
         """obtain the maximum average charge along the path
         Args:
-            migration_path (MigrationPath): MigrationPath object that represents a given hop
+            migration_path (MigrationHop): MigrationPath object that represents a given hop
             radius (float, optional): radius of sphere to perform the average.
                     Defaults to None, which used the _tube_radius instead
             chg_along_path (bool, optional): If True, also return the entire list of average
@@ -619,7 +619,7 @@ class ChargeBarrierGraph(MigrationGraph):
         """
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
         Args:
-            migration_path: MigrationPath object that represents a given hop
+            migration_path: MigrationHop object that represents a given hop
             mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
                 visualization) (Default value = None)
         Returns:
@@ -828,8 +828,8 @@ def check_uc_hop(sc_hop, uc_hop):
     See if hop in the 2X2X2 supercell and a unit cell hop
     are equilvalent under lattice translation
     Args:
-        sc_hop: MigrationPath object form pymatgen-diffusion.
-        uc_hop: MigrationPath object form pymatgen-diffusion.
+        sc_hop: MigrationHop object form pymatgen-diffusion.
+        uc_hop: MigrationHop object form pymatgen-diffusion.
     Return:
         image vector of lenght 3
         Is the UC hop flip of the SC hop
@@ -872,7 +872,7 @@ def map_hop_sc2uc(sc_hop, fpm_uc):
     """
     Map a given hop in the SC onto the UC.
     Args:
-        sc_hop: MigrationPath object form pymatgen-diffusion.
+        sc_hop: MigrationHop object form pymatgen-diffusion.
         fpm_uc: MigrationGraph object from pymatgen-diffusion.
     Note:
         For now assume that the SC is exactly 2x2x2 of the UC.

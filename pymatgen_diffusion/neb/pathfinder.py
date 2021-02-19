@@ -304,7 +304,7 @@ class IDPPSolver:
         return np.array(total_forces)
 
 
-class MigrationPath:
+class MigrationHop:
     """
     A convenience container representing a migration path.
     """
@@ -566,7 +566,7 @@ class DistinctPathFinder:
     def get_paths(self):
         """
         Returns:
-            [MigrationPath] All distinct migration paths.
+            [MigrationHop] All distinct migration paths.
         """
         paths = set()
         for sites in self.symm_structure.equivalent_sites:
@@ -576,7 +576,7 @@ class DistinctPathFinder:
                     site0, r=round(self.max_path_length, 3) + 0.01
                 ):
                     if nn.specie == self.migrating_specie:
-                        path = MigrationPath(site0, nn, self.symm_structure)
+                        path = MigrationHop(site0, nn, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)
