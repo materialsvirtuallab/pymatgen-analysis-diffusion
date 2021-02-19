@@ -40,19 +40,6 @@ class FullPathMapperSimpleTest(unittest.TestCase):
             self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4
         )
 
-    def test_structure_is_base(self):
-        """
-        Check whether MigrationGraph can be constructed with structure_is_base = True
-        """
-        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
-        base_struct = Structure.from_sites([s for s in struct if str(s.specie) != "Li"])
-        mg = MigrationGraph(
-            structure=base_struct,
-            migration_graph=self.fpm.migration_graph,
-            structure_is_base=True,
-        )
-        self.assertTrue(mg.structure == self.fpm.structure)
-
 
 class FullPathMapperComplexTest(unittest.TestCase):
     def setUp(self):

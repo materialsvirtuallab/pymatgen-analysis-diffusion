@@ -111,8 +111,6 @@ class MigrationGraph(MSONable):
         # So let's not convert them into properties for now.  (Awaiting rewrite once the usage becomes more clear.)
         self._populate_edges_with_migration_paths()
         self._group_and_label_hops()
-        self.unique_hops = None
-        self._populate_unique_hops_dict()
 
     @property
     def only_sites(self) -> Structure:
@@ -149,6 +147,16 @@ class MigrationGraph(MSONable):
         if not isinstance(sym_struct, SymmetrizedStructure):
             raise RuntimeError("Symmetrized structure could not be generated.")
         return sym_struct
+
+    @property
+    def unique_hops(self):
+        # reversed so that the first instance represents the group of distinct hops
+        ihop_data = list(reversed(list(self.migration_graph.graph.edges(data=True))))
+        for u, v, d in ihop_data:
+            d["iindex"] = u
+            d["eindex"] = v
+            d["hop_distance"] = d["hop"].length
+        return {d["hop_label"]: d for u, v, d in ihop_data}
 
     @classmethod
     def with_local_env_strategy(
@@ -274,19 +282,20 @@ class MigrationGraph(MSONable):
         nx.set_edge_attributes(self.migration_graph.graph, new_attr)
         return new_attr
 
-    def _populate_unique_hops_dict(self):
-        """
-        Populate the unique hops
-        """
-        # reversed so that the first instance represents the group of distinct hops
-        unique_hops = dict()
-        for u, v, d in self.migration_graph.graph.edges(data=True):
-            d["iindex"] = u
-            d["eindex"] = v
-            d["properties"]["hop_distance"] = d["hop"].length
-            if d["hop_label"] not in unique_hops:
-                unique_hops[d["hop_label"]] = d
-        self.unique_hops = unique_hops
+    # def _populate_unique_hops_dict(self):
+    #     """
+    #     Populate the unique hops
+    #     """
+    #     # reversed so that the first instance represents the group of distinct hops
+    #     unique_hops = dict()
+    #     for u, v, d in self.migration_graph.graph.edges(data=True):
+    #         d["iindex"] = u
+    #         d["eindex"] = v
+    #         d["properties"]["hop_distance"] = d["hop"].length
+    #         if d["hop_label"] not in unique_hops:
+    #             unique_hops[d["hop_label"]] = d
+    #     self.unique_hops = unique_hops
+    #
 
     def add_data_to_similar_edges(
         self,
