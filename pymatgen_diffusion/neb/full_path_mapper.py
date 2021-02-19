@@ -23,6 +23,7 @@ from typing import Callable, Dict, List, Union
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
+from pydash import get
 from pymatgen import Composition
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
@@ -247,7 +248,6 @@ class MigrationGraph(MSONable):
         edge["epos_cart"] = np.dot(e_site.frac_coords, self.only_sites.lattice.matrix)
 
         edge["hop"] = MigrationPath(i_site, e_site, self.symm_structure)
-        edge["properties"] = {}
 
     def _populate_edges_with_migration_paths(self):
         """
@@ -279,7 +279,7 @@ class MigrationGraph(MSONable):
         for u, v, d in self.migration_graph.graph.edges(data=True):
             d["iindex"] = u
             d["eindex"] = v
-            d["properties"]["hop_distance"] = d["hop"].length
+            d["hop_distance"] = d["hop"].length
             if d["hop_label"] not in unique_hops:
                 unique_hops[d["hop_label"]] = d
         self.unique_hops = unique_hops
@@ -299,7 +299,6 @@ class MigrationGraph(MSONable):
         target_label: Union[int, str],
         data: dict,
         m_path: MigrationPath = None,
-        store_under_properties=False,
     ):
         """
         Insert data to all edges with the same label
@@ -312,10 +311,7 @@ class MigrationGraph(MSONable):
 
         for u, v, d in self.migration_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
-                if store_under_properties is True:
-                    d["properties"].update(data)
-                else:
-                    d.update(data)
+                d.update(data)
                 if m_path is not None:
                     # Try to override the data.
                     if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
@@ -330,10 +326,7 @@ class MigrationGraph(MSONable):
                                 )
                             if not isinstance(data[k], list):
                                 continue
-                            if store_under_properties is True:
-                                d["properties"][k] = d["properties"][k][::-1]
-                            else:
-                                d[k] = d[k][::-1]  # flip the data in the array
+                            d[k] = d[k][::-1]  # flip the data in the array
 
     def assign_cost_to_graph(self, cost_keys=["hop_distance"]):
         """
@@ -343,7 +336,7 @@ class MigrationGraph(MSONable):
                 The SC Graph is decorated with a "cost" key that is the product of the different keys here
         """
         for k, v in self.unique_hops.items():
-            cost_val = np.prod([v["properties"][ik] for ik in cost_keys])
+            cost_val = np.prod([v[ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
 
     def get_path(self, max_val=100000):
@@ -415,40 +408,49 @@ class MigrationGraph(MSONable):
                     raise RuntimeError("More than one edge matched in original graph.")
             yield u, path_hops
 
-    def add_properties_from_dict(self, unique_hop_dict):
+    def add_properties_from_dict(self, unique_hop_dict, property_keys):
         """
         A method to automatically populate the migration graph with properties data
         from an external unique hop dictionary (e.g. if data was added to a migration
         graph and stored as a unique hop dictionary for later use).
 
         Args:
-            unique_hop_dict: unique hop dictionary containing data under the
-             properties field.
+            unique_hop_dict [dict]: unique hop dictionary containing data specified
+             by the provided property_keys.
+            property_keys [list]: list of strings indicating which keys from the
+             unique_hop_dict should be copied over to the migration graph.
         """
+        uh_keys = [
+            "to_jimage",
+            "isite",
+            "esite",
+            "ipos",
+            "epos",
+            "ipos_cart",
+            "epos_cart",
+            "hop",
+            "hop_label",
+            "iindex",
+            "eindex",
+            "hop_distance",
+        ]
+        if any([k in uh_keys for k in property_keys]):
+            raise ValueError(
+                "property_keys value provided will overwrite migration graph properties"
+            )
         for uhop in unique_hop_dict.values():
             uc_isite = PeriodicSite.from_dict(uhop["isite"])
             uc_esite = PeriodicSite.from_dict(uhop["esite"])
             m_path = MigrationPath(uc_isite, uc_esite, self.symm_structure)
-            data = uhop["properties"]
+            data = {k: get(uhop, k) for k in property_keys}
 
-            sites_eq = self.symm_structure.spacegroup.are_symmetrically_equivalent
             for hop_label, hop in self.unique_hops.items():
-                if sites_eq([uc_isite], [hop["isite"]], symm_prec=self.symprec):
-                    if sites_eq([uc_esite], [hop["esite"]], symm_prec=self.symprec):
-                        self.add_data_to_similar_edges(
-                            target_label=hop_label,
-                            data=data,
-                            m_path=m_path,
-                            store_under_properties=True,
-                        )
-                elif sites_eq([uc_isite], [hop["esite"]], symm_prec=self.symprec):
-                    if sites_eq([uc_esite], [hop["isite"]], symm_prec=self.symprec):
-                        self.add_data_to_similar_edges(
-                            target_label=hop_label,
-                            data=data,
-                            m_path=m_path,
-                            store_under_properties=True,
-                        )
+                if m_path == hop["hop"]:
+                    self.add_data_to_similar_edges(
+                        target_label=hop_label,
+                        data=data,
+                        m_path=m_path,
+                    )
 
 
 class ChargeBarrierGraph(MigrationGraph):
