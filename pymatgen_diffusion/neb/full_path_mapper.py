@@ -132,15 +132,15 @@ class MigrationGraph(MSONable):
             )
             if len(neighbors_) == 0:
                 continue
-            for _, _, idx in neighbors_:
-                rm_sites.add(idx)
+            for n_ in neighbors_:
+                rm_sites.add(n_.index)
         host_struct.remove_sites(list(rm_sites))
         return host_struct
 
     @property
     def symm_structure(self) -> SymmetrizedStructure:
         """
-        The symmetrized structure with the present item's symprce value
+        The symmetrized structure with the present item's symprec value
         """
         a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
         sym_struct = a.get_symmetrized_structure()
@@ -150,6 +150,9 @@ class MigrationGraph(MSONable):
 
     @property
     def unique_hops(self):
+        """
+        The unique hops dictionary keyed by the hop label
+        """
         # reversed so that the first instance represents the group of distinct hops
         ihop_data = list(reversed(list(self.migration_graph.graph.edges(data=True))))
         for u, v, d in ihop_data:
@@ -157,6 +160,21 @@ class MigrationGraph(MSONable):
             d["eindex"] = v
             d["hop_distance"] = d["hop"].length
         return {d["hop_label"]: d for u, v, d in ihop_data}
+
+    @classmethod
+    def with_base_structure(
+        cls, base_structure: Structure, migration_graph: StructureGraph, **kwargs
+    ) -> "MigrationGraph":
+        """
+        Args:
+            base_structure: base framework structure that does not contain any
+             migrating sites.
+        Returns:
+            A constructed MigrationGraph object
+        """
+        sites = migration_graph.structure.sites + base_structure.sites
+        structure = Structure.from_sites(sites)
+        return cls(structure=structure, migration_graph=migration_graph, **kwargs)
 
     @classmethod
     def with_local_env_strategy(
@@ -280,21 +298,6 @@ class MigrationGraph(MSONable):
         }
         nx.set_edge_attributes(self.migration_graph.graph, new_attr)
         return new_attr
-
-    # def _populate_unique_hops_dict(self):
-    #     """
-    #     Populate the unique hops
-    #     """
-    #     # reversed so that the first instance represents the group of distinct hops
-    #     unique_hops = dict()
-    #     for u, v, d in self.migration_graph.graph.edges(data=True):
-    #         d["iindex"] = u
-    #         d["eindex"] = v
-    #         d["properties"]["hop_distance"] = d["hop"].length
-    #         if d["hop_label"] not in unique_hops:
-    #             unique_hops[d["hop_label"]] = d
-    #     self.unique_hops = unique_hops
-    #
 
     def add_data_to_similar_edges(
         self,
@@ -559,7 +562,7 @@ class ChargeBarrierGraph(MigrationGraph):
     ):
         """obtain the maximum average charge along the path
         Args:
-            migration_path (MigrationHop): MigrationHop object that represents a given hop
+            migration_path (MigrationHop): MigrationPath object that represents a given hop
             radius (float, optional): radius of sphere to perform the average.
                     Defaults to None, which used the _tube_radius instead
             chg_along_path (bool, optional): If True, also return the entire list of average

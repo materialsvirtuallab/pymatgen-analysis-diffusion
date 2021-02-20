@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
-from pymatgen import Structure
+from pymatgen import Structure, PeriodicSite
 from pymatgen.io.vasp import Chgcar
 
 from pymatgen_diffusion.neb.full_path_mapper import (
@@ -42,7 +42,6 @@ class MigrationGraphSimpleTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.fpm.get_summary_dict()
-        print(summary_dict["unique_hops"])
         self.assertTrue("hop_label", summary_dict["hops"][0])
         self.assertTrue("hop_label", summary_dict["unique_hops"][0])
 
@@ -156,11 +155,11 @@ class MigrationGraphComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
@@ -226,12 +225,12 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             potential_field=self.aeccar_MOF,
             potential_data_key="total",
         )
+        self.cbg._tube_radius = 10000
 
     def test_integration(self):
         """
         Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
-        self.cbg._tube_radius = 10000
         total_chg_per_vol = (
             self.cbg.potential_field.data["total"].sum()
             / self.cbg.potential_field.ngridpts
@@ -243,10 +242,23 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
 
         self.cbg._tube_radius = 2
-        self.cbg.populate_edges_with_chg_density_info()
+        # self.cbg.populate_edges_with_chg_density_info()
+
+        # find this particular hop
+        ipos = [0.33079153, 0.18064031, 0.67945924]
+        epos = [0.33587514, -0.3461259, 1.15269302]
+        isite = PeriodicSite("Li", ipos, self.cbg.structure.lattice)
+        esite = PeriodicSite("Li", epos, self.cbg.structure.lattice)
+        ref_hop = MigrationHop(
+            isite=isite, esite=esite, symm_structure=self.cbg.symm_structure
+        )
+        hop_idx = -1
+        for k, d in self.cbg.unique_hops.items():
+            if d["hop"] == ref_hop:
+                hop_idx = k
 
         self.assertAlmostEqual(
-            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
+            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[hop_idx]["hop"]),
             0.188952739835188,
             3,
         )
