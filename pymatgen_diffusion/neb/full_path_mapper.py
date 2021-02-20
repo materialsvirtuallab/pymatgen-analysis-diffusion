@@ -132,15 +132,15 @@ class MigrationGraph(MSONable):
             )
             if len(neighbors_) == 0:
                 continue
-            for _, _, idx in neighbors_:
-                rm_sites.add(idx)
+            for n_ in neighbors_:
+                rm_sites.add(n_.index)
         host_struct.remove_sites(list(rm_sites))
         return host_struct
 
     @property
     def symm_structure(self) -> SymmetrizedStructure:
         """
-        The symmetrized structure with the present item's symprce value
+        The symmetrized structure with the present item's symprec value
         """
         a = SpacegroupAnalyzer(self.structure, symprec=self.symprec)
         sym_struct = a.get_symmetrized_structure()
