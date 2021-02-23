@@ -268,6 +268,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
         """
+        self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
             sorted(
                 [
