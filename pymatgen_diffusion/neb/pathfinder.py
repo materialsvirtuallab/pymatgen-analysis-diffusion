@@ -323,7 +323,7 @@ class MigrationHop:
         isite: Site,
         esite: Site,
         symm_structure: SymmetrizedStructure,
-        symprec: float = 0.01,
+        symprec: float = 0.001,
     ):
         """
         Args:
