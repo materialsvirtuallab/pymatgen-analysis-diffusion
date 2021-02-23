@@ -304,23 +304,31 @@ class IDPPSolver:
         return np.array(total_forces)
 
 
-class MigrationPath:
+class MigrationHop:
     """
     A convenience container representing a migration path.
     """
 
-    def __init__(self, isite: Site, esite: Site, symm_structure: SymmetrizedStructure):
+    def __init__(
+        self,
+        isite: Site,
+        esite: Site,
+        symm_structure: SymmetrizedStructure,
+        symprec: float = 0.01,
+    ):
         """
         Args:
             isite: Initial site
             esite: End site
             symm_structure: SymmetrizedStructure
+            symprec: used to determine equivalence
         """
         self.isite = isite
         self.esite = esite
         self.iindex = None
         self.eindex = None
         self.symm_structure = symm_structure
+        self.symprec = symprec
         self.msite = PeriodicSite(
             esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
         )
@@ -405,6 +413,7 @@ class MigrationPath:
         return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
             (other.isite, other.msite, other.esite),
+            self.symprec,
         )
 
     def get_structures(self, nimages=5, vac_mode=True, idpp=False, **idpp_kwargs):
@@ -557,7 +566,7 @@ class DistinctPathFinder:
     def get_paths(self):
         """
         Returns:
-            [MigrationPath] All distinct migration paths.
+            [MigrationHop] All distinct migration paths.
         """
         paths = set()
         for sites in self.symm_structure.equivalent_sites:
@@ -567,7 +576,7 @@ class DistinctPathFinder:
                     site0, r=round(self.max_path_length, 3) + 0.01
                 ):
                     if nn.specie == self.migrating_specie:
-                        path = MigrationPath(site0, nn, self.symm_structure)
+                        path = MigrationHop(site0, nn, self.symm_structure)
                         paths.add(path)
 
         return sorted(paths, key=lambda p: p.length)

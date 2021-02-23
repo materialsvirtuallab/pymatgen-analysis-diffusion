@@ -7,18 +7,18 @@ cathode materials The functions are isolated from the rest of the package so
 that the rest of the package will not depend on Maggma
 """
 
-from maggma.stores import MongoStore
-from pymatgen import Structure
-from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from itertools import chain
-
-import gridfs
-import zlib
 import json
 import logging
-from monty.serialization import MontyDecoder
+import zlib
+from itertools import chain
 from typing import Union
+
+import gridfs
+from maggma.stores import MongoStore
+from monty.serialization import MontyDecoder
+from pymatgen import Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
