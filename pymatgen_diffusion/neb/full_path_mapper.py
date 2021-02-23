@@ -360,7 +360,7 @@ class MigrationGraph(MSONable):
 
         if len(self.unique_hops) != len(self.unique_hops):
             logger.error(
-                f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self.name}"
+                f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self.__str__()}"
             )
 
         # for u, v, k, d in self.migration_graph.graph.edges(data=True, keys=True):
@@ -698,13 +698,13 @@ class ChargeBarrierGraph(MigrationGraph):
 
     def get_least_chg_path(self):
         """
-        obtain an intercollating pathway through the material that has the least amount of charge
+        obtain an intercolating pathway through the material that has the least amount of charge
         Returns:
             list of hops
         """
         min_chg = 100000000
         min_path = []
-        all_paths = self.get_intercalating_path()
+        all_paths = self.get_path()
         for path in all_paths:
             sum_chg = np.sum([hop[2]["chg_total"] for hop in path])
             sum_length = np.sum([hop[2]["hop"].length for hop in path])
@@ -801,7 +801,7 @@ def almost(a, b):
     """
     SMALL_VAL = 1e-4
     try:
-        return all([almost(i, j) for i, j in zip(list(a), list(b))])
+        return all(almost(i, j) for i, j in zip(list(a), list(b)))
     except BaseException:
         if isinstance(a, (int, float)) and isinstance(b, (int, float)):
             return abs(a - b) < SMALL_VAL
