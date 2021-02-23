@@ -8,10 +8,14 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         python-version: [3.8]
 
     runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: "Agg"
 
     steps:
     - uses: actions/checkout@v2
@@ -21,11 +25,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        export PATH=$HOME/miniconda3/bin:$PATH
-        export MPLBACKEND=Agg
         python -m pip install --upgrade pip
         pip install --quiet --ignore-installed -r requirements.txt -r requirements-ci.txt
         pip install -e .
     - name: pytest
       run: |
-        pytest --cov=pymatgen_diffusion --cov-report html:coverage_reports --durations=30 pymatgen_diffusion
+        pytest --cov=pymatgen_diffusion --durations=30 pymatgen_diffusion
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@v20201129

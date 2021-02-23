@@ -1,3 +1,10 @@
+.. image:: https://github.com/materialsvirtuallab/pymatgen-diffusion/actions/workflows/testing.yml/badge.svg
+      :alt: CI Status
+      :target: https://github.com/materialsvirtuallab/pymatgen-diffusion/actions/workflows/testing.yml
+
+.. image:: https://coveralls.io/repos/github/materialsvirtuallab/pymatgen-diffusion/badge.svg?branch=master
+      :target: https://coveralls.io/github/materialsvirtuallab/pymatgen-diffusion?branch=master
+
 Pymatgen-diffusion
 ==================
 
