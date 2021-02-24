@@ -19,7 +19,6 @@ from pymatgen_diffusion.neb.pathfinder import (
 )
 from pymatgen_diffusion.utils.supercells import (
     get_start_end_structures,
-    _get_sc_from_struct_ase,
 )
 
 __author__ = "Iek-Heng Chu"
@@ -235,10 +234,6 @@ class MigrationHopTest(PymatgenTest):
         start_site = next(filter(lambda x: x.species_string == "Li", start.sites))
         end_site = next(filter(lambda x: x.species_string == "Li", end.sites))
         self.assertAlmostEqual(start_site.distance(end_site), dist_ref, 3)
-
-    def test_get_sc_from_struct_ase(self):
-        sc_mat = _get_sc_from_struct_ase(self.lifepo)
-        print(sc_mat)
 
 
 if __name__ == "__main__":
