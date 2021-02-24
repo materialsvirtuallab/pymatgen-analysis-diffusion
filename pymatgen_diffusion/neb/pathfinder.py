@@ -7,11 +7,13 @@ Algorithms for NEB migration path analysis.
 """
 
 import itertools
+import logging
 import warnings
+from typing import Tuple
 
 import numpy as np
 from pymatgen import Site
-from pymatgen.core import Structure, PeriodicSite
+from pymatgen.core import PeriodicSite, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -22,6 +24,13 @@ __date__ = "March 14, 2017"
 
 # TODO: (1) ipython notebook example files, unittests
 from pymatgen.symmetry.structure import SymmetrizedStructure
+
+from pymatgen_diffusion.utils.supercells import (
+    get_sc_fromstruct,
+    get_start_end_structures,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class IDPPSolver:
@@ -314,7 +323,7 @@ class MigrationHop:
         isite: Site,
         esite: Site,
         symm_structure: SymmetrizedStructure,
-        symprec: float = 0.01,
+        symprec: float = 0.001,
     ):
         """
         Args:
@@ -444,19 +453,9 @@ class MigrationHop:
             the migrating ion. This makes it easier to perform subsequent
             analysis.
         """
-        migrating_specie_sites = []
-        other_sites = []
-        isite = self.isite
-        esite = self.esite
-
-        for site in self.symm_structure.sites:
-            if site.specie != isite.specie:
-                other_sites.append(site)
-            else:
-                if vac_mode and (
-                    isite.distance(site) > 1e-8 and esite.distance(site) > 1e-8
-                ):
-                    migrating_specie_sites.append(site)
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
+            vac_mode
+        )
 
         start_structure = Structure.from_sites(
             [self.isite] + migrating_specie_sites + other_sites
@@ -474,6 +473,59 @@ class MigrationHop:
             return solver.run(**idpp_kwargs)
 
         return structures
+
+    def _split_migrating_and_other_sites(self, vac_mode):
+        migrating_specie_sites = []
+        other_sites = []
+        for site in self.symm_structure.sites:
+            if site.specie != self.isite.specie:
+                other_sites.append(site)
+            else:
+                if not vac_mode or (
+                    self.isite.distance(site) <= 1e-8
+                    or self.esite.distance(site) <= 1e-8
+                ):
+                    continue
+                migrating_specie_sites.append(site)
+        return migrating_specie_sites, other_sites
+
+    def get_sc_structures(
+        self,
+        vac_mode: bool,
+        min_atoms: int = 80,
+        max_atoms: int = 240,
+        min_length: float = 10.0,
+    ) -> Tuple[Structure, Structure, Structure]:
+        """
+        Construct supercells that represents the start and end positions for migration analysis.
+
+        Args:
+            vac_mode: If true simulate vacancy diffusion.
+            max_atoms: Maximum number of atoms allowed in the supercell.
+            min_atoms: Minimum number of atoms allowed in the supercell.
+            min_length: Minimum length of the smallest supercell lattice vector.
+
+        Returns:
+            Start, End, Base Structures.
+
+            If not vacancy mode, the base structure is just the host lattice.
+            If in vacancy mode, the base structure is the fully intercalated structure
+
+        """
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
+            vac_mode
+        )
+        base_struct = Structure.from_sites(other_sites)
+        sc_mat = get_sc_fromstruct(
+            base_struct=base_struct,
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=min_length,
+        )
+        start_struct, end_struct, base_sc = get_start_end_structures(
+            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode
+        )
+        return start_struct, end_struct, base_sc
 
     def write_path(self, fname, **kwargs):
         r"""

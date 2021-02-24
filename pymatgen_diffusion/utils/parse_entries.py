@@ -98,19 +98,22 @@ def process_entries(
     results = []
 
     def _meta_stable_sites(base_ent, inserted_ent):
-        return get_inserted_on_base(
+        mapped_struct = get_inserted_on_base(
             base_ent,
             inserted_ent,
             migrating_ion_entry=migrating_ion_entry,
             sm=sm_no_wion,
         )
+        if mapped_struct is None:
+            return []
+        return mapped_struct.sites
 
     for base_ent, _ in entries_with_num_symmetry_ops:
         # structure where the
         mapped_based_cell = base_ent.structure.copy()
         for j_inserted in inserted_entries:
-            s_inserted_ = _meta_stable_sites(base_ent, j_inserted)
-            mapped_based_cell.sites.extend(s_inserted_.sites)
+            inserted_sites_ = _meta_stable_sites(base_ent, j_inserted)
+            mapped_based_cell.sites.extend(inserted_sites_)
 
         struct_wo_sym_ops = _filter_and_merge(mapped_based_cell.get_sorted_structure())
         struct_sym = get_sym_migration_ion_sites(
