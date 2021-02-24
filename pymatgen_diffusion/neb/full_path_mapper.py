@@ -79,7 +79,7 @@ class MigrationGraph(MSONable):
     def __init__(
         self,
         structure: Structure,
-        migration_graph: StructureGraph,
+        m_graph: StructureGraph,
         symprec=0.1,
         vac_mode=False,
     ):
@@ -93,14 +93,14 @@ class MigrationGraph(MSONable):
             structure: Structure with base framework and mobile sites.
              When used with structure_is_base = True, only the base framework
              structure, does not contain any migrating sites.
-            migration_graph: The StructureGraph object that defines the
+            m_graph: The StructureGraph object that defines the
              migration network
             symprec (float): Symmetry precision to determine equivalence
              of migration events
             vac_mode (Bool): indicates whether vacancy mode should be used
         """
         self.structure = structure
-        self.migration_graph = migration_graph
+        self.migration_graph = m_graph
         self.symprec = symprec
         self.vac_mode = vac_mode
         if self.vac_mode:
@@ -363,7 +363,7 @@ class MigrationGraph(MSONable):
                 f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self.__str__()}"
             )
 
-        # for u, v, k, d in self.migration_graph.graph.edges(data=True, keys=True):
+        # for u, v, k, d in self.m_graph.graph.edges(data=True, keys=True):
         for u in self.migration_graph.graph.nodes():
             # Create a copy of the graph so that we can trim the higher cost hops
             path_graph = deepcopy(self.migration_graph.graph)
@@ -474,7 +474,7 @@ class ChargeBarrierGraph(MigrationGraph):
         """
         self.potential_field = potential_field
         self.potential_data_key = potential_data_key
-        super().__init__(structure=structure, migration_graph=migration_graph, **kwargs)
+        super().__init__(structure=structure, m_graph=migration_graph, **kwargs)
         self._setup_grids()
 
     def _setup_grids(self):
