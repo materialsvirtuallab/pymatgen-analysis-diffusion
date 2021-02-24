@@ -104,16 +104,17 @@ def _get_sc_from_struct_ase(
 
     num_cells_min = int(np.ceil(min_atoms / base_struct.num_sites))
     num_cells_max = int(np.ceil(max_atoms / base_struct.num_sites))
+
+    atoms = AseAtomsAdaptor().get_atoms(base_struct)
     res = []
     for icell in range(num_cells_min, num_cells_max):
-        if icell % 2 != 0 or icell % 3 != 0:
-            continue  # cells with many factors are more lifely to be square
-        atoms = AseAtomsAdaptor().get_atoms(base_struct)
+        if icell % 2 != 0 and icell % 3 != 0:
+            continue  # cells with many factors are more likely to be square
         logger.info(f"Getting cell shape {icell} x unit cell")
         sc_mat = find_optimal_cell_shape(atoms.cell, icell, "sc")
-
+        if sc_mat is None:
+            continue
         deviation = get_deviation_from_optimal_cell_shape(np.dot(sc_mat, atoms.cell))
-
         dd = {"deviation": deviation, "P1": sc_mat}
         # base_struct_sc.to('poscar', f'/Users/lik/Desktop/enpoints_{base_struct_sc.num_sites}.vasp')
         res.append(dd)
