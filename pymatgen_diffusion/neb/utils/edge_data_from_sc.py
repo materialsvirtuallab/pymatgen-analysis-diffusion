@@ -31,7 +31,7 @@ def add_edge_data_from_sc(mg, i_sc, e_sc, data_array, key="custom_key"):
         data_array: The data to be added to the edges
         key: Key of the edge attribute to be added
     """
-    wi = list(mg.migration_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
+    wi = list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
@@ -143,9 +143,7 @@ def get_unique_hop(
     """
     sm = StructureMatcher(
         ignored_species=[
-            list(mg.migration_graph.graph.edges(data=True))[0][2][
-                "hop"
-            ].isite.specie.name
+            list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
         ]
     )
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)

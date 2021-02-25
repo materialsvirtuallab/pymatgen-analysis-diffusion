@@ -35,7 +35,7 @@ def test_add_edge_data_from_sc():
     )
 
     edge_data = []
-    for u, v, d in mg.migration_graph.graph.edges(data=True):
+    for u, v, d in mg.m_graph.graph.edges(data=True):
         edge_data.append(d)
     hop_labels = []
     for i in edge_data:
