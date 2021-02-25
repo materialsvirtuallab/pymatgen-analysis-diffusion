@@ -17,7 +17,9 @@ from pymatgen_diffusion.neb.pathfinder import (
     IDPPSolver,
     MigrationHop,
 )
-from pymatgen_diffusion.utils.supercells import get_start_end_structures
+from pymatgen_diffusion.utils.supercells import (
+    get_start_end_structures,
+)
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"

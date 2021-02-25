@@ -551,8 +551,8 @@ class EvolutionAnalyzer:
     def plot_rdf_evolution(
         self,
         pair: Tuple,
-        cmap=plt.cm.plasma,
-        df: pds.DataFrame = None,  # pylint: disable=E1101
+        cmap=plt.cm.plasma,  # pylint: disable=E1101
+        df: pds.DataFrame = None,
     ):
         """
         Plot the RDF evolution with time for a given pair.

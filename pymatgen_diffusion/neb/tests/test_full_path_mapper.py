@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
-from pymatgen import Structure
+from pymatgen import Structure, PeriodicSite
 from pymatgen.io.vasp import Chgcar
 
 from pymatgen_diffusion.neb.full_path_mapper import (
@@ -24,7 +24,7 @@ __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-class FullPathMapperSimpleTest(unittest.TestCase):
+class MigrationGraphSimpleTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = MigrationGraph.with_distance(
@@ -40,21 +40,37 @@ class FullPathMapperSimpleTest(unittest.TestCase):
             self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4
         )
 
-    def test_structure_is_base(self):
-        """
-        Check whether MigrationGraph can be constructed with structure_is_base = True
-        """
-        struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
-        base_struct = Structure.from_sites([s for s in struct if str(s.specie) != "Li"])
-        mg = MigrationGraph(
-            structure=base_struct,
-            migration_graph=self.fpm.migration_graph,
-            structure_is_base=True,
+    def test_get_summary_dict(self):
+        summary_dict = self.fpm.get_summary_dict()
+        self.assertTrue("hop_label", summary_dict["hops"][0])
+        self.assertTrue("hop_label", summary_dict["unique_hops"][0])
+
+
+class MigrationGraphFromEntriesTest(unittest.TestCase):
+    def setUp(self):
+        self.test_ents_MOF = loadfn(
+            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
         )
-        self.assertTrue(mg.structure == self.fpm.structure)
+        self.aeccar_MOF = Chgcar.from_file(
+            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
+        )
+        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
+
+        self.full_struct = MigrationGraph.get_structure_from_entries(
+            base_entries=[self.test_ents_MOF["ent_base"]],
+            inserted_entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )[0]
+
+    def test_migration_graph_construction(self):
+        self.assertEqual(self.full_struct.composition["Li"], 8)
+        mg = MigrationGraph.with_distance(
+            self.full_struct, migrating_specie="Li", max_distance=4.0
+        )
+        self.assertEqual(len(mg.migration_graph.structure), 8)
 
 
-class FullPathMapperComplexTest(unittest.TestCase):
+class MigrationGraphComplexTest(unittest.TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm_li = MigrationGraph.with_distance(
@@ -139,11 +155,11 @@ class FullPathMapperComplexTest(unittest.TestCase):
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"], 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
         for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
-            self.assertAlmostEqual(d["cost"], d["properties"]["hop_distance"] ** 2, 4)
+            self.assertAlmostEqual(d["cost"], d["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
@@ -209,12 +225,12 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             potential_field=self.aeccar_MOF,
             potential_data_key="total",
         )
+        self.cbg._tube_radius = 10000
 
     def test_integration(self):
         """
         Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
-        self.cbg._tube_radius = 10000
         total_chg_per_vol = (
             self.cbg.potential_field.data["total"].sum()
             / self.cbg.potential_field.ngridpts
@@ -226,9 +242,23 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
 
         self.cbg._tube_radius = 2
+        # self.cbg.populate_edges_with_chg_density_info()
+
+        # find this particular hop
+        ipos = [0.33079153, 0.18064031, 0.67945924]
+        epos = [0.33587514, -0.3461259, 1.15269302]
+        isite = PeriodicSite("Li", ipos, self.cbg.structure.lattice)
+        esite = PeriodicSite("Li", epos, self.cbg.structure.lattice)
+        ref_hop = MigrationHop(
+            isite=isite, esite=esite, symm_structure=self.cbg.symm_structure
+        )
+        hop_idx = -1
+        for k, d in self.cbg.unique_hops.items():
+            if d["hop"] == ref_hop:
+                hop_idx = k
 
         self.assertAlmostEqual(
-            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[0]["hop"]),
+            self.cbg._get_chg_between_sites_tube(self.cbg.unique_hops[hop_idx]["hop"]),
             0.188952739835188,
             3,
         )
@@ -256,29 +286,10 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             if 1.05 > length / prv[0] > 0.95:
                 self.assertAlmostEqual(chg, prv[1], 3)
 
-
-class ComputedEntryPathTest(unittest.TestCase):
-    def setUp(self):
-        self.test_ents_MOF = loadfn(
-            f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json"
-        )
-        self.aeccar_MOF = Chgcar.from_file(
-            f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp"
-        )
-        self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
-
-        self.full_struct = MigrationGraph.get_structure_from_entries(
-            base_entries=[self.test_ents_MOF["ent_base"]],
-            inserted_entries=self.test_ents_MOF["one_cation"],
-            migrating_ion_entry=self.li_ent,
-        )[0]
-
-    def test_migration_graph_construction(self):
-        self.assertEqual(self.full_struct.composition["Li"], 8)
-        mg = MigrationGraph.with_distance(
-            self.full_struct, migrating_specie="Li", max_distance=4.0
-        )
-        self.assertEqual(len(mg.migration_graph.structure), 8)
+    def test_get_summary_dict(self):
+        summary_dict = self.cbg.get_summary_dict()
+        self.assertTrue("chg_total", summary_dict["hops"][0])
+        self.assertTrue("chg_total", summary_dict["unique_hops"][0])
 
 
 if __name__ == "__main__":

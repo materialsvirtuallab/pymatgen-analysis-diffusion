@@ -318,18 +318,26 @@ class MigrationHop:
     A convenience container representing a migration path.
     """
 
-    def __init__(self, isite: Site, esite: Site, symm_structure: SymmetrizedStructure):
+    def __init__(
+        self,
+        isite: Site,
+        esite: Site,
+        symm_structure: SymmetrizedStructure,
+        symprec: float = 0.001,
+    ):
         """
         Args:
             isite: Initial site
             esite: End site
             symm_structure: SymmetrizedStructure
+            symprec: used to determine equivalence
         """
         self.isite = isite
         self.esite = esite
         self.iindex = None
         self.eindex = None
         self.symm_structure = symm_structure
+        self.symprec = symprec
         self.msite = PeriodicSite(
             esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
         )
@@ -414,6 +422,7 @@ class MigrationHop:
         return self.symm_structure.spacegroup.are_symmetrically_equivalent(
             (self.isite, self.msite, self.esite),
             (other.isite, other.msite, other.esite),
+            self.symprec,
         )
 
     def get_structures(self, nimages=5, vac_mode=True, idpp=False, **idpp_kwargs):
