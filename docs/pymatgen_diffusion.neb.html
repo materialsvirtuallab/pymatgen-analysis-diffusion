@@ -14,6 +14,7 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen_diffusion.utils package" href="pymatgen_diffusion.utils.html" />
     <link rel="prev" title="pymatgen_diffusion.aimd package" href="pymatgen_diffusion.aimd.html" />
 
    
@@ -37,6 +38,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="pymatgen_diffusion.utils.html" title="pymatgen_diffusion.utils package"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="pymatgen_diffusion.aimd.html" title="pymatgen_diffusion.aimd package"
              accesskey="P">previous</a> |</li>
@@ -579,7 +583,7 @@ obtained via regular linear interpolation approach.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationHop">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MigrationHop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.Site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.Site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_structure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.symmetry.structure.SymmetrizedStructure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationHop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationHop" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MigrationHop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.Site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.Site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_structure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.symmetry.structure.SymmetrizedStructure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationHop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationHop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A convenience container representing a migration path.</p>
 <dl class="field-list simple">
@@ -592,6 +596,28 @@ obtained via regular linear interpolation approach.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt id="pymatgen_diffusion.neb.pathfinder.MigrationHop.get_sc_structures">
+<code class="sig-name descname"><span class="pre">get_sc_structures</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationHop.get_sc_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationHop.get_sc_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct supercells that represents the start and end positions for migration analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vac_mode</strong> – If true simulate vacancy diffusion.</p></li>
+<li><p><strong>max_atoms</strong> – Maximum number of atoms allowed in the supercell.</p></li>
+<li><p><strong>min_atoms</strong> – Minimum number of atoms allowed in the supercell.</p></li>
+<li><p><strong>min_length</strong> – Minimum length of the smallest supercell lattice vector.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Start, End, Base Structures.</p>
+<p>If not vacancy mode, the base structure is just the host lattice.
+If in vacancy mode, the base structure is the fully intercalated structure</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="pymatgen_diffusion.neb.pathfinder.MigrationHop.get_structures">
 <code class="sig-name descname"><span class="pre">get_structures</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nimages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idpp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">idpp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen_diffusion/neb/pathfinder.html#MigrationHop.get_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen_diffusion.neb.pathfinder.MigrationHop.get_structures" title="Permalink to this definition">¶</a></dt>
@@ -749,6 +775,7 @@ path_parent: dictionary of optimal path parent for each node given in index-imag
   <li><a href="modules.html">pymatgen_diffusion</a><ul>
   <li><a href="pymatgen_diffusion.html">pymatgen_diffusion package</a><ul>
       <li>Previous: <a href="pymatgen_diffusion.aimd.html" title="previous chapter">pymatgen_diffusion.aimd package</a></li>
+      <li>Next: <a href="pymatgen_diffusion.utils.html" title="next chapter">pymatgen_diffusion.utils package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
