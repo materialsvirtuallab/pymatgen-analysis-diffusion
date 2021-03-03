@@ -39,9 +39,44 @@ def add_edge_data_from_sc(mg, i_sc, e_sc, data_array, key="custom_key"):
             "The number of working ions in each supercell structure should be one"
         )
     isite, esite = i_wi[0], e_wi[0]
-    uhop_index = get_unique_hop(mg, i_sc, isite, esite)
-    add_dict = {key: data_array}
+    uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite)
+    is_rev = check_if_rev(mg, mh_from_sc, uhop_index)
+    if is_rev == 0:
+        print("Hop from SC is not reversed")
+        add_dict = {key: data_array}
+    if is_rev == 1:
+        print("Hop from SC is reversed")
+        add_dict = {key: data_array.reverse()}
     mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
+
+
+def check_if_rev(mg, mh_from_sc, uhop_index):
+    same_uhop_list = []
+    for u, v, d in mg.m_graph.graph.edges(data=True):
+        if d["hop_label"] == uhop_index:
+            same_uhop_list.append(d)
+
+        [icoords_from_sc, ecoords_from_sc] = [
+            mh_from_sc.isite.frac_coords,
+            mh_from_sc.esite.frac_coords,
+        ]
+
+    is_rev = None
+    for one_hop in same_uhop_list:
+        if np.allclose(icoords_from_sc, one_hop["ipos"], rtol=0.05) and np.allclose(
+            ecoords_from_sc, one_hop["epos"], rtol=0.05
+        ):
+            is_rev = 0
+            break
+        if np.allclose(icoords_from_sc, one_hop["epos"], rtol=0.05) and np.allclose(
+            ecoords_from_sc, one_hop["ipos"], rtol=0.05
+        ):
+            is_rev = 1
+            break
+    if is_rev is None:
+        raise ValueError("Can't find corresponding hop, please check input!")
+
+    return is_rev
 
 
 # the functions below are taken from repo cath_scripts by Jimmy Shen
@@ -163,4 +198,4 @@ def get_unique_hop(
     assert mg.symm_structure.spacegroup.are_symmetrically_equivalent(
         [uc_msite], [mh_from_sc.msite]
     )
-    return result[0]
+    return result[0], mh_from_sc
