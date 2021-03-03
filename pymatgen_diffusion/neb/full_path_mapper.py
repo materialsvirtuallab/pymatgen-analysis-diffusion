@@ -20,7 +20,7 @@ from typing import Callable, Dict, List, Union
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
-from pymatgen import Composition
+from pymatgen.core import Composition
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
 from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder

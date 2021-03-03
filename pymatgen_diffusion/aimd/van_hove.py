@@ -13,7 +13,7 @@ from typing import List, Tuple, Union, Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pds
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
 from scipy.stats import norm
