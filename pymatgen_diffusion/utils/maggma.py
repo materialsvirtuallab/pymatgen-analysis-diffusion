@@ -16,7 +16,7 @@ from typing import Union
 import gridfs
 from maggma.stores import MongoStore
 from monty.serialization import MontyDecoder
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 

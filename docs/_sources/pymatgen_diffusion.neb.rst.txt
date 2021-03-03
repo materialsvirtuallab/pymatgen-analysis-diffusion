@@ -35,6 +35,14 @@ pymatgen\_diffusion.neb.pathfinder module
    :undoc-members:
    :show-inheritance:
 
+pymatgen\_diffusion.neb.periodic\_dijkstra module
+-------------------------------------------------
+
+.. automodule:: pymatgen_diffusion.neb.periodic_dijkstra
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

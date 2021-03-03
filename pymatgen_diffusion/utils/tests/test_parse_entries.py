@@ -6,7 +6,7 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 import unittest
-from pymatgen import Structure
+from pymatgen.core import Structure
 import numpy as np
 import os
 

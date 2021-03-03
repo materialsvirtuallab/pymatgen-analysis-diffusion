@@ -6,7 +6,7 @@ import os
 import unittest
 
 import numpy as np
-from pymatgen import PeriodicSite
+from pymatgen.core import PeriodicSite
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest

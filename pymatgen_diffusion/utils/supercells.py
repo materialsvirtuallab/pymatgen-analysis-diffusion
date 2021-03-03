@@ -11,7 +11,7 @@ import numpy as np
 
 # from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape
 # from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen import PeriodicSite, Structure
+from pymatgen.core import PeriodicSite, Structure
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )

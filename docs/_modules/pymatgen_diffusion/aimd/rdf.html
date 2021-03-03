@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen_diffusion.aimd.rdf &#8212; pymatgen-diffusion 2020.10.8 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2020.10.8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen_diffusion.aimd.rdf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen_diffusion.aimd.rdf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">RDF implementation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">Parallel</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">gaussian_filter1d</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+
+<div class="viewcode-block" id="RadialDistributionFunction"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunction">[docs]</a><span class="k">class</span> <span class="nc">RadialDistributionFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the average radial distribution function for a given set of</span>
+<span class="sd">    structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structures</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">reference_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">ngrid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
+        <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">cell_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structures ([Structure]): List of structure</span>
+<span class="sd">                objects with the same composition. Allow for ensemble averaging.</span>
+<span class="sd">            ngrid (int): Number of radial grid points.</span>
+<span class="sd">            rmax (float): Maximum of radial grid (the minimum is always zero)</span>
+<span class="sd">                in Angstrom.</span>
+<span class="sd">            cell_range (int): Range of translational vector elements associated</span>
+<span class="sd">                with supercell. Default is 1, i.e. including the adjacent image</span>
+<span class="sd">                cells along all three directions.</span>
+<span class="sd">            sigma (float): Smearing of a Gaussian function.</span>
+<span class="sd">            indices ([int]): A list of atom index of interest.</span>
+<span class="sd">            reference_indices ([int]): set this option along with &#39;indices&#39;</span>
+<span class="sd">                parameter to compute radial distribution function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">ngrid</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ngrid should be greater than 1!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sigma should be a positive number!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Given species are not in the structure!&quot;</span><span class="p">)</span>
+
+        <span class="n">lattices</span><span class="p">,</span> <span class="n">rhos</span><span class="p">,</span> <span class="n">fcoords_list</span><span class="p">,</span> <span class="n">ref_fcoords_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="n">dr</span> <span class="o">=</span> <span class="n">rmax</span> <span class="o">/</span> <span class="p">(</span><span class="n">ngrid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">ngrid</span><span class="p">)</span>
+        <span class="n">rdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ngrid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+        <span class="n">raw_rdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ngrid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="n">dns</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+
+        <span class="c1"># Generate the translational vectors</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">cell_range</span><span class="p">,</span> <span class="n">cell_range</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">arange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">brange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">crange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">crange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># Find the zero image vector</span>
+        <span class="n">zd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">images</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">indx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">zd</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">:</span>
+            <span class="n">latt</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="n">lattices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">latt</span><span class="p">)</span>
+            <span class="n">rhos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> <span class="o">/</span> <span class="n">latt</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+            <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+            <span class="n">fcoords_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">ref_fcoords_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">[</span><span class="n">reference_indices</span><span class="p">,</span> <span class="p">:])</span>
+
+        <span class="n">rho</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rhos</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhos</span><span class="p">)</span>  <span class="c1"># The average density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rhos</span> <span class="o">=</span> <span class="n">rhos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span>  <span class="c1"># This is the average density</span>
+
+        <span class="k">for</span> <span class="n">fcoords</span><span class="p">,</span> <span class="n">ref_fcoords</span><span class="p">,</span> <span class="n">latt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fcoords_list</span><span class="p">,</span> <span class="n">ref_fcoords_list</span><span class="p">,</span> <span class="n">lattices</span><span class="p">):</span>
+            <span class="n">dcf</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">fcoords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+                <span class="o">-</span> <span class="n">ref_fcoords</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="p">)</span>
+            <span class="n">dcc</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">dcf</span><span class="p">)</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dcc</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">d2</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reference_indices</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">indices</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">!=</span> <span class="n">reference_indices</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">indx0</span>
+            <span class="p">]</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">rmax</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">dists</span><span class="p">)</span>
+            <span class="n">r_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">dr</span><span class="p">)</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">dists</span><span class="p">]</span>
+            <span class="n">dns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r_indices</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">indx</span><span class="p">,</span> <span class="n">dn</span> <span class="ow">in</span> <span class="n">dns</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="n">ngrid</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">indx</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Volume of the thin shell</span>
+            <span class="n">ff</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">interval</span><span class="p">[</span><span class="n">indx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">interval</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="c1"># print(norm.pdf(interval, interval[indx], sigma) * dn /</span>
+            <span class="c1">#            float(len(reference_indices)) / ff / rho / len(</span>
+            <span class="c1">#             fcoords_list) * dr)</span>
+            <span class="n">rdf</span><span class="p">[:]</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">interval</span><span class="p">[</span><span class="n">indx</span><span class="p">],</span> <span class="n">sigma</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">dn</span>
+                <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reference_indices</span><span class="p">))</span>
+                <span class="o">/</span> <span class="n">ff</span>
+                <span class="o">/</span> <span class="n">rho</span>
+                <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">fcoords_list</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">dr</span>
+            <span class="p">)</span>
+
+            <span class="c1"># additional dr factor renormalises overlapping gaussians.</span>
+            <span class="n">raw_rdf</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">dn</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reference_indices</span><span class="p">))</span> <span class="o">/</span> <span class="n">ff</span> <span class="o">/</span> <span class="n">rho</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">fcoords_list</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_range</span> <span class="o">=</span> <span class="n">cell_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="n">rmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span> <span class="o">=</span> <span class="n">ngrid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="p">{</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_species</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reference_indices</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="o">=</span> <span class="n">reference_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">=</span> <span class="n">dr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span> <span class="o">=</span> <span class="n">rdf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_rdf</span> <span class="o">=</span> <span class="n">raw_rdf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+
+        <span class="c1"># Finding peak based on smeared RDF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peak_indices</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">rdf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peak_r</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_indices</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peak_rdf</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_indices</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RadialDistributionFunction.from_species"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunction.from_species">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_species</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">structures</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">ngrid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
+        <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">cell_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">),</span>
+        <span class="n">reference_species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize using species.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures (list of pmg_structure objects): List of structure</span>
+<span class="sd">                objects with the same composition. Allow for ensemble averaging.</span>
+<span class="sd">            ngrid (int): Number of radial grid points.</span>
+<span class="sd">            rmax (float): Maximum of radial grid (the minimum is always zero).</span>
+<span class="sd">            cell_range (int): Range of translational vector elements associated</span>
+<span class="sd">                with supercell. Default is 1, i.e. including the adjacent image</span>
+<span class="sd">                cells along all three directions.</span>
+<span class="sd">            sigma (float): Smearing of a Gaussian function.</span>
+<span class="sd">            species (list[string]): A list of specie symbols of interest.</span>
+<span class="sd">            reference_species (list[string]): set this option along with</span>
+<span class="sd">                &#39;species&#39; parameter to compute radial distribution function.</span>
+<span class="sd">                eg: species=[&quot;H&quot;], reference_species=[&quot;O&quot;] to compute</span>
+<span class="sd">                    O-H pair distribution in a water MD simulation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">species</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">reference_species</span><span class="p">:</span>
+            <span class="n">reference_indices</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">j</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">reference_species</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reference_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Given reference species are not in the structure!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reference_indices</span> <span class="o">=</span> <span class="n">indices</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">structures</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="n">ngrid</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="n">rmax</span><span class="p">,</span>
+            <span class="n">cell_range</span><span class="o">=</span><span class="n">cell_range</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">reference_indices</span><span class="o">=</span><span class="n">reference_indices</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns running coordination number</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Note: The average density from all input structures is used here.</span>
+        <span class="n">intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raw_rdf</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span>
+            <span class="o">*</span> <span class="mf">4.0</span>
+            <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">intervals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="RadialDistributionFunction.get_rdf_plot"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunction.get_rdf_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_rdf_plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">xlim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
+        <span class="n">ylim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span>
+        <span class="n">loc_peak</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the average RDF function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label (str): The legend label.</span>
+<span class="sd">            xlim (list): Set the x limits of the current axes.</span>
+<span class="sd">            ylim (list): Set the y limits of the current axes.</span>
+<span class="sd">            loc_peak (bool): Label peaks if True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">symbol_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="n">symbol_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbol_list</span> <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbol_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">symbol_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">symbol_list</span><span class="p">)</span>
+
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">loc_peak</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">peak_r</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">peak_rdf</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;P&quot;</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Peaks&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$r$ ($</span><span class="se">\\</span><span class="s2">rm\AA$)&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;$g(r)$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="RadialDistributionFunction.export_rdf"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunction.export_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">export_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Output RDF data to a csv file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename. Supported formats are csv and dat. If</span>
+<span class="sd">                the extension is csv, a csv file is written. Otherwise,</span>
+<span class="sd">                a dat format is assumed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;dat&quot;</span>
+        <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span> <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span> <span class="k">else</span> <span class="s2">&quot; &quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;dat&quot;</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# &quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;g(r)&quot;</span><span class="p">]))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">gr</span><span class="p">]]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RadialDistributionFunctionFast"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunctionFast">[docs]</a><span class="k">class</span> <span class="nc">RadialDistributionFunctionFast</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fast radial distribution analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structures</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Structure</span><span class="p">]],</span>
+        <span class="n">rmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">ngrid</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method calculates rdf on `np.linspace(rmin, rmax, ngrid)` points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures (list of pymatgen Structures): structures to compute RDF</span>
+<span class="sd">            rmin (float): minimal radius</span>
+<span class="sd">            rmax (float): maximal radius</span>
+<span class="sd">            ngrid (int): number of grid points, defaults to 101</span>
+<span class="sd">            sigma (float): smooth parameter</span>
+<span class="sd">            n_jobs (int): number of CPUs in processing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">structures</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
+        <span class="c1"># Number of atoms in all structures should be the same</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">({</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">})</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+        <span class="n">unique_elements_on_sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">elements</span><span class="p">))]</span>
+
+        <span class="c1"># For the same site index, all structures should have the same element there</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">unique_elements_on_sites</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Elements are not the same at least for one site&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmin</span> <span class="o">=</span> <span class="n">rmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">=</span> <span class="n">rmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span> <span class="o">=</span> <span class="n">ngrid</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># end points are on grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span><span class="p">)</span>
+
+        <span class="n">max_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">/</span> <span class="mf">2.0</span>  <span class="c1"># add a small shell to improve robustness</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">_get_neighbor_list</span><span class="p">)(</span><span class="n">s</span><span class="p">,</span> <span class="n">max_r</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">get_neighbor_list</span><span class="p">(</span><span class="n">max_r</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+        <span class="c1"># each neighbor list is a tuple of</span>
+        <span class="c1"># center_indices, neighbor_indices, image_vectors, distances</span>
+        <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center_indices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_indices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_vectors</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_lists</span><span class="p">))</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_indices</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_indices</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="p">[{}]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">to_data_dict</span><span class="p">[</span><span class="s2">&quot;unit_cell_composition&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">s_index</span><span class="p">,</span> <span class="n">natoms</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">natoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">[</span><span class="n">s_index</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">s_index</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e8</span>  <span class="c1"># avoid divide by zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_structures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">sigma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_dist_to_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a distance array for counts in the bin</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: (1D np.array)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            1D array of counts in the bins centered on self.r</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span><span class="p">,))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">d</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmin</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span>
+        <span class="p">)</span>
+
+        <span class="n">unique</span><span class="p">,</span> <span class="n">val_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">counts</span><span class="p">[</span><span class="n">unique</span><span class="p">]</span> <span class="o">=</span> <span class="n">val_counts</span>
+        <span class="k">return</span> <span class="n">counts</span>
+
+<div class="viewcode-block" id="RadialDistributionFunctionFast.get_rdf"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunctionFast.get_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_rdf</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ref_species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">is_average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            ref_species (list of species or just single specie str): the reference species.</span>
+<span class="sd">                The rdfs are calculated with these species at the center</span>
+<span class="sd">            species (list of species or just single specie str): the species that we are interested in.</span>
+<span class="sd">                The rdfs are calculated on these species.</span>
+<span class="sd">            is_average (bool): whether to take the average over</span>
+<span class="sd">                all structures</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (x, rdf) x is the radial points, and rdf is the rdf value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">all_rdfs</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_one_rdf</span><span class="p">(</span><span class="n">ref_species</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_structures</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">all_rdfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">all_rdfs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_rdfs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_one_rdf</span><span class="p">(</span><span class="n">ref_species</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">i</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_structures</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_average</span><span class="p">:</span>
+            <span class="n">all_rdfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_rdfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">all_rdfs</span></div>
+
+<div class="viewcode-block" id="RadialDistributionFunctionFast.get_one_rdf"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunctionFast.get_one_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_one_rdf</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ref_species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the RDF for one structure, indicated by the index of the structure</span>
+<span class="sd">        in all structures</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ref_species (list of species or just single specie str): the reference species.</span>
+<span class="sd">                The rdfs are calculated with these species at the center</span>
+<span class="sd">            species (list of species or just single specie str): the species that we are interested in.</span>
+<span class="sd">                The rdfs are calculated on these species.</span>
+<span class="sd">            index (int): structure index in the list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (x, rdf) x is the radial points, and rdf is the rdf value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref_species</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ref_species</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref_species</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">species</span><span class="p">]</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center_elements</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">ref_species</span><span class="p">))</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_elements</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">species</span><span class="p">))</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmax</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">density</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">species</span><span class="p">])</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ref_species</span><span class="p">])</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist_to_counts</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span>
+        <span class="n">rdf_temp</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="n">density</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">/</span> <span class="n">natoms</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+            <span class="n">rdf_temp</span> <span class="o">=</span> <span class="n">gaussian_filter1d</span><span class="p">(</span><span class="n">rdf_temp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">rdf_temp</span></div>
+
+<div class="viewcode-block" id="RadialDistributionFunctionFast.get_coordination_number"><a class="viewcode-back" href="../../../pymatgen_diffusion.aimd.html#pymatgen_diffusion.aimd.rdf.RadialDistributionFunctionFast.get_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_species</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">is_average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns running coordination number</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ref_species (list of species or just single specie str): the reference species.</span>
+<span class="sd">                The rdfs are calculated with these species at the center</span>
+<span class="sd">            species (list of species or just single specie str): the species that we are interested in.</span>
+<span class="sd">                The rdfs are calculated on these species.</span>
+<span class="sd">            is_average (bool): whether to take structural average</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Note: The average density from all input structures is used here.</span>
+        <span class="n">all_rdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rdf</span><span class="p">(</span><span class="n">ref_species</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">is_average</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">species</span><span class="p">]</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">species</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">]</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">rdf</span> <span class="o">*</span> <span class="n">density</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rdf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_rdf</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_average</span><span class="p">:</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">cn</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_neighbor_list</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thin wrapper to enable parallel calculations</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (pymatgen Structure): pymatgen structure</span>
+<span class="sd">        r (float): cutoff radius</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple of neighbor list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbor_list</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

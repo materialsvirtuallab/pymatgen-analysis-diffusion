@@ -12,7 +12,7 @@ import warnings
 from typing import Tuple
 
 import numpy as np
-from pymatgen import Site
+from pymatgen.core import Site
 from pymatgen.core import PeriodicSite, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

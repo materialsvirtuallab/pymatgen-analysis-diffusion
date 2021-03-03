@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen_diffusion.neb.periodic_dijkstra &#8212; pymatgen-diffusion 2020.10.8 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen-diffusion 2020.10.8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen_diffusion.neb.periodic_dijkstra</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen_diffusion.neb.periodic_dijkstra</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Dijkstra&#39;s path search on a graph where the nodes are on a periodic graph</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2021, The Materials Project&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;jmmshn@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 11, 2019&quot;</span>
+
+<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">networkx.classes.graph</span> <span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
+
+
+<span class="k">def</span> <span class="nf">_get_adjacency_with_images</span><span class="p">(</span><span class="n">G</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return an adjacency dictionary with properly oriented &quot;to_image&quot; values.</span>
+<span class="sd">    Note: the current implementation assumes that the original</span>
+<span class="sd">    &quot;to_jimage&quot; value always corresponds to a an edge u -&gt; v where u &lt;= v.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Nested dictionary with [start][end][edge_key][data_field]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">copy_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="c1"># recursively copies the dictionary to resolve the fact that</span>
+        <span class="c1"># two entries in the dictionary can point to the same mutable object</span>
+        <span class="c1"># eg. changing p_graph[v][u][0][&quot;to_jimage&quot;] also changes</span>
+        <span class="c1"># p_graph[u][v][0][&quot;to_jimage&quot;] if G was an undirecte graph.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">new_d</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">new_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy_dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_d</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="c1"># the dictionary generated by this are inherently linked so we have to</span>
+    <span class="c1"># recursively copy the data</span>
+    <span class="n">p_graph</span> <span class="o">=</span> <span class="n">copy_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()))</span>
+
+    <span class="c1"># Make sure all the to_jimages are pointing in the correct direction</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">p_graph</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p_graph</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">p_graph</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">u</span> <span class="o">&gt;</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">p_graph</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">p_graph</span>
+
+
+<div class="viewcode-block" id="periodic_dijkstra"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.periodic_dijkstra.periodic_dijkstra">[docs]</a><span class="k">def</span> <span class="nf">periodic_dijkstra</span><span class="p">(</span>
+    <span class="n">G</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+    <span class="n">max_image</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">target_reached</span><span class="p">:</span> <span class="n">callable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">idx</span><span class="p">,</span> <span class="n">jimage</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the lowest cost pathway from a source point in the periodic graph.</span>
+<span class="sd">    Since the search can move many cells away without finding the target</span>
+<span class="sd">    we have to limit how many cells away from (0,0,0) to search.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        G (Graph): The graph object with additional &quot;to_jimage&quot; fields to</span>
+<span class="sd">                indicate edges across periodic images.</span>
+<span class="sd">        sources (set): the index of the source node</span>
+<span class="sd">        target (int, optional): The index of of target node, if None populate all nodes. Defaults to None.</span>
+<span class="sd">        max_image (int, optional): Defaults to 3.</span>
+<span class="sd">        target_reached (callable, optional): A function of (site_index, jimage) used to check</span>
+<span class="sd">            for stop iteration. This function is always called on the top of heap so it might miss the optimal path but</span>
+<span class="sd">            often can find a &quot;good enough&quot; path very quickly.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        best_ans: a dictionary of the best cost found to periodic node keyed by (site_index, jimage)</span>
+<span class="sd">        path_parent: dictionary of optimal path parent for each node given in index-image pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">conn_dict</span> <span class="o">=</span> <span class="n">_get_adjacency_with_images</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">())</span>
+
+    <span class="c1"># use a default dict since we don&#39;t know how far out to search</span>
+    <span class="n">best_ans</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+
+    <span class="n">path_parent</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># the parent of the current node in the optimal path</span>
+    <span class="n">pq</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">isource</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">pq</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">isource</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))))</span>
+    <span class="k">while</span> <span class="n">pq</span><span class="p">:</span>
+        <span class="n">min_val</span><span class="p">,</span> <span class="p">(</span><span class="n">cur_idx</span><span class="p">,</span> <span class="n">cur_image</span><span class="p">)</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">pq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_reached</span><span class="p">(</span><span class="n">cur_idx</span><span class="p">,</span> <span class="n">cur_image</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">best_ans</span>
+        <span class="k">if</span> <span class="n">min_val</span> <span class="o">&lt;</span> <span class="n">best_ans</span><span class="p">[(</span><span class="n">cur_idx</span><span class="p">,</span> <span class="n">cur_image</span><span class="p">)]:</span>
+            <span class="n">best_ans</span><span class="p">[(</span><span class="n">cur_idx</span><span class="p">,</span> <span class="n">cur_image</span><span class="p">)]</span> <span class="o">=</span> <span class="n">min_val</span>
+        <span class="k">for</span> <span class="n">next_node</span><span class="p">,</span> <span class="n">keyed_data</span> <span class="ow">in</span> <span class="n">conn_dict</span><span class="p">[</span><span class="n">cur_idx</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">keyed_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># get the node index, image pair</span>
+                <span class="n">new_image</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cur_image</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">]))</span>
+                <span class="n">next_index_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_node</span><span class="p">,</span> <span class="n">new_image</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">i_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_image</span> <span class="k">for</span> <span class="n">i_</span> <span class="ow">in</span> <span class="n">new_image</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="n">new_cost</span> <span class="o">=</span> <span class="n">min_val</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="n">weight</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">new_cost</span> <span class="o">&lt;</span> <span class="n">best_ans</span><span class="p">[</span><span class="n">next_index_pair</span><span class="p">]:</span>
+                    <span class="n">best_ans</span><span class="p">[</span><span class="n">next_index_pair</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cost</span>
+                    <span class="n">path_parent</span><span class="p">[</span><span class="n">next_index_pair</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cur_idx</span><span class="p">,</span> <span class="n">cur_image</span><span class="p">)</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">pq</span><span class="p">,</span> <span class="p">(</span><span class="n">new_cost</span><span class="p">,</span> <span class="n">next_index_pair</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">best_ans</span><span class="p">,</span> <span class="n">path_parent</span></div>
+
+
+<div class="viewcode-block" id="periodic_dijkstra_on_sgraph"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.periodic_dijkstra.periodic_dijkstra_on_sgraph">[docs]</a><span class="k">def</span> <span class="nf">periodic_dijkstra_on_sgraph</span><span class="p">(</span>
+    <span class="n">sgraph</span><span class="p">:</span> <span class="n">StructureGraph</span><span class="p">,</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+    <span class="n">max_image</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">target_reached</span><span class="p">:</span> <span class="n">callable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">idx</span><span class="p">,</span> <span class="n">jimage</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the lowest cost pathway from a source point in the periodic graph.</span>
+<span class="sd">    Since the search can move many cells away without finding the target</span>
+<span class="sd">    we have to limit how many cells away from (0,0,0) to search.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sgraph (Graph): The StructureGraph object used for path searching</span>
+<span class="sd">        sources (set): the index of the source node</span>
+<span class="sd">        target (int, optional): The index of of target node, if None populate all nodes. Defaults to None.</span>
+<span class="sd">        max_image (int, optional): Defaults to 3.</span>
+<span class="sd">        target_reached (callable, optional): A function of (site_index, jimage) used to check</span>
+<span class="sd">            for stop iteration. This function is always called on the top of heap so it might miss the optimal path but</span>
+<span class="sd">            often can find a &quot;good enough&quot; path very quickly.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        best_ans: a dictionary of the best cost found to periodic node keyed by (site_index, jimage)</span>
+<span class="sd">        path_parent: dictionary of optimal path parent for each node given in index-image pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+    <span class="n">best_ans</span><span class="p">,</span> <span class="n">path_parent</span> <span class="o">=</span> <span class="n">periodic_dijkstra</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span>
+        <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+        <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+        <span class="n">max_image</span><span class="o">=</span><span class="n">max_image</span><span class="p">,</span>
+        <span class="n">target_reached</span><span class="o">=</span><span class="n">target_reached</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">best_ans</span><span class="p">,</span> <span class="n">path_parent</span></div>
+
+
+<div class="viewcode-block" id="get_optimal_pathway_rev"><a class="viewcode-back" href="../../../pymatgen_diffusion.neb.html#pymatgen_diffusion.neb.periodic_dijkstra.get_optimal_pathway_rev">[docs]</a><span class="k">def</span> <span class="nf">get_optimal_pathway_rev</span><span class="p">(</span><span class="n">path_parent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">leaf_node</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    follow a leaf node all the way up to source.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">leaf_node</span>
+    <span class="k">while</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">path_parent</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">cur</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">path_parent</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span>
+    <span class="k">yield</span> <span class="n">cur</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

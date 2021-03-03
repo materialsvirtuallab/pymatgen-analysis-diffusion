@@ -2,7 +2,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from pymatgen import Structure, Lattice
+from pymatgen.core import Structure, Lattice
 
 __author__ = "Iek-Heng Chu"
 __date__ = "01/16"
