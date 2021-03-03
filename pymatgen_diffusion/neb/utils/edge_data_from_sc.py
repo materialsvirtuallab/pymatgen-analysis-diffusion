@@ -51,6 +51,7 @@ def add_edge_data_from_sc(mg, i_sc, e_sc, data_array, key="custom_key"):
 
 
 def check_if_rev(mg, mh_from_sc, uhop_index):
+    assert mh_eq(mg.unique_hops[uhop_index]["hop"], mh_from_sc)
     same_uhop_list = []
     for u, v, d in mg.m_graph.graph.edges(data=True):
         if d["hop_label"] == uhop_index:
