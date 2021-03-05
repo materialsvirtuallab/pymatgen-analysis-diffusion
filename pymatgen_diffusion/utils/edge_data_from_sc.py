@@ -12,12 +12,12 @@ __maintainer__ = "Haoming Li"
 __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
-from pymatgen import Structure, PeriodicSite
-import numpy as np
 import logging
 from typing import Tuple, Union
-from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
+import numpy as np
+from pymatgen import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
 from pymatgen_diffusion.utils.parse_entries import get_matched_structure_mapping
 
 logger = logging.getLogger(__name__)
