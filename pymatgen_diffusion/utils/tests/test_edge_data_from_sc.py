@@ -4,7 +4,7 @@
 
 import os
 from pymatgen import Structure
-from pymatgen_diffusion.neb.utils.edge_data_from_sc import add_edge_data_from_sc
+from pymatgen_diffusion.utils.edge_data_from_sc import add_edge_data_from_sc
 from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
@@ -13,9 +13,9 @@ __author__ = "Haoming Li"
 __version__ = "1.0"
 __date__ = "February 17, 2021"
 
-uc_full_sites = Structure.from_file(f"{test_dir}/Li4Sr3Fe2O7_uc.vasp")
-input_struct_i = Structure.from_file(f"{test_dir}/Sr3Fe2O7_sc_i.vasp")
-input_struct_e = Structure.from_file(f"{test_dir}/Sr3Fe2O7_sc_e.vasp")
+uc_full_sites = Structure.from_file(f"{test_dir}/test_files/Li4Sr3Fe2O7_uc.vasp")
+input_struct_i = Structure.from_file(f"{test_dir}/test_files/Sr3Fe2O7_sc_i.vasp")
+input_struct_e = Structure.from_file(f"{test_dir}/test_files/Sr3Fe2O7_sc_e.vasp")
 
 
 def test_add_edge_data_from_sc():
