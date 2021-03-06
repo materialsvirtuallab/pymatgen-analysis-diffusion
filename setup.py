@@ -14,8 +14,8 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 
 setup(
     name="pymatgen-analysis-diffusion",
-    packages=find_namespace_packages(include=['pymatgen.analysis.*']),
-    version="2020.10.8",
+    packages=find_namespace_packages(include=["pymatgen.analysis.*"]),
+    version="2021.3.5",
     install_requires=["pymatgen>=2022.0.3", "joblib"],
     extras_require={},
     package_data={},
@@ -38,6 +38,6 @@ setup(
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Chemistry",
-        "Topic :: Software Development :: Libraries :: Python Modules"
-    ]
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
 )

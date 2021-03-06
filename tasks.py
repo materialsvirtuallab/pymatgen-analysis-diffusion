@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Deployment file to facilitate releases of pymatgen_diffusion.
+Deployment file to facilitate releases of pymatgen.analysis.diffusion.
 """
 
 from __future__ import division
@@ -28,7 +28,7 @@ def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
-        ctx.run("rm pymatgen_diffusion*.tests.rst")
+        ctx.run("rm pymatgen*.tests.rst")
         for f in glob.glob("*.rst"):
             if f.startswith("pymatgen") and f.endswith("rst"):
                 newoutput = []
@@ -116,7 +116,7 @@ def release_github(ctx):
 
 @task
 def test(ctx):
-    ctx.run("pytest pymatgen_diffusion")
+    ctx.run("pytest pymatgen")
 
 
 @task
