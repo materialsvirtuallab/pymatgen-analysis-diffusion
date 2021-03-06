@@ -13,11 +13,12 @@ from typing import List, Tuple, Union, Callable, Dict
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pds
+from scipy.stats import norm
 from pymatgen.core import Structure
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.typing import ArrayLike
-from scipy.stats import norm
+
 
 from .rdf import RadialDistributionFunction
 
@@ -101,17 +102,11 @@ class VanHoveAnalysis:
         structure = diffusion_analyzer.structure
 
         if indices is None:
-            indices = [
-                j for j, site in enumerate(structure) if site.specie.symbol in species
-            ]
+            indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
 
         ref_indices = indices
         if reference_species:
-            ref_indices = [
-                j
-                for j, site in enumerate(structure)
-                if site.specie.symbol in reference_species
-            ]
+            ref_indices = [j for j, site in enumerate(structure) if site.specie.symbol in reference_species]
 
         rho = float(len(indices)) / lattice.volume
 
@@ -136,11 +131,7 @@ class VanHoveAnalysis:
         tracking_ions = np.array(tracking_ions)
         ref_ions = np.array(ref_ions)
 
-        gaussians = (
-            norm.pdf(interval[:, None], interval[None, :], sigma)
-            / float(avg_nsteps)
-            / float(len(ref_indices))
-        )
+        gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / float(avg_nsteps) / float(len(ref_indices))
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
@@ -149,15 +140,11 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [
-                    lattice.get_distance_and_image(
-                        tracking_ions[it1][u], tracking_ions[it0 + it1][u], jimage=image
-                    )[0]
+                    lattice.get_distance_and_image(tracking_ions[it1][u], tracking_ions[it0 + it1][u], jimage=image)[0]
                     for u in range(len(indices))
                 ]
 
-                r_indices = [
-                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
-                ]
+                r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax, dists)]
                 dns.update(r_indices)  # type: ignore
 
             for indx, dn in dns.most_common(ngrid):
@@ -195,9 +182,7 @@ class VanHoveAnalysis:
                     if u != v or j != indx0
                 ]
 
-                r_indices = [
-                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
-                ]
+                r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax, dists)]
                 dns.update(r_indices)
 
             for indx, dn in dns.most_common(ngrid):
@@ -233,11 +218,7 @@ class VanHoveAnalysis:
             cb_ticks = [0, 1]
             cb_label = "4$\pi r^2G_s$($t$,$r$)"
 
-        y = (
-            np.arange(np.shape(grt)[1])
-            * self.interval[-1]
-            / float(len(self.interval) - 1)
-        )
+        y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(len(self.interval) - 1)
         x = np.arange(np.shape(grt)[0]) * self.timeskip
         X, Y = np.meshgrid(x, y, indexing="ij")
 
@@ -261,9 +242,7 @@ class VanHoveAnalysis:
 
         return plt
 
-    def get_1d_plot(
-        self, mode: str = "distinct", times: List = [0.0], colors: List = None
-    ):
+    def get_1d_plot(self, mode: str = "distinct", times: List = [0.0], colors: List = None):
         """
         Plot the van Hove function at given r or t.
 
@@ -298,9 +277,7 @@ class VanHoveAnalysis:
             index = min(index, np.shape(grt)[0] - 1)
             new_time = index * self.timeskip
             label = str(new_time) + " ps"
-            plt.plot(
-                self.interval, grt[index], color=colors[i], label=label, linewidth=4.0
-            )
+            plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
 
         plt.xlabel(r"$r$ ($\AA$)")
         plt.ylabel(ylabel)
@@ -317,9 +294,7 @@ class EvolutionAnalyzer:
     Analyze the evolution of structures during AIMD simulations.
     """
 
-    def __init__(
-        self, structures: List, rmax: float = 10, step: int = 1, time_step: int = 2
-    ):
+    def __init__(self, structures: List, rmax: float = 10, step: int = 1, time_step: int = 2):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -424,11 +399,7 @@ class EvolutionAnalyzer:
         for i in np.linspace(0, l - window, ngrid):
             atoms = []
             for j in [-1, 0, 1]:
-                temp = [
-                    s
-                    for s in atom_list
-                    if i - window < s.coords[ind] % l + l * j < i + window
-                ]
+                temp = [s for s in atom_list if i - window < s.coords[ind] % l + l * j < i + window]
                 atoms.extend(temp)
 
             density.append(len(atoms) / atom_total)
@@ -572,9 +543,7 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
         x_label, cb_label = "$r$ ({}-{}) ($\\rm\AA$)".format(*pair), "$g(r)$"
-        p = self.plot_evolution_from_data(
-            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
-        )
+        p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
 
         return p
 
@@ -598,14 +567,10 @@ class EvolutionAnalyzer:
             matplotlib.axes._subplots.AxesSubplot object
         """
         if df is None:
-            df = self.get_df(
-                func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction
-            )
+            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
         x_label, cb_label = (
             "Atomic distribution along {} ".format(direction),
             "Probability",
         )
-        p = self.plot_evolution_from_data(
-            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
-        )
+        p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
         return p

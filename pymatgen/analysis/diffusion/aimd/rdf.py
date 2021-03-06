@@ -12,12 +12,12 @@ from multiprocessing import cpu_count
 from typing import List, Tuple, Union, Dict
 
 import numpy as np
-from joblib import delayed, Parallel
-from pymatgen.core import Structure
-from pymatgen.util.plotting import pretty_plot
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 from scipy.stats import norm
+from joblib import delayed, Parallel
+from pymatgen.core import Structure
+from pymatgen.util.plotting import pretty_plot
 
 
 class RadialDistributionFunction:

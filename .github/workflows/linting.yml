@@ -25,6 +25,10 @@ jobs:
     - name: mypy
       run: |
         mypy --namespace-packages --explicit-package-bases pymatgen
+    - name: black
+      run: |
+        black --version
+        black --check --diff --color pymatgen
     - name: flake8
       run: |
         flake8 --count --show-source --statistics pymatgen
