@@ -10,7 +10,7 @@ import os
 import json
 
 import numpy as np
-from pymatgen_diffusion.aimd.pathway import (
+from pymatgen.analysis.diffusion.aimd.pathway import (
     ProbabilityDensityAnalysis,
     SiteOccupancyAnalyzer,
 )

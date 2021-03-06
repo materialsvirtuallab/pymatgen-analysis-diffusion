@@ -9,13 +9,13 @@ from monty.serialization import loadfn
 from pymatgen.core import Structure, PeriodicSite
 from pymatgen.io.vasp import Chgcar
 
-from pymatgen_diffusion.neb.full_path_mapper import (
+from pymatgen.analysis.diffusion.neb.full_path_mapper import (
     ChargeBarrierGraph,
     MigrationGraph,
     MigrationHop,
     get_hop_site_sequence,
 )
-from pymatgen_diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

@@ -30,12 +30,12 @@ from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
-from pymatgen_diffusion.neb.pathfinder import MigrationHop
-from pymatgen_diffusion.neb.periodic_dijkstra import (
+from pymatgen.analysis.diffusion.neb.pathfinder import MigrationHop
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import (
     get_optimal_pathway_rev,
     periodic_dijkstra,
 )
-from pymatgen_diffusion.utils.parse_entries import process_entries
+from pymatgen.analysis.diffusion.utils.parse_entries import process_entries
 
 logger = logging.getLogger(__name__)
 

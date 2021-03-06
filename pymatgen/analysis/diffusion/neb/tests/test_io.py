@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from pymatgen.core import Structure
-from pymatgen_diffusion.neb.io import (
+from pymatgen.analysis.diffusion.neb.io import (
     MVLCINEBEndPointSet,
     MVLCINEBSet,
     get_endpoints_from_index,

@@ -11,13 +11,13 @@ from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph
-from pymatgen_diffusion.neb.pathfinder import (
+from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
+from pymatgen.analysis.diffusion.neb.pathfinder import (
     DistinctPathFinder,
     IDPPSolver,
     MigrationHop,
 )
-from pymatgen_diffusion.utils.supercells import (
+from pymatgen.analysis.diffusion.utils.supercells import (
     get_start_end_structures,
 )
 

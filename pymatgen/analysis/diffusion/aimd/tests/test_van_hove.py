@@ -15,7 +15,7 @@ from copy import deepcopy
 
 from monty.serialization import loadfn
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen_diffusion.aimd.van_hove import (
+from pymatgen.analysis.diffusion.aimd.van_hove import (
     VanHoveAnalysis,
     RadialDistributionFunction,
     EvolutionAnalyzer,

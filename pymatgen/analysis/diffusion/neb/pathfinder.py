@@ -25,7 +25,7 @@ __date__ = "March 14, 2017"
 # TODO: (1) ipython notebook example files, unittests
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
-from pymatgen_diffusion.utils.supercells import (
+from pymatgen.analysis.diffusion.utils.supercells import (
     get_sc_fromstruct,
     get_start_end_structures,
 )

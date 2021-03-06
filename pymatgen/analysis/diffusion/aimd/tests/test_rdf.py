@@ -5,7 +5,7 @@ from monty.serialization import loadfn
 import numpy as np
 from pymatgen.core import Lattice, Structure
 
-from pymatgen_diffusion.aimd.rdf import RadialDistributionFunctionFast
+from pymatgen.analysis.diffusion.aimd.rdf import RadialDistributionFunctionFast
 
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))

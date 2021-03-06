@@ -10,7 +10,7 @@ from pymatgen.core import Structure
 import numpy as np
 import os
 
-from pymatgen_diffusion.utils.parse_entries import (
+from pymatgen.analysis.diffusion.utils.parse_entries import (
     get_inserted_on_base,
     process_entries,
     get_insertion_energy,
