@@ -57,7 +57,7 @@ class VanHoveAnalysis:
 
         Args:
             diffusion_analyzer (DiffusionAnalyzer): A
-                pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object
+                pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer object
             avg_nsteps (int): Number of t0 used for statistical average
             ngrid (int): Number of radial grid points
             rmax (float): Maximum of radial grid (the minimum is always set zero)
