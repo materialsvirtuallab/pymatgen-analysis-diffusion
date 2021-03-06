@@ -3,7 +3,7 @@
 # Distributed under the terms of the BSD License.
 
 import os
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen_diffusion.utils.edge_data_from_sc import add_edge_data_from_sc
 from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph
 

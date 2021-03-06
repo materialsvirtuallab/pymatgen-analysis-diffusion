@@ -167,6 +167,7 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
         )
         if dist < stol:
             return np.add(site.frac_coords, image)
+    return frac_coord
 
 
 def mh_eq(mh1, mh2, symm_prec=0.0001):
