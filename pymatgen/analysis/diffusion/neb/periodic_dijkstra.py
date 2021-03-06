@@ -14,7 +14,7 @@ __date__ = "April 11, 2019"
 import heapq
 import math
 from collections import defaultdict
-from typing import Dict, Callable, Tuple, Set
+from typing import Dict, Callable, Set
 
 import numpy as np
 from networkx.classes.graph import Graph

@@ -8,7 +8,7 @@ Van Hove analysis for correlations.
 
 import itertools
 from collections import Counter
-from typing import List, Tuple, Union, Callable, Dict
+from typing import List, Tuple, Union, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
