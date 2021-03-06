@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.aimd.tests.test_van_hove &#8212; pymatgen-diffusion 2021.3.5 documentation</title>
+    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../../_static/jquery.js"></script>
+    <script src="../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2021.3.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.tests.test_van_hove</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.aimd.tests.test_van_hove</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;01/16&quot;</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion_analyzer</span> <span class="kn">import</span> <span class="n">DiffusionAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.van_hove</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">VanHoveAnalysis</span><span class="p">,</span>
+    <span class="n">RadialDistributionFunction</span><span class="p">,</span>
+    <span class="n">EvolutionAnalyzer</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+<span class="n">tests_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="VanHoveTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.VanHoveTest">[docs]</a><span class="k">class</span> <span class="nc">VanHoveTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="VanHoveTest.test_van_hove"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.VanHoveTest.test_van_hove">[docs]</a>    <span class="k">def</span> <span class="nf">test_van_hove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Parse the DiffusionAnalyzer object from json file directly</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tests_dir</span><span class="p">,</span> <span class="s2">&quot;cNa3PS4_pda.json&quot;</span><span class="p">))</span>
+
+        <span class="n">vh</span> <span class="o">=</span> <span class="n">VanHoveAnalysis</span><span class="p">(</span>
+            <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">avg_nsteps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">step_skip</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">vh</span><span class="o">.</span><span class="n">gsrt</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">vh</span><span class="o">.</span><span class="n">gdrt</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">vh</span><span class="o">.</span><span class="n">gsrt</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mf">3.98942280401</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">vh</span><span class="o">.</span><span class="n">gdrt</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mf">9.68574868168</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RDFTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest">[docs]</a><span class="k">class</span> <span class="nc">RDFTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="RDFTest.test_rdf"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">test_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Parse the DiffusionAnalyzer object from json file directly</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tests_dir</span><span class="p">,</span> <span class="s2">&quot;cNa3PS4_pda.json&quot;</span><span class="p">))</span>
+
+        <span class="n">structure_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_drift_corrected_structures</span><span class="p">()):</span>
+            <span class="n">structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Test from_species</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">structure_list</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">cell_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+            <span class="n">reference_species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">101</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="p">)</span> <span class="o">==</span> <span class="mi">34</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mf">1.634448</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="c1"># Test init</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">structure_list</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">cell_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">reference_indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">101</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="p">)</span> <span class="o">==</span> <span class="mi">34</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mf">1.634448</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="c1"># Test init using structures w/ different lattices</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">structure_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">sl_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">s0</span><span class="p">,</span> <span class="n">s0</span><span class="p">,</span> <span class="n">s0</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">sl_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">s0</span> <span class="o">*</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s0</span><span class="p">,</span> <span class="n">s0</span><span class="p">]</span>
+
+        <span class="n">obj_1</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">sl_1</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">cell_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">reference_indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">obj_2</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">sl_2</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">cell_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">reference_indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">obj_1</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="n">obj_2</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">obj_1</span><span class="o">.</span><span class="n">rdf</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj_2</span><span class="o">.</span><span class="n">rdf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_rdf_coordination_number"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">test_rdf_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># create a simple cubic lattice</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+        <span class="n">atom_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom_list</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+        <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="n">structure</span><span class="p">],</span> <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">],</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">500</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">coordination_number</span><span class="p">[</span><span class="mi">100</span><span class="p">],</span> <span class="mf">6.0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_rdf_two_species_coordination_number"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf_two_species_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">test_rdf_two_species_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># create a structure with interpenetrating simple cubic lattice</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+        <span class="n">atom_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;Zn&quot;</span><span class="p">]</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom_list</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+        <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="n">structure</span><span class="p">],</span>
+            <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">],</span>
+            <span class="n">reference_species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Zn&quot;</span><span class="p">],</span>
+            <span class="n">rmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">ngrid</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">coordination_number</span><span class="p">[</span><span class="mi">100</span><span class="p">],</span> <span class="mf">8.0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RDFTest.setUp"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+        <span class="n">atom_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom_list</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_raises_valueerror_if_ngrid_is_less_than_2"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_valueerror_if_ngrid_is_less_than_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_raises_valueerror_if_ngrid_is_less_than_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">],</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_raises_ValueError_if_sigma_is_not_positive"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_sigma_is_not_positive">[docs]</a>    <span class="k">def</span> <span class="nf">test_raises_ValueError_if_sigma_is_not_positive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_raises_ValueError_if_species_not_in_structure"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_species_not_in_structure">[docs]</a>    <span class="k">def</span> <span class="nf">test_raises_ValueError_if_species_not_in_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">],</span> <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Cl&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="RDFTest.test_raises_ValueError_if_reference_species_not_in_structure"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_reference_species_not_in_structure">[docs]</a>    <span class="k">def</span> <span class="nf">test_raises_ValueError_if_reference_species_not_in_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunction</span><span class="o">.</span><span class="n">from_species</span><span class="p">(</span>
+                <span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">],</span> <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">],</span> <span class="n">reference_species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Cl&quot;</span><span class="p">]</span>
+            <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="EvolutionAnalyzerTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.EvolutionAnalyzerTest">[docs]</a><span class="k">class</span> <span class="nc">EvolutionAnalyzerTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="EvolutionAnalyzerTest.test_get_df"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_van_hove.html#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.EvolutionAnalyzerTest.test_get_df">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Parse the DiffusionAnalyzer object from json file directly</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tests_dir</span><span class="p">,</span> <span class="s2">&quot;cNa3PS4_pda.json&quot;</span><span class="p">))</span>
+
+        <span class="n">structure_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_drift_corrected_structures</span><span class="p">()):</span>
+            <span class="n">structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">eva</span> <span class="o">=</span> <span class="n">EvolutionAnalyzer</span><span class="p">(</span><span class="n">structure_list</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">rdf</span> <span class="o">=</span> <span class="n">eva</span><span class="o">.</span><span class="n">get_df</span><span class="p">(</span><span class="n">EvolutionAnalyzer</span><span class="o">.</span><span class="n">rdf</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">))</span>
+        <span class="n">atom_dist</span> <span class="o">=</span> <span class="n">eva</span><span class="o">.</span><span class="n">get_df</span><span class="p">(</span><span class="n">EvolutionAnalyzer</span><span class="o">.</span><span class="n">atom_dist</span><span class="p">,</span> <span class="n">specie</span><span class="o">=</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">rdf</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">atom_dist</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">eva</span><span class="o">.</span><span class="n">pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rdf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">1.772465</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

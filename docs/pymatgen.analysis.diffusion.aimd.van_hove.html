@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.aimd.van_hove module &#8212; pymatgen-diffusion 2021.3.5 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.van_hove module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.diffusion.aimd.van_hove">
+<span id="pymatgen-analysis-diffusion-aimd-van-hove-module"></span><h1>pymatgen.analysis.diffusion.aimd.van_hove module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.van_hove" title="Permalink to this headline">¶</a></h1>
+<p>Van Hove analysis for correlations.</p>
+<dl class="py class">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">EvolutionAnalyzer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Analyze the evolution of structures during AIMD simulations.</p>
+<p>Initialization the EvolutionAnalyzer from MD simulations. From the
+structures obtained from MD simulations, we can analyze the structure
+evolution with time by some quantitative characterization such as RDF
+and atomic distribution.</p>
+<p>If you use this class, please consider citing the following paper:
+Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.;
+Zheng, C.; Ong, S. P. “Probing Solid–Solid Interfacial Reactions in
+All-Solid-State Sodium-Ion Batteries with First-Principles
+Calculations”, Chem. Mater. (2018), 30(1), pp 163-173.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – The list of structures obtained from MD
+simulations.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – indicate the interval of input structures, which is used
+to calculated correct time step.</p></li>
+<li><p><strong>time_step</strong> (<em>int</em>) – the time step in fs, POTIM in INCAR.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.atom_dist">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">atom_dist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'c'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.atom_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.atom_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get atomic distribution for a given specie.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em>) – input structure</p></li>
+<li><p><strong>specie</strong> (<em>str</em>) – species string for an element</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>window</strong> (<em>float</em>) – number of atoms will be counted within the range
+(i-window, i+window), unit is angstrom.</p></li>
+<li><p><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b” and “c”. Default is “c”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>atomic concentration along one direction.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>density (np.array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_df">
+<code class="sig-name descname"><span class="pre">get_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_csv</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data frame for a given pair. This step would be very slow if
+there are hundreds or more structures to parse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>FunctionType</em>) – <p>structure to spectrum function. choose from
+rdf (to get radial distribution function, pair required) or
+get_atomic_distribution (to get atomic distribution, specie
+required). Extra parameters can be parsed using kwargs.
+e.g. To get rdf dataframe:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>df = EvolutionAnalyzer.get_df(</dt><dd><p>func=EvolutionAnalyzer.rdf, pair=(“Na”, “Na”))</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>e.g. To get atomic distribution:</dt><dd><dl class="simple">
+<dt>df = EvolutionAnalyzer.get_df(</dt><dd><p>func=EvolutionAnalyzer.atom_dist, specie=”Na”)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>save_csv</strong> (<em>str</em>) – save pandas DataFrame to csv.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>index is the radial distance in Angstrom,</dt><dd><p>and column is the time step in ps.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_min_dist">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_min_dist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_min_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_min_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the shortest pair distance from the given DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – index is the radial distance in Angstrom, and
+column is the time step in ps.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – any float number less than tol is considered as zero.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The shortest pair distance throughout the table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_pairs">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_pairs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.get_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.get_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all element pairs in a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Structure</em>) – structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_atomic_evolution">
+<code class="sig-name descname"><span class="pre">plot_atomic_evolution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">specie:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">direction:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'c'</span></em>, <em class="sig-param"><span class="pre">cmap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">df:</span> <span class="pre">Optional[pandas.core.frame.DataFrame]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_atomic_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_atomic_evolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the atomic distribution evolution with time for a given species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specie</strong> (<em>str</em>) – species string for an element.</p></li>
+<li><p><strong>direction</strong> (<em>str</em>) – Choose from “a”, “b”, “c”. Default to “c”.</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – external data, index is the atomic distance in
+Angstrom, and column is the time step in ps.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_evolution_from_data">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">plot_evolution_from_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="pre">x_label:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">cb_label:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">cmap=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_evolution_from_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_evolution_from_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the evolution with time for a given DataFrame. It can be RDF,
+atomic distribution or other characterization data we might
+implement in the future.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – input DataFrame object, index is the radial
+distance in Angstrom, and column is the time step in ps.</p></li>
+<li><p><strong>x_label</strong> (<em>str</em>) – x label</p></li>
+<li><p><strong>cb_label</strong> (<em>str</em>) – color bar label</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
+cmocean.cm.thermal is recommended</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_rdf_evolution">
+<code class="sig-name descname"><span class="pre">plot_rdf_evolution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pair:</span> <span class="pre">Tuple</span></em>, <em class="sig-param"><span class="pre">cmap=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">df:</span> <span class="pre">Optional[pandas.core.frame.DataFrame]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.plot_rdf_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.plot_rdf_evolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the RDF evolution with time for a given pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”)</p></li>
+<li><p><strong>cmap</strong> (<em>color map</em>) – the color map used in heat map.
+cmocean.cm.thermal is recommended</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – external data, index is the radial distance in
+Angstrom, and column is the time step in ps.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.axes._subplots.AxesSubplot object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.rdf">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#EvolutionAnalyzer.rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.EvolutionAnalyzer.rdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process rdf from a given structure and pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em>) – input structure.</p></li>
+<li><p><strong>pair</strong> (<em>str tuple</em>) – e.g. (“Na”, “Na”).</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rdf (np.array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">VanHoveAnalysis</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_nsteps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_skip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#VanHoveAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for van Hove function analysis. In particular, self-part (Gs) and
+distinct-part (Gd) of the van Hove correlation function G(r,t)
+for given species and given structure are computed. If you use this class,
+please consider citing the following paper:</p>
+<p>Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. “Role of Na+ Interstitials
+and Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4
+Superionic Conductor”. Chem. Mater. (2015), 27, pp 8318–8325</p>
+<p>Initiation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diffusion_analyzer</strong> (<em>DiffusionAnalyzer</em>) – A
+pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
+<li><p><strong>avg_nsteps</strong> (<em>int</em>) – Number of t0 used for statistical average</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always set zero)</p></li>
+<li><p><strong>step_skip</strong> (<em>int</em>) – # of time steps skipped during analysis. It defines
+the resolution of the reduced time grid</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+with supercell. Default is 1, i.e. including the adjacent image
+cells along all three directions.</p></li>
+<li><p><strong>species</strong> (<em>[</em><em>string</em><em>]</em>) – a list of specie symbols of interest.</p></li>
+<li><p><strong>reference_species</strong> (<em>[</em><em>string</em><em>]</em>) – Set this option along with ‘species’
+parameter to calculate the distinct-part of van Hove function.
+Note that the self-part of van Hove function is always computed
+only for those in “species” parameter.</p></li>
+<li><p><strong>indices</strong> (<em>list of int</em>) – If not None, only a subset of atomic indices
+will be selected for the analysis. If this is given, “species”
+parameter will be ignored.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot">
+<code class="sig-name descname"><span class="pre">get_1d_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'distinct'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[0.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#VanHoveAnalysis.get_1d_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis.get_1d_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the van Hove function at given r or t.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>str</em>) – Specify which part of van Hove function to be plotted.</p></li>
+<li><p><strong>times</strong> (<em>list of float</em>) – Time moments (in ps) in which the van Hove
+function will be plotted.</p></li>
+<li><p><strong>colors</strong> (<em>list strings/tuples</em>) – Additional color settings. If not set,
+seaborn.color_plaette(“Set1”, 10) will be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot">
+<code class="sig-name descname"><span class="pre">get_3d_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">(12,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'distinct'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/van_hove.html#VanHoveAnalysis.get_3d_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.van_hove.VanHoveAnalysis.get_3d_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot 3D self-part or distinct-part of van Hove function, which is
+specified by the input argument ‘type’.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.diffusion.aimd.van_hove.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

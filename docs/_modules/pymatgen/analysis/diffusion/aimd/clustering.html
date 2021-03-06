@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.aimd.clustering &#8212; pymatgen-diffusion 2021.3.5 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.3.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.clustering</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.aimd.clustering</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements clustering algorithms to determine centroids, with</span>
+<span class="sd">adaption for periodic boundary conditions. This can be used, for example, to</span>
+<span class="sd">determine likely atomic positions from MD trajectories.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">all_distances</span><span class="p">,</span> <span class="n">pbc_diff</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;3/18/15&quot;</span>
+
+
+<div class="viewcode-block" id="Kmeans"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.Kmeans">[docs]</a><span class="k">class</span> <span class="nc">Kmeans</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple kmeans clustering.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            max_iterations (int): Maximum number of iterations to run KMeans algo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span> <span class="o">=</span> <span class="n">max_iterations</span>
+
+<div class="viewcode-block" id="Kmeans.cluster"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.Kmeans.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">initial_centroids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            points (ndarray): Data points as a mxn ndarray, where m is the</span>
+<span class="sd">                number of features and n is the number of data points.</span>
+<span class="sd">            k (int): Number of means.</span>
+<span class="sd">            initial_centroids (np.array): Initial guess for the centroids. If</span>
+<span class="sd">                None, a randomized array of points is used.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            centroids, labels, ss: centroids are the final centroids, labels</span>
+<span class="sd">            provide the index for each point, and ss in the final sum squared</span>
+<span class="sd">            distances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">k</span><span class="p">))</span> <span class="k">if</span> <span class="n">initial_centroids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">initial_centroids</span>
+
+        <span class="c1"># Initialize book keeping vars.</span>
+        <span class="n">iterations</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">old_centroids</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Run the main k-means algorithm</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span><span class="p">(</span><span class="n">old_centroids</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
+            <span class="c1"># Save old centroids for convergence test. Book keeping.</span>
+            <span class="n">old_centroids</span> <span class="o">=</span> <span class="n">centroids</span>
+            <span class="n">iterations</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Assign labels to each datapoint based on centroids</span>
+            <span class="n">labels</span><span class="p">,</span> <span class="n">ss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+
+            <span class="c1"># Assign centroids based on datapoint labels</span>
+            <span class="n">centroids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_centroids</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+
+        <span class="n">labels</span><span class="p">,</span> <span class="n">ss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+        <span class="c1"># We can get the labels too by calling getLabels(dataSet, centroids)</span>
+        <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">ss</span></div>
+
+<div class="viewcode-block" id="Kmeans.get_labels"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.Kmeans.get_labels">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_labels</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For each element in the dataset, chose the closest centroid.</span>
+<span class="sd">        Make that centroid the element&#39;s label.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: List of points</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="n">all_distances</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+        <span class="n">min_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dists</span> <span class="o">==</span> <span class="n">min_dists</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_dists</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Kmeans.get_centroids"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.Kmeans.get_centroids">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroids</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">centroids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Each centroid is the geometric mean of the points that</span>
+<span class="sd">        have that centroid&#39;s label. Important: If a centroid is empty (no</span>
+<span class="sd">        points have that centroid&#39;s label) you should randomly re-initialize it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: List of points</span>
+<span class="sd">            labels: List of labels</span>
+<span class="sd">            k: Number of means</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">centroids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">centroids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_random_centroid</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Kmeans.should_stop"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.Kmeans.should_stop">[docs]</a>    <span class="k">def</span> <span class="nf">should_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_centroids</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for stopping conditions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            old_centroids: List of old centroids</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">            iterations: Number of iterations thus far.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">iterations</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Max iterations </span><span class="si">%d</span><span class="s2"> reached!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">old_centroids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">old_centroids</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="KmeansPBC"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.KmeansPBC">[docs]</a><span class="k">class</span> <span class="nc">KmeansPBC</span><span class="p">(</span><span class="n">Kmeans</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A version of KMeans that work with PBC. Distance metrics have to change,</span>
+<span class="sd">    as well as new centroid determination. The points supplied should be</span>
+<span class="sd">    fractional coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lattice: Lattice</span>
+<span class="sd">            max_iterations: Maximum number of iterations to run KMeans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span> <span class="o">=</span> <span class="n">max_iterations</span>
+
+<div class="viewcode-block" id="KmeansPBC.get_labels"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.KmeansPBC.get_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For each element in the dataset, chose the closest centroid.</span>
+<span class="sd">        Make that centroid the element&#39;s label.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: List of points</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+        <span class="n">min_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dists</span> <span class="o">==</span> <span class="n">min_dists</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_dists</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KmeansPBC.get_centroids"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.KmeansPBC.get_centroids">[docs]</a>    <span class="k">def</span> <span class="nf">get_centroids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">centroids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Each centroid is the geometric mean of the points that</span>
+<span class="sd">        have that centroid&#39;s label. Important: If a centroid is empty (no</span>
+<span class="sd">        points have that centroid&#39;s label) you should randomly re-initialize it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: List of points</span>
+<span class="sd">            labels: List of labels</span>
+<span class="sd">            k: Number of means</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">new_centroids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">ind</span><span class="p">:</span>
+                    <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">c</span> <span class="o">+=</span> <span class="n">points</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">image</span>
+                <span class="n">c</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">get_random_centroid</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">new_centroids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_centroids</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KmeansPBC.should_stop"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.KmeansPBC.should_stop">[docs]</a>    <span class="k">def</span> <span class="nf">should_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_centroids</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for stopping conditions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            old_centroids: List of old centroids</span>
+<span class="sd">            centroids: List of centroids</span>
+<span class="sd">            iterations: Number of iterations thus far.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">iterations</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Max iterations </span><span class="si">%d</span><span class="s2"> reached!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">old_centroids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">old_centroids</span><span class="p">,</span> <span class="n">centroids</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pbc_diff</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="get_random_centroid"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.get_random_centroid">[docs]</a><span class="k">def</span> <span class="nf">get_random_centroid</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random centroid based on points.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points: List of points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">maxd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">mind</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">maxd</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="get_random_centroids"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.clustering.html#pymatgen.analysis.diffusion.aimd.clustering.get_random_centroids">[docs]</a><span class="k">def</span> <span class="nf">get_random_centroids</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate k random centroids based on points.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points: List of points.</span>
+<span class="sd">        k: Number of means.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">centroids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">centroids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_random_centroid</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

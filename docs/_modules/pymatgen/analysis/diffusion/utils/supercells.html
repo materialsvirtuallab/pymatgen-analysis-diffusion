@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.utils.supercells &#8212; pymatgen-diffusion 2021.3.5 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.3.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.supercells</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.utils.supercells</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for creating supercells for NEB calculations</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape</span>
+<span class="c1"># from pymatgen.io.ase import AseAtomsAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> <span class="n">CubicSupercellTransformation</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;jmmshn@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 11, 2021&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Helper functions for MigraionHop.get_sc_struture</span>
+
+
+<div class="viewcode-block" id="get_sc_fromstruct"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.supercells.html#pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct">[docs]</a><span class="k">def</span> <span class="nf">get_sc_fromstruct</span><span class="p">(</span>
+    <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">min_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
+    <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the best supercell from a unitcell.</span>
+<span class="sd">    The CubicSupercellTransformation from PMG is much faster but don&#39;t iterate over as many</span>
+<span class="sd">    supercell configurations so it&#39;s less able to find the best configuration in a give cell size.</span>
+<span class="sd">    We try the PMG&#39;s cubic supercell transformation with a cap on the number of atoms (max_atoms).</span>
+<span class="sd">    The min_length is decreased by 10% (geometrically) until a supercell can be constructed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base_struct: structure of the unit cell</span>
+<span class="sd">        max_atoms: Maximum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_atoms: Minimum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_length: Minimum length of the smallest supercell lattice vector.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        struc_sc: Supercell that is as close to cubic as possible</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m_len</span> <span class="o">=</span> <span class="n">min_length</span>
+    <span class="n">struct_sc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">while</span> <span class="n">struct_sc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">struct_sc</span> <span class="o">=</span> <span class="n">_get_sc_from_struct_pmg</span><span class="p">(</span><span class="n">base_struct</span><span class="p">,</span> <span class="n">min_atoms</span><span class="p">,</span> <span class="n">max_atoms</span><span class="p">,</span> <span class="n">m_len</span><span class="p">)</span>
+        <span class="n">m_len</span> <span class="o">*=</span> <span class="mf">0.9</span>
+    <span class="k">return</span> <span class="n">struct_sc</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_sc_from_struct_pmg</span><span class="p">(</span>
+    <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">min_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
+    <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the best supercell from a unitcell using the pymatgen CubicSupercellTransformation</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base_struct: structure of the unit cell</span>
+<span class="sd">        max_atoms: Maximum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_atoms: Minimum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_length: Minimum length of the smallest supercell lattice vector.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        3x3 matrix: supercell matrix</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cst</span> <span class="o">=</span> <span class="n">CubicSupercellTransformation</span><span class="p">(</span><span class="n">min_atoms</span><span class="o">=</span><span class="n">min_atoms</span><span class="p">,</span> <span class="n">max_atoms</span><span class="o">=</span><span class="n">max_atoms</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="n">min_length</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cst</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">base_struct</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">cst</span><span class="o">.</span><span class="n">transformation_matrix</span>
+
+
+<span class="c1"># Something is broken with how ASE generates supercells</span>
+<span class="c1"># now many calls to `find_optimal_cell_shape` results in</span>
+<span class="c1"># `Failed to find a transformation matrix`</span>
+<span class="c1"># So remove this funtionality now in favour of decreasing the max_length</span>
+<span class="c1">#</span>
+<span class="c1"># def _get_sc_from_struct_ase(</span>
+<span class="c1">#     base_struct: Structure, min_atoms: int=80, max_atoms: int=240</span>
+<span class="c1"># ) -&gt; List[List[int]]:</span>
+<span class="c1">#     &quot;&quot;&quot;generate the best supercell from a unitcell using ASE&#39;s method, is slower but more exhaustive</span>
+<span class="c1">#</span>
+<span class="c1">#     Args:</span>
+<span class="c1">#         base_struct (pymatgen.Structure): unit cell</span>
+<span class="c1">#         min_atoms (int, optional): Minimum number of atoms in the desired supercell. Defaults to 80.</span>
+<span class="c1">#</span>
+<span class="c1">#     Returns:</span>
+<span class="c1">#         3x3 matrix: supercell matrix</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     num_cells_min = int(np.ceil(min_atoms / base_struct.num_sites))</span>
+<span class="c1">#     num_cells_max = int(np.ceil(max_atoms / base_struct.num_sites))</span>
+<span class="c1">#</span>
+<span class="c1">#     atoms = AseAtomsAdaptor().get_atoms(base_struct)</span>
+<span class="c1">#     res = []</span>
+<span class="c1">#     for icell in range(num_cells_min, num_cells_max):</span>
+<span class="c1">#         if icell % 2 != 0 and icell % 3 != 0:</span>
+<span class="c1">#             continue  # cells with many factors are more likely to be square</span>
+<span class="c1">#         logger.info(f&quot;Getting cell shape {icell} x unit cell&quot;)</span>
+<span class="c1">#         sc_mat = find_optimal_cell_shape(atoms.cell, icell, &quot;sc&quot;)</span>
+<span class="c1">#         if sc_mat is None:</span>
+<span class="c1">#             continue</span>
+<span class="c1">#         deviation = get_deviation_from_optimal_cell_shape(np.dot(sc_mat, atoms.cell))</span>
+<span class="c1">#         dd = {&quot;deviation&quot;: deviation, &quot;P1&quot;: sc_mat}</span>
+<span class="c1">#         # base_struct_sc.to(&#39;poscar&#39;, f&#39;/Users/lik/Desktop/enpoints_{base_struct_sc.num_sites}.vasp&#39;)</span>
+<span class="c1">#         res.append(dd)</span>
+<span class="c1">#         if deviation &lt; 0.3:</span>
+<span class="c1">#             logger.debug(&quot;Found good cell&quot;)</span>
+<span class="c1">#             return sc_mat</span>
+<span class="c1">#</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         best_case = min(res, key=lambda x: x[&quot;deviation&quot;])</span>
+<span class="c1">#     logger.warning(</span>
+<span class="c1">#         f&quot;Could not find case with deviation from cubic was less than 0.3 using the ASE cubic supercell finder \</span>
+<span class="c1">#         \nThe best one had a deviation of {best_case[&#39;deviation&#39;]}&quot;</span>
+<span class="c1">#     )</span>
+<span class="c1">#     return best_case[&quot;P1&quot;]</span>
+
+
+<div class="viewcode-block" id="get_start_end_structures"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.supercells.html#pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures">[docs]</a><span class="k">def</span> <span class="nf">get_start_end_structures</span><span class="p">(</span>
+    <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">esite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">sc_mat</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+    <span class="n">vac_mode</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain the starting and terminating structures in a supercell for NEB calculations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        hop: object presenting the migration event</span>
+<span class="sd">        base_struct: unit cell representation of the structure</span>
+<span class="sd">        sc_mat: supercell transformation to create the simulation cell for the NEB calc</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        initial structure, final structure, empty structure all in the supercell</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">remove_site_at_pos</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">):</span>
+        <span class="n">new_struct_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vac_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">new_struct_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_struct_sites</span><span class="p">)</span>
+
+    <span class="n">base_sc</span> <span class="o">=</span> <span class="n">base_struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">sc_mat</span>
+
+    <span class="n">start_struct</span> <span class="o">=</span> <span class="n">base_struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">sc_mat</span>
+    <span class="n">end_struct</span> <span class="o">=</span> <span class="n">base_struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">sc_mat</span>
+
+    <span class="n">sc_mat_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sc_mat</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vac_mode</span><span class="p">:</span>
+        <span class="c1"># insertion the endpoints</span>
+        <span class="n">start_struct</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">esite</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">sc_mat_inv</span><span class="p">),</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;magmom&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">end_struct</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">esite</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">sc_mat_inv</span><span class="p">),</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;magmom&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># remove the other endpoint</span>
+        <span class="n">ipos_sc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">sc_mat_inv</span><span class="p">)</span>
+        <span class="n">epos_sc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">sc_mat_inv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">icart</span> <span class="o">=</span> <span class="n">base_sc</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">ipos_sc</span><span class="p">)</span>
+            <span class="n">ecart</span> <span class="o">=</span> <span class="n">base_sc</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">epos_sc</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">icart</span> <span class="o">-</span> <span class="n">ecart</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">esite</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1e-5</span>
+        <span class="n">i_ref_</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">esite</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">ipos_sc</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="n">base_sc</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="n">e_ref_</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">esite</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">epos_sc</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="n">base_sc</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="n">start_struct</span> <span class="o">=</span> <span class="n">remove_site_at_pos</span><span class="p">(</span><span class="n">start_struct</span><span class="p">,</span> <span class="n">e_ref_</span><span class="p">)</span>
+        <span class="n">end_struct</span> <span class="o">=</span> <span class="n">remove_site_at_pos</span><span class="p">(</span><span class="n">end_struct</span><span class="p">,</span> <span class="n">i_ref_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">base_sc</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

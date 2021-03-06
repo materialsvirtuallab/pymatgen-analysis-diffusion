@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.utils.supercells module &#8212; pymatgen-diffusion 2021.3.5 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.supercells module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.diffusion.utils.supercells">
+<span id="pymatgen-analysis-diffusion-utils-supercells-module"></span><h1>pymatgen.analysis.diffusion.utils.supercells module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.supercells" title="Permalink to this headline">¶</a></h1>
+<p>Functions for creating supercells for NEB calculations</p>
+<dl class="py function">
+<dt id="pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct">
+<code class="sig-name descname"><span class="pre">get_sc_fromstruct</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_sc_fromstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the best supercell from a unitcell.
+The CubicSupercellTransformation from PMG is much faster but don’t iterate over as many
+supercell configurations so it’s less able to find the best configuration in a give cell size.
+We try the PMG’s cubic supercell transformation with a cap on the number of atoms (max_atoms).
+The min_length is decreased by 10% (geometrically) until a supercell can be constructed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_struct</strong> – structure of the unit cell</p></li>
+<li><p><strong>max_atoms</strong> – Maximum number of atoms allowed in the supercell.</p></li>
+<li><p><strong>min_atoms</strong> – Minimum number of atoms allowed in the supercell.</p></li>
+<li><p><strong>min_length</strong> – Minimum length of the smallest supercell lattice vector.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Supercell that is as close to cubic as possible</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>struc_sc</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures">
+<code class="sig-name descname"><span class="pre">get_start_end_structures</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.sites.PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mat</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_start_end_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the starting and terminating structures in a supercell for NEB calculations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hop</strong> – object presenting the migration event</p></li>
+<li><p><strong>base_struct</strong> – unit cell representation of the structure</p></li>
+<li><p><strong>sc_mat</strong> – supercell transformation to create the simulation cell for the NEB calc</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>initial structure, final structure, empty structure all in the supercell</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.diffusion.utils.supercells.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
