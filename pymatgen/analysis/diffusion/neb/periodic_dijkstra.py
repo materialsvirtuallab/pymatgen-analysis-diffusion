@@ -14,7 +14,7 @@ __date__ = "April 11, 2019"
 import heapq
 import math
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, Callable, Tuple, Set
 
 import numpy as np
 from networkx.classes.graph import Graph
@@ -51,9 +51,7 @@ def _get_adjacency_with_images(G: Graph) -> Dict:
         for v in p_graph[u].keys():
             for k, d in p_graph[u][v].items():
                 if u > v:
-                    p_graph[u][v][k]["to_jimage"] = tuple(
-                        np.multiply(-1, d["to_jimage"])
-                    )
+                    p_graph[u][v][k]["to_jimage"] = tuple(np.multiply(-1, d["to_jimage"]))
     return p_graph
 
 
@@ -62,8 +60,8 @@ def periodic_dijkstra(
     sources: set,
     weight: str = "weight",
     max_image: int = 2,
-    target_reached: callable = lambda idx, jimage: False,
-) -> (Dict, Dict):
+    target_reached: Callable = lambda idx, jimage: False,
+):
     """
     Find the lowest cost pathway from a source point in the periodic graph.
     Since the search can move many cells away without finding the target
@@ -86,10 +84,10 @@ def periodic_dijkstra(
     conn_dict = _get_adjacency_with_images(G.to_undirected())
 
     # use a default dict since we don't know how far out to search
-    best_ans = defaultdict(lambda: math.inf)
+    best_ans = defaultdict(lambda: math.inf)  # type: ignore
 
     path_parent = dict()  # the parent of the current node in the optimal path
-    pq = []
+    pq = []  # type: ignore
     for isource in sources:
         heapq.heappush(pq, (0, (isource, (0, 0, 0))))
     while pq:
@@ -119,10 +117,10 @@ def periodic_dijkstra(
 
 def periodic_dijkstra_on_sgraph(
     sgraph: StructureGraph,
-    sources: set(),
+    sources: Set,
     weight: str = "weight",
     max_image: int = 1,
-    target_reached: callable = lambda idx, jimage: False,
+    target_reached: Callable = lambda idx, jimage: False,
 ):
     """
     Find the lowest cost pathway from a source point in the periodic graph.

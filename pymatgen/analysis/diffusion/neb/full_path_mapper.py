@@ -54,7 +54,7 @@ def generic_groupby(list_in: list, comp: Callable = operator.eq):
     for i1, ls1 in enumerate(list_out):
         if ls1 is not None:
             continue
-        list_out[i1] = label_num
+        list_out[i1] = label_num  # type: ignore
         for i2, ls2 in list(enumerate(list_out))[i1 + 1 :]:
             if comp(list_in[i1], list_in[i2]):
                 if list_out[i2] is None:
@@ -127,9 +127,7 @@ class MigrationGraph(MSONable):
         host_struct = self.structure.copy()
         rm_sites = set()
         for isite in self.only_sites:
-            neighbors_ = host_struct.get_neighbors_in_shell(
-                isite.coords, r=0.0, dr=0.05, include_index=True
-            )
+            neighbors_ = host_struct.get_neighbors_in_shell(isite.coords, r=0.0, dr=0.05, include_index=True)
             if len(neighbors_) == 0:
                 continue
             for n_ in neighbors_:
@@ -282,9 +280,7 @@ class MigrationGraph(MSONable):
         """
         Populate the edges with the data for the Migration Paths
         """
-        list(
-            starmap(self._get_pos_and_migration_path, self.migration_graph.graph.edges)
-        )
+        list(starmap(self._get_pos_and_migration_path, self.migration_graph.graph.edges))
 
     def _group_and_label_hops(self):
         """
@@ -292,10 +288,7 @@ class MigrationGraph(MSONable):
         """
         hops = list(nx.get_edge_attributes(self.migration_graph.graph, "hop").items())
         labs = generic_groupby(hops, comp=lambda x, y: x[1] == y[1])
-        new_attr = {
-            g_index: {"hop_label": labs[edge_index]}
-            for edge_index, (g_index, _) in enumerate(hops)
-        }
+        new_attr = {g_index: {"hop_label": labs[edge_index]} for edge_index, (g_index, _) in enumerate(hops)}
         nx.set_edge_attributes(self.migration_graph.graph, new_attr)
         return new_attr
 
@@ -325,10 +318,7 @@ class MigrationGraph(MSONable):
                         # "The data going to this edge needs to be flipped"
                         for k in data.keys():
                             if isinstance(data[k], (np.ndarray, np.generic)):
-                                raise Warning(
-                                    "The data provided will only be flipped "
-                                    "if it a list"
-                                )
+                                raise Warning("The data provided will only be flipped " "if it a list")
                             if not isinstance(data[k], list):
                                 continue
                             d[k] = d[k][::-1]  # flip the data in the array
@@ -375,9 +365,7 @@ class MigrationGraph(MSONable):
             for tmp_u, tmp_v, tmp_k in cut_edges:
                 path_graph.remove_edge(tmp_u, tmp_v, key=tmp_k)
             # populate the entire graph with multiple images
-            best_ans, path_parent = periodic_dijkstra(
-                path_graph, sources={u}, weight="cost", max_image=2
-            )
+            best_ans, path_parent = periodic_dijkstra(path_graph, sources={u}, weight="cost", max_image=2)
             # find a way to a u site that is not in the (0,0,0) image
             all_paths = []
             for idx, jimage in path_parent.keys():
@@ -400,9 +388,7 @@ class MigrationGraph(MSONable):
                 # displacement +/- (jimage1 - jimage2) is present on of of the edges
                 # Note: there should only ever be one valid to_jimage for a u->v pair
                 i1_, i2_ = sorted((idx1, idx2))
-                all_edge_data = [
-                    *path_graph.get_edge_data(i1_, i2_, default={}).items()
-                ]
+                all_edge_data = [*path_graph.get_edge_data(i1_, i2_, default={}).items()]
                 image_diff = np.subtract(jimage2, jimage1)
                 found_ = 0
                 for k, tmp_d in all_edge_data:
@@ -481,15 +467,9 @@ class ChargeBarrierGraph(MigrationGraph):
         """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
 
         # set up the grid
-        aa = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False
-        )
-        bb = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False
-        )
-        cc = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False
-        )
+        aa = np.linspace(0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False)
+        bb = np.linspace(0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False)
+        cc = np.linspace(0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False)
         # move the grid points to the center
         aa, bb, dd = map(_shift_grid, [aa, bb, cc])
 
@@ -508,15 +488,9 @@ class ChargeBarrierGraph(MigrationGraph):
 
     def _dist_mat(self, pos_frac):
         # return a matrix that contains the distances to pos_frac
-        aa = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False
-        )
-        bb = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False
-        )
-        cc = np.linspace(
-            0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False
-        )
+        aa = np.linspace(0, 1, len(self.potential_field.get_axis_grid(0)), endpoint=False)
+        bb = np.linspace(0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False)
+        cc = np.linspace(0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False)
         aa, bb, cc = map(_shift_grid, [aa, bb, cc])
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
         dist_from_pos = self.potential_field.structure.lattice.get_all_distances(
@@ -536,15 +510,9 @@ class ChargeBarrierGraph(MigrationGraph):
         mid_struct = self.potential_field.structure.copy()
 
         # the moving ion is always inserted on the zero index
-        start_struct.insert(
-            0, migration_path.isite.species_string, ipos, properties=dict(magmom=0)
-        )
-        end_struct.insert(
-            0, migration_path.isite.species_string, epos, properties=dict(magmom=0)
-        )
-        mid_struct.insert(
-            0, migration_path.isite.species_string, mpos, properties=dict(magmom=0)
-        )
+        start_struct.insert(0, migration_path.isite.species_string, ipos, properties=dict(magmom=0))
+        end_struct.insert(0, migration_path.isite.species_string, epos, properties=dict(magmom=0))
+        mid_struct.insert(0, migration_path.isite.species_string, mpos, properties=dict(magmom=0))
 
         chgpot = ChgcarPotential(self.potential_field, normalize=False)
         npf = NEBPathfinder(
@@ -557,9 +525,7 @@ class ChargeBarrierGraph(MigrationGraph):
         )
         return npf
 
-    def _get_avg_chg_at_max(
-        self, migration_path, radius=None, chg_along_path=False, output_positions=False
-    ):
+    def _get_avg_chg_at_max(self, migration_path, radius=None, chg_along_path=False, output_positions=False):
         """obtain the maximum average charge along the path
         Args:
             migration_path (MigrationHop): MigrationPath object that represents a given hop
@@ -586,9 +552,7 @@ class ChargeBarrierGraph(MigrationGraph):
         for ict in centers:
             dist_mat = self._dist_mat(ict)
             mask = dist_mat < rr
-            vol_sphere = self.potential_field.structure.volume * (
-                mask.sum() / self.potential_field.ngridpts
-            )
+            vol_sphere = self.potential_field.structure.volume * (mask.sum() / self.potential_field.ngridpts)
             avg_chg.append(
                 np.sum(self.potential_field.data[self.potential_data_key] * mask)
                 / self.potential_field.ngridpts
@@ -613,9 +577,7 @@ class ChargeBarrierGraph(MigrationGraph):
         try:
             self._tube_radius
         except NameError:
-            logger.warning(
-                "The radius of the tubes for charge analysis need to be defined first."
-            )
+            logger.warning("The radius of the tubes for charge analysis need to be defined first.")
         ipos = migration_path.isite.frac_coords
         epos = migration_path.esite.frac_coords
 
@@ -623,15 +585,10 @@ class ChargeBarrierGraph(MigrationGraph):
         cart_epos = np.dot(epos, self.potential_field.structure.lattice.matrix)
         pbc_mask = np.zeros(self._uc_grid_shape, dtype=bool).flatten()
         for img in self._images:
-            grid_pos = np.dot(
-                self._fcoords + img, self.potential_field.structure.lattice.matrix
-            )
-            proj_on_line = np.dot(grid_pos - cart_ipos, cart_epos - cart_ipos) / (
-                np.linalg.norm(cart_epos - cart_ipos)
-            )
+            grid_pos = np.dot(self._fcoords + img, self.potential_field.structure.lattice.matrix)
+            proj_on_line = np.dot(grid_pos - cart_ipos, cart_epos - cart_ipos) / (np.linalg.norm(cart_epos - cart_ipos))
             dist_to_line = np.linalg.norm(
-                np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos)
-                / (np.linalg.norm(cart_epos - cart_ipos)),
+                np.cross(grid_pos - cart_ipos, cart_epos - cart_ipos) / (np.linalg.norm(cart_epos - cart_ipos)),
                 axis=-1,
             )
 
@@ -684,8 +641,7 @@ class ChargeBarrierGraph(MigrationGraph):
                 v["hop"], chg_along_path=True, output_positions=True
             )
             images = [
-                {"position": ifrac, "average_charge": ichg}
-                for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
+                {"position": ifrac, "average_charge": ichg} for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
             ]
             v.update(
                 dict(
@@ -725,9 +681,7 @@ class ChargeBarrierGraph(MigrationGraph):
 
 
 # Utility functions
-def get_only_sites_from_structure(
-    structure: Structure, migrating_specie: str
-) -> Structure:
+def get_only_sites_from_structure(structure: Structure, migrating_specie: str) -> Structure:
     """
     Get a copy of the structure with only the migrating sites.
     Args:

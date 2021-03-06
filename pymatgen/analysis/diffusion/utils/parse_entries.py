@@ -6,7 +6,7 @@
 Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 from pymatgen.core import Composition, Lattice, Structure
@@ -72,23 +72,16 @@ def process_entries(
 
     # grouping of inserted structures with base structures
     all_sga = [
-        SpacegroupAnalyzer(
-            itr_base_ent.structure, symprec=symprec, angle_tolerance=angle_tol
-        )
+        SpacegroupAnalyzer(itr_base_ent.structure, symprec=symprec, angle_tolerance=angle_tol)
         for itr_base_ent in base_entries
     ]
 
     entries_with_num_symmetry_ops = [
-        (ient, len(all_sga[itr_ent].get_space_group_operations()))
-        for itr_ent, ient in enumerate(base_entries)
+        (ient, len(all_sga[itr_ent].get_space_group_operations())) for itr_ent, ient in enumerate(base_entries)
     ]
 
-    entries_with_num_symmetry_ops = sorted(
-        entries_with_num_symmetry_ops, key=lambda x: x[0].energy_per_atom
-    )
-    entries_with_num_symmetry_ops = sorted(
-        entries_with_num_symmetry_ops, key=lambda x: x[1], reverse=True
-    )
+    entries_with_num_symmetry_ops = sorted(entries_with_num_symmetry_ops, key=lambda x: x[0].energy_per_atom)
+    entries_with_num_symmetry_ops = sorted(entries_with_num_symmetry_ops, key=lambda x: x[1], reverse=True)
     entries_with_num_symmetry_ops = sorted(
         entries_with_num_symmetry_ops,
         key=lambda x: x[0].structure.num_sites,
@@ -116,9 +109,7 @@ def process_entries(
             mapped_based_cell.sites.extend(inserted_sites_)
 
         struct_wo_sym_ops = _filter_and_merge(mapped_based_cell.get_sorted_structure())
-        struct_sym = get_sym_migration_ion_sites(
-            base_ent.structure, struct_wo_sym_ops, working_ion
-        )
+        struct_sym = get_sym_migration_ion_sites(base_ent.structure, struct_wo_sym_ops, working_ion)
         results.append(
             {
                 "base": base_ent.structure,
@@ -126,16 +117,12 @@ def process_entries(
             }
         )
 
-    results = filter(lambda x: len(x["inserted"]) != 0, results)
-    results = sorted(
-        results, key=lambda x: x["inserted"].composition[working_ion], reverse=True
-    )
+    results = filter(lambda x: len(x["inserted"]) != 0, results)  # type: ignore
+    results = sorted(results, key=lambda x: x["inserted"].composition[working_ion], reverse=True)
     return results
 
 
-def get_matched_structure_mapping(
-    base: Structure, inserted: Structure, sm: StructureMatcher
-):
+def get_matched_structure_mapping(base: Structure, inserted: Structure, sm: StructureMatcher):
     """
     Get the mapping from the inserted structure onto the base structure,
     assuming that the inserted structure sans the working ion is some kind
@@ -153,15 +140,11 @@ def get_matched_structure_mapping(
     s1, s2 = sm._process_species([base, inserted])
     fu, _ = sm._get_supercell_size(s1, s2)
     try:
-        val, dist, sc_m, total_t, mapping = sm._strict_match(
-            s1, s2, fu=fu, s1_supercell=True
-        )
+        val, dist, sc_m, total_t, mapping = sm._strict_match(s1, s2, fu=fu, s1_supercell=True)
     except TypeError:
         return None
     sc = s1 * sc_m
-    sc.lattice = Lattice.from_parameters(
-        *sc.lattice.abc, *sc.lattice.angles, vesta=True
-    )
+    sc.lattice = Lattice.from_parameters(*sc.lattice.abc, *sc.lattice.angles, vesta=True)  # type: ignore
     return sc_m, total_t
 
 
@@ -170,7 +153,7 @@ def get_inserted_on_base(
     inserted_ent: ComputedStructureEntry,
     migrating_ion_entry: ComputedEntry,
     sm: StructureMatcher,
-) -> Structure:
+) -> Optional[Structure]:
     """
     For a structured-matched pair of base and inserted entries, map all of the Li positions in the inserted entry to
     positions in the base entry and return a new structure where all the sites are decorated with the insertion
@@ -186,9 +169,7 @@ def get_inserted_on_base(
     Returns:
         List of entries for each working ion in the list of
     """
-    mapped_result = get_matched_structure_mapping(
-        base_ent.structure, inserted_ent.structure, sm
-    )
+    mapped_result = get_matched_structure_mapping(base_ent.structure, inserted_ent.structure, sm)
     if mapped_result is None:
         return None
 
@@ -258,9 +239,7 @@ def get_sym_migration_ion_sites(
 
             # must clean up as you go or the number of sites explodes
             if len(sym_migration_struct) > 1:
-                sym_migration_struct.merge_sites(
-                    tol=SITE_MERGE_R, mode="average"
-                )  # keeps removing duplicates
+                sym_migration_struct.merge_sites(tol=SITE_MERGE_R, mode="average")  # keeps removing duplicates
     return sym_migration_struct
 
 
@@ -273,9 +252,7 @@ def _filter_and_merge(inserted_structure: Structure):
     migration_sites = []
     base_sites = []
     for i_site in inserted_structure:
-        if "insertion_energy" in i_site.properties and isinstance(
-            i_site.properties["insertion_energy"], float
-        ):
+        if "insertion_energy" in i_site.properties and isinstance(i_site.properties["insertion_energy"], float):
             migration_sites.append(i_site)
         else:
             base_sites.append(i_site)

@@ -5,16 +5,14 @@
 Functions for creating supercells for NEB calculations
 """
 import logging
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import numpy as np
 
 # from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape
 # from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.core import PeriodicSite, Structure
-from pymatgen.transformations.advanced_transformations import (
-    CubicSupercellTransformation,
-)
+from pymatgen.transformations.advanced_transformations import CubicSupercellTransformation
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -62,7 +60,7 @@ def _get_sc_from_struct_pmg(
     min_atoms: int = 80,
     max_atoms: int = 240,
     min_length: float = 10.0,
-) -> List[List[int]]:
+) -> Optional[List[List[int]]]:
     """
     Generate the best supercell from a unitcell using the pymatgen CubicSupercellTransformation
 
@@ -76,9 +74,7 @@ def _get_sc_from_struct_pmg(
         3x3 matrix: supercell matrix
 
     """
-    cst = CubicSupercellTransformation(
-        min_atoms=min_atoms, max_atoms=max_atoms, min_length=min_length
-    )
+    cst = CubicSupercellTransformation(min_atoms=min_atoms, max_atoms=max_atoms, min_length=min_length)
 
     try:
         cst.apply_transformation(base_struct)
@@ -190,19 +186,9 @@ def get_start_end_structures(
         if debug:
             icart = base_sc.lattice.get_cartesian_coords(ipos_sc)
             ecart = base_sc.lattice.get_cartesian_coords(epos_sc)
-            assert (
-                abs(
-                    np.linalg.norm(icart - ecart)
-                    - np.linalg.norm(isite.coords - esite.coords)
-                )
-                < 1e-5
-            )
-        i_ref_ = PeriodicSite(
-            species=esite.species_string, coords=ipos_sc, lattice=base_sc.lattice
-        )
-        e_ref_ = PeriodicSite(
-            species=esite.species_string, coords=epos_sc, lattice=base_sc.lattice
-        )
+            assert abs(np.linalg.norm(icart - ecart) - np.linalg.norm(isite.coords - esite.coords)) < 1e-5
+        i_ref_ = PeriodicSite(species=esite.species_string, coords=ipos_sc, lattice=base_sc.lattice)
+        e_ref_ = PeriodicSite(species=esite.species_string, coords=epos_sc, lattice=base_sc.lattice)
         start_struct = remove_site_at_pos(start_struct, e_ref_)
         end_struct = remove_site_at_pos(end_struct, i_ref_)
     return start_struct, end_struct, base_sc

@@ -27,9 +27,9 @@ jobs:
 #        mypy --namespace-packages --explicit-package-bases pymatgen
     - name: flake8
       run: |
-        flake8 --count --show-source --statistics pymatgen_diffusion
+        flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
-        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen_diffusion
+        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
     - name: pydocstyle
       run: |
         pydocstyle --count pymatgen

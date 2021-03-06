@@ -79,9 +79,7 @@ class IDPPSolver:
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (
-                avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8
-            )
+            weights[ni] = 1.0 / (avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -89,9 +87,7 @@ class IDPPSolver:
 
             if ni not in [0, nimages + 1]:
                 for j in range(i + 1, natoms):
-                    img = latt.get_distance_and_image(
-                        frac_coords, structures[ni][j].frac_coords
-                    )[1]
+                    img = latt.get_distance_and_image(frac_coords, structures[ni][j].frac_coords)[1]
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
                     translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
@@ -147,9 +143,7 @@ class IDPPSolver:
             indices = list(range(len(self.structures[0])))
         else:
             species = [get_el_sp(sp) for sp in species]
-            indices = [
-                i for i, site in enumerate(self.structures[0]) if site.specie in species
-            ]
+            indices = [i for i, site in enumerate(self.structures[0]) if site.specie in species]
 
             if len(indices) == 0:
                 raise ValueError("The given species are not in the system!")
@@ -159,15 +153,11 @@ class IDPPSolver:
             # Get the sets of objective functions, true and total force
             # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
-            tot_forces = self._get_total_forces(
-                coords, true_forces, spring_const=spring_const
-            )
+            tot_forces = self._get_total_forces(coords, true_forces, spring_const=spring_const)
 
             # Each atom is allowed to move up to max_disp
             disp_mat = step_size * tot_forces[:, indices, :]
-            disp_mat = np.where(
-                np.abs(disp_mat) > max_disp, np.sign(disp_mat) * max_disp, disp_mat
-            )
+            disp_mat = np.where(np.abs(disp_mat) > max_disp, np.sign(disp_mat) * max_disp, disp_mat)
             coords[1 : (self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
@@ -179,9 +169,7 @@ class IDPPSolver:
             old_funcs = funcs
 
         else:
-            warnings.warn(
-                "Maximum iteration number is reached without convergence!", UserWarning
-            )
+            warnings.warn("Maximum iteration number is reached without convergence!", UserWarning)
 
         for ni in range(self.nimages):
             # generate the improved image structure
@@ -219,19 +207,14 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(
-                endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol
-            )
+            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol)
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
-                    "Auto sorting is turned off because it is unable"
-                    " to match the end-point structures!",
+                    "Auto sorting is turned off because it is unable" " to match the end-point structures!",
                     UserWarning,
                 )
-                images = endpoints[0].interpolate(
-                    endpoints[1], nimages=nimages + 1, autosort_tol=0
-                )
+                images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=0)
             else:
                 raise e
 
@@ -253,11 +236,7 @@ class IDPPSolver:
             vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i] for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = (
-                (trial_dist - target_dists[ni])
-                * weights[ni]
-                / (trial_dist + np.eye(natoms, dtype=np.float64))
-            )
+            aux = (trial_dist - target_dists[ni]) * weights[ni] / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
             func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
@@ -299,15 +278,11 @@ class IDPPSolver:
             tangent = self.get_unit_vector(tangent)
 
             # Spring force
-            spring_force = (
-                spring_const * (np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
-            )
+            spring_force = spring_const * (np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
-            total_force = true_forces[ni - 1] + (
-                spring_force - np.dot(flat_ft, tangent) * tangent
-            ).reshape(natoms, 3)
+            total_force = true_forces[ni - 1] + (spring_force - np.dot(flat_ft, tangent) * tangent).reshape(natoms, 3)
             total_forces.append(total_force)
 
         return np.array(total_forces)
@@ -338,9 +313,7 @@ class MigrationHop:
         self.eindex = None
         self.symm_structure = symm_structure
         self.symprec = symprec
-        self.msite = PeriodicSite(
-            esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
-        )
+        self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
         sg = self.symm_structure.spacegroup
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
             if sg.are_symmetrically_equivalent([isite], [sites[0]]):
@@ -369,13 +342,9 @@ class MigrationHop:
                 break
 
         if self.iindex is None:
-            raise RuntimeError(
-                f"No symmetrically equivalent site was found for {isite}"
-            )
+            raise RuntimeError(f"No symmetrically equivalent site was found for {isite}")
         if self.eindex is None:
-            raise RuntimeError(
-                f"No symmetrically equivalent site was found for {esite}"
-            )
+            raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
     def __repr__(self):
         return (
@@ -453,20 +422,12 @@ class MigrationHop:
             the migrating ion. This makes it easier to perform subsequent
             analysis.
         """
-        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
-            vac_mode
-        )
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
 
-        start_structure = Structure.from_sites(
-            [self.isite] + migrating_specie_sites + other_sites
-        )
-        end_structure = Structure.from_sites(
-            [self.esite] + migrating_specie_sites + other_sites
-        )
+        start_structure = Structure.from_sites([self.isite] + migrating_specie_sites + other_sites)
+        end_structure = Structure.from_sites([self.esite] + migrating_specie_sites + other_sites)
 
-        structures = start_structure.interpolate(
-            end_structure, nimages=nimages + 1, pbc=False
-        )
+        structures = start_structure.interpolate(end_structure, nimages=nimages + 1, pbc=False)
 
         if idpp:
             solver = IDPPSolver(structures)
@@ -481,10 +442,7 @@ class MigrationHop:
             if site.specie != self.isite.specie:
                 other_sites.append(site)
             else:
-                if not vac_mode or (
-                    self.isite.distance(site) <= 1e-8
-                    or self.esite.distance(site) <= 1e-8
-                ):
+                if not vac_mode or (self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8):
                     continue
                 migrating_specie_sites.append(site)
         return migrating_specie_sites, other_sites
@@ -512,9 +470,7 @@ class MigrationHop:
             If in vacancy mode, the base structure is the fully intercalated structure
 
         """
-        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
-            vac_mode
-        )
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
         base_struct = Structure.from_sites(other_sites)
         sc_mat = get_sc_fromstruct(
             base_struct=base_struct,
@@ -523,7 +479,7 @@ class MigrationHop:
             min_length=min_length,
         )
         start_struct, end_struct, base_sc = get_start_end_structures(
-            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode
+            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode  # type: ignore
         )
         return start_struct, end_struct, base_sc
 
@@ -624,9 +580,7 @@ class DistinctPathFinder:
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                for nn in self.symm_structure.get_neighbors(
-                    site0, r=round(self.max_path_length, 3) + 0.01
-                ):
+                for nn in self.symm_structure.get_neighbors(site0, r=round(self.max_path_length, 3) + 0.01):
                     if nn.specie == self.migrating_specie:
                         path = MigrationHop(site0, nn, self.symm_structure)
                         paths.add(path)
@@ -646,9 +600,7 @@ class DistinctPathFinder:
         """
         sites = []
         for p in self.get_paths():
-            structures = p.get_structures(
-                nimages=nimages, species=[self.migrating_specie], **kwargs
-            )
+            structures = p.get_structures(nimages=nimages, species=[self.migrating_specie], **kwargs)
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:

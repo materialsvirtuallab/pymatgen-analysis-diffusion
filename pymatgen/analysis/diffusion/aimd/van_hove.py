@@ -8,7 +8,7 @@ Van Hove analysis for correlations.
 
 import itertools
 from collections import Counter
-from typing import List, Tuple, Union, Callable
+from typing import List, Tuple, Union, Callable, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,6 +16,7 @@ import pandas as pds
 from pymatgen.core import Structure
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.typing import ArrayLike
 from scipy.stats import norm
 
 from .rdf import RadialDistributionFunction
@@ -120,8 +121,8 @@ class VanHoveAnalysis:
         gsrt = np.zeros((reduced_nt, ngrid), dtype=np.double)
         gdrt = np.zeros((reduced_nt, ngrid), dtype=np.double)
 
-        tracking_ions = []
-        ref_ions = []
+        tracking_ions = []  # type: ArrayLike
+        ref_ions = []  # type: ArrayLike
 
         # auxiliary factor for 4*\pi*r^2
         aux_factor = 4.0 * np.pi * interval ** 2
@@ -144,7 +145,7 @@ class VanHoveAnalysis:
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
         for it in range(reduced_nt):
-            dns = Counter()
+            dns = Counter()  # type: ignore
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [
@@ -153,10 +154,11 @@ class VanHoveAnalysis:
                     )[0]
                     for u in range(len(indices))
                 ]
-                dists = filter(lambda e: e < rmax, dists)
 
-                r_indices = [int(dist / dr) for dist in dists]
-                dns.update(r_indices)
+                r_indices = [
+                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
+                ]
+                dns.update(r_indices)  # type: ignore
 
             for indx, dn in dns.most_common(ngrid):
                 gsrt[it, :] += gaussians[indx, :] * dn
@@ -192,9 +194,10 @@ class VanHoveAnalysis:
                     for j in range(len(r) ** 3)
                     if u != v or j != indx0
                 ]
-                dists = filter(lambda e: e < rmax, dists)
 
-                r_indices = [int(dist / dr) for dist in dists]
+                r_indices = [
+                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
+                ]
                 dns.update(r_indices)
 
             for indx, dn in dns.most_common(ngrid):
