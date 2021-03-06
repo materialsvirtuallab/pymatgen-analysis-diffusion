@@ -11,6 +11,14 @@ Subpackages
    pymatgen.analysis.diffusion.neb
    pymatgen.analysis.diffusion.utils
 
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 7
+
+   pymatgen.analysis.diffusion.analyzer
+
 Module contents
 ---------------
 
