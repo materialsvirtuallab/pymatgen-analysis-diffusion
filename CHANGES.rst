@@ -1,5 +1,10 @@
 Change Log
-----------
+==========
+
+v2021.3.5
+---------
+* pymatgen-diffusion is now released as a namespace package `pymatgen-analysis-diffusion` on PyPI. It should be
+  imported via `pymatgen.analysis.diffusion` instead `pymatgen_diffusion`.
 
 v2019.2.28
 ----------
