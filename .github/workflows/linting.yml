@@ -22,9 +22,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt --quiet
-#    - name: mypy
-#      run: |
-#        mypy pymatgen_diffusion
+    - name: mypy
+      run: |
+        mypy --namespace-packages --explicit-package-bases pymatgen
     - name: flake8
       run: |
         flake8 --count --show-source --statistics pymatgen_diffusion
@@ -32,7 +32,7 @@ jobs:
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen_diffusion
     - name: pydocstyle
       run: |
-        pydocstyle --count pymatgen_diffusion
+        pydocstyle --count pymatgen
     - name: pylint
       run: |
-        pylint pymatgen_diffusion
+        pylint pymatgen

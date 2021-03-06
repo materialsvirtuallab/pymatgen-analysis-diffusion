@@ -2,7 +2,7 @@
 # Copyright (c) Materials Virtual Lab
 # Distributed under the terms of the Modified BSD License.
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 import os
 
@@ -13,10 +13,10 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 
 
 setup(
-    name="pymatgen-diffusion",
-    packages=find_packages(),
+    name="pymatgen-analysis-diffusion",
+    packages=find_namespace_packages(include=['pymatgen.analysis.*']),
     version="2020.10.8",
-    install_requires=["pymatgen>=2020.12.31"],
+    install_requires=["pymatgen>=2022.0.1", "joblib"],
     extras_require={},
     package_data={},
     author="materials virtual lab",
