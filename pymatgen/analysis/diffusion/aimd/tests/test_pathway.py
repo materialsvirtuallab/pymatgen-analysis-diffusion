@@ -14,7 +14,7 @@ from pymatgen.analysis.diffusion.aimd.pathway import (
     ProbabilityDensityAnalysis,
     SiteOccupancyAnalyzer,
 )
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
+from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 from pymatgen.core import Structure
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
