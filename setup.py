@@ -16,7 +16,7 @@ setup(
     name="pymatgen-analysis-diffusion",
     packages=find_namespace_packages(include=['pymatgen.analysis.*']),
     version="2020.10.8",
-    install_requires=["pymatgen>=2022.0.2", "joblib"],
+    install_requires=["pymatgen>=2022.0.3", "joblib"],
     extras_require={},
     package_data={},
     author="materials virtual lab",
