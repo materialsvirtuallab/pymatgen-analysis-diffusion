@@ -86,37 +86,23 @@ def get_ent_from_db(
     logger.debug(material_ids_type)
 
     def get_task_ids_from_batt_id(b_id):
-        mat_ids = list(
-            map(task_ids_type, elec_store.query_one({"battid": b_id})["material_ids"])
-        )
+        mat_ids = list(map(task_ids_type, elec_store.query_one({"battid": b_id})["material_ids"]))
         logger.debug(f"mat_ids : {mat_ids}")
-        l_task_ids = [
-            imat["task_ids"]
-            for imat in material_store.query({"task_ids": {"$in": mat_ids}})
-        ]
+        l_task_ids = [imat["task_ids"] for imat in material_store.query({"task_ids": {"$in": mat_ids}})]
         l_task_ids = list(chain.from_iterable(l_task_ids))
         logger.debug(f"l_task_ids : {l_task_ids}")
         return l_task_ids
 
     def get_batt_ids_from_task_id(t_id):
-        l_task_ids = [
-            c0["task_ids"]
-            for c0 in material_store.query({"task_ids": {"$in": [int(t_id)]}})
-        ]
+        l_task_ids = [c0["task_ids"] for c0 in material_store.query({"task_ids": {"$in": [int(t_id)]}})]
         l_task_ids = list(chain.from_iterable(l_task_ids))
         l_task_ids = list(map(material_ids_type, l_task_ids))
         logger.debug(f"l_task_ids : {l_task_ids}")
-        l_mat_ids = [
-            c0["material_ids"]
-            for c0 in elec_store.query({"material_ids": {"$in": l_task_ids}})
-        ]
+        l_mat_ids = [c0["material_ids"] for c0 in elec_store.query({"material_ids": {"$in": l_task_ids}})]
         l_mat_ids = list(chain.from_iterable(l_mat_ids))
         l_mat_ids = list(map(task_ids_type, l_mat_ids))
         logger.debug(f"l_mat_ids : {l_mat_ids}")
-        l_task_ids = [
-            c0["task_ids"]
-            for c0 in material_store.query({"task_ids": {"$in": l_mat_ids}})
-        ]
+        l_task_ids = [c0["task_ids"] for c0 in material_store.query({"task_ids": {"$in": l_mat_ids}})]
         l_task_ids = list(chain.from_iterable(l_task_ids))
         logger.debug(f"l_task_ids : {l_task_ids}")
         return l_task_ids
@@ -184,17 +170,13 @@ def get_ent_from_db(
     else:
         all_ents_base = [
             get_entry(c0)
-            for c0 in tasks_store.query(
-                {"task_id": {"$in": all_tasks}, "elements": {"$nin": [working_ion]}}
-            )
+            for c0 in tasks_store.query({"task_id": {"$in": all_tasks}, "elements": {"$nin": [working_ion]}})
         ]
     logger.debug(f"Number of base entries: {len(all_ents_base)}")
 
     all_ents_insert = [
         get_entry(c0, add_fields=add_fields, get_initial=get_initial)
-        for c0 in tasks_store.query(
-            {"task_id": {"$in": all_tasks}, "elements": {"$in": [working_ion]}}
-        )
+        for c0 in tasks_store.query({"task_id": {"$in": all_tasks}, "elements": {"$in": [working_ion]}})
     ]
     logger.debug(f"Number of inserted entries: {len(all_ents_insert)}")
     tmp = [f"{itr.name}({itr.entry_id})" for itr in all_ents_insert]

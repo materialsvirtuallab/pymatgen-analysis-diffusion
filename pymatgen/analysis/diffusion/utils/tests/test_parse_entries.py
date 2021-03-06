@@ -48,15 +48,9 @@ class ParseEntriesTest(unittest.TestCase):
 
         self.sm = StructureMatcher(ignored_species=["Li"], primitive_cell=False)
 
-        self.struct_inserted_1Li1 = get_inserted_on_base(
-            self.base, self.inserted_1Li1, self.li_ent, self.sm
-        )
-        self.struct_inserted_1Li2 = get_inserted_on_base(
-            self.base, self.inserted_1Li2, self.li_ent, self.sm
-        )
-        self.struct_inserted_2Li = get_inserted_on_base(
-            self.base, self.inserted_2Li, self.li_ent, self.sm
-        )
+        self.struct_inserted_1Li1 = get_inserted_on_base(self.base, self.inserted_1Li1, self.li_ent, self.sm)
+        self.struct_inserted_1Li2 = get_inserted_on_base(self.base, self.inserted_1Li2, self.li_ent, self.sm)
+        self.struct_inserted_2Li = get_inserted_on_base(self.base, self.inserted_2Li, self.li_ent, self.sm)
 
     def _is_valid_inserted_ent(self, mapped_struct):
         res = True
@@ -70,19 +64,13 @@ class ParseEntriesTest(unittest.TestCase):
         return res
 
     def test_get_inserted_on_base(self):
-        mapped_struct = get_inserted_on_base(
-            self.base, self.inserted_1Li1, self.li_ent, self.sm
-        )
+        mapped_struct = get_inserted_on_base(self.base, self.inserted_1Li1, self.li_ent, self.sm)
         self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
         self.assertEqual(mapped_struct[0].properties["insertion_energy"], 5.0)
-        mapped_struct = get_inserted_on_base(
-            self.base, self.inserted_1Li2, self.li_ent, self.sm
-        )
+        mapped_struct = get_inserted_on_base(self.base, self.inserted_1Li2, self.li_ent, self.sm)
         self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
         self.assertEqual(mapped_struct[0].properties["insertion_energy"], 7.0)
-        mapped_struct = get_inserted_on_base(
-            self.base, self.inserted_2Li, self.li_ent, self.sm
-        )
+        mapped_struct = get_inserted_on_base(self.base, self.inserted_2Li, self.li_ent, self.sm)
         self.assertTrue(self._is_valid_inserted_ent(mapped_struct))
         self.assertEqual(mapped_struct[0].properties["insertion_energy"], 4.0)
 
@@ -103,9 +91,7 @@ class ParseEntriesTest(unittest.TestCase):
 
     def test_filter_and_merge(self):
         combined_struct = Structure.from_sites(
-            self.struct_inserted_1Li1.sites
-            + self.struct_inserted_1Li2.sites
-            + self.struct_inserted_2Li.sites
+            self.struct_inserted_1Li1.sites + self.struct_inserted_1Li2.sites + self.struct_inserted_2Li.sites
         )
         filtered_struct = _filter_and_merge(combined_struct)
         for i_insert_site in filtered_struct:
@@ -114,9 +100,7 @@ class ParseEntriesTest(unittest.TestCase):
 
     def test_get_insertion_energy(self):
         insert_energy = get_insertion_energy(self.base, self.inserted_1Li1, self.li_ent)
-        basex2_ = ComputedStructureEntry(
-            structure=self.base.structure * [1, 1, 2], energy=self.base.energy * 2
-        )
+        basex2_ = ComputedStructureEntry(structure=self.base.structure * [1, 1, 2], energy=self.base.energy * 2)
         insert_energyx2 = get_insertion_energy(basex2_, self.inserted_1Li1, self.li_ent)
         self.assertAlmostEqual(insert_energyx2, insert_energy)
         self.assertAlmostEqual(insert_energy, 5)  # 3 + 2 where 2 is from the Li energy
@@ -124,17 +108,11 @@ class ParseEntriesTest(unittest.TestCase):
         self.assertAlmostEqual(insert_energy, 4)
 
     def test_get_all_sym_sites(self):
-        struct11 = get_sym_migration_ion_sites(
-            self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li"
-        )
+        struct11 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li")
         self.assertEquals(struct11.composition["Li"], 4)
-        struct12 = get_sym_migration_ion_sites(
-            self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li"
-        )
+        struct12 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li")
         self.assertEquals(struct12.composition["Li"], 4)
-        struct22 = get_sym_migration_ion_sites(
-            self.base.structure, self.inserted_2Li.structure, migrating_ion="Li"
-        )
+        struct22 = get_sym_migration_ion_sites(self.base.structure, self.inserted_2Li.structure, migrating_ion="Li")
         self.assertEquals(struct22.composition["Li"], 8)
 
 

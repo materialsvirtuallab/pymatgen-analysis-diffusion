@@ -88,10 +88,7 @@ SIGMA = 0.05"""
 
 class MVLCINEBSetTest(unittest.TestCase):
 
-    structures = [
-        Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files"))
-        for i in range(3)
-    ]
+    structures = [Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files")) for i in range(3)]
 
     def test_incar(self):
         m = MVLCINEBSet(self.structures)
@@ -168,17 +165,11 @@ class UtilityTest(unittest.TestCase):
     structure = Structure.from_file(get_path("POSCAR", dirname="io_files"))
 
     def test_get_endpoints_from_index(self):
-        endpoints = get_endpoints_from_index(
-            structure=self.structure, site_indices=[0, 1]
-        )
+        endpoints = get_endpoints_from_index(structure=self.structure, site_indices=[0, 1])
         ep_0 = endpoints[0].as_dict()
         ep_1 = endpoints[1].as_dict()
-        ep_0_expect = Structure.from_file(
-            get_path("POSCAR_ep0", dirname="io_files")
-        ).as_dict()
-        ep_1_expect = Structure.from_file(
-            get_path("POSCAR_ep1", dirname="io_files")
-        ).as_dict()
+        ep_0_expect = Structure.from_file(get_path("POSCAR_ep0", dirname="io_files")).as_dict()
+        ep_1_expect = Structure.from_file(get_path("POSCAR_ep1", dirname="io_files")).as_dict()
 
         self.assertEqual(ep_0, ep_0_expect)
         self.assertEqual(ep_1, ep_1_expect)

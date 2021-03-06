@@ -34,14 +34,10 @@ def get_path(path_str, dirname="./"):
 
 class IDPPSolverTest(unittest.TestCase):
     init_struct = Structure.from_file(get_path("CONTCAR-0", dirname="pathfinder_files"))
-    final_struct = Structure.from_file(
-        get_path("CONTCAR-1", dirname="pathfinder_files")
-    )
+    final_struct = Structure.from_file(get_path("CONTCAR-1", dirname="pathfinder_files"))
 
     def test_idpp_from_ep(self):
-        obj = IDPPSolver.from_endpoints(
-            [self.init_struct, self.final_struct], nimages=3, sort_tol=1.0
-        )
+        obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct], nimages=3, sort_tol=1.0)
         new_path = obj.run(
             maxiter=5000,
             tol=1e-5,
@@ -60,11 +56,7 @@ class IDPPSolverTest(unittest.TestCase):
                 np.array([0.50000014, 0.99999998, 0.74999964]),
             )
         )
-        self.assertTrue(
-            np.allclose(
-                new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])
-            )
-        )
+        self.assertTrue(np.allclose(new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])))
         self.assertTrue(
             np.allclose(
                 new_path[2][10].frac_coords,
@@ -87,9 +79,7 @@ class IDPPSolverTest(unittest.TestCase):
         pass
 
     def test_idpp(self):
-        images = self.init_struct.interpolate(
-            self.final_struct, nimages=4, autosort_tol=1.0
-        )
+        images = self.init_struct.interpolate(self.final_struct, nimages=4, autosort_tol=1.0)
         obj = IDPPSolver(images)
         new_path = obj.run(
             maxiter=5000,
@@ -109,11 +99,7 @@ class IDPPSolverTest(unittest.TestCase):
                 np.array([0.50000014, 0.99999998, 0.74999964]),
             )
         )
-        self.assertTrue(
-            np.allclose(
-                new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])
-            )
-        )
+        self.assertTrue(np.allclose(new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])))
         self.assertTrue(
             np.allclose(
                 new_path[4][47].frac_coords,
@@ -179,9 +165,7 @@ class DistinctPathFinderTest(PymatgenTest):
 class MigrationHopTest(PymatgenTest):
     def setUp(self):
         self.lifepo = self.get_structure("LiFePO4")
-        migration_graph = MigrationGraph.with_distance(
-            self.lifepo, max_distance=4.0, migrating_specie="Li"
-        )
+        migration_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
         gen = iter(migration_graph.migration_graph.graph.edges(data=True))
         u, v, d = next(gen)
         i_site = PeriodicSite("Li", coords=d["ipos"], lattice=self.lifepo.lattice)
