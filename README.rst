@@ -19,7 +19,8 @@ for more details.
 Major Update (v2021.3.5)
 ========================
 
-From v2021.3.5 onwards, pymatgen-diffusion is now release as pymatgen-analysis-diffusion on PyPI.
+From v2021.3.5 onwards, pymatgen-diffusion is now release as pymatgen-analysis-diffusion on PyPI. It should be imported
+via `pymatgen.analysis.diffusion` instead `pymatgen_diffusion`.
 
 Features (non-exhaustive!)
 ==========================
