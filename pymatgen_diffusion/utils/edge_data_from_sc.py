@@ -15,7 +15,7 @@ __date__ = "February 2, 2021"
 import logging
 from typing import Tuple, Union
 import numpy as np
-from pymatgen import Structure, PeriodicSite
+from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
 from pymatgen_diffusion.utils.parse_entries import get_matched_structure_mapping
