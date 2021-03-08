@@ -4,8 +4,8 @@
 
 import os
 from pymatgen.core.structure import Structure
-from pymatgen_diffusion.utils.edge_data_from_sc import add_edge_data_from_sc
-from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph
+from pymatgen.analysis.diffusion.utils.edge_data_from_sc import add_edge_data_from_sc
+from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 

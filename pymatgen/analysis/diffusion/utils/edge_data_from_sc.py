@@ -17,8 +17,8 @@ from typing import Tuple, Union
 import numpy as np
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen_diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
-from pymatgen_diffusion.utils.parse_entries import get_matched_structure_mapping
+from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
+from pymatgen.analysis.diffusion.utils.parse_entries import get_matched_structure_mapping
 
 logger = logging.getLogger(__name__)
 
