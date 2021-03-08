@@ -208,7 +208,7 @@ def get_unique_hop(
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here
-        if mh_eq(v["hop"], mh_from_sc, symm_prec=0.02):
+        if mh_eq(v["hop"], mh_from_sc, symm_prec=0.05):
             result.append(k)
 
     if len(result) > 1:
