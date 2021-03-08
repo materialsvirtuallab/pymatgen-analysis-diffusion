@@ -21,9 +21,7 @@ input_struct_e = Structure.from_file(f"{test_dir}/test_files/Sr3Fe2O7_sc_e.vasp"
 def test_add_edge_data_from_sc():
     errors = []
 
-    mg = MigrationGraph.with_distance(
-        structure=uc_full_sites, migrating_specie="Li", max_distance=5
-    )
+    mg = MigrationGraph.with_distance(structure=uc_full_sites, migrating_specie="Li", max_distance=5)
     test_key = "test_key"
     test_array = [0, 1, 2, 3, 4]
     add_edge_data_from_sc(

@@ -47,9 +47,7 @@ def add_edge_data_from_sc(
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
-        raise ValueError(
-            "The number of working ions in each supercell structure should be one"
-        )
+        raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite)
     is_rev = check_if_rev(mg, mh_from_sc, uhop_index)
@@ -128,10 +126,7 @@ def get_uc_pos(
     """
     mapping = get_matched_structure_mapping(base=uc, inserted=sc, sm=sm)
     if mapping is None:
-        raise ValueError(
-            "Cannot obtain inverse mapping, consider lowering tolerances "
-            "in StructureMatcher"
-        )
+        raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances " "in StructureMatcher")
     sc_m, total_t = mapping
 
     sc_ipos = isite.frac_coords
@@ -162,9 +157,7 @@ def get_uc_pos(
 
 def _get_first_close_site(frac_coord, structure, stol=0.1):
     for site in structure.sites:
-        dist, image = structure.lattice.get_distance_and_image(
-            frac_coord, site.frac_coords
-        )
+        dist, image = structure.lattice.get_distance_and_image(frac_coord, site.frac_coords)
         if dist < stol:
             return np.add(site.frac_coords, image)
     return frac_coord
@@ -209,11 +202,7 @@ def get_unique_hop(
     Returns:
         The index of the unique hop, the MigrationHop object trasformed from the SC
     """
-    sm = StructureMatcher(
-        ignored_species=[
-            list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
-        ]
-    )
+    sm = StructureMatcher(ignored_species=[list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
     mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure)
     result = []
@@ -227,7 +216,5 @@ def get_unique_hop(
     if len(result) == 0:
         raise ValueError("No matches between UC and SC")
 
-    assert mg.symm_structure.spacegroup.are_symmetrically_equivalent(
-        [uc_msite], [mh_from_sc.msite]
-    )
+    assert mg.symm_structure.spacegroup.are_symmetrically_equivalent([uc_msite], [mh_from_sc.msite])
     return result[0], mh_from_sc
