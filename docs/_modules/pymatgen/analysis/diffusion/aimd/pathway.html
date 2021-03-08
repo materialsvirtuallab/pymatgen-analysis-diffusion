@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.aimd.pathway &#8212; pymatgen-diffusion 2021.3.6 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.3.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.pathway</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.aimd.pathway</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"> Algorithms for diffusion pathway analysis</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">fcluster</span><span class="p">,</span> <span class="n">linkage</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">squareform</span>
+
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis">[docs]</a><span class="k">class</span> <span class="nc">ProbabilityDensityAnalysis</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the time-averaged probability density distribution of selected</span>
+<span class="sd">    species on a &quot;uniform&quot; (in terms of fractional coordinates) 3-D grid.</span>
+<span class="sd">    Note that \int_{\Omega}d^3rP(r) = 1</span>
+
+<span class="sd">    If you use this class, please consider citing the following paper:</span>
+
+<span class="sd">    Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. &quot;Role of Na+ Interstitials and</span>
+<span class="sd">    Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4 Superionic</span>
+<span class="sd">    Conductor&quot;. Chem. Mater. (2015), 27, pp 8318–8325.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): crystal structure</span>
+<span class="sd">            trajectories (numpy array): ionic trajectories of the structure</span>
+<span class="sd">                from MD simulations. It should be (1) stored as 3-D array [</span>
+<span class="sd">                Ntimesteps, Nions, 3] where 3 refers to a,b,c components;</span>
+<span class="sd">                (2) in fractional coordinates.</span>
+<span class="sd">            interval(float): the interval between two nearest grid points</span>
+<span class="sd">                (in Angstrom)</span>
+<span class="sd">            species(list of str): list of species that are of interest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initial settings</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+
+        <span class="c1"># All fractional coordinates are between 0 and 1.</span>
+        <span class="n">trajectories</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">trajectories</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">trajectories</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">frac_interval</span> <span class="o">=</span> <span class="p">[</span><span class="n">interval</span> <span class="o">/</span> <span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">]</span>
+        <span class="n">nsteps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+
+        <span class="c1"># generate the 3-D grid</span>
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">frac_interval</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">frac_interval</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">frac_interval</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">rb</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">rc</span><span class="p">)]</span>
+        <span class="n">ngrid</span> <span class="o">=</span> <span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">agrid</span> <span class="o">=</span> <span class="n">ra</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">bgrid</span> <span class="o">=</span> <span class="n">rb</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">cgrid</span> <span class="o">=</span> <span class="n">rc</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">agrid</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">bgrid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">cgrid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="c1"># Calculate time-averaged probability density function distribution Pr</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+        <span class="n">Pr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ngrid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsteps</span><span class="p">):</span>
+            <span class="n">fcoords</span> <span class="o">=</span> <span class="n">trajectories</span><span class="p">[</span><span class="n">it</span><span class="p">][</span><span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">for</span> <span class="n">fcoord</span> <span class="ow">in</span> <span class="n">fcoords</span><span class="p">:</span>
+                <span class="c1"># for each atom at time t, find the nearest grid point from</span>
+                <span class="c1"># the 8 points that surround the atom</span>
+                <span class="n">corner_i</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fcoord</span><span class="p">,</span> <span class="n">frac_interval</span><span class="p">)]</span>
+                <span class="n">next_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">corner_i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+                <span class="c1"># consider PBC</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">next_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">corner_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">corner_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+
+                <span class="n">agrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">corner_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">next_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]])[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">bgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">corner_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">next_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]])[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">cgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">corner_i</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">next_i</span><span class="p">[</span><span class="mi">2</span><span class="p">]])[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+                <span class="n">grid_indices</span> <span class="o">=</span> <span class="n">agrid</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">bgrid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">cgrid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">grid_indices</span> <span class="o">=</span> <span class="n">grid_indices</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+                <span class="n">mini_grid</span> <span class="o">=</span> <span class="p">[</span><span class="n">grid</span><span class="p">[</span><span class="n">indx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">indx</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="k">for</span> <span class="n">indx</span> <span class="ow">in</span> <span class="n">grid_indices</span><span class="p">]</span>
+                <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">mini_grid</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">)</span>
+                <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dist_matrix</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># 3-index label mapping to single index</span>
+                <span class="n">min_indx</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">grid_indices</span><span class="p">[</span><span class="n">indx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rb</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span> <span class="o">+</span> <span class="n">grid_indices</span><span class="p">[</span><span class="n">indx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span> <span class="o">+</span> <span class="n">grid_indices</span><span class="p">[</span><span class="n">indx</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># make sure the index does not go out of bound.</span>
+                <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">min_indx</span> <span class="o">&lt;</span> <span class="n">ngrid</span>
+
+                <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">min_indx</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">count</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="n">ngrid</span><span class="p">):</span>
+            <span class="n">Pr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">nsteps</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">/</span> <span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">ngrid</span>
+
+        <span class="n">Pr</span> <span class="o">=</span> <span class="n">Pr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span> <span class="o">=</span> <span class="n">trajectories</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lens</span> <span class="o">=</span> <span class="n">lens</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Pr</span> <span class="o">=</span> <span class="n">Pr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.from_diffusion_analyzer"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_diffusion_analyzer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            diffusion_analyzer (DiffusionAnalyzer): A</span>
+<span class="sd">                pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</span>
+<span class="sd">            interval(float): the interval between two nearest grid points (in</span>
+<span class="sd">                Angstrom)</span>
+<span class="sd">            species(list of str): list of species that are of interest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">get_drift_corrected_structures</span><span class="p">()):</span>
+            <span class="n">trajectories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ProbabilityDensityAnalysis</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.generate_stable_sites"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites">[docs]</a>    <span class="k">def</span> <span class="nf">generate_stable_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_ratio</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a set of low-energy sites from probability density function with</span>
+<span class="sd">        given probability threshold &#39;p_ratio&#39;. The set of grid points with</span>
+<span class="sd">        probability density higher than the threshold will further be clustered</span>
+<span class="sd">        using hierachical clustering method, with no two clusters closer than the</span>
+<span class="sd">        given distance cutoff. Note that the low-energy sites may converge more</span>
+<span class="sd">        slowly in fast conductors (more shallow energy landscape) than in the slow</span>
+<span class="sd">        conductors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p_ratio (float): Probability threshold above which a grid point is</span>
+<span class="sd">                considered as a low-energy site.</span>
+<span class="sd">            d_cutoff (float): Distance cutoff used in hierachical clustering.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            The set of stable sites is stored in the `stable_sites` attribute</span>
+<span class="sd">            as a Nx3 numpy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set of grid points with high probability density.</span>
+        <span class="n">grid_fcoords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pr</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">p_ratio</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+            <span class="n">grid_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="n">grid_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">)</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">,</span> <span class="n">grid_fcoords</span><span class="p">))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Compressed distance matrix</span>
+        <span class="n">condensed_m</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">((</span><span class="n">dist_matrix</span> <span class="o">+</span> <span class="n">dist_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="c1"># Linkage function for hierachical clustering.</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">condensed_m</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
+        <span class="n">cluster_indices</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">d_cutoff</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+
+        <span class="c1"># The low-energy sites must accommodate all the existing mobile ions.</span>
+        <span class="n">nions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">])</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">nc</span> <span class="o">&lt;</span> <span class="n">nions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of clusters (</span><span class="si">{}</span><span class="s2">) is smaller than that of &quot;</span>
+                <span class="s2">&quot;mobile ions (</span><span class="si">{}</span><span class="s2">)! Please try to decrease either &quot;</span>
+                <span class="s2">&quot;&#39;p_ratio&#39; or &#39;d_cut&#39; values!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">nions</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># For each low-energy site (cluster centroid), its coordinates are obtained</span>
+        <span class="c1"># by averaging over all the associated grid points within that cluster.</span>
+        <span class="n">stable_sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">cluster_indices</span><span class="p">):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cluster_indices</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">stable_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Consider periodic boundary condition</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">members</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">members</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">members</span><span class="p">)</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">members</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">members</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">members</span><span class="p">)</span>
+            <span class="n">members</span> <span class="o">+=</span> <span class="n">grid_fcoords</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+            <span class="n">stable_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">members</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stable_sites</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.get_full_structure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the structure with the low-energy sites included. In the end, a</span>
+<span class="sd">        pymatgen Structure object will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">full_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fcoord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">:</span>
+            <span class="n">full_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">full_structure</span></div>
+
+<div class="viewcode-block" id="ProbabilityDensityAnalysis.to_chgcar"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar">[docs]</a>    <span class="k">def</span> <span class="nf">to_chgcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CHGCAR.vasp&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the probability density distribution in the format of CHGCAR,</span>
+<span class="sd">        which can be visualized by VESTA.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">VolinAu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="mf">0.5291772083</span> <span class="o">**</span> <span class="mi">3</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">symbol_set</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">symbol</span><span class="p">]))</span> <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">]</span>
+        <span class="n">init_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">formula</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; 1.00 </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2"> </span><span class="si">{2}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]))</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">natoms</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;direct</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fcoord</span> <span class="ow">in</span> <span class="n">init_fcoords</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{0:.8f}</span><span class="s2">  </span><span class="si">{1:.8f}</span><span class="s2">  </span><span class="si">{2:.8f}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">fcoord</span><span class="p">))</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2"> </span><span class="si">{2}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{0:.10e}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pr</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">VolinAu</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="SiteOccupancyAnalyzer"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">SiteOccupancyAnalyzer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that analyzes the site occupancy of given species using MD trajectories.</span>
+<span class="sd">    The occupancy of a site is determined based on the shortest distance scheme.</span>
+
+<span class="sd">    .. attribute:: site_occ</span>
+<span class="sd">        N x 1 numpy array that stores the occupancy of all sites associated with</span>
+<span class="sd">        species. It has the same sequence as the given list of indices.</span>
+
+<span class="sd">    .. attribute:: coords_ref</span>
+<span class="sd">        N x 3 numpy array of fractional coordinates of all reference sites.</span>
+
+<span class="sd">    .. attribute:: nsites</span>
+<span class="sd">        Number of reference sites.</span>
+
+<span class="sd">    .. attribute:: structure</span>
+<span class="sd">        Initial structure.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">coords_ref</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (pmg_structure): Initial structure.</span>
+<span class="sd">            coords_ref (N_s x 3 array): Fractional coordinates of N_s given sites</span>
+<span class="sd">                at which the site occupancy will be computed.</span>
+<span class="sd">            trajectories (Ntimesteps x Nions x 3 array): Ionic trajectories from MD</span>
+<span class="sd">                simulation, where Ntimesteps is the number of time steps in MD</span>
+<span class="sd">                simulation. Note that the coordinates are fractional.</span>
+<span class="sd">            species(list of str): list of species that are of interest.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">coords_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">)</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)):</span>
+            <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dist_matrix</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+        <span class="n">site_occ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">count</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">)):</span>
+            <span class="n">site_occ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_ref</span> <span class="o">=</span> <span class="n">coords_ref</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_occ</span> <span class="o">=</span> <span class="n">site_occ</span>
+
+<div class="viewcode-block" id="SiteOccupancyAnalyzer.get_average_site_occupancy"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy">[docs]</a>    <span class="k">def</span> <span class="nf">get_average_site_occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the average site occupancy over a subset of reference sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_occ</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SiteOccupancyAnalyzer.from_diffusion_analyzer"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.pathway.html#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_diffusion_analyzer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">coords_ref</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords_ref (nested list of floats): Fractional coordinates of a list</span>
+<span class="sd">                of reference sites at which the site occupancy will be computed.</span>
+<span class="sd">            diffusion_analyzer (DiffusionAnalyzer): A</span>
+<span class="sd">                pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</span>
+<span class="sd">            species(list of str): list of species that are of interest.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Initial structure.</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">structure</span>
+
+        <span class="c1"># Drifted corrected ionic trajectories</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">diffusion_analyzer</span><span class="o">.</span><span class="n">get_drift_corrected_structures</span><span class="p">():</span>
+            <span class="n">trajectories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">SiteOccupancyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">coords_ref</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

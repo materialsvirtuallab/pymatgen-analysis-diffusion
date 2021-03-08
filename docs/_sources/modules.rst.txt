@@ -1,7 +1,7 @@
-pymatgen_diffusion
-==================
+pymatgen
+========
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 7
 
-   pymatgen_diffusion
+   pymatgen

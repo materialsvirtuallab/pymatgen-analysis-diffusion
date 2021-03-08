@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.neb.io &#8212; pymatgen-diffusion 2021.3.6 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.3.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.io</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.neb.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Generate input fiels for NEB calculations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="kn">import</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">MITNEBSet</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Austen&quot;</span>
+
+
+<div class="viewcode-block" id="MVLCINEBEndPointSet"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBEndPointSet">[docs]</a><span class="k">class</span> <span class="nc">MVLCINEBEndPointSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for writing NEB end points relaxation inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure</span>
+<span class="sd">            \*\*kwargs: Keyword args supported by VaspInputSets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ISIF&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="mf">5e-5</span><span class="p">,</span>
+            <span class="s2">&quot;EDIFFG&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.02</span><span class="p">,</span>
+            <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;LDAU&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">user_incar_settings</span> <span class="o">!=</span> <span class="p">{}:</span>
+            <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaults</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MVLCINEBSet"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBSet">[docs]</a><span class="k">class</span> <span class="nc">MVLCINEBSet</span><span class="p">(</span><span class="n">MITNEBSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAVRL-tested settings for CI-NEB calculations. Note that these parameters</span>
+<span class="sd">    requires the VTST modification of VASP from the Henkelman group. See</span>
+<span class="sd">    http://theory.cm.utexas.edu/vtsttools/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure</span>
+<span class="sd">            \*\*kwargs: Keyword args supported by VaspInputSets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="c1"># CI-NEB settings</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="mf">5e-5</span><span class="p">,</span>
+            <span class="s2">&quot;EDIFFG&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.02</span><span class="p">,</span>
+            <span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;ICHAIN&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;IOPT&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;ISIF&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;ISPIN&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;LCLIMB&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;LDAU&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s2">&quot;POTIM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;SPRING&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">user_incar_settings</span> <span class="o">!=</span> <span class="p">{}:</span>
+            <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaults</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_endpoints_from_index"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoints_from_index">[docs]</a><span class="k">def</span> <span class="nf">get_endpoints_from_index</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site_indices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class reads in one perfect structure and the two endpoint structures</span>
+<span class="sd">    are generated using site_indices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure): A perfect structure.</span>
+<span class="sd">        site_indices (list of int): a two-element list indicating site indices.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        endpoints (list of Structure): a two-element list of two endpoints</span>
+<span class="sd">                                        Structure object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">site_indices</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid indices!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">structure</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span> <span class="o">!=</span> <span class="n">structure</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The site indices must be &quot;</span> <span class="s2">&quot;associated with identical species!&quot;</span><span class="p">)</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sites</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sites</span>
+
+    <span class="c1"># Move hopping atoms to the beginning of species index.</span>
+    <span class="n">init_site</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">final_site</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">sites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">init_site</span><span class="p">)</span>
+    <span class="n">sites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">final_site</span><span class="p">)</span>
+
+    <span class="n">init_sites</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+    <span class="n">final_sites</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+    <span class="n">init_sites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">final_site</span><span class="p">)</span>
+    <span class="n">final_sites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">init_site</span><span class="p">)</span>
+
+    <span class="n">s_0</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">init_sites</span><span class="p">)</span>
+    <span class="n">s_1</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">final_sites</span><span class="p">)</span>
+
+    <span class="n">endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_0</span><span class="p">,</span> <span class="n">s_1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">endpoints</span></div>
+
+
+<div class="viewcode-block" id="get_endpoint_dist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoint_dist">[docs]</a><span class="k">def</span> <span class="nf">get_endpoint_dist</span><span class="p">(</span><span class="n">ep_0</span><span class="p">,</span> <span class="n">ep_1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a list of site distances between two endpoints, assuming periodic</span>
+<span class="sd">    boundary conditions.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        ep_0 (Structure): the first endpoint structure.</span>
+<span class="sd">        ep_1 (Structure): the second endpoint structure.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dist (list): a list of distances between two structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ep_0</span><span class="o">.</span><span class="n">remove_oxidation_states</span><span class="p">()</span>
+    <span class="n">ep_1</span><span class="o">.</span><span class="n">remove_oxidation_states</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">ep_0</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span> <span class="n">ep_1</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="s2">&quot;Formula mismatch!&quot;</span>
+    <span class="k">assert</span> <span class="n">ep_0</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span> <span class="o">==</span> <span class="n">ep_0</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">,</span> <span class="s2">&quot;Lattice mismatch!&quot;</span>
+
+    <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site0</span><span class="p">,</span> <span class="n">site1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ep_0</span><span class="p">,</span> <span class="n">ep_1</span><span class="p">):</span>
+        <span class="n">fc</span> <span class="o">=</span> <span class="p">(</span><span class="n">site0</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">site1</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">ep_0</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">fc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fc</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distances</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

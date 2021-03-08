@@ -26,10 +26,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --quiet --ignore-installed -r requirements.txt -r requirements-ci.txt
+        pip install --quiet -r requirements.txt -r requirements-ci.txt
         pip install -e .
     - name: pytest
       run: |
-        pytest --cov=pymatgen_diffusion --durations=30 pymatgen_diffusion
+        pytest --cov=pymatgen.analysis.diffusion --durations=30 pymatgen
     - name: Coveralls
       uses: AndreMiras/coveralls-python-action@v20201129

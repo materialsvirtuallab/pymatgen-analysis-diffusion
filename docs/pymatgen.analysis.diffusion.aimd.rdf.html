@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.aimd.rdf module &#8212; pymatgen-diffusion 2021.3.6 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.3.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.rdf module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.diffusion.aimd.rdf">
+<span id="pymatgen-analysis-diffusion-aimd-rdf-module"></span><h1>pymatgen.analysis.diffusion.aimd.rdf module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.rdf" title="Permalink to this headline">¶</a></h1>
+<p>RDF implementation.</p>
+<dl class="py class">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">RadialDistributionFunction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calculate the average radial distribution function for a given set of
+structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – List of structure
+objects with the same composition. Allow for ensemble averaging.</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero)
+in Angstrom.</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+with supercell. Default is 1, i.e. including the adjacent image
+cells along all three directions.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</p></li>
+<li><p><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – A list of atom index of interest.</p></li>
+<li><p><strong>reference_indices</strong> (<em>[</em><em>int</em><em>]</em>) – set this option along with ‘indices’
+parameter to compute radial distribution function.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.coordination_number">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">coordination_number</span></code><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns running coordination number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.export_rdf">
+<code class="sig-name descname"><span class="pre">export_rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunction.export_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.export_rdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output RDF data to a csv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
+the extension is csv, a csv file is written. Otherwise,
+a dat format is assumed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.from_species">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_species</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunction.from_species"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.from_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize using species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>list of pmg_structure objects</em>) – List of structure
+objects with the same composition. Allow for ensemble averaging.</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – Number of radial grid points.</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – Maximum of radial grid (the minimum is always zero).</p></li>
+<li><p><strong>cell_range</strong> (<em>int</em>) – Range of translational vector elements associated
+with supercell. Default is 1, i.e. including the adjacent image
+cells along all three directions.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Smearing of a Gaussian function.</p></li>
+<li><p><strong>species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – A list of specie symbols of interest.</p></li>
+<li><p><strong>reference_species</strong> (<em>list</em><em>[</em><em>string</em><em>]</em>) – <p>set this option along with
+‘species’ parameter to compute radial distribution function.
+eg: species=[“H”], reference_species=[“O”] to compute</p>
+<blockquote>
+<div><p>O-H pair distribution in a water MD simulation.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.get_rdf_plot">
+<code class="sig-name descname"><span class="pre">get_rdf_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">(0.0,</span> <span class="pre">8.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">(-</span> <span class="pre">0.005,</span> <span class="pre">3.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_peak</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunction.get_rdf_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.get_rdf_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the average RDF function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – The legend label.</p></li>
+<li><p><strong>xlim</strong> (<em>list</em>) – Set the x limits of the current axes.</p></li>
+<li><p><strong>ylim</strong> (<em>list</em>) – Set the y limits of the current axes.</p></li>
+<li><p><strong>loc_peak</strong> (<em>bool</em>) – Label peaks if True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">RadialDistributionFunctionFast</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunctionFast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fast radial distribution analysis.</p>
+<p>This method calculates rdf on <cite>np.linspace(rmin, rmax, ngrid)</cite> points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>list of pymatgen Structures</em>) – structures to compute RDF</p></li>
+<li><p><strong>rmin</strong> (<em>float</em>) – minimal radius</p></li>
+<li><p><strong>rmax</strong> (<em>float</em>) – maximal radius</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em>) – number of grid points, defaults to 101</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – smooth parameter</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em>) – number of CPUs in processing</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_coordination_number">
+<code class="sig-name descname"><span class="pre">get_coordination_number</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunctionFast.get_coordination_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns running coordination number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the reference species.
+The rdfs are calculated with these species at the center</p></li>
+<li><p><strong>species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the species that we are interested in.
+The rdfs are calculated on these species.</p></li>
+<li><p><strong>is_average</strong> (<em>bool</em>) – whether to take structural average</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_one_rdf">
+<code class="sig-name descname"><span class="pre">get_one_rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunctionFast.get_one_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_one_rdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the RDF for one structure, indicated by the index of the structure
+in all structures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the reference species.
+The rdfs are calculated with these species at the center</p></li>
+<li><p><strong>species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the species that we are interested in.
+The rdfs are calculated on these species.</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – structure index in the list</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(x, rdf) x is the radial points, and rdf is the rdf value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_rdf">
+<code class="sig-name descname"><span class="pre">get_rdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/rdf.html#RadialDistributionFunctionFast.get_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_rdf" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the reference species.
+The rdfs are calculated with these species at the center</p></li>
+<li><p><strong>species</strong> (<em>list of species</em><em> or </em><em>just single specie str</em>) – the species that we are interested in.
+The rdfs are calculated on these species.</p></li>
+<li><p><strong>is_average</strong> (<em>bool</em>) – whether to take the average over
+all structures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(x, rdf) x is the radial points, and rdf is the rdf value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.diffusion.aimd.rdf.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

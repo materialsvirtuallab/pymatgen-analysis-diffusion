@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Deployment file to facilitate releases of pymatgen_diffusion.
+Deployment file to facilitate releases of pymatgen.analysis.diffusion.
 """
 
 from __future__ import division
@@ -27,14 +27,14 @@ NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
-        ctx.run("sphinx-apidoc -d 6 -o . -f ../pymatgen_diffusion")
-        ctx.run("rm pymatgen_diffusion*.tests.rst")
+        ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
+        ctx.run("rm pymatgen*.tests.rst")
         for f in glob.glob("*.rst"):
-            if f.startswith('pymatgen_diffusion') and f.endswith('rst'):
+            if f.startswith("pymatgen") and f.endswith("rst"):
                 newoutput = []
                 suboutput = []
                 subpackage = False
-                with open(f, 'r') as fid:
+                with open(f, "r") as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -49,7 +49,7 @@ def make_doc(ctx):
                                 subpackage = False
                                 suboutput = []
 
-                with open(f, 'w') as fid:
+                with open(f, "w") as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
 
@@ -59,23 +59,23 @@ def make_doc(ctx):
         # Avoid ths use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
+
 @task
 def set_ver(ctx):
     lines = []
-    with open("pymatgen_diffusion/__init__.py", "rt") as f:
+    with open("pymatgen/analysis/diffusion/__init__.py", "rt") as f:
         for l in f:
             if "__version__" in l:
                 lines.append('__version__ = "%s"' % NEW_VER)
             else:
                 lines.append(l.rstrip())
-    with open("pymatgen_diffusion/__init__.py", "wt") as f:
+    with open("pymatgen/analysis/diffusion/__init__.py", "wt") as f:
         f.write("\n".join(lines))
 
     lines = []
     with open("setup.py", "rt") as f:
         for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
-                                l.rstrip()))
+            lines.append(re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, l.rstrip()))
     with open("setup.py", "wt") as f:
         f.write("\n".join(lines))
 
@@ -85,7 +85,7 @@ def update_doc(ctx):
     make_doc(ctx)
     with cd("docs"):
         ctx.run("git add .")
-        ctx.run("git commit -a -m \"Update dev docs\"")
+        ctx.run('git commit -a -m "Update dev docs"')
         ctx.run("git push")
 
 
@@ -104,24 +104,25 @@ def release_github(ctx):
         "name": "v" + NEW_VER,
         "body": "v" + NEW_VER,
         "draft": False,
-        "prerelease": False
+        "prerelease": False,
     }
     response = requests.post(
         "https://api.github.com/repos/materialsvirtuallab/pymatgen-diffusion/releases",
         data=json.dumps(payload),
-        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]})
+        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+    )
     print(response.text)
 
 
 @task
 def test(ctx):
-    ctx.run("pytest pymatgen_diffusion")
+    ctx.run("pytest pymatgen")
 
 
 @task
 def release(ctx):
     set_ver(ctx)
-    #test(ctx)
+    # test(ctx)
     update_doc(ctx)
     publish(ctx)
     release_github(ctx)
