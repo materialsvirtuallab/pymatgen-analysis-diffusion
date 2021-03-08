@@ -13,7 +13,7 @@ __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
 import logging
-from typing import Tuple, Union
+from typing import Tuple
 import numpy as np
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -56,7 +56,8 @@ def add_edge_data_from_sc(
         add_dict = {key: data_array}
     else:
         logger.debug("Hop from SC is reversed")
-        add_dict = {key: data_array.reverse()}
+        data_array.reverse()
+        add_dict = {key: data_array}
     mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
 
 
@@ -111,7 +112,7 @@ def get_uc_pos(
     uc: Structure,
     sc: Structure,
     sm: StructureMatcher,
-) -> Tuple[PeriodicSite]:
+) -> Tuple[PeriodicSite, PeriodicSite, PeriodicSite]:
     """Take positions in the supercel and transform into the unitcell positions
 
     Args:
@@ -190,7 +191,7 @@ def get_unique_hop(
     sc: Structure,
     isite: PeriodicSite,
     esite: PeriodicSite,
-) -> Union[str, int]:
+) -> Tuple[int, MigrationHop]:
     """Get the unique hop label that correspond to two end positions in the SC
 
     Args:
