@@ -34,7 +34,7 @@ class MigrationGraphSimpleTest(unittest.TestCase):
         Make sure that we can populate the graph with MigrationHop Objects
         """
         self.fpm._get_pos_and_migration_path(0, 1, 1)
-        self.assertAlmostEqual(self.fpm.migration_graph.graph[0][1][1]["hop"].length, 3.571248, 4)
+        self.assertAlmostEqual(self.fpm.m_graph.graph[0][1][1]["hop"].length, 3.571248, 4)
 
     def test_get_summary_dict(self):
         summary_dict = self.fpm.get_summary_dict()
@@ -54,10 +54,10 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
             migrating_ion_entry=self.li_ent,
         )[0]
 
-    def test_migration_graph_construction(self):
+    def test_m_graph_construction(self):
         self.assertEqual(self.full_struct.composition["Li"], 8)
         mg = MigrationGraph.with_distance(self.full_struct, migrating_specie="Li", max_distance=4.0)
-        self.assertEqual(len(mg.migration_graph.structure), 8)
+        self.assertEqual(len(mg.m_graph.structure), 8)
 
 
 class MigrationGraphComplexTest(unittest.TestCase):
@@ -73,7 +73,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
         """
         Check that the set of end points in a group of similiarly labeled hops are all the same
         """
-        edge_labs = np.array([d["hop_label"] for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True)])
+        edge_labs = np.array([d["hop_label"] for u, v, d in self.fpm_li.m_graph.graph.edges(data=True)])
 
         site_labs = np.array(
             [
@@ -81,7 +81,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
                     d["hop"].symm_structure.wyckoff_symbols[d["hop"].iindex],
                     d["hop"].symm_structure.wyckoff_symbols[d["hop"].eindex],
                 )
-                for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True)
+                for u, v, d in self.fpm_li.m_graph.graph.edges(data=True)
             ]
         )
 
@@ -103,14 +103,14 @@ class MigrationGraphComplexTest(unittest.TestCase):
     def test_add_data_to_similar_edges(self):
         # passing normal data
         self.fpm_li.add_data_to_similar_edges(0, {"key0": "data"})
-        for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
+        for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             if d["hop_label"] == 0:
                 self.assertEqual(d["key0"], "data")
 
         # passing ordered list data
         migration_path = self.fpm_li.unique_hops[1]["hop"]
         self.fpm_li.add_data_to_similar_edges(1, {"key1": [1, 2, 3]}, m_path=migration_path)
-        for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
+        for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             if d["hop_label"] == 1:
                 self.assertEqual(d["key1"], [1, 2, 3])
 
@@ -121,24 +121,24 @@ class MigrationGraphComplexTest(unittest.TestCase):
             symm_structure=migration_path.symm_structure,
         )
         self.fpm_li.add_data_to_similar_edges(2, {"key2": [1, 2, 3]}, m_path=migration_path_reversed)
-        for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
+        for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             if d["hop_label"] == 2:
                 self.assertEqual(d["key2"], [3, 2, 1])
 
     def test_assign_cost_to_graph(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
+        for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
 
         self.fpm_li.assign_cost_to_graph(cost_keys=["hop_distance", "hop_distance"])
-        for u, v, d in self.fpm_li.migration_graph.graph.edges(data=True):
+        for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             self.assertAlmostEqual(d["cost"], d["hop_distance"] ** 2, 4)
 
     def test_periodic_dijkstra(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
 
         # test the connection graph
-        sgraph = self.fpm_li.migration_graph
+        sgraph = self.fpm_li.m_graph
         G = sgraph.graph.to_undirected()
         conn_dict = _get_adjacency_with_images(G)
         for u in conn_dict.keys():
@@ -168,7 +168,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
     def test_not_matching_first(self):
         structure = Structure.from_file(f"{dir_path}/pathfinder_files/Li6MnO4.json")
         fpm_lmo = MigrationGraph.with_distance(structure, "Li", max_distance=4)
-        for u, v, d in fpm_lmo.migration_graph.graph.edges(data=True):
+        for u, v, d in fpm_lmo.m_graph.graph.edges(data=True):
             self.assertIn(d["hop"].eindex, {0, 1})
 
 
@@ -226,7 +226,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         """
         self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
-            sorted([(d["hop"].length, d["chg_total"]) for u, v, d in self.cbg.migration_graph.graph.edges(data=True)])
+            sorted([(d["hop"].length, d["chg_total"]) for u, v, d in self.cbg.m_graph.graph.edges(data=True)])
         )
         prv = None
         for length, chg in length_vs_chg:

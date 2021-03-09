@@ -165,8 +165,8 @@ class DistinctPathFinderTest(PymatgenTest):
 class MigrationHopTest(PymatgenTest):
     def setUp(self):
         self.lifepo = self.get_structure("LiFePO4")
-        migration_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
-        gen = iter(migration_graph.migration_graph.graph.edges(data=True))
+        m_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
+        gen = iter(m_graph.m_graph.graph.edges(data=True))
         u, v, d = next(gen)
         i_site = PeriodicSite("Li", coords=d["ipos"], lattice=self.lifepo.lattice)
         e_site = PeriodicSite("Li", coords=d["epos"], lattice=self.lifepo.lattice)
