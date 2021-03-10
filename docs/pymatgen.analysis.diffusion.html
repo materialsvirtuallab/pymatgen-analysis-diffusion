@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion package &#8212; pymatgen-diffusion 2021.3.6 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.3.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pymatgen-analysis-diffusion-package">
+<h1>pymatgen.analysis.diffusion package<a class="headerlink" href="#pymatgen-analysis-diffusion-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.html">pymatgen.analysis.diffusion.aimd package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.clustering.html">pymatgen.analysis.diffusion.aimd.clustering module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.pathway.html">pymatgen.analysis.diffusion.aimd.pathway module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.rdf.html">pymatgen.analysis.diffusion.aimd.rdf module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.van_hove.html">pymatgen.analysis.diffusion.aimd.van_hove module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.aimd.html#module-pymatgen.analysis.diffusion.aimd">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.html">pymatgen.analysis.diffusion.neb package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html">pymatgen.analysis.diffusion.neb.full_path_mapper module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html">pymatgen.analysis.diffusion.neb.io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html">pymatgen.analysis.diffusion.neb.pathfinder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html">pymatgen.analysis.diffusion.neb.periodic_dijkstra module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.html#module-pymatgen.analysis.diffusion.neb">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.html">pymatgen.analysis.diffusion.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.maggma.html">pymatgen.analysis.diffusion.utils.maggma module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.parse_entries.html">pymatgen.analysis.diffusion.utils.parse_entries module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.supercells.html">pymatgen.analysis.diffusion.utils.supercells module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.utils.html#module-pymatgen.analysis.diffusion.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.analyzer.html">pymatgen.analysis.diffusion.analyzer module</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-pymatgen.analysis.diffusion">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.diffusion" title="Permalink to this headline">¶</a></h2>
+<p>Package for diffusion analysis.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.diffusion">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.diffusion.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

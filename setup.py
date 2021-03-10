@@ -2,7 +2,7 @@
 # Copyright (c) Materials Virtual Lab
 # Distributed under the terms of the Modified BSD License.
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 import os
 
@@ -13,10 +13,10 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 
 
 setup(
-    name="pymatgen-diffusion",
-    packages=find_packages(),
-    version="2020.10.8",
-    install_requires=["pymatgen>=2019.10.3", "monty>=3.0.2"],
+    name="pymatgen-analysis-diffusion",
+    packages=find_namespace_packages(include=["pymatgen.analysis.*"]),
+    version="2021.3.6",
+    install_requires=["pymatgen>=2022.0.3", "joblib"],
     extras_require={},
     package_data={},
     author="materials virtual lab",
@@ -29,9 +29,8 @@ setup(
     keywords=["VASP", "diffusion", "molecular dynamics", "MD"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
@@ -39,6 +38,6 @@ setup(
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Chemistry",
-        "Topic :: Software Development :: Libraries :: Python Modules"
-    ]
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
 )
