@@ -33,3 +33,6 @@ jobs:
         pytest --cov=pymatgen.analysis.diffusion --durations=30 pymatgen
     - name: Coveralls
       uses: AndreMiras/coveralls-python-action@v20201129
+    - name: treon
+      run: |
+        treon examples/
