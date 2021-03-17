@@ -51,7 +51,7 @@ def get_entries_from_dbs(structure_group_store: MongoStore, material_store: Mong
             if "GGA+U" in m_doc["entries"]:
                 entry = MontyDecoder().process_decoded(m_doc["entries"]["GGA+U"])  # type: ComputedEntry
             elif "GGA" in m_doc["entries"]:
-                entry = MontyDecoder().process_decoded(m_doc["entries"]["GGA"])  # type: ComputedEntry
+                entry = MontyDecoder().process_decoded(m_doc["entries"]["GGA"])
             else:
                 raise RuntimeError("Missing GGA or GGA+U calc type in <entries>")
 
