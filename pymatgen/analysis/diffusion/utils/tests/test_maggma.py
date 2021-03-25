@@ -18,14 +18,14 @@ __date__ = "April 10, 2019"
 @pytest.fixture
 def maggma_stores():
     return {
-        "sgroups": JSONStore(f"{dir_path}/maggma_sgroup_store.json", key="material_id"),
+        "sgroups": JSONStore(f"{dir_path}/maggma_sgroup_store.json", key="group_id"),
         "materials": JSONStore(f"{dir_path}/maggma_materials_store.json", key="material_id"),
     }
 
 
 def test(maggma_stores):
     base_ents, inserted_ents = get_entries_from_dbs(
-        maggma_stores["sgroups"], maggma_stores["materials"], material_id="mvc-6910_Mg"
+        maggma_stores["sgroups"], maggma_stores["materials"], "Mg", material_id="mvc-6910_Mg"
     )
 
     # check that the entries have been created
