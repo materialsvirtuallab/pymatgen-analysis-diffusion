@@ -6,7 +6,7 @@
 Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from pymatgen.core import Composition, Lattice, Structure
@@ -109,6 +109,9 @@ def process_entries(
             mapped_based_cell.sites.extend(inserted_sites_)
 
         struct_wo_sym_ops = _filter_and_merge(mapped_based_cell.get_sorted_structure())
+        if struct_wo_sym_ops is None:
+            continue
+
         struct_sym = get_sym_migration_ion_sites(base_ent.structure, struct_wo_sym_ops, working_ion)
         results.append(
             {
@@ -243,7 +246,7 @@ def get_sym_migration_ion_sites(
     return sym_migration_struct
 
 
-def _filter_and_merge(inserted_structure: Structure):
+def _filter_and_merge(inserted_structure: Structure) -> Union[Structure, None]:
     """
     For each site in a structure, split it into a migration sublattice where all sites contain the "insertion_energy"
     property and a host lattice. For each site in the migration sublattice if there is collision with the host sites,
@@ -256,6 +259,8 @@ def _filter_and_merge(inserted_structure: Structure):
             migration_sites.append(i_site)
         else:
             base_sites.append(i_site)
+    if len(migration_sites) == 0:
+        return None
     migration = Structure.from_sites(migration_sites)
     base = Structure.from_sites(base_sites)
 
