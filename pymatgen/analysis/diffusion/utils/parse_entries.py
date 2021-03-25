@@ -103,13 +103,17 @@ def process_entries(
 
     for base_ent, _ in entries_with_num_symmetry_ops:
         # structure where the
-        mapped_based_cell = base_ent.structure.copy()
+        mapped_cell = base_ent.structure.copy()
         for j_inserted in inserted_entries:
             inserted_sites_ = _meta_stable_sites(base_ent, j_inserted)
-            mapped_based_cell.sites.extend(inserted_sites_)
+            mapped_cell.sites.extend(inserted_sites_)
 
-        struct_wo_sym_ops = _filter_and_merge(mapped_based_cell.get_sorted_structure())
+        struct_wo_sym_ops = _filter_and_merge(mapped_cell.get_sorted_structure())
         if struct_wo_sym_ops is None:
+            logger.warning(
+                f"No meta-stable sites were found during symmetry mapping for base {base_ent.entry_id}."
+                "Consider playing with the various tolerances (ltol, stol, angle_tol)."
+            )
             continue
 
         struct_sym = get_sym_migration_ion_sites(base_ent.structure, struct_wo_sym_ops, working_ion)
