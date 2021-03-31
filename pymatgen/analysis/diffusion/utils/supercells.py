@@ -51,7 +51,7 @@ def get_sc_fromstruct(
     struct_sc = None
     while struct_sc is None:
         struct_sc = _get_sc_from_struct_pmg(base_struct, min_atoms, max_atoms, m_len)
-        m_len *= 0.9
+        max_atoms += 1
     return struct_sc
 
 

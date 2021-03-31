@@ -58,7 +58,7 @@ def process_entries(
 
     Returns:
         list: List of dictionaries that each contain
-        {'base' : ComputedStructureEntry, 'inserted' : Structure}
+        {'base' : Structure Object of host, 'inserted' : Structure object of all inserted sites}
     """
     working_ion = str(migrating_ion_entry.composition.elements[0])
     sm_no_wion = StructureMatcher(
