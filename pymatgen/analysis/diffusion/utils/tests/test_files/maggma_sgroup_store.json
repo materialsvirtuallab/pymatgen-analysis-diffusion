@@ -1,0 +1,26 @@
+[
+  {
+    "_id": {
+      "@module": "bson.objectid",
+      "@class": "ObjectId",
+      "oid": "604a730faa253394b1f97085"
+    },
+    "material_id": "mvc-6910_Mg",
+    "structure_matched": true,
+    "has_distinct_compositions": true,
+    "grouped_ids": [
+      "mvc-6910",
+      "mp-1245011"
+    ],
+    "framework_formula": "CoO2",
+    "ignored_species": [
+      "Mg"
+    ],
+    "chemsys": "Co-Mg-O",
+    "last_updated": {
+      "@module": "datetime",
+      "@class": "datetime",
+      "string": "2021-03-11 19:44:15.762000"
+    }
+  }
+]

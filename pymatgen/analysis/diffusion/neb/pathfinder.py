@@ -12,6 +12,7 @@ import warnings
 from typing import Tuple
 
 import numpy as np
+from monty.json import MSONable
 from pymatgen.core import Site
 from pymatgen.core import PeriodicSite, Structure
 from pymatgen.core.periodic_table import get_el_sp
@@ -288,7 +289,7 @@ class IDPPSolver:
         return np.array(total_forces)
 
 
-class MigrationHop:
+class MigrationHop(MSONable):
     """
     A convenience container representing a migration path.
     """
