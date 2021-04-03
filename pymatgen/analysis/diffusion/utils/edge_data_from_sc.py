@@ -13,7 +13,7 @@ __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
 import logging
-from typing import Tuple
+from typing import Tuple, Union
 import numpy as np
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -29,6 +29,7 @@ def add_edge_data_from_sc(
     e_sc: Structure,
     data_array: list,
     key: str = "custom_key",
+    symprec: Union[None, float] = None,
 ) -> None:
     """
     Add a data entry and key to edges within FullPathMapper object with the same hop_label.
@@ -43,13 +44,15 @@ def add_edge_data_from_sc(
     Returns:
         None
     """
+    if not symprec:
+        symprec = mg.symprec
     wi = list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
         raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
-    uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite)
+    uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, symprec=symprec)
     is_rev = check_if_rev(mg, mh_from_sc, uhop_index)
     if not is_rev:
         logger.debug("Hop from SC is not reversed")
@@ -65,6 +68,7 @@ def check_if_rev(
     mg: MigrationGraph,
     mh_from_sc: MigrationHop,
     uhop_index: int,
+    symprec: Union[None, float] = None,
 ) -> bool:
     """
     Check if the input SC structures are reversed compared to the unique_hops in the MigrationGraph.
@@ -77,7 +81,9 @@ def check_if_rev(
     Returns:
         Boolean True if reversed, False if not reversed
     """
-    assert mh_eq(mg.unique_hops[uhop_index]["hop"], mh_from_sc)
+    if not symprec:
+        symprec = mg.symprec
+    assert mh_eq(mg.unique_hops[uhop_index]["hop"], mh_from_sc, symprec=symprec)
     same_uhop_list = []
     for u, v, d in mg.m_graph.graph.edges(data=True):
         if d["hop_label"] == uhop_index:
@@ -164,14 +170,14 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
     return frac_coord
 
 
-def mh_eq(mh1, mh2, symm_prec=0.0001):
+def mh_eq(mh1, mh2, symprec=0.001):
     """
     Allow for symmetric matching of MigrationPath objects with variable precession
 
     Args:
         mh1: MigrationHop object
         mh2: MigrationHop object
-        symm_prec: tolerence
+        symprec: tolerence
 
     Returns:
         Boolean True if they're equal, False if they are not
@@ -180,7 +186,7 @@ def mh_eq(mh1, mh2, symm_prec=0.0001):
     if mh1.symm_structure.spacegroup.are_symmetrically_equivalent(
         (mh1.isite, mh1.msite, mh1.esite),
         (mh2.isite, mh2.msite, mh2.esite),
-        symm_prec=symm_prec,
+        symm_prec=symprec,
     ):
         return True
     return False
@@ -191,6 +197,7 @@ def get_unique_hop(
     sc: Structure,
     isite: PeriodicSite,
     esite: PeriodicSite,
+    symprec: Union[None, float] = None,
 ) -> Tuple[int, MigrationHop]:
     """Get the unique hop label that correspond to two end positions in the SC
 
@@ -203,13 +210,15 @@ def get_unique_hop(
     Returns:
         The index of the unique hop, the MigrationHop object trasformed from the SC
     """
+    if not symprec:
+        symprec = mg.symprec
     sm = StructureMatcher(ignored_species=[list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
     mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure)
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here
-        if mh_eq(v["hop"], mh_from_sc, symm_prec=0.05):
+        if mh_eq(v["hop"], mh_from_sc, symprec=symprec):
             result.append(k)
 
     if len(result) > 1:
