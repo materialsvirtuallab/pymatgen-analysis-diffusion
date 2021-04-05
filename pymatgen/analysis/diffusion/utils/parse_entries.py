@@ -41,8 +41,8 @@ def process_entries(
 ) -> List[Dict]:
     """
     Process a list of base entries and inserted entries to create input for migration path analysis Each inserted
-    entries can be mapped to more than one base entry. Return groups of inserted entries based ranked by the number
-    of inserted entries in each group
+    entries can be mapped to more than one base entry. Return groups of structures decorated with the working ions
+    to indicate the metastable sites, ranked by the number of working ion sites (highest number is the first).
 
     Args:
         base_entries: Full list of base entires
