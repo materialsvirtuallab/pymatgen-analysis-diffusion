@@ -53,6 +53,20 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
             migrating_ion_entry=self.li_ent,
         )[0]
 
+    def test_m_graph_from_entries_failed(self):
+        # only base
+        s_list = MigrationGraph.get_structure_from_entries(
+            entries=[self.test_ents_MOF["ent_base"]],
+            migrating_ion_entry=self.li_ent,
+        )
+        self.assertEqual(len(s_list), 0)
+
+        s_list = MigrationGraph.get_structure_from_entries(
+            entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )
+        self.assertEqual(len(s_list), 0)
+
     def test_m_graph_construction(self):
         self.assertEqual(self.full_struct.composition["Li"], 8)
         mg = MigrationGraph.with_distance(self.full_struct, migrating_specie="Li", max_distance=4.0)
