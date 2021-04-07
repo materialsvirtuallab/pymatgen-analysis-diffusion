@@ -211,8 +211,7 @@ class MigrationGraph(MSONable):
 
     @staticmethod
     def get_structure_from_entries(
-        base_entries: List[ComputedStructureEntry],
-        inserted_entries: List[ComputedStructureEntry],
+        entries: List[ComputedStructureEntry],
         migrating_ion_entry: ComputedEntry,
         **kwargs,
     ) -> List[Structure]:
@@ -235,8 +234,31 @@ class MigrationGraph(MSONable):
             stol parameter for more strict matching.
 
         Returns:
+            a list of host structures with working ion on all the metastable sites.
+            The structures are ranked by the number of metastable sites (most is first)
+            If the given entries are not enough to construct such a structure, return an empty list.
 
         """
+        if len(migrating_ion_entry.composition.elements) != 1:
+            raise RuntimeError("migrating_ion_entry should only have one element.")
+
+        migration_element = migrating_ion_entry.composition.elements[0]
+
+        base_entries = []
+        inserted_entries = []
+        for ient in entries:
+            if migration_element in ient.composition.elements:
+                inserted_entries.append(ient)
+            else:
+                base_entries.append(ient)
+
+        if len(base_entries) == 0:
+            logger.debug(f"No base entries found among {[ient.composition.formula for ient in entries]}")
+            return []
+        if len(base_entries) == 0:
+            logger.debug(f"No inserted entries found among {[ient.composition.formula for ient in entries]}")
+            return []
+
         l_base_and_inserted = process_entries(
             base_entries=base_entries,
             inserted_entries=inserted_entries,
