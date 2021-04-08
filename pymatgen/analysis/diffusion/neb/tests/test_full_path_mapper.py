@@ -29,11 +29,11 @@ class MigrationGraphSimpleTest(unittest.TestCase):
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = MigrationGraph.with_distance(structure=struct, migrating_specie="Li", max_distance=4)
 
-    def test_get_pos_and_migration_path(self):
+    def test_get_pos_and_migration_hop(self):
         """
         Make sure that we can populate the graph with MigrationHop Objects
         """
-        self.fpm._get_pos_and_migration_path(0, 1, 1)
+        self.fpm._get_pos_and_migration_hop(0, 1, 1)
         self.assertAlmostEqual(self.fpm.m_graph.graph[0][1][1]["hop"].length, 3.571248, 4)
 
     def test_get_summary_dict(self):
@@ -110,8 +110,8 @@ class MigrationGraphComplexTest(unittest.TestCase):
         unique_list = [v for k, v in self.fpm_li.unique_hops.items()]
         all_pairs = [(mg1, mg2) for i1, mg1 in enumerate(unique_list) for mg2 in unique_list[i1 + 1 :]]
 
-        for migration_path in all_pairs:
-            self.assertNotEqual(migration_path[0]["hop"], migration_path[1]["hop"])
+        for migration_hop in all_pairs:
+            self.assertNotEqual(migration_hop[0]["hop"], migration_hop[1]["hop"])
 
     def test_add_data_to_similar_edges(self):
         # passing normal data
@@ -121,19 +121,19 @@ class MigrationGraphComplexTest(unittest.TestCase):
                 self.assertEqual(d["key0"], "data")
 
         # passing ordered list data
-        migration_path = self.fpm_li.unique_hops[1]["hop"]
-        self.fpm_li.add_data_to_similar_edges(1, {"key1": [1, 2, 3]}, m_path=migration_path)
+        migration_hop = self.fpm_li.unique_hops[1]["hop"]
+        self.fpm_li.add_data_to_similar_edges(1, {"key1": [1, 2, 3]}, m_hop=migration_hop)
         for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             if d["hop_label"] == 1:
                 self.assertEqual(d["key1"], [1, 2, 3])
 
         # passing ordered list with direction
-        migration_path_reversed = MigrationHop(
-            isite=migration_path.esite,
-            esite=migration_path.isite,
-            symm_structure=migration_path.symm_structure,
+        migration_hop_reversed = MigrationHop(
+            isite=migration_hop.esite,
+            esite=migration_hop.isite,
+            symm_structure=migration_hop.symm_structure,
         )
-        self.fpm_li.add_data_to_similar_edges(2, {"key2": [1, 2, 3]}, m_path=migration_path_reversed)
+        self.fpm_li.add_data_to_similar_edges(2, {"key2": [1, 2, 3]}, m_hop=migration_hop_reversed)
         for u, v, d in self.fpm_li.m_graph.graph.edges(data=True):
             if d["hop_label"] == 2:
                 self.assertEqual(d["key2"], [3, 2, 1])
