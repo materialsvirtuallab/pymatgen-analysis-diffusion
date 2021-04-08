@@ -109,7 +109,7 @@ class MigrationGraph(MSONable):
         self.m_graph.set_node_attributes()  # popagate the sites properties to the graph nodes
         # For poperies like unique_hops we might be interested in modifying them after creation
         # So let's not convert them into properties for now.  (Awaiting rewrite once the usage becomes more clear.)
-        self._populate_edges_with_migration_paths()
+        self._populate_edges_with_migration_hops()
         self._group_and_label_hops()
 
     @property
@@ -273,7 +273,7 @@ class MigrationGraph(MSONable):
             res.append(Structure.from_sites(all_sites))
         return res
 
-    def _get_pos_and_migration_path(self, u, v, w):
+    def _get_pos_and_migration_hop(self, u, v, w):
         """
         insert a single MigrationHop object on a graph edge
         Args:
@@ -296,11 +296,11 @@ class MigrationGraph(MSONable):
 
         edge["hop"] = MigrationHop(i_site, e_site, self.symm_structure)
 
-    def _populate_edges_with_migration_paths(self):
+    def _populate_edges_with_migration_hops(self):
         """
         Populate the edges with the data for the Migration Paths
         """
-        list(starmap(self._get_pos_and_migration_path, self.m_graph.graph.edges))
+        list(starmap(self._get_pos_and_migration_hop, self.m_graph.graph.edges))
 
     def _group_and_label_hops(self):
         """
@@ -316,24 +316,24 @@ class MigrationGraph(MSONable):
         self,
         target_label: Union[int, str],
         data: dict,
-        m_path: MigrationHop = None,
+        m_hop: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
         Args:
             target_label: The edge uniqueness label are adding data
             data: The data to passed to the different edges
-            m_path: If the data is an array, and m_path is set, it uses the reference migration path to
+            m_hop: If the data is an array, and m_hop is set, it uses the reference migration path to
             determine whether the data needs to be flipped so that 0-->1 is different from 1-->0
         """
 
         for u, v, d in self.m_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
                 d.update(data)
-                if m_path is not None:
+                if m_hop is not None:
                     # Try to override the data.
-                    if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
-                        [m_path.isite], [d["hop"].isite]
+                    if not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
+                        [m_hop.isite], [d["hop"].isite]
                     ):
                         # "The data going to this edge needs to be flipped"
                         for k in data.keys():
@@ -519,20 +519,20 @@ class ChargeBarrierGraph(MigrationGraph):
         )
         return dist_from_pos.reshape(AA.shape)
 
-    def _get_pathfinder_from_hop(self, migration_path: MigrationHop, n_images=20):
+    def _get_pathfinder_from_hop(self, migration_hop: MigrationHop, n_images=20):
         # get migration pathfinder objects which contains the paths
-        ipos = migration_path.isite.frac_coords
-        epos = migration_path.esite.frac_coords
-        mpos = migration_path.esite.frac_coords
+        ipos = migration_hop.isite.frac_coords
+        epos = migration_hop.esite.frac_coords
+        mpos = migration_hop.esite.frac_coords
 
         start_struct = self.potential_field.structure.copy()
         end_struct = self.potential_field.structure.copy()
         mid_struct = self.potential_field.structure.copy()
 
         # the moving ion is always inserted on the zero index
-        start_struct.insert(0, migration_path.isite.species_string, ipos, properties=dict(magmom=0))
-        end_struct.insert(0, migration_path.isite.species_string, epos, properties=dict(magmom=0))
-        mid_struct.insert(0, migration_path.isite.species_string, mpos, properties=dict(magmom=0))
+        start_struct.insert(0, migration_hop.isite.species_string, ipos, properties=dict(magmom=0))
+        end_struct.insert(0, migration_hop.isite.species_string, epos, properties=dict(magmom=0))
+        mid_struct.insert(0, migration_hop.isite.species_string, mpos, properties=dict(magmom=0))
 
         chgpot = ChgcarPotential(self.potential_field, normalize=False)
         npf = NEBPathfinder(
@@ -545,10 +545,10 @@ class ChargeBarrierGraph(MigrationGraph):
         )
         return npf
 
-    def _get_avg_chg_at_max(self, migration_path, radius=None, chg_along_path=False, output_positions=False):
+    def _get_avg_chg_at_max(self, migration_hop, radius=None, chg_along_path=False, output_positions=False):
         """obtain the maximum average charge along the path
         Args:
-            migration_path (MigrationHop): MigrationPath object that represents a given hop
+            migration_hop (MigrationHop): MigrationPath object that represents a given hop
             radius (float, optional): radius of sphere to perform the average.
                     Defaults to None, which used the _tube_radius instead
             chg_along_path (bool, optional): If True, also return the entire list of average
@@ -565,7 +565,7 @@ class ChargeBarrierGraph(MigrationGraph):
         if rr <= 0:
             raise ValueError("The integration radius must be positive.")
 
-        npf = self._get_pathfinder_from_hop(migration_path)
+        npf = self._get_pathfinder_from_hop(migration_hop)
         # get the charge in a sphere around each point
         centers = [image.sites[0].frac_coords for image in npf.images]
         avg_chg = []
@@ -584,11 +584,11 @@ class ChargeBarrierGraph(MigrationGraph):
             return max(avg_chg), avg_chg
         return max(avg_chg)
 
-    def _get_chg_between_sites_tube(self, migration_path, mask_file_seedname=None):
+    def _get_chg_between_sites_tube(self, migration_hop, mask_file_seedname=None):
         """
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
         Args:
-            migration_path: MigrationHop object that represents a given hop
+            migration_hop: MigrationHop object that represents a given hop
             mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
                 visualization) (Default value = None)
         Returns:
@@ -598,8 +598,8 @@ class ChargeBarrierGraph(MigrationGraph):
             self._tube_radius
         except NameError:
             logger.warning("The radius of the tubes for charge analysis need to be defined first.")
-        ipos = migration_path.isite.frac_coords
-        epos = migration_path.esite.frac_coords
+        ipos = migration_hop.isite.frac_coords
+        epos = migration_hop.esite.frac_coords
 
         cart_ipos = np.dot(ipos, self.potential_field.structure.lattice.matrix)
         cart_epos = np.dot(epos, self.potential_field.structure.lattice.matrix)
@@ -628,8 +628,8 @@ class ChargeBarrierGraph(MigrationGraph):
             mask_out.structure.insert(0, "X", ipos)
             mask_out.structure.insert(0, "X", epos)
             mask_out.data[self.potential_data_key] = pbc_mask
-            isym = self.symm_structure.wyckoff_symbols[migration_path.iindex]
-            esym = self.symm_structure.wyckoff_symbols[migration_path.eindex]
+            isym = self.symm_structure.wyckoff_symbols[migration_hop.iindex]
+            esym = self.symm_structure.wyckoff_symbols[migration_hop.eindex]
             mask_out.write_file(
                 "{}_{}_{}_tot({:0.2f}).vasp".format(
                     mask_file_seedname,
