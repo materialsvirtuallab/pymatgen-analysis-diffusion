@@ -53,63 +53,8 @@ def add_edge_data_from_sc(
         raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, symprec=symprec)
-    is_rev = check_if_rev(mg, mh_from_sc, uhop_index)
-    if not is_rev:
-        logger.debug("Hop from SC is not reversed")
-        add_dict = {key: data_array}
-    else:
-        logger.debug("Hop from SC is reversed")
-        data_array.reverse()
-        add_dict = {key: data_array}
-    mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
-
-
-def check_if_rev(
-    mg: MigrationGraph,
-    mh_from_sc: MigrationHop,
-    uhop_index: int,
-    symprec: Union[None, float] = None,
-) -> bool:
-    """
-    Check if the input SC structures are reversed compared to the unique_hops in the MigrationGraph.
-
-    Args:
-        mg: MigrationGraph object to be checked on
-        mg_from_sc: MigrationHop transformed from the supercell structures
-        uhop_index: the unique_hop index to be checked
-
-    Returns:
-        Boolean True if reversed, False if not reversed
-    """
-    if not symprec:
-        symprec = mg.symprec
-    assert mh_eq(mg.unique_hops[uhop_index]["hop"], mh_from_sc, symprec=symprec)
-    same_uhop_list = []
-    for u, v, d in mg.m_graph.graph.edges(data=True):
-        if d["hop_label"] == uhop_index:
-            same_uhop_list.append(d)
-
-        [icoords_from_sc, ecoords_from_sc] = [
-            mh_from_sc.isite.frac_coords,
-            mh_from_sc.esite.frac_coords,
-        ]
-
-    is_rev = None
-    for one_hop in same_uhop_list:
-        if np.allclose(icoords_from_sc, one_hop["ipos"], rtol=0.05) and np.allclose(
-            ecoords_from_sc, one_hop["epos"], rtol=0.05
-        ):
-            is_rev = False
-            break
-        if np.allclose(icoords_from_sc, one_hop["epos"], rtol=0.05) and np.allclose(
-            ecoords_from_sc, one_hop["ipos"], rtol=0.05
-        ):
-            is_rev = True
-            break
-    if is_rev is None:
-        raise ValueError("Can't find corresponding hop, please check input!")
-
-    return is_rev
+    add_dict = {key: data_array}
+    mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_path=mh_from_sc)
 
 
 def get_uc_pos(
@@ -170,26 +115,19 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
     return frac_coord
 
 
-def mh_eq(mh1, mh2, symprec=0.001):
+def mh_eq(mh1, mh2):
     """
     Allow for symmetric matching of MigrationPath objects with variable precession
 
     Args:
         mh1: MigrationHop object
         mh2: MigrationHop object
-        symprec: tolerence
 
     Returns:
         Boolean True if they're equal, False if they are not
     """
     assert mh1.symm_structure == mh2.symm_structure
-    if mh1.symm_structure.spacegroup.are_symmetrically_equivalent(
-        (mh1.isite, mh1.msite, mh1.esite),
-        (mh2.isite, mh2.msite, mh2.esite),
-        symm_prec=symprec,
-    ):
-        return True
-    return False
+    return mh1.__eq__(mh2)
 
 
 def get_unique_hop(
@@ -218,7 +156,7 @@ def get_unique_hop(
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here
-        if mh_eq(v["hop"], mh_from_sc, symprec=symprec):
+        if mh_eq(v["hop"], mh_from_sc):
             result.append(k)
 
     if len(result) > 1:

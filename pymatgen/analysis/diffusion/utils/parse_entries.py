@@ -6,7 +6,7 @@
 Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from pymatgen.core import Composition, Lattice, Structure
@@ -41,8 +41,8 @@ def process_entries(
 ) -> List[Dict]:
     """
     Process a list of base entries and inserted entries to create input for migration path analysis Each inserted
-    entries can be mapped to more than one base entry. Return groups of inserted entries based ranked by the number
-    of inserted entries in each group
+    entries can be mapped to more than one base entry. Return groups of structures decorated with the working ions
+    to indicate the metastable sites, ranked by the number of working ion sites (highest number is the first).
 
     Args:
         base_entries: Full list of base entires
@@ -103,12 +103,19 @@ def process_entries(
 
     for base_ent, _ in entries_with_num_symmetry_ops:
         # structure where the
-        mapped_based_cell = base_ent.structure.copy()
+        mapped_cell = base_ent.structure.copy()
         for j_inserted in inserted_entries:
             inserted_sites_ = _meta_stable_sites(base_ent, j_inserted)
-            mapped_based_cell.sites.extend(inserted_sites_)
+            mapped_cell.sites.extend(inserted_sites_)
 
-        struct_wo_sym_ops = _filter_and_merge(mapped_based_cell.get_sorted_structure())
+        struct_wo_sym_ops = _filter_and_merge(mapped_cell.get_sorted_structure())
+        if struct_wo_sym_ops is None:
+            logger.warning(
+                f"No meta-stable sites were found during symmetry mapping for base {base_ent.entry_id}."
+                "Consider playing with the various tolerances (ltol, stol, angle_tol)."
+            )
+            continue
+
         struct_sym = get_sym_migration_ion_sites(base_ent.structure, struct_wo_sym_ops, working_ion)
         results.append(
             {
@@ -243,7 +250,7 @@ def get_sym_migration_ion_sites(
     return sym_migration_struct
 
 
-def _filter_and_merge(inserted_structure: Structure):
+def _filter_and_merge(inserted_structure: Structure) -> Union[Structure, None]:
     """
     For each site in a structure, split it into a migration sublattice where all sites contain the "insertion_energy"
     property and a host lattice. For each site in the migration sublattice if there is collision with the host sites,
@@ -256,6 +263,8 @@ def _filter_and_merge(inserted_structure: Structure):
             migration_sites.append(i_site)
         else:
             base_sites.append(i_site)
+    if len(migration_sites) == 0:
+        return None
     migration = Structure.from_sites(migration_sites)
     base = Structure.from_sites(base_sites)
 

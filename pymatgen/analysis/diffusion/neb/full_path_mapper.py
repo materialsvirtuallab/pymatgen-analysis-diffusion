@@ -211,8 +211,7 @@ class MigrationGraph(MSONable):
 
     @staticmethod
     def get_structure_from_entries(
-        base_entries: List[ComputedStructureEntry],
-        inserted_entries: List[ComputedStructureEntry],
+        entries: List[ComputedStructureEntry],
         migrating_ion_entry: ComputedEntry,
         **kwargs,
     ) -> List[Structure]:
@@ -235,8 +234,31 @@ class MigrationGraph(MSONable):
             stol parameter for more strict matching.
 
         Returns:
+            a list of host structures with working ion on all the metastable sites.
+            The structures are ranked by the number of metastable sites (most is first)
+            If the given entries are not enough to construct such a structure, return an empty list.
 
         """
+        if len(migrating_ion_entry.composition.elements) != 1:
+            raise RuntimeError("migrating_ion_entry should only have one element.")
+
+        migration_element = migrating_ion_entry.composition.elements[0]
+
+        base_entries = []
+        inserted_entries = []
+        for ient in entries:
+            if migration_element in ient.composition.elements:
+                inserted_entries.append(ient)
+            else:
+                base_entries.append(ient)
+
+        if len(base_entries) == 0:
+            logger.debug(f"No base entries found among {[ient.composition.formula for ient in entries]}")
+            return []
+        if len(base_entries) == 0:
+            logger.debug(f"No inserted entries found among {[ient.composition.formula for ient in entries]}")
+            return []
+
         l_base_and_inserted = process_entries(
             base_entries=base_entries,
             inserted_entries=inserted_entries,
@@ -294,24 +316,24 @@ class MigrationGraph(MSONable):
         self,
         target_label: Union[int, str],
         data: dict,
-        m_path: MigrationHop = None,
+        m_hop: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
         Args:
             target_label: The edge uniqueness label are adding data
             data: The data to passed to the different edges
-            m_path: If the data is an array, and m_path is set, it uses the reference migration path to
+            m_hop: If the data is an array, and m_hop is set, it uses the reference migration path to
             determine whether the data needs to be flipped so that 0-->1 is different from 1-->0
         """
 
         for u, v, d in self.m_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
                 d.update(data)
-                if m_path is not None:
+                if m_hop is not None:
                     # Try to override the data.
-                    if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
-                        [m_path.isite], [d["hop"].isite]
+                    if not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
+                        [m_hop.isite], [d["hop"].isite]
                     ):
                         # "The data going to this edge needs to be flipped"
                         for k in data.keys():

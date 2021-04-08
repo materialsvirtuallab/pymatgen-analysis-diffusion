@@ -47,12 +47,25 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
         self.test_ents_MOF = loadfn(f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json")
         self.aeccar_MOF = Chgcar.from_file(f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp")
         self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
-
+        entries = [self.test_ents_MOF["ent_base"]] + self.test_ents_MOF["one_cation"]
         self.full_struct = MigrationGraph.get_structure_from_entries(
-            base_entries=[self.test_ents_MOF["ent_base"]],
-            inserted_entries=self.test_ents_MOF["one_cation"],
+            entries=entries,
             migrating_ion_entry=self.li_ent,
         )[0]
+
+    def test_m_graph_from_entries_failed(self):
+        # only base
+        s_list = MigrationGraph.get_structure_from_entries(
+            entries=[self.test_ents_MOF["ent_base"]],
+            migrating_ion_entry=self.li_ent,
+        )
+        self.assertEqual(len(s_list), 0)
+
+        s_list = MigrationGraph.get_structure_from_entries(
+            entries=self.test_ents_MOF["one_cation"],
+            migrating_ion_entry=self.li_ent,
+        )
+        self.assertEqual(len(s_list), 0)
 
     def test_m_graph_construction(self):
         self.assertEqual(self.full_struct.composition["Li"], 8)
