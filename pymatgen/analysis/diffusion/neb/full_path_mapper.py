@@ -316,24 +316,24 @@ class MigrationGraph(MSONable):
         self,
         target_label: Union[int, str],
         data: dict,
-        m_path: MigrationHop = None,
+        m_hop: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
         Args:
             target_label: The edge uniqueness label are adding data
             data: The data to passed to the different edges
-            m_path: If the data is an array, and m_path is set, it uses the reference migration path to
+            m_hop: If the data is an array, and m_hop is set, it uses the reference migration path to
             determine whether the data needs to be flipped so that 0-->1 is different from 1-->0
         """
 
         for u, v, d in self.m_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
                 d.update(data)
-                if m_path is not None:
+                if m_hop is not None:
                     # Try to override the data.
-                    if not m_path.symm_structure.spacegroup.are_symmetrically_equivalent(
-                        [m_path.isite], [d["hop"].isite]
+                    if not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
+                        [m_hop.isite], [d["hop"].isite]
                     ):
                         # "The data going to this edge needs to be flipped"
                         for k in data.keys():
