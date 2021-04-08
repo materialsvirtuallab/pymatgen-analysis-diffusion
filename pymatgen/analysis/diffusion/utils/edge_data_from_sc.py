@@ -54,7 +54,7 @@ def add_edge_data_from_sc(
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, symprec=symprec)
     add_dict = {key: data_array}
-    mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_path=mh_from_sc)
+    mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_hop=mh_from_sc)
 
 
 def get_uc_pos(
