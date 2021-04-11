@@ -274,8 +274,7 @@ class MigrationGraph(MSONable):
             # make spglib ignore all magmoms
             for isite in struct.sites:
                 isite.properties.pop("magmom", None)
-
-            res.append(Structure.from_sites(all_sites))
+            res.append(struct)
         return res
 
     def _get_pos_and_migration_hop(self, u, v, w):
