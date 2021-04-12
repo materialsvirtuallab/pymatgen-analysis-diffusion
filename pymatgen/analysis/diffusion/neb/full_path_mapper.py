@@ -270,7 +270,11 @@ class MigrationGraph(MSONable):
             all_sites = group["base"].copy().sites
             for isite in group["inserted"]:
                 all_sites.append(isite)
-            res.append(Structure.from_sites(all_sites))
+            struct = Structure.from_sites(all_sites)
+            # make spglib ignore all magmoms
+            for isite in struct.sites:
+                isite.properties.pop("magmom", None)
+            res.append(struct)
         return res
 
     def _get_pos_and_migration_hop(self, u, v, w):
