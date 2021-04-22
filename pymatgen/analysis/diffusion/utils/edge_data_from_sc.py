@@ -152,7 +152,7 @@ def get_unique_hop(
         symprec = mg.symprec
     sm = StructureMatcher(ignored_species=[list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
-    mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure)
+    mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=symprec)
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here
