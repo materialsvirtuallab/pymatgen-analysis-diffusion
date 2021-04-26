@@ -74,7 +74,7 @@ def test_get_uc_pos():
     test_p2 = PeriodicSite(
         wi_specie, np.array([6.74482475, 1.01967025, 3.7140425]), uc_lattice, coords_are_cartesian=True
     )
-    print(test_p0)
+
     if not test_p0.__eq__(p0):
         errors.append("Initial site does not match")
     if not test_p1.__eq__(p1):
