@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+v2021.4.29
+----------
+* Fixed msite calc order (@hmlli)
+* Removed magmom (@jmmshn)
+
 v2021.3.6
 ---------
 * Fix for bad release due to error in MANIFEST.in.

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.parse_entries module &#8212; pymatgen-diffusion 2021.3.6 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.parse_entries module &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.3.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.parse_entries module</a></li> 
       </ul>
     </div>  
@@ -136,8 +136,8 @@ Each site is decorated with the insertion energy calculated from the base and in
 <dt id="pymatgen.analysis.diffusion.utils.parse_entries.process_entries">
 <code class="sig-name descname"><span class="pre">process_entries</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_entries</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_entries</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#process_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.process_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a list of base entries and inserted entries to create input for migration path analysis Each inserted
-entries can be mapped to more than one base entry. Return groups of inserted entries based ranked by the number
-of inserted entries in each group</p>
+entries can be mapped to more than one base entry. Return groups of structures decorated with the working ions
+to indicate the metastable sites, ranked by the number of working ion sites (highest number is the first).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -155,7 +155,7 @@ stol parameter for more strict matching.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List of dictionaries that each contain
-{‘base’ : ComputedStructureEntry, ‘inserted’ : Structure}</p>
+{‘base’ : Structure Object of host, ‘inserted’ : Structure object of all inserted sites}</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list</p>

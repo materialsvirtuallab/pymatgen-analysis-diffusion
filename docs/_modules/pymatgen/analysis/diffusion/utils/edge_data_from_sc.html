@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pymatgen.analysis.diffusion.utils.edge_data_from_sc &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../../../_static/small_flask.css" type= "text/css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.edge_data_from_sc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffusion.utils.edge_data_from_sc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span class="c1"># Distributed under the terms of the BSD License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Function to add edge data to MigrationGraph through 2 SC structures</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Haoming Li&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2021, The Materials Project&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Haoming Li&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;HLi98@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;February 2, 2021&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span><span class="p">,</span> <span class="n">MigrationHop</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.parse_entries</span> <span class="kn">import</span> <span class="n">get_matched_structure_mapping</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="add_edge_data_from_sc"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.add_edge_data_from_sc">[docs]</a><span class="k">def</span> <span class="nf">add_edge_data_from_sc</span><span class="p">(</span>
+    <span class="n">mg</span><span class="p">:</span> <span class="n">MigrationGraph</span><span class="p">,</span>
+    <span class="n">i_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">e_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">data_array</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;custom_key&quot;</span><span class="p">,</span>
+    <span class="n">symprec</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a data entry and key to edges within FullPathMapper object with the same hop_label.</span>
+<span class="sd">    These hops are equivalent by symmetry to the 2 positions given in the supercell structures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        i_sc: Supercell structure containing working ion at initial position</span>
+<span class="sd">        e_sc: Supercell structure containing working ion at ending position</span>
+<span class="sd">        data_array: The data to be added to the edges</span>
+<span class="sd">        key: Key of the edge attribute to be added</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">symprec</span><span class="p">:</span>
+        <span class="n">symprec</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">symprec</span>
+    <span class="n">wi</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">i_wi</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i_sc</span><span class="o">.</span><span class="n">sites</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">wi</span><span class="p">]</span>
+    <span class="n">e_wi</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e_sc</span><span class="o">.</span><span class="n">sites</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">wi</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_wi</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">e_wi</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of working ions in each supercell structure should be one&quot;</span><span class="p">)</span>
+    <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span> <span class="o">=</span> <span class="n">i_wi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e_wi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">uhop_index</span><span class="p">,</span> <span class="n">mh_from_sc</span> <span class="o">=</span> <span class="n">get_unique_hop</span><span class="p">(</span><span class="n">mg</span><span class="p">,</span> <span class="n">i_sc</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+    <span class="n">add_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">data_array</span><span class="p">}</span>
+    <span class="n">mg</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">target_label</span><span class="o">=</span><span class="n">uhop_index</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">add_dict</span><span class="p">,</span> <span class="n">m_hop</span><span class="o">=</span><span class="n">mh_from_sc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_uc_pos"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_uc_pos">[docs]</a><span class="k">def</span> <span class="nf">get_uc_pos</span><span class="p">(</span>
+    <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">esite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">uc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">sm</span><span class="p">:</span> <span class="n">StructureMatcher</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Take positions in the supercel and transform into the unitcell positions</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        isite: initial site in the SC</span>
+<span class="sd">        esite: ending site in the SC</span>
+<span class="sd">        uc: Unit Cell structre</span>
+<span class="sd">        sc: Super Cell structure</span>
+<span class="sd">        sm: StructureMatcher object with the working ion ignored</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The positions in the unit cell</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">get_matched_structure_mapping</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">uc</span><span class="p">,</span> <span class="n">inserted</span><span class="o">=</span><span class="n">sc</span><span class="p">,</span> <span class="n">sm</span><span class="o">=</span><span class="n">sm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot obtain inverse mapping, consider lowering tolerances &quot;</span> <span class="s2">&quot;in StructureMatcher&quot;</span><span class="p">)</span>
+    <span class="n">sc_m</span><span class="p">,</span> <span class="n">total_t</span> <span class="o">=</span> <span class="n">mapping</span>
+
+    <span class="n">sc_ipos</span> <span class="o">=</span> <span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span>
+    <span class="n">sc_ipos_t</span> <span class="o">=</span> <span class="n">sc_ipos</span> <span class="o">-</span> <span class="n">total_t</span>
+    <span class="n">uc_ipos</span> <span class="o">=</span> <span class="n">sc_ipos_t</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sc_m</span><span class="p">)</span>
+    <span class="n">image_trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">uc_ipos</span><span class="p">)</span>
+    <span class="n">uc_ipos</span> <span class="o">=</span> <span class="n">uc_ipos</span> <span class="o">-</span> <span class="n">image_trans</span>
+    <span class="n">uc_ipos</span> <span class="o">=</span> <span class="n">_get_first_close_site</span><span class="p">(</span><span class="n">uc_ipos</span><span class="p">,</span> <span class="n">uc</span><span class="p">)</span>
+
+    <span class="n">sc_epos</span> <span class="o">=</span> <span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span>
+    <span class="n">sc_epos_t</span> <span class="o">=</span> <span class="n">sc_epos</span> <span class="o">-</span> <span class="n">total_t</span>
+    <span class="n">uc_epos</span> <span class="o">=</span> <span class="n">sc_epos_t</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sc_m</span><span class="p">)</span>
+    <span class="n">uc_epos</span> <span class="o">=</span> <span class="n">uc_epos</span> <span class="o">-</span> <span class="n">image_trans</span>
+    <span class="n">uc_epos</span> <span class="o">=</span> <span class="n">_get_first_close_site</span><span class="p">(</span><span class="n">uc_epos</span><span class="p">,</span> <span class="n">uc</span><span class="p">)</span>
+
+    <span class="n">sc_msite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
+        <span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">sc_ipos</span> <span class="o">+</span> <span class="n">sc_epos</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">esite</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sc_mpos</span> <span class="o">=</span> <span class="n">sc_msite</span><span class="o">.</span><span class="n">frac_coords</span>
+
+    <span class="n">sc_mpos_t</span> <span class="o">=</span> <span class="n">sc_mpos</span> <span class="o">-</span> <span class="n">total_t</span>
+    <span class="n">uc_mpos</span> <span class="o">=</span> <span class="n">sc_mpos_t</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sc_m</span><span class="p">)</span>
+    <span class="n">uc_mpos</span> <span class="o">=</span> <span class="n">uc_mpos</span> <span class="o">-</span> <span class="n">image_trans</span>
+    <span class="n">uc_mpos</span> <span class="o">=</span> <span class="n">_get_first_close_site</span><span class="p">(</span><span class="n">uc_mpos</span><span class="p">,</span> <span class="n">uc</span><span class="p">)</span>
+
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">uc_ipos</span><span class="p">,</span> <span class="n">uc</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">uc_mpos</span><span class="p">,</span> <span class="n">uc</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">uc_epos</span><span class="p">,</span> <span class="n">uc</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_first_close_site</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">stol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frac_coord</span>
+
+
+<div class="viewcode-block" id="mh_eq"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.mh_eq">[docs]</a><span class="k">def</span> <span class="nf">mh_eq</span><span class="p">(</span><span class="n">mh1</span><span class="p">,</span> <span class="n">mh2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allow for symmetric matching of MigrationPath objects with variable precession</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mh1: MigrationHop object</span>
+<span class="sd">        mh2: MigrationHop object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Boolean True if they&#39;re equal, False if they are not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">mh1</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">==</span> <span class="n">mh2</span><span class="o">.</span><span class="n">symm_structure</span>
+    <span class="k">return</span> <span class="n">mh1</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">mh2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_unique_hop"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_unique_hop">[docs]</a><span class="k">def</span> <span class="nf">get_unique_hop</span><span class="p">(</span>
+    <span class="n">mg</span><span class="p">:</span> <span class="n">MigrationGraph</span><span class="p">,</span>
+    <span class="n">sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">esite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
+    <span class="n">symprec</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">MigrationHop</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the unique hop label that correspond to two end positions in the SC</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mg: Object containing the migration analysis</span>
+<span class="sd">        sc: Structure of the supercell used for the NEB calculation</span>
+<span class="sd">        isite: Initial position in the supercell</span>
+<span class="sd">        esite: Final position in the supercell</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The index of the unique hop, the MigrationHop object trasformed from the SC</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">symprec</span><span class="p">:</span>
+        <span class="n">symprec</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">symprec</span>
+    <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ignored_species</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">uc_isite</span><span class="p">,</span> <span class="n">uc_msite</span><span class="p">,</span> <span class="n">uc_esite</span> <span class="o">=</span> <span class="n">get_uc_pos</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">sm</span><span class="p">)</span>
+    <span class="n">mh_from_sc</span> <span class="o">=</span> <span class="n">MigrationHop</span><span class="p">(</span><span class="n">uc_isite</span><span class="p">,</span> <span class="n">uc_esite</span><span class="p">,</span> <span class="n">symm_structure</span><span class="o">=</span><span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mg</span><span class="o">.</span><span class="n">unique_hops</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># tolerance may be changed here</span>
+        <span class="k">if</span> <span class="n">mh_eq</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">],</span> <span class="n">mh_from_sc</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Too many matches between UC and SC&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No matches between UC and SC&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">spacegroup</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">([</span><span class="n">uc_msite</span><span class="p">],</span> <span class="p">[</span><span class="n">mh_from_sc</span><span class="o">.</span><span class="n">msite</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mh_from_sc</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy; Copyright 2016, Materials Virtual Lab.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

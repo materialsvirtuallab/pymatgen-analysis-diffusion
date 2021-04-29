@@ -14,6 +14,7 @@ Submodules
 .. toctree::
    :maxdepth: 7
 
+   pymatgen.analysis.diffusion.utils.edge_data_from_sc
    pymatgen.analysis.diffusion.utils.maggma
    pymatgen.analysis.diffusion.utils.parse_entries
    pymatgen.analysis.diffusion.utils.supercells
