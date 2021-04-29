@@ -82,24 +82,29 @@ def get_uc_pos(
     sc_m, total_t = mapping
 
     sc_ipos = isite.frac_coords
-    sc_ipos = sc_ipos - total_t
-    uc_ipos = sc_ipos.dot(sc_m)
+    sc_ipos_t = sc_ipos - total_t
+    uc_ipos = sc_ipos_t.dot(sc_m)
     image_trans = np.floor(uc_ipos)
     uc_ipos = uc_ipos - image_trans
     uc_ipos = _get_first_close_site(uc_ipos, uc)
 
     sc_epos = esite.frac_coords
-    sc_epos = sc_epos - total_t
-    uc_epos = sc_epos.dot(sc_m)
+    sc_epos_t = sc_epos - total_t
+    uc_epos = sc_epos_t.dot(sc_m)
     uc_epos = uc_epos - image_trans
     uc_epos = _get_first_close_site(uc_epos, uc)
 
-    msite = PeriodicSite(
+    sc_msite = PeriodicSite(
         esite.specie,
-        (uc_ipos + uc_epos) / 2,
+        (sc_ipos + sc_epos) / 2,
         esite.lattice,
     )
-    uc_mpos = msite.frac_coords
+    sc_mpos = sc_msite.frac_coords
+
+    sc_mpos_t = sc_mpos - total_t
+    uc_mpos = sc_mpos_t.dot(sc_m)
+    uc_mpos = uc_mpos - image_trans
+    uc_mpos = _get_first_close_site(uc_mpos, uc)
 
     p0 = PeriodicSite(isite.specie, uc_ipos, uc.lattice)
     p1 = PeriodicSite(esite.specie, uc_mpos, uc.lattice)
