@@ -733,14 +733,15 @@ def _shift_grid(vv):
     return vv + step / 2.0
 
 
-def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str]) -> List:
+def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str], key: str = None) -> List:
     """
-    Read in a list of hop dictionaries and print the sequence of sites.
+    Read in a list of hop dictionaries and print the sequence of sites (and relevant property values if any).
     Args:
         hop_list: a list of the data on a sequence of hops
         start_u: the site index of the starting sites
+        key (optional): property to track in a hop (e.g.: "hop_distance")
     Returns:
-        String representation of the hop sequence
+        String representation of the hop sequence (and property values if any)
     """
     hops = iter(hop_list)
     ihop = next(hops)
@@ -756,6 +757,14 @@ def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str]) -> Lis
             site_seq.append(ihop["iindex"])
         else:
             raise RuntimeError("The sequence of sites for the path is invalid.")
+
+    if key is not None:
+        key_seq = []
+        hops = iter(hop_list)
+        for ihop in hops:
+            key_seq.append(ihop[key])
+        return [site_seq, key_seq]
+
     return site_seq
 
 
