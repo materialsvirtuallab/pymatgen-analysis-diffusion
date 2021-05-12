@@ -298,7 +298,7 @@ class MigrationGraph(MSONable):
         edge["ipos_cart"] = np.dot(i_site.frac_coords, self.only_sites.lattice.matrix)
         edge["epos_cart"] = np.dot(e_site.frac_coords, self.only_sites.lattice.matrix)
 
-        edge["hop"] = MigrationHop(i_site, e_site, self.symm_structure)
+        edge["hop"] = MigrationHop(i_site, e_site, self.symm_structure, symprec=self.symprec)
 
     def _populate_edges_with_migration_hops(self):
         """
