@@ -178,6 +178,22 @@ class MigrationGraphComplexTest(unittest.TestCase):
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
         self.assertIn("1->0->1", p_strings)
 
+    def test_get_key_in_path(self):
+        self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
+        paths = [*self.fpm_li.get_path()]
+        hop_seq_info = [get_hop_site_sequence(ipath, start_u=u, key="hop_distance") for u, ipath in paths]
+
+        hop_distances = {}
+        for u, ipath in paths:
+            hop_distances[u] = []
+            for hop in ipath:
+                hop_distances[u].append(hop["hop_distance"])
+
+        # Check that the right key and respective values were pulled
+        for u, distances in hop_distances.items():
+            self.assertEqual(distances, hop_seq_info[u][1])
+            print(distances, hop_seq_info[u][1])
+
     def test_not_matching_first(self):
         structure = Structure.from_file(f"{dir_path}/pathfinder_files/Li6MnO4.json")
         fpm_lmo = MigrationGraph.with_distance(structure, "Li", max_distance=4)
