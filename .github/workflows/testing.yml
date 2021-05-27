@@ -32,6 +32,7 @@ jobs:
       run: |
         pytest --cov=pymatgen.analysis.diffusion --durations=30 pymatgen
     - name: Coveralls
+      continue-on-error: true
       uses: AndreMiras/coveralls-python-action@v20201129
     - name: treon
       run: |
