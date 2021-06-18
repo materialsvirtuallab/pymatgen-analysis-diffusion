@@ -19,6 +19,7 @@ from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
 from pymatgen.analysis.diffusion.utils.parse_entries import get_matched_structure_mapping
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,6 @@ def get_uc_pos(
     if mapping is None:
         raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances " "in StructureMatcher")
     sc_m, total_t = mapping
-
     sc_ipos = isite.frac_coords
     sc_ipos_t = sc_ipos - total_t
     uc_ipos = sc_ipos_t.dot(sc_m)
@@ -140,6 +140,7 @@ def get_unique_hop(
     sc: Structure,
     isite: PeriodicSite,
     esite: PeriodicSite,
+    use_host_struct: bool = True,
     symprec: Union[None, float] = None,
 ) -> Tuple[int, MigrationHop]:
     """Get the unique hop label that correspond to two end positions in the SC
@@ -157,7 +158,13 @@ def get_unique_hop(
         symprec = mg.symprec
     sm = StructureMatcher(ignored_species=[list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
-    mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure)
+    if use_host_struct:
+        base_ss = SpacegroupAnalyzer(mg.host_structure, symprec=symprec).get_symmetrized_structure()
+        mh_from_sc = MigrationHop(
+            uc_isite, uc_esite, symm_structure=mg.symm_structure, host_symm_struct=base_ss, symprec=symprec
+        )
+    else:
+        mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=symprec)
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here

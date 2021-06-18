@@ -25,7 +25,6 @@ __date__ = "March 14, 2017"
 
 # TODO: (1) ipython notebook example files, unittests
 from pymatgen.symmetry.structure import SymmetrizedStructure
-
 from pymatgen.analysis.diffusion.utils.supercells import (
     get_sc_fromstruct,
     get_start_end_structures,
@@ -299,6 +298,7 @@ class MigrationHop(MSONable):
         isite: Site,
         esite: Site,
         symm_structure: SymmetrizedStructure,
+        host_symm_struct: SymmetrizedStructure = None,
         symprec: float = 0.001,
     ):
         """
@@ -315,7 +315,11 @@ class MigrationHop(MSONable):
         self.symm_structure = symm_structure
         self.symprec = symprec
         self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
-        sg = self.symm_structure.spacegroup
+        if host_symm_struct:
+            self.host_symm_structure = host_symm_struct
+            sg = self.host_symm_structure.spacegroup
+        else:
+            sg = self.symm_structure.spacegroup
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
             if sg.are_symmetrically_equivalent([isite], [sites[0]]):
                 self.iindex = i
