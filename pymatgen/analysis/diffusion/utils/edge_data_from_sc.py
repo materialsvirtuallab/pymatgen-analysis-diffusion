@@ -13,7 +13,7 @@ __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
 import logging
-from typing import Tuple, Union
+from typing import Tuple
 import numpy as np
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -30,7 +30,7 @@ def add_edge_data_from_sc(
     e_sc: Structure,
     data_array: list,
     key: str = "custom_key",
-    symprec: Union[None, float] = None,
+    use_host_sg: bool = True,
 ) -> None:
     """
     Add a data entry and key to edges within FullPathMapper object with the same hop_label.
@@ -41,19 +41,18 @@ def add_edge_data_from_sc(
         e_sc: Supercell structure containing working ion at ending position
         data_array: The data to be added to the edges
         key: Key of the edge attribute to be added
+        use_host_sg: Flag t whether or not to use the host structure's spacegroup to initiate MigrationHop
 
     Returns:
         None
     """
-    if not symprec:
-        symprec = mg.symprec
     wi = list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
         raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
-    uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, symprec=symprec)
+    uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, use_host_sg)
     add_dict = {key: data_array}
     mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_hop=mh_from_sc)
 
@@ -140,8 +139,7 @@ def get_unique_hop(
     sc: Structure,
     isite: PeriodicSite,
     esite: PeriodicSite,
-    use_host_struct: bool = True,
-    symprec: Union[None, float] = None,
+    use_host_sg: bool = True,
 ) -> Tuple[int, MigrationHop]:
     """Get the unique hop label that correspond to two end positions in the SC
 
@@ -150,21 +148,20 @@ def get_unique_hop(
         sc: Structure of the supercell used for the NEB calculation
         isite: Initial position in the supercell
         esite: Final position in the supercell
+        use_host_sg: Flag t whether or not to use the host structure's spacegroup to initiate MigrationHop
 
     Returns:
         The index of the unique hop, the MigrationHop object trasformed from the SC
     """
-    if not symprec:
-        symprec = mg.symprec
     sm = StructureMatcher(ignored_species=[list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
-    if use_host_struct:
-        base_ss = SpacegroupAnalyzer(mg.host_structure, symprec=symprec).get_symmetrized_structure()
+    if use_host_sg:
+        base_ss = SpacegroupAnalyzer(mg.host_structure, symprec=mg.symprec).get_symmetrized_structure()
         mh_from_sc = MigrationHop(
-            uc_isite, uc_esite, symm_structure=mg.symm_structure, host_symm_struct=base_ss, symprec=symprec
+            uc_isite, uc_esite, symm_structure=mg.symm_structure, host_symm_struct=base_ss, symprec=mg.symprec
         )
     else:
-        mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=symprec)
+        mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=mg.symprec)
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here

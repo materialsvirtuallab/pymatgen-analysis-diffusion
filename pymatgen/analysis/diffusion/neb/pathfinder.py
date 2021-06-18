@@ -306,6 +306,7 @@ class MigrationHop(MSONable):
             isite: Initial site
             esite: End site
             symm_structure: SymmetrizedStructure
+            host_symm_struct: SymmetrizedStructure of the host structure, used to for its spacegroup
             symprec: used to determine equivalence
         """
         self.isite = isite
