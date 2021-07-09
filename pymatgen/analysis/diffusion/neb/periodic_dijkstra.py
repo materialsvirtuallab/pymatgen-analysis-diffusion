@@ -49,7 +49,7 @@ def _get_adjacency_with_images(G: Graph) -> Dict:
     # Make sure all the to_jimages are pointing in the correct direction
     for v in p_graph.values():
         for v2 in v.values():
-            for d in v2.values():
+            for u, d in v2.items():
                 if u > v2:
                     d["to_jimage"] = tuple(np.multiply(-1, d["to_jimage"]))
     return p_graph
