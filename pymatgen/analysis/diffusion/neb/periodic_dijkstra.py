@@ -47,10 +47,10 @@ def _get_adjacency_with_images(G: Graph) -> Dict:
     p_graph = copy_dict(dict(G.adjacency()))
 
     # Make sure all the to_jimages are pointing in the correct direction
-    for v in p_graph.values():
-        for v2 in v.values():
-            for u, d in v2.items():
-                if u > v2:
+    for u, value1 in p_graph.items():
+        for v, value2 in value1.items():
+            for k, d in value2.items():
+                if u > v:
                     d["to_jimage"] = tuple(np.multiply(-1, d["to_jimage"]))
     return p_graph
 
