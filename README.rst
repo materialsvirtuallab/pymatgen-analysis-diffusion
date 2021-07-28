@@ -5,22 +5,22 @@
 .. image:: https://coveralls.io/repos/github/materialsvirtuallab/pymatgen-diffusion/badge.svg?branch=master
       :target: https://coveralls.io/github/materialsvirtuallab/pymatgen-diffusion?branch=master
 
-Pymatgen-diffusion
-==================
+pymatgen-analysis-diffusion
+===========================
 
-This is an add-on to pymatgen for diffusion analysis that is developed
-by the Materials Virtual Lab. Note that it relies on pymatgen for structural 
-manipulations, file io, and preliminary analyses. In particular, pymatgen's 
-DiffusionAnalyzer is used heavily.
-
-This is, and will always be, a scientific work in progress. Pls check back 
-for more details.
+Formerly formerly pymatgen-diffusion, this is an add-on to pymatgen for diffusion
+analysis that is developed by the Materials Virtual Lab. Note that it relies on
+pymatgen for structural manipulations, file io, and preliminary analyses. This is
+and will always be, a scientific work in progress. Pls check back regularly for
+more details.
 
 Major Update (v2021.3.5)
 ========================
 
-pymatgen-diffusion is now released as a namespace package `pymatgen-analysis-diffusion` on PyPI. It should be
-imported via `pymatgen.analysis.diffusion` instead `pymatgen_diffusion`.
+pymatgen-analysis-diffusion is now released as a namespace package `pymatgen-analysis-diffusion` on PyPI. It should be
+imported via `pymatgen.analysis.diffusion` instead `pymatgen_diffusion`. To install this package via pip::
+
+    pip install pymatgen-analysis-diffusion
 
 Features (non-exhaustive!)
 ==========================
@@ -36,7 +36,7 @@ Citing
 If you use pymatgen-diffusion in your research, please cite the following
 work::
 
-    Deng, Z.; Zhu, Z.; Chu, I.-H.; Ong, S. P. Data-Driven First-Principles 
+    Deng, Z.; Zhu, Z.; Chu, I.H.; Ong, S. P. Data-Driven First-Principles
     Methods for the Study and Design of Alkali Superionic Conductors, 
     Chem. Mater., 2016, acs.chemmater.6b02648, doi:10.1021/acs.chemmater.6b02648.
 
