@@ -8,7 +8,7 @@
 pymatgen-analysis-diffusion
 ===========================
 
-Formerly formerly pymatgen-diffusion, this is an add-on to pymatgen for diffusion
+Formerly pymatgen-diffusion, this is an add-on to pymatgen for diffusion
 analysis that is developed by the Materials Virtual Lab. Note that it relies on
 pymatgen for structural manipulations, file io, and preliminary analyses. This is
 and will always be, a scientific work in progress. Pls check back regularly for
