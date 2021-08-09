@@ -448,10 +448,10 @@ class MigrationHop(MSONable):
             if site.specie != self.isite.specie:
                 other_sites.append(site)
             else:
-                if (self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8):
+                if self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8:
                     migrating_specie_sites.append(site)
                     continue
-        
+
                 if not vac_mode:
                     continue
                 else:
@@ -483,7 +483,7 @@ class MigrationHop(MSONable):
         """
         migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
         if vac_mode:
-            base_struct = Structure.from_sites(other_sites+migrating_specie_sites)
+            base_struct = Structure.from_sites(other_sites + migrating_specie_sites)
         else:
             base_struct = Structure.from_sites(other_sites)
         sc_mat = get_sc_fromstruct(
