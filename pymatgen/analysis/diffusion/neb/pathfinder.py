@@ -193,7 +193,7 @@ class IDPPSolver:
         return idpp_structures
 
     @classmethod
-    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
+    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0, interpolate_lattices=False):
         """
         A class method that starts with end-point structures instead. The
         initial guess for the IDPP algo is then constructed using linear
@@ -207,14 +207,24 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol)
+            images = endpoints[0].interpolate(
+                endpoints[1],
+                nimages=nimages + 1,
+                autosort_tol=sort_tol,
+                interpolate_lattices=interpolate_lattices,
+            )
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
                     "Auto sorting is turned off because it is unable" " to match the end-point structures!",
                     UserWarning,
                 )
-                images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=0)
+                images = endpoints[0].interpolate(
+                    endpoints[1],
+                    nimages=nimages + 1,
+                    autosort_tol=0,
+                    interpolate_lattices=interpolate_lattices,
+                )
             else:
                 raise e
 
