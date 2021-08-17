@@ -452,9 +452,7 @@ class MigrationHop(MSONable):
                     migrating_specie_sites.append(site)
                     continue
 
-                if not vac_mode:
-                    continue
-                else:
+                if vac_mode:
                     other_sites.append(site)
         return migrating_specie_sites, other_sites
 
