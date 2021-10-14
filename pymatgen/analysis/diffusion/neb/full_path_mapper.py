@@ -77,11 +77,7 @@ class MigrationGraph(MSONable):
     """
 
     def __init__(
-        self,
-        structure: Structure,
-        m_graph: StructureGraph,
-        symprec=0.1,
-        vac_mode=False,
+        self, structure: Structure, m_graph: StructureGraph, symprec=0.1, vac_mode=False,
     ):
         """
         Construct the MigrationGraph object using a potential_field will
@@ -204,16 +200,13 @@ class MigrationGraph(MSONable):
         """
         only_sites = get_only_sites_from_structure(structure, migrating_specie)
         migration_graph = StructureGraph.with_local_env_strategy(
-            only_sites,
-            MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
+            only_sites, MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
         )
         return cls(structure=structure, m_graph=migration_graph, **kwargs)
 
     @staticmethod
     def get_structure_from_entries(
-        entries: List[ComputedStructureEntry],
-        migrating_ion_entry: ComputedEntry,
-        **kwargs,
+        entries: List[ComputedStructureEntry], migrating_ion_entry: ComputedEntry, **kwargs,
     ) -> List[Structure]:
         """
         Read in a list of base entries and inserted entries.  Return a list of structures that contains metastable
@@ -317,10 +310,7 @@ class MigrationGraph(MSONable):
         return new_attr
 
     def add_data_to_similar_edges(
-        self,
-        target_label: Union[int, str],
-        data: dict,
-        m_hop: MigrationHop = None,
+        self, target_label: Union[int, str], data: dict, m_hop: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
@@ -358,7 +348,7 @@ class MigrationGraph(MSONable):
             cost_val = np.prod([v[ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
 
-    def get_path(self, max_val=100000):
+    def get_path(self, max_val=100000, flip_hops=True):
         """
         obtain a pathway through the material using hops that are in the current graph
         Basic idea:
@@ -367,6 +357,10 @@ class MigrationGraph(MSONable):
             or any other neighboring UC not containing p1.
         Args:
             max_val: Filter the graph by a cost
+            flip_hops: If true, hops in paths returned will be flipped so
+                isites and esites match to form a coherent path.
+                If false, hops will retain their original orientation
+                from the migration graph.
         Returns:
             Generator for List of Dicts:
             Each dict contains the information of a hop
@@ -421,7 +415,10 @@ class MigrationGraph(MSONable):
                         found_ += 1
                 if found_ != 1:
                     raise RuntimeError("More than one edge matched in original graph.")
-            yield u, path_hops
+            if flip_hops is True:  # flip hops in path to form coherent pathway
+                yield u, order_path(path_hops, u)
+            else:
+                yield u, path_hops
 
     def get_summary_dict(self, added_keys: List[str] = None) -> dict:
         """
@@ -518,8 +515,7 @@ class ChargeBarrierGraph(MigrationGraph):
         aa, bb, cc = map(_shift_grid, [aa, bb, cc])
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
         dist_from_pos = self.potential_field.structure.lattice.get_all_distances(
-            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
-            fcoords2=pos_frac,
+            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T, fcoords2=pos_frac,
         )
         return dist_from_pos.reshape(AA.shape)
 
@@ -540,12 +536,7 @@ class ChargeBarrierGraph(MigrationGraph):
 
         chgpot = ChgcarPotential(self.potential_field, normalize=False)
         npf = NEBPathfinder(
-            start_struct,
-            end_struct,
-            relax_sites=[0],
-            v=chgpot.get_v(),
-            n_images=n_images,
-            mid_struct=mid_struct,
+            start_struct, end_struct, relax_sites=[0], v=chgpot.get_v(), n_images=n_images, mid_struct=mid_struct,
         )
         return npf
 
@@ -626,8 +617,7 @@ class ChargeBarrierGraph(MigrationGraph):
 
         if mask_file_seedname:
             mask_out = VolumetricData(
-                structure=self.potential_field.structure.copy(),
-                data={"total": self.potential_field.data["total"]},
+                structure=self.potential_field.structure.copy(), data={"total": self.potential_field.data["total"]},
             )
             mask_out.structure.insert(0, "X", ipos)
             mask_out.structure.insert(0, "X", epos)
@@ -636,10 +626,7 @@ class ChargeBarrierGraph(MigrationGraph):
             esym = self.symm_structure.wyckoff_symbols[migration_hop.eindex]
             mask_out.write_file(
                 "{}_{}_{}_tot({:0.2f}).vasp".format(
-                    mask_file_seedname,
-                    isym,
-                    esym,
-                    mask_out.data[self.potential_data_key].sum(),
+                    mask_file_seedname, isym, esym, mask_out.data[self.potential_data_key].sum(),
                 )
             )
 
@@ -667,13 +654,7 @@ class ChargeBarrierGraph(MigrationGraph):
             images = [
                 {"position": ifrac, "average_charge": ichg} for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
             ]
-            v.update(
-                dict(
-                    chg_total=chg_tot,
-                    max_avg_chg=max_chg,
-                    images=images,
-                )
-            )
+            v.update(dict(chg_total=chg_tot, max_avg_chg=max_chg, images=images,))
             self.add_data_to_similar_edges(k, {"max_avg_chg": max_chg})
 
     def get_least_chg_path(self):
@@ -715,10 +696,7 @@ def get_only_sites_from_structure(structure: Structure, migrating_specie: str) -
       Structure: Structure with all possible migrating ion sites
     """
     migrating_ion_sites = list(
-        filter(
-            lambda site: site.species == Composition({migrating_specie: 1}),
-            structure.sites,
-        )
+        filter(lambda site: site.species == Composition({migrating_specie: 1}), structure.sites,)
     )
     return Structure.from_sites(migrating_ion_sites)
 
@@ -768,6 +746,59 @@ def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str], key: s
     return site_seq
 
 
+def order_path(hop_list: List[Dict], start_u: Union[int, str]) -> List[Dict]:
+    """
+    Takes a list of hop dictionaries and flips hops (switches isite and esite)
+    as needed to form a coherent path / sequence of sites according to
+    get_hop_site_sequence().
+    For example if hop_list = [{iindex:0, eindex:1, etc.}, {iindex:0, eindex:1, etc.}]
+    then the output is [{iindex:0, eindex:1, etc.}, {iindex:1, eindex:0, etc.}] so that
+    the following hop iindex matches the previous hop's eindex.
+    Args:
+        hop_list: a list of the data on a sequence of hops
+        start_u: the site index of the starting sites
+    Returns:
+        a list of the data on a sequence of hops with hops in coherent orientation
+    """
+    seq = get_hop_site_sequence(hop_list, start_u)
+
+    ordered_path = []
+    for n, hop in zip(seq[:-1], hop_list):
+        if n == hop["iindex"]:  # don't flip hop
+            ordered_path.append(hop)
+        else:
+            # create flipped hop
+            fh = MigrationHop(
+                isite=hop["hop"].esite,
+                esite=hop["hop"].isite,
+                symm_structure=hop["hop"].symm_structure,
+                host_symm_struct=None,
+                symprec=hop["hop"].symprec,
+            )
+            fhd = {
+                "to_jimage": tuple(-1 * i for i in hop["to_jimage"]),
+                "ipos": fh.isite.frac_coords,
+                "epos": fh.esite.frac_coords,
+                "ipos_cart": fh.isite.coords,
+                "epos_cart": fh.esite.coords,
+                "hop": fh,
+                "hop_label": hop["hop_label"],
+                "iindex": fh.iindex,
+                "eindex": fh.eindex,
+                "hop_distance": fh.length,
+            }
+            # flip any data that is in a list to match flipped hop orientation
+            for k in hop.keys():
+                if k not in fhd.keys():
+                    if isinstance(hop[k], list):
+                        fhd[k] = hop[k][::-1]
+                    else:
+                        fhd[k] = hop[k]
+            ordered_path.append(fhd)
+
+    return ordered_path
+
+
 """
 Note the current pathway algorithm no longer needs supercells but the following
 functions might still be useful for other applications
@@ -807,18 +838,7 @@ def check_uc_hop(sc_hop, uc_hop):
         Is the UC hop flip of the SC hop
     """
 
-    directions = np.array(
-        [
-            [0, 0, 0],
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [0, 1, 1],
-            [1, 0, 1],
-            [1, 1, 0],
-            [1, 1, 1],
-        ]
-    )
+    directions = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0], [1, 1, 1],])
 
     sc_ipos = [icoord * 2 for icoord in sc_hop.isite.frac_coords]
     sc_epos = [icoord * 2 for icoord in sc_hop.esite.frac_coords]
@@ -857,12 +877,5 @@ def map_hop_sc2uc(sc_hop: MigrationHop, mg: MigrationGraph):
         chk_res = check_uc_hop(sc_hop=sc_hop, uc_hop=d["hop"])
         if chk_res is not None:
             assert almost(d["hop"].length, sc_hop.length)
-            return dict(
-                uc_u=u,
-                uc_v=v,
-                hop=d["hop"],
-                shift=chk_res[0],
-                flip=chk_res[1],
-                hop_label=d["hop_label"],
-            )
+            return dict(uc_u=u, uc_v=v, hop=d["hop"], shift=chk_res[0], flip=chk_res[1], hop_label=d["hop_label"],)
     raise AssertionError("Looking for a SC hop without a matching UC hop")
