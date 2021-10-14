@@ -77,7 +77,11 @@ class MigrationGraph(MSONable):
     """
 
     def __init__(
-        self, structure: Structure, m_graph: StructureGraph, symprec=0.1, vac_mode=False,
+        self,
+        structure: Structure,
+        m_graph: StructureGraph,
+        symprec=0.1,
+        vac_mode=False,
     ):
         """
         Construct the MigrationGraph object using a potential_field will
@@ -200,13 +204,16 @@ class MigrationGraph(MSONable):
         """
         only_sites = get_only_sites_from_structure(structure, migrating_specie)
         migration_graph = StructureGraph.with_local_env_strategy(
-            only_sites, MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
+            only_sites,
+            MinimumDistanceNN(cutoff=max_distance, get_all_sites=True),
         )
         return cls(structure=structure, m_graph=migration_graph, **kwargs)
 
     @staticmethod
     def get_structure_from_entries(
-        entries: List[ComputedStructureEntry], migrating_ion_entry: ComputedEntry, **kwargs,
+        entries: List[ComputedStructureEntry],
+        migrating_ion_entry: ComputedEntry,
+        **kwargs,
     ) -> List[Structure]:
         """
         Read in a list of base entries and inserted entries.  Return a list of structures that contains metastable
@@ -310,7 +317,10 @@ class MigrationGraph(MSONable):
         return new_attr
 
     def add_data_to_similar_edges(
-        self, target_label: Union[int, str], data: dict, m_hop: MigrationHop = None,
+        self,
+        target_label: Union[int, str],
+        data: dict,
+        m_hop: MigrationHop = None,
     ):
         """
         Insert data to all edges with the same label
@@ -515,7 +525,8 @@ class ChargeBarrierGraph(MigrationGraph):
         aa, bb, cc = map(_shift_grid, [aa, bb, cc])
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
         dist_from_pos = self.potential_field.structure.lattice.get_all_distances(
-            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T, fcoords2=pos_frac,
+            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
+            fcoords2=pos_frac,
         )
         return dist_from_pos.reshape(AA.shape)
 
@@ -536,7 +547,12 @@ class ChargeBarrierGraph(MigrationGraph):
 
         chgpot = ChgcarPotential(self.potential_field, normalize=False)
         npf = NEBPathfinder(
-            start_struct, end_struct, relax_sites=[0], v=chgpot.get_v(), n_images=n_images, mid_struct=mid_struct,
+            start_struct,
+            end_struct,
+            relax_sites=[0],
+            v=chgpot.get_v(),
+            n_images=n_images,
+            mid_struct=mid_struct,
         )
         return npf
 
@@ -617,7 +633,8 @@ class ChargeBarrierGraph(MigrationGraph):
 
         if mask_file_seedname:
             mask_out = VolumetricData(
-                structure=self.potential_field.structure.copy(), data={"total": self.potential_field.data["total"]},
+                structure=self.potential_field.structure.copy(),
+                data={"total": self.potential_field.data["total"]},
             )
             mask_out.structure.insert(0, "X", ipos)
             mask_out.structure.insert(0, "X", epos)
@@ -626,7 +643,10 @@ class ChargeBarrierGraph(MigrationGraph):
             esym = self.symm_structure.wyckoff_symbols[migration_hop.eindex]
             mask_out.write_file(
                 "{}_{}_{}_tot({:0.2f}).vasp".format(
-                    mask_file_seedname, isym, esym, mask_out.data[self.potential_data_key].sum(),
+                    mask_file_seedname,
+                    isym,
+                    esym,
+                    mask_out.data[self.potential_data_key].sum(),
                 )
             )
 
@@ -654,7 +674,13 @@ class ChargeBarrierGraph(MigrationGraph):
             images = [
                 {"position": ifrac, "average_charge": ichg} for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
             ]
-            v.update(dict(chg_total=chg_tot, max_avg_chg=max_chg, images=images,))
+            v.update(
+                dict(
+                    chg_total=chg_tot,
+                    max_avg_chg=max_chg,
+                    images=images,
+                )
+            )
             self.add_data_to_similar_edges(k, {"max_avg_chg": max_chg})
 
     def get_least_chg_path(self):
@@ -696,7 +722,10 @@ def get_only_sites_from_structure(structure: Structure, migrating_specie: str) -
       Structure: Structure with all possible migrating ion sites
     """
     migrating_ion_sites = list(
-        filter(lambda site: site.species == Composition({migrating_specie: 1}), structure.sites,)
+        filter(
+            lambda site: site.species == Composition({migrating_specie: 1}),
+            structure.sites,
+        )
     )
     return Structure.from_sites(migrating_ion_sites)
 
@@ -838,7 +867,18 @@ def check_uc_hop(sc_hop, uc_hop):
         Is the UC hop flip of the SC hop
     """
 
-    directions = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0], [1, 1, 1],])
+    directions = np.array(
+        [
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0],
+            [1, 1, 1],
+        ]
+    )
 
     sc_ipos = [icoord * 2 for icoord in sc_hop.isite.frac_coords]
     sc_epos = [icoord * 2 for icoord in sc_hop.esite.frac_coords]
@@ -877,5 +917,12 @@ def map_hop_sc2uc(sc_hop: MigrationHop, mg: MigrationGraph):
         chk_res = check_uc_hop(sc_hop=sc_hop, uc_hop=d["hop"])
         if chk_res is not None:
             assert almost(d["hop"].length, sc_hop.length)
-            return dict(uc_u=u, uc_v=v, hop=d["hop"], shift=chk_res[0], flip=chk_res[1], hop_label=d["hop_label"],)
+            return dict(
+                uc_u=u,
+                uc_v=v,
+                hop=d["hop"],
+                shift=chk_res[0],
+                flip=chk_res[1],
+                hop_label=d["hop_label"],
+            )
     raise AssertionError("Looking for a SC hop without a matching UC hop")
