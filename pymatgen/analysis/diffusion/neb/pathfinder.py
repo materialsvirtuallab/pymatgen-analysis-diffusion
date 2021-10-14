@@ -9,7 +9,7 @@ Algorithms for NEB migration path analysis.
 import itertools
 import logging
 import warnings
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -298,7 +298,7 @@ class MigrationHop(MSONable):
         isite: Site,
         esite: Site,
         symm_structure: SymmetrizedStructure,
-        host_symm_struct: SymmetrizedStructure = None,
+        host_symm_struct: Optional[SymmetrizedStructure] = None,
         symprec: float = 0.001,
     ):
         """
@@ -314,6 +314,7 @@ class MigrationHop(MSONable):
         self.iindex = None
         self.eindex = None
         self.symm_structure = symm_structure
+        self.host_symm_struct = host_symm_struct
         self.symprec = symprec
         self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
         if host_symm_struct:
