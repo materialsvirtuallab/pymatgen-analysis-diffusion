@@ -804,6 +804,9 @@ def order_path(hop_list: List[Dict], start_u: Union[int, str]) -> List[Dict]:
                 host_symm_struct=None,
                 symprec=hop["hop"].symprec,
             )
+            # must manually set iindex and eindex
+            fh.iindex = hop["hop"].eindex
+            fh.eindex = hop["hop"].iindex
             fhd = {
                 "to_jimage": tuple(-1 * i for i in hop["to_jimage"]),
                 "ipos": fh.isite.frac_coords,
@@ -812,8 +815,8 @@ def order_path(hop_list: List[Dict], start_u: Union[int, str]) -> List[Dict]:
                 "epos_cart": fh.esite.coords,
                 "hop": fh,
                 "hop_label": hop["hop_label"],
-                "iindex": fh.iindex,
-                "eindex": fh.eindex,
+                "iindex": hop["eindex"],
+                "eindex": hop["iindex"],
                 "hop_distance": fh.length,
             }
             # flip any data that is in a list to match flipped hop orientation
