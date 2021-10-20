@@ -227,7 +227,7 @@ class ProbabilityDensityAnalysis:
         """
 
         count = 1
-        VolinAu = self.structure.lattice.volume / 0.5291772083 ** 3
+        #VolinAu = self.structure.lattice.volume / 0.5291772083 ** 3
         symbols = self.structure.symbol_set
         natoms = [str(int(self.structure.composition[symbol])) for symbol in symbols]
         init_fcoords = np.array(self.structure.frac_coords)
