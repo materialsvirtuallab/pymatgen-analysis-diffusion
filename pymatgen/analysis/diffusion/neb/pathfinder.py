@@ -354,23 +354,13 @@ class MigrationHop(MSONable):
 
     def __repr__(self):
         return (
-            "Path of %.4f A from %s [%.3f, %.3f, %.3f] "
-            "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)"
-            % (
-                self.length,
-                self.isite.specie,
-                self.isite.frac_coords[0],
-                self.isite.frac_coords[1],
-                self.isite.frac_coords[2],
-                self.iindex,
-                self.symm_structure.wyckoff_symbols[self.iindex],
-                self.esite.specie,
-                self.esite.frac_coords[0],
-                self.esite.frac_coords[1],
-                self.esite.frac_coords[2],
-                self.eindex,
-                self.symm_structure.wyckoff_symbols[self.eindex],
-            )
+            f"Path of {self.length:.4f} A from {self.isite.specie} "
+            f"[{self.isite.frac_coords[0]:.3f}, {self.isite.frac_coords[1]:.3f}, "
+            f"{self.isite.frac_coords[2]:.3f}] (ind: {self.iindex}, "
+            f"Wyckoff: {self.symm_structure.wyckoff_symbols[self.iindex]}) "
+            f"to {self.esite.specie} [{self.esite.frac_coords[0]:.3f}, "
+            f"{self.esite.frac_coords[1]:.3f}, {self.esite.frac_coords[2]:.3f}] "
+            f"(ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
         )
 
     @property

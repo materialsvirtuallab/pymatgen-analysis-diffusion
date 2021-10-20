@@ -116,7 +116,7 @@ class Kmeans:
             iterations: Number of iterations thus far.
         """
         if iterations > self.max_iterations:
-            warnings.warn("Max iterations %d reached!" % self.max_iterations)
+            warnings.warn(f"Max iterations {self.max_iterations} reached!")
             return True
         if old_centroids is None:
             return False
@@ -192,7 +192,7 @@ class KmeansPBC(Kmeans):
             iterations: Number of iterations thus far.
         """
         if iterations > self.max_iterations:
-            warnings.warn("Max iterations %d reached!" % self.max_iterations)
+            warnings.warn("Max iterations {self.max_iterations} reached!")
             return True
         if old_centroids is None:
             return False
