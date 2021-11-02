@@ -244,7 +244,7 @@ class ProbabilityDensityAnalysis:
             f.write(" " + " ".join(natoms) + "\n")
             f.write("direct\n")
             for fcoord in init_fcoords:
-                f.write(" {fcoord[0]:.8f}  {fcoord[1]:.8f}  {fcoord[2]:.8f} \n")
+                f.write(f" {fcoord[0]:.8f}  {fcoord[1]:.8f}  {fcoord[2]:.8f} \n")
 
             f.write(" \n")
             f.write(" {0} {1} {2} \n".format(*self.lens))
@@ -252,7 +252,7 @@ class ProbabilityDensityAnalysis:
             for i in range(self.lens[2]):
                 for j in range(self.lens[1]):
                     for k in range(self.lens[0]):
-                        f.write(" {self.Pr[k, j, i] * VolinAu:.10e} ")
+                        f.write(f" {self.Pr[k, j, i] * VolinAu:.10e} ")
                         if count % 5 == 0:
                             f.write("\n")
                         count += 1
