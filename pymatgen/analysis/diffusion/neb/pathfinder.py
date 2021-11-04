@@ -361,7 +361,7 @@ class MigrationHop(MSONable):
             f"(ind: {self.iindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.iindex]}) "
             f"to {self.esite.specie} "
             f"[{efc[0]:.3f}, {efc[1]:.3f}, {efc[2]:.3f}] "
-            f" (ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
+            f"(ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
         )
 
     @property
