@@ -29,26 +29,27 @@ class MVLCINEBEndPointSetTest(unittest.TestCase):
     def test_incar(self):
         m = MVLCINEBEndPointSet(self.endpoint)
         incar_string = m.incar.get_string(sort_keys=True, pretty=True)
-        incar_expect = """ALGO    =  Fast
-EDIFF   =  5e-05
-EDIFFG  =  -0.02
-ENCUT   =  520
-IBRION  =  2
-ICHARG  =  1
-ISIF    =  2
-ISMEAR  =  0
-ISPIN   =  2
-ISYM    =  0
-LCHARG  =  False
-LORBIT  =  11
-LREAL   =  Auto
-LWAVE   =  False
-MAGMOM  =  35*0.6
-NELM    =  200
-NELMIN  =  4
-NSW     =  99
-PREC    =  Accurate
-SIGMA   =  0.05"""
+        incar_expect = """ALGO     =  Fast
+EDIFF    =  5e-05
+EDIFFG   =  -0.02
+ENCUT    =  520
+IBRION   =  2
+ICHARG   =  1
+ISIF     =  2
+ISMEAR   =  0
+ISPIN    =  2
+ISYM     =  0
+LCHARG   =  False
+LMAXMIX  =  4
+LORBIT   =  11
+LREAL    =  Auto
+LWAVE    =  False
+MAGMOM   =  35*0.6
+NELM     =  200
+NELMIN   =  4
+NSW      =  99
+PREC     =  Accurate
+SIGMA    =  0.05"""
         self.assertEqual(incar_string, incar_expect)
 
     def test_incar_user_setting(self):

@@ -276,7 +276,7 @@ class RadialDistributionFunction:
             f.write("\n")
 
             for r, gr in zip(self.interval, self.rdf):
-                f.write(delimiter.join(["%s" % v for v in [r, gr]]))
+                f.write(delimiter.join([str(v) for v in [r, gr]]))
                 f.write("\n")
 
 
