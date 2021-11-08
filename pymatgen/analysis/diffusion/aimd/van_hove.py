@@ -542,7 +542,7 @@ class EvolutionAnalyzer:
         """
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
-        x_label, cb_label = "$r$ ({}-{}) ($\\rm\AA$)".format(*pair), "$g(r)$"
+        x_label, cb_label = f"$r$ ({pair[0]}-{pair[1]}) ($\\rm\AA$)", "$g(r)$"
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
 
         return p
@@ -569,7 +569,7 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
         x_label, cb_label = (
-            "Atomic distribution along {} ".format(direction),
+            f"Atomic distribution along {direction}",
             "Probability",
         )
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)

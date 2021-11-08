@@ -14,6 +14,7 @@ from pymatgen.analysis.diffusion.neb.full_path_mapper import (
     MigrationGraph,
     MigrationHop,
     get_hop_site_sequence,
+    order_path,
 )
 from pymatgen.analysis.diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
 
@@ -163,24 +164,24 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
     def test_get_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_path()]
+        paths = [*self.fpm_li.get_path(flip_hops=False)]
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
         self.assertIn("5->7->5", p_strings)
         # convert each pathway to a string representation
-        paths = [*self.fpm_li.get_path(max_val=2.0)]
+        paths = [*self.fpm_li.get_path(max_val=2.0, flip_hops=False)]
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
 
         # After checking trimming the graph more hops are needed for the same path
         self.assertIn("5->3->7->2->5", p_strings)
 
         self.fpm_mg.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_mg.get_path()]
+        paths = [*self.fpm_mg.get_path(flip_hops=False)]
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
         self.assertIn("1->0->1", p_strings)
 
     def test_get_key_in_path(self):
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
-        paths = [*self.fpm_li.get_path()]
+        paths = [*self.fpm_li.get_path(flip_hops=False)]
         hop_seq_info = [get_hop_site_sequence(ipath, start_u=u, key="hop_distance") for u, ipath in paths]
 
         hop_distances = {}
@@ -199,6 +200,27 @@ class MigrationGraphComplexTest(unittest.TestCase):
         fpm_lmo = MigrationGraph.with_distance(structure, "Li", max_distance=4)
         for u, v, d in fpm_lmo.m_graph.graph.edges(data=True):
             self.assertIn(d["hop"].eindex, {0, 1})
+
+    def test_order_path(self):
+        # add list data to migration graph - to test if list data is flipped
+        for n, hop_d in self.fpm_li.unique_hops.items():
+            data = {"data": [hop_d["iindex"], hop_d["eindex"]]}
+            self.fpm_li.add_data_to_similar_edges(n, data, hop_d["hop"])
+
+        self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
+
+        for n, hop_list in [*self.fpm_li.get_path(flip_hops=False)]:
+            ordered = order_path(hop_list, n)
+
+            # check if isites and esites are oriented to form a coherent path
+            for h1, h2 in zip(ordered[:-1], ordered[1:]):
+                self.assertEqual(h1["eindex"], h2["iindex"])
+
+            # if hop was flipped, check list data was flipped too
+            for h, ord_h in zip(hop_list, ordered):
+                if h["iindex"] != ord_h["iindex"]:  # check only if hop was flipped
+                    self.assertEqual(h["data"][0], ord_h["data"][-1])
+                    self.assertEqual(h["data"][-1], ord_h["data"][0])
 
 
 class ChargeBarrierGraphTest(unittest.TestCase):

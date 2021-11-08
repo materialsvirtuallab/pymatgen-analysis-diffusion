@@ -353,24 +353,15 @@ class MigrationHop(MSONable):
             raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
     def __repr__(self):
+        ifc = self.isite.frac_coords
+        efc = self.esite.frac_coords
         return (
-            "Path of %.4f A from %s [%.3f, %.3f, %.3f] "
-            "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)"
-            % (
-                self.length,
-                self.isite.specie,
-                self.isite.frac_coords[0],
-                self.isite.frac_coords[1],
-                self.isite.frac_coords[2],
-                self.iindex,
-                self.symm_structure.wyckoff_symbols[self.iindex],
-                self.esite.specie,
-                self.esite.frac_coords[0],
-                self.esite.frac_coords[1],
-                self.esite.frac_coords[2],
-                self.eindex,
-                self.symm_structure.wyckoff_symbols[self.eindex],
-            )
+            f"Path of {self.length:.4f} A from {self.isite.specie} "
+            f"[{ifc[0]:.3f}, {ifc[1]:.3f}, {ifc[2]:.3f}] "
+            f"(ind: {self.iindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.iindex]}) "
+            f"to {self.esite.specie} "
+            f"[{efc[0]:.3f}, {efc[1]:.3f}, {efc[2]:.3f}] "
+            f"(ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
         )
 
     @property
