@@ -29,26 +29,27 @@ class MVLCINEBEndPointSetTest(unittest.TestCase):
     def test_incar(self):
         m = MVLCINEBEndPointSet(self.endpoint)
         incar_string = m.incar.get_string(sort_keys=True, pretty=True)
-        incar_expect = """ALGO    =  Fast
-EDIFF   =  5e-05
-EDIFFG  =  -0.02
-ENCUT   =  520
-IBRION  =  2
-ICHARG  =  1
-ISIF    =  2
-ISMEAR  =  0
-ISPIN   =  2
-ISYM    =  0
-LCHARG  =  False
-LORBIT  =  11
-LREAL   =  Auto
-LWAVE   =  False
-MAGMOM  =  35*0.6
-NELM    =  200
-NELMIN  =  4
-NSW     =  99
-PREC    =  Accurate
-SIGMA   =  0.05"""
+        incar_expect = """ALGO     =  Fast
+EDIFF    =  5e-05
+EDIFFG   =  -0.02
+ENCUT    =  520
+IBRION   =  2
+ICHARG   =  1
+ISIF     =  2
+ISMEAR   =  0
+ISPIN    =  2
+ISYM     =  0
+LCHARG   =  False
+LMAXMIX  =  4
+LORBIT   =  11
+LREAL    =  Auto
+LWAVE    =  False
+MAGMOM   =  35*0.6
+NELM     =  200
+NELMIN   =  4
+NSW      =  99
+PREC     =  Accurate
+SIGMA    =  0.05"""
         self.assertEqual(incar_string, incar_expect)
 
     def test_incar_user_setting(self):
@@ -72,6 +73,7 @@ ISMEAR = 0
 ISPIN = 2
 ISYM = 0
 LCHARG = False
+LMAXMIX = 4
 LORBIT = 11
 LREAL = Auto
 LWAVE = False
@@ -109,6 +111,7 @@ ISPIN = 2
 ISYM = 0
 LCHARG = False
 LCLIMB = True
+LMAXMIX = 4
 LORBIT = 0
 LREAL = Auto
 LWAVE = False
@@ -126,34 +129,34 @@ SPRING = -5"""
         user_incar_settings = {"IOPT": 3, "EDIFFG": -0.05, "NPAR": 4, "ISIF": 3}
         m = MVLCINEBSet(self.structures, user_incar_settings=user_incar_settings)
         incar_string = m.incar.get_string(sort_keys=True, pretty=True)
-        incar_expect = """ALGO    =  Fast
-EDIFF   =  5e-05
-EDIFFG  =  -0.05
-ENCUT   =  520
-IBRION  =  3
-ICHAIN  =  0
-ICHARG  =  1
-IMAGES  =  1
-IOPT    =  3
-ISIF    =  3
-ISMEAR  =  0
-ISPIN   =  2
-ISYM    =  0
-LCHARG  =  False
-LCLIMB  =  True
-LORBIT  =  0
-LREAL   =  Auto
-LWAVE   =  False
-MAGMOM  =  35*0.6
-NELM    =  200
-NELMIN  =  6
-NPAR    =  4
-NSW     =  200
-POTIM   =  0
-PREC    =  Accurate
-SIGMA   =  0.05
-SPRING  =  -5"""
-
+        incar_expect = """ALGO     =  Fast
+EDIFF    =  5e-05
+EDIFFG   =  -0.05
+ENCUT    =  520
+IBRION   =  3
+ICHAIN   =  0
+ICHARG   =  1
+IMAGES   =  1
+IOPT     =  3
+ISIF     =  3
+ISMEAR   =  0
+ISPIN    =  2
+ISYM     =  0
+LCHARG   =  False
+LCLIMB   =  True
+LMAXMIX  =  4
+LORBIT   =  0
+LREAL    =  Auto
+LWAVE    =  False
+MAGMOM   =  35*0.6
+NELM     =  200
+NELMIN   =  6
+NPAR     =  4
+NSW      =  200
+POTIM    =  0
+PREC     =  Accurate
+SIGMA    =  0.05
+SPRING   =  -5"""
         self.assertEqual(incar_string.strip(), incar_expect.strip())
 
 
