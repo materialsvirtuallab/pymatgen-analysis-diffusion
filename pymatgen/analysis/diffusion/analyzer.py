@@ -499,7 +499,7 @@ class DiffusionAnalyzer(MSONable):
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label=f"{site.specie.__str__()} - {i}")
+                plt.plot(plot_dt, sd, label=f"{str(site.specie)} - {i}")
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
             plt.plot(plot_dt, self.mscd, "r")
@@ -551,7 +551,7 @@ class DiffusionAnalyzer(MSONable):
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
             for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd):
-                f.write(delimiter.join([f"{v}" for v in [dt, msd] + list(msdc) + [mscd]]))
+                f.write(delimiter.join([str(v) for v in [dt, msd] + list(msdc) + [mscd]]))
                 f.write("\n")
 
     @classmethod
@@ -918,7 +918,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
     plt.text(
         0.6,
         0.85,
-        f"E$_a$ = {Ea * 1000:.0f} meV",
+        f"E$_a$ = {(Ea * 1000):.0f} meV",
         fontsize=30,
         transform=plt.axes().transAxes,
     )

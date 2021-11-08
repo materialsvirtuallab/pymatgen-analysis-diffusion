@@ -642,7 +642,7 @@ class ChargeBarrierGraph(MigrationGraph):
             isym = self.symm_structure.wyckoff_symbols[migration_hop.iindex]
             esym = self.symm_structure.wyckoff_symbols[migration_hop.eindex]
             mask_out.write_file(
-                f"{mask_file_seedname}_{isym}_{esym}_tot({mask_out.data[self.potential_data_key].sum():0.2f}).vasp"
+                f"{mask_file_seedname}_{isym}_{esym}_tot({mask_out.data[self.potential_data_key].sum():.2f}).vasp"
             )
 
         return (

@@ -569,7 +569,7 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
         x_label, cb_label = (
-            f"Atomic distribution along {direction} ",
+            f"Atomic distribution along {direction}",
             "Probability",
         )
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
