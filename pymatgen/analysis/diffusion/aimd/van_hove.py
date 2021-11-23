@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -216,7 +215,7 @@ class VanHoveAnalysis:
             grt = self.gsrt.copy()
             vmax = 1.0
             cb_ticks = [0, 1]
-            cb_label = "4$\pi r^2G_s$($t$,$r$)"
+            cb_label = r"4$\pi r^2G_s$($t$,$r$)"
 
         y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(len(self.interval) - 1)
         x = np.arange(np.shape(grt)[0]) * self.timeskip
@@ -232,7 +231,7 @@ class VanHoveAnalysis:
 
         plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
         plt.xlabel("Time (ps)", size=labelsize)
-        plt.ylabel("$r$ ($\AA$)", size=labelsize)
+        plt.ylabel(r"$r$ ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
 
         cbar = plt.colorbar(ticks=cb_ticks)
@@ -267,7 +266,7 @@ class VanHoveAnalysis:
             ylim = [-0.005, 4.0]
         elif mode == "self":
             grt = self.gsrt.copy()
-            ylabel = "4$\pi r^2G_s$($t$,$r$)"
+            ylabel = r"4$\pi r^2G_s$($t$,$r$)"
             ylim = [-0.005, 1.0]
 
         plt = pretty_plot(12, 8)
@@ -542,7 +541,7 @@ class EvolutionAnalyzer:
         """
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
-        x_label, cb_label = f"$r$ ({pair[0]}-{pair[1]}) ($\\rm\AA$)", "$g(r)$"
+        x_label, cb_label = f"$r$ ({pair[0]}-{pair[1]}) ($\\rm\\AA$)", "$g(r)$"
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
 
         return p

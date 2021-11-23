@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -244,10 +243,10 @@ class ProbabilityDensityAnalysis:
             f.write(" " + " ".join(natoms) + "\n")
             f.write("direct\n")
             for fcoord in init_fcoords:
-                f.write(" {0:.8f}  {1:.8f}  {2:.8f} \n".format(*fcoord))  # pylint: disable=C0209
+                f.write(" {:.8f}  {:.8f}  {:.8f} \n".format(*fcoord))  # pylint: disable=C0209
 
             f.write(" \n")
-            f.write(" {0} {1} {2} \n".format(*self.lens))  # pylint: disable=C0209
+            f.write(" {} {} {} \n".format(*self.lens))  # pylint: disable=C0209
 
             for i in range(self.lens[2]):
                 for j in range(self.lens[1]):

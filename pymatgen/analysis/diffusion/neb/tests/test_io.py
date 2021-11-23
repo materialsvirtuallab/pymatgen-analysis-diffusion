@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from pymatgen.core import Structure
 from pymatgen.analysis.diffusion.neb.io import (
     MVLCINEBEndPointSet,

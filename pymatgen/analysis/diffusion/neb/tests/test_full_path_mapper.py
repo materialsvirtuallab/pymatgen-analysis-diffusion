@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 import os
@@ -255,7 +254,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         """
         self.cbg.populate_edges_with_chg_density_info()
         length_vs_chg = list(
-            sorted([(d["hop"].length, d["chg_total"]) for u, v, d in self.cbg.m_graph.graph.edges(data=True)])
+            sorted((d["hop"].length, d["chg_total"]) for u, v, d in self.cbg.m_graph.graph.edges(data=True))
         )
         prv = None
         for length, chg in length_vs_chg:

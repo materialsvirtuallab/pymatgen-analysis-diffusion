@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -249,7 +248,7 @@ class RadialDistributionFunction:
                 label="Peaks",
             )
 
-        plt.xlabel("$r$ ($\\rm\AA$)")
+        plt.xlabel("$r$ ($\\rm\\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc="upper right", fontsize=36)
         plt.xlim(xlim[0], xlim[1])
@@ -441,8 +440,8 @@ class RadialDistributionFunctionFast:
             & (self.distances[index] > 1e-8)
         )
 
-        density = sum([self.density[index][i] for i in species])
-        natoms = sum([self.natoms[index][i] for i in ref_species])
+        density = sum(self.density[index][i] for i in species)
+        natoms = sum(self.natoms[index][i] for i in ref_species)
         distances = self.distances[index][indices]
         counts = self._dist_to_counts(distances)
         rdf_temp = counts / density / self.volumes / natoms
@@ -468,7 +467,7 @@ class RadialDistributionFunctionFast:
         all_rdf = self.get_rdf(ref_species, species, is_average=False)[1]
         if isinstance(species, str):
             species = [species]
-        density = [sum([i[j] for j in species]) for i in self.density]
+        density = [sum(i[j] for j in species) for i in self.density]
         cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r ** 2 * self.dr) for i, rdf in enumerate(all_rdf)]
         if is_average:
             cn = np.mean(cn, axis=0)

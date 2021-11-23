@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
@@ -241,7 +240,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
-        with open(os.path.join(module_dir, "DiffusionAnalyzer_NPT.json"), "r") as f:
+        with open(os.path.join(module_dir, "DiffusionAnalyzer_NPT.json")) as f:
             dd = json.load(f)
             d = DiffusionAnalyzer.from_dict(dd)
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
