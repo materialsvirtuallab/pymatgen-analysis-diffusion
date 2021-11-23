@@ -7,4 +7,4 @@ flake8==4.0.1
 pylint==2.11.1
 black==21.11b1
 treon==0.1.3
-maggma==0.29.0
+maggma==0.32.2
