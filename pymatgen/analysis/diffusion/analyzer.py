@@ -17,7 +17,6 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
-
 import multiprocessing
 import warnings
 
@@ -142,6 +141,9 @@ class DiffusionAnalyzer(MSONable):
         min_obs=30,
         avg_nsteps=1000,
         lattices=None,
+        c_ranges=None,
+        c_range_include_edge=False,
+        structures=None,
     ):
         """
         This constructor is meant to be used with pre-processed data.
@@ -149,7 +151,7 @@ class DiffusionAnalyzer(MSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by::
+        format), the diffusivity is given by:
 
             D = 1 / 2dt * <mean square displacement>
 
@@ -196,6 +198,19 @@ class DiffusionAnalyzer(MSONable):
             lattices (array): Numpy array of lattice matrix of every step. Used
                 for NPT-AIMD. For NVT-AIMD, the lattice at each time step is
                 set to the lattice in the "structure" argument.
+            c_ranges (list): A list of fractional ranges of z-axis to define
+                regions and calculate regional MSD and regional diffusivity.
+                If the start and end positions of a diffusing specie between
+                two time steps are all within the c_ranges, that displacement
+                is collected to calculate MSD in that time step. units: Å.
+                Default to None.
+            c_range_include_edge (bool): Whether to include displacements start or end
+                on the edge of the defined c_ranges into the calculation of regional
+                MSD. Default to False.
+            structures (list): A list of trajectory structures only used in the
+                calculation of regional MSD and regional diffusivity. These structures
+                should be the same as those used to construct the diffusion analyzer.
+                Default to None.
         """
         self.structure = structure
         self.disp = displacements
@@ -233,6 +248,8 @@ class DiffusionAnalyzer(MSONable):
 
             nions, nsteps, dim = dc.shape
 
+            self.indices = indices
+
             if not smoothed:
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
@@ -257,6 +274,10 @@ class DiffusionAnalyzer(MSONable):
             # calculate mean square charge displacement
             mscd = np.zeros_like(msd, dtype=np.double)
 
+            # calculate regional msd and number of diffusing specie in those regions
+            msd_c_range = np.zeros_like(dt, dtype=np.double)
+            msd_c_range_components = np.zeros(dt.shape + (3,))
+
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i : i + 1, :]
@@ -272,65 +293,75 @@ class DiffusionAnalyzer(MSONable):
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
-
                 msd_components[i] = np.average(dcomponents[indices] ** 2, axis=(0, 1))
+
+                # Get regional msd
+                if c_ranges:
+                    indices_c_range = []
+                    if not c_range_include_edge:
+                        for index in indices:
+                            if any(
+                                lower < structures[i][index].c < upper and lower < structures[i + 1][index].c < upper
+                                for (lower, upper) in c_ranges
+                            ):
+                                indices_c_range.append(index)
+                    else:
+                        for index in indices:
+                            if any(
+                                lower <= structures[i][index].c <= upper or lower <= structures[i + 1][index].c <= upper
+                                for (lower, upper) in c_ranges
+                            ):
+                                indices_c_range.append(index)
+                    msd_c_range[i] = np.average(sq_disp_ions[:, i][indices_c_range])
+                    msd_c_range_components[i] = np.average(dcomponents[indices_c_range] ** 2, axis=(0, 1))
 
                 # Get mscd
                 sq_chg_disp = np.sum(dx[indices, :, :], axis=0) ** 2
                 mscd[i] = np.average(np.sum(sq_chg_disp, axis=1), axis=0) / len(indices)
 
-            def weighted_lstsq(a, b):
-                if smoothed == "max":
-                    # For max smoothing, we need to weight by variance.
-                    w_root = (1 / dt) ** 0.5
-                    return np.linalg.lstsq(a * w_root[:, None], b * w_root, rcond=None)
-                return np.linalg.lstsq(a, b, rcond=None)
-
-            # Get self diffusivity
-            m_components = np.zeros(3)
-            m_components_res = np.zeros(3)
-            a = np.ones((len(dt), 2))
-            a[:, 0] = dt
-            for i in range(3):
-                (m, c), res, rank, s = weighted_lstsq(a, msd_components[:, i])
-                m_components[i] = max(m, 1e-15)
-                m_components_res[i] = res[0]
-
-            (m, c), res, rank, s = weighted_lstsq(a, msd)
-            # m shouldn't be negative
-            m = max(m, 1e-15)
-
-            # Get also the charge diffusivity
-            (m_chg, c_chg), res_chg, _, _ = weighted_lstsq(a, mscd)
-            # m shouldn't be negative
-            m_chg = max(m_chg, 1e-15)
-
-            # factor of 10 is to convert from A^2/fs to cm^2/s
-            # factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.structure, self.specie, self.temperature)
-            self.diffusivity = m / 60
-            self.chg_diffusivity = m_chg / 60
+            self.diffusivity, self.diffusivity_std_dev = get_diffusivity_from_msd(msd, dt, smoothed)
+            self.chg_diffusivity, self.chg_diffusivity_std_dev = get_diffusivity_from_msd(mscd, dt, smoothed)
+            diffusivity_components = np.zeros(3)
+            diffusivity_components_std_dev = np.zeros(3)
+            for i in range(3):
+                diffusivity_components[i], diffusivity_components_std_dev[i] = (
+                    np.array(get_diffusivity_from_msd(msd_components[:, i], dt, smoothed)) * 3
+                )
+            self.diffusivity_components = diffusivity_components
+            self.diffusivity_components_std_dev = diffusivity_components_std_dev
 
-            # Calculate the error in the diffusivity using the error in the
-            # slope from the lst sq.
-            # Variance in slope = n * Sum Squared Residuals / (n * Sxx - Sx
-            # ** 2) / (n-2).
-            n = len(dt)
-
-            # Pre-compute the denominator since we will use it later.
-            # We divide dt by 1000 to avoid overflow errors in some systems (
-            # e.g., win). This is subsequently corrected where denom is used.
-            denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (n - 2)
-            self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
-            self.chg_diffusivity_std_dev = np.sqrt(n * res_chg[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
-            self.chg_conductivity = self.chg_diffusivity * conv_factor
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
-
-            self.diffusivity_components = m_components / 20
-            self.diffusivity_components_std_dev = np.sqrt(n * m_components_res / denom) / 20 / 1000
+            self.chg_conductivity = self.chg_diffusivity * conv_factor
+            self.chg_conductivity_std_dev = self.chg_diffusivity_std_dev * conv_factor
             self.conductivity_components = self.diffusivity_components * conv_factor
             self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
+
+            if c_ranges:
+                self.diffusivity_c_range, self.diffusivity_c_range_std_dev = get_diffusivity_from_msd(
+                    msd_c_range, dt, smoothed
+                )
+                diffusivity_c_range_components = np.zeros(3)
+                diffusivity_c_range_components_std_dev = np.zeros(3)
+                diffusivity_c_range_components[i], diffusivity_c_range_components_std_dev[i] = (
+                    np.array(get_diffusivity_from_msd(msd_c_range_components[:, i], dt, smoothed)) * 3
+                )
+
+                self.diffusivity_c_range_components = diffusivity_c_range_components
+                self.diffusivity_c_range_components_std_dev = diffusivity_c_range_components_std_dev
+
+                n_specie_c_range = np.average([len(i) for i in indices_c_range])
+                vol_c_range = np.sum([max(min(upper, 1), 0) - max(min(lower, 1), 0) for (upper, lower) in c_ranges])
+                n_density_c_range = n_specie_c_range / vol_c_range
+                conv_factor_c_range = conv_factor / len(indices) * n_density_c_range
+
+                self.conductivity_c_range = self.diffusivity_c_range * conv_factor_c_range
+                self.conductivity_c_range_std_dev = self.diffusivity_c_range_std_dev * conv_factor_c_range
+                self.conductivity_c_range_components = self.diffusivity_c_range_components * conv_factor_c_range
+                self.conductivity_c_range_components_std_dev = (
+                    self.diffusivity_c_range_components_std_dev * conv_factor_c_range
+                )
 
             # Drift and displacement information.
             self.drift = drift
@@ -834,6 +865,67 @@ def fit_arrhenius(temps, diffusivities):
     else:
         std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
+
+
+def get_diffusivity_from_msd(msd, dt, smoothed="max"):
+    """
+    Returns diffusivity and standard deviation of diffusivity given by:
+
+        D = 1 / 2dt * <mean square displacement>
+
+    where d is the dimensionality, t is the time. To obtain a reliable
+    diffusion estimate, a least squares regression of the MSD against
+    time to obtain the slope, which is then related to the diffusivity.
+
+    For traditional analysis, use smoothed=False.
+
+    Args:
+        msd ([float]): A sequence of mean square displacements. units: Å^2
+        dt ([float]): A sequence of time steps corresponding to MSD. units: fs
+        smoothed (str): Whether to smooth the MSD, and what mode to smooth.
+                Supported modes are:
+
+                i. "max", which tries to use the maximum #
+                   of data points for each time origin, subject to a
+                   minimum # of observations given by min_obs, and then
+                   weights the observations based on the variance
+                   accordingly. This is the default.
+                ii. "constant", in which each timestep is averaged over
+                    the number of time_steps given by min_steps.
+                iii. None / False / any other false-like quantity. No
+                   smoothing.
+    """
+
+    def weighted_lstsq(a, b):
+        if smoothed == "max":
+            # For max smoothing, we need to weight by variance.
+            w_root = (1 / dt) ** 0.5
+            return np.linalg.lstsq(a * w_root[:, None], b * w_root, rcond=None)
+        return np.linalg.lstsq(a, b, rcond=None)
+
+    # Get self diffusivity
+    a = np.ones((len(dt), 2))
+    a[:, 0] = dt
+    (m, c), res, rank, s = weighted_lstsq(a, msd)
+    # m shouldn't be negative
+    m = max(m, 1e-15)
+
+    # factor of 10 is to convert from Å^2/fs to cm^2/s
+    # factor of 6 is for dimensionality
+    diffusivity = m / 60
+
+    # Calculate the error in the diffusivity using the error in the
+    # slope from the lst sq.
+    # Variance in slope = n * Sum Squared Residuals / (n * Sxx - Sx
+    # ** 2) / (n-2).
+    n = len(dt)
+
+    # Pre-compute the denominator since we will use it later.
+    # We divide dt by 1000 to avoid overflow errors in some systems (
+    # e.g., win). This is subsequently corrected where denom is used.
+    denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (n - 2)
+    diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
+    return diffusivity, diffusivity_std_dev
 
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
