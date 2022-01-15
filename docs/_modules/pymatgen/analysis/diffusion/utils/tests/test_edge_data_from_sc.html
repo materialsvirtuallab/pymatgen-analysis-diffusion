@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
-    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../../../_static/flasky.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+    <title>pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
     <script src="../../../../../../_static/jquery.js"></script>
     <script src="../../../../../../_static/underscore.js"></script>
     <script src="../../../../../../_static/doctools.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc</a></li> 
       </ul>
@@ -48,16 +48,16 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc</h1><div class="highlight"><pre>
-<span></span><span class="c1"># coding: utf-8</span>
-<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.edge_data_from_sc</span> <span class="kn">import</span> <span class="n">add_edge_data_from_sc</span><span class="p">,</span> <span class="n">get_uc_pos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.edge_data_from_sc</span> <span class="kn">import</span> <span class="n">add_edge_data_from_sc</span><span class="p">,</span> <span class="n">get_uc_pos</span><span class="p">,</span> <span class="n">get_unique_hop</span>
 
 <span class="n">test_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -69,15 +69,21 @@
 <span class="n">input_struct_i</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_dir</span><span class="si">}</span><span class="s2">/test_files/Sr3Fe2O7_sc_i.vasp&quot;</span><span class="p">)</span>
 <span class="n">input_struct_e</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_dir</span><span class="si">}</span><span class="s2">/test_files/Sr3Fe2O7_sc_e.vasp&quot;</span><span class="p">)</span>
 
+<span class="n">mg_uc_full_sites</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_dir</span><span class="si">}</span><span class="s2">/test_files/Mg3VOPO4_uc.vasp&quot;</span><span class="p">)</span>
+<span class="n">mg_input_struct_i</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_dir</span><span class="si">}</span><span class="s2">/test_files/Mg3VOPO4_sc_i.vasp&quot;</span><span class="p">)</span>
+<span class="n">mg_input_struct_e</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_dir</span><span class="si">}</span><span class="s2">/test_files/Mg3VOPO4_sc_e.vasp&quot;</span><span class="p">)</span>
+
+<span class="n">mg_Li</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">uc_full_sites</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">mg_Mg</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">mg_uc_full_sites</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Mg&quot;</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="test_add_edge_data_from_sc"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_add_edge_data_from_sc">[docs]</a><span class="k">def</span> <span class="nf">test_add_edge_data_from_sc</span><span class="p">():</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="n">mg</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">uc_full_sites</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
     <span class="n">test_key</span> <span class="o">=</span> <span class="s2">&quot;test_key&quot;</span>
     <span class="n">test_array</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
     <span class="n">add_edge_data_from_sc</span><span class="p">(</span>
-        <span class="n">mg</span><span class="p">,</span>
+        <span class="n">mg_Li</span><span class="p">,</span>
         <span class="n">i_sc</span><span class="o">=</span><span class="n">input_struct_i</span><span class="p">,</span>
         <span class="n">e_sc</span><span class="o">=</span><span class="n">input_struct_e</span><span class="p">,</span>
         <span class="n">data_array</span><span class="o">=</span><span class="n">test_array</span><span class="p">,</span>
@@ -85,7 +91,7 @@
     <span class="p">)</span>
 
     <span class="n">edge_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">mg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">mg_Li</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">edge_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="n">hop_labels</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">edge_data</span><span class="p">:</span>
@@ -105,14 +111,13 @@
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># set up parameters to initiate get_uc_pos</span>
-    <span class="n">mg</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">uc_full_sites</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-    <span class="n">uc_lattice</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">lattice</span>
+    <span class="n">uc_lattice</span> <span class="o">=</span> <span class="n">mg_Li</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">lattice</span>
     <span class="n">isite</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_struct_i</span><span class="o">.</span><span class="n">sites</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">esite</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_struct_e</span><span class="o">.</span><span class="n">sites</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ignored_species</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
-    <span class="n">wi_specie</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span>
+    <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ignored_species</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">mg_Li</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">wi_specie</span> <span class="o">=</span> <span class="n">mg_Li</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span>
 
-    <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">get_uc_pos</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">,</span> <span class="n">input_struct_i</span><span class="p">,</span> <span class="n">sm</span><span class="p">)</span>
+    <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">get_uc_pos</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">mg_Li</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">,</span> <span class="n">input_struct_i</span><span class="p">,</span> <span class="n">sm</span><span class="p">)</span>
 
     <span class="c1"># generate correct sites to compare</span>
     <span class="n">test_p0</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
@@ -133,6 +138,18 @@
         <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ending site does not match&quot;</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">,</span> <span class="s2">&quot;errors occured:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_get_unique_hop_host"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_hop_host">[docs]</a><span class="k">def</span> <span class="nf">test_get_unique_hop_host</span><span class="p">():</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">get_unique_hop</span><span class="p">(</span><span class="n">mg_Mg</span><span class="p">,</span> <span class="n">mg_input_struct_i</span><span class="p">,</span> <span class="n">mg_input_struct_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mg_input_struct_e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">use_host_sg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="test_get_unique_host_nonhost"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_host_nonhost">[docs]</a><span class="k">def</span> <span class="nf">test_get_unique_host_nonhost</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
+        <span class="n">get_unique_hop</span><span class="p">(</span><span class="n">mg_Mg</span><span class="p">,</span> <span class="n">mg_input_struct_i</span><span class="p">,</span> <span class="n">mg_input_struct_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mg_input_struct_e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">use_host_sg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">expected_exception</span> <span class="o">=</span> <span class="s2">&quot;No symmetrically equivalent site was found for [0.53593472 2.8352428  4.54752366] Mg&quot;</span>
+    <span class="k">assert</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected_exception</span></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -151,7 +168,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>

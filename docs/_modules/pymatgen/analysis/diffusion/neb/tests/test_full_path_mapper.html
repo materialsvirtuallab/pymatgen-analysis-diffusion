@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
-    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../../../_static/flasky.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+    <title>pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
     <script src="../../../../../../_static/jquery.js"></script>
     <script src="../../../../../../_static/underscore.js"></script>
     <script src="../../../../../../_static/doctools.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper</a></li> 
       </ul>
@@ -48,8 +48,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper</h1><div class="highlight"><pre>
-<span></span><span class="c1"># coding: utf-8</span>
-<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
@@ -64,6 +63,7 @@
     <span class="n">MigrationGraph</span><span class="p">,</span>
     <span class="n">MigrationHop</span><span class="p">,</span>
     <span class="n">get_hop_site_sequence</span><span class="p">,</span>
+    <span class="n">order_path</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.periodic_dijkstra</span> <span class="kn">import</span> <span class="n">_get_adjacency_with_images</span>
 
@@ -213,26 +213,63 @@
 
 <div class="viewcode-block" id="MigrationGraphComplexTest.test_get_path"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.html#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_get_path">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">assign_cost_to_graph</span><span class="p">()</span>  <span class="c1"># use &#39;hop_distance&#39;</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">()]</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">flip_hops</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
         <span class="n">p_strings</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;-&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">get_hop_site_sequence</span><span class="p">(</span><span class="n">ipath</span><span class="p">,</span> <span class="n">start_u</span><span class="o">=</span><span class="n">u</span><span class="p">)))</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">ipath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;5-&gt;7-&gt;5&quot;</span><span class="p">,</span> <span class="n">p_strings</span><span class="p">)</span>
         <span class="c1"># convert each pathway to a string representation</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">max_val</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)]</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">max_val</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">flip_hops</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
         <span class="n">p_strings</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;-&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">get_hop_site_sequence</span><span class="p">(</span><span class="n">ipath</span><span class="p">,</span> <span class="n">start_u</span><span class="o">=</span><span class="n">u</span><span class="p">)))</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">ipath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">}</span>
 
         <span class="c1"># After checking trimming the graph more hops are needed for the same path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;5-&gt;3-&gt;7-&gt;2-&gt;5&quot;</span><span class="p">,</span> <span class="n">p_strings</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fpm_mg</span><span class="o">.</span><span class="n">assign_cost_to_graph</span><span class="p">()</span>  <span class="c1"># use &#39;hop_distance&#39;</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_mg</span><span class="o">.</span><span class="n">get_path</span><span class="p">()]</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_mg</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">flip_hops</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
         <span class="n">p_strings</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;-&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">get_hop_site_sequence</span><span class="p">(</span><span class="n">ipath</span><span class="p">,</span> <span class="n">start_u</span><span class="o">=</span><span class="n">u</span><span class="p">)))</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">ipath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;1-&gt;0-&gt;1&quot;</span><span class="p">,</span> <span class="n">p_strings</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MigrationGraphComplexTest.test_get_key_in_path"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.html#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_get_key_in_path">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_key_in_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">assign_cost_to_graph</span><span class="p">()</span>  <span class="c1"># use &#39;hop_distance&#39;</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">flip_hops</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+        <span class="n">hop_seq_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_hop_site_sequence</span><span class="p">(</span><span class="n">ipath</span><span class="p">,</span> <span class="n">start_u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;hop_distance&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">ipath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+
+        <span class="n">hop_distances</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">ipath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="n">hop_distances</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">hop</span> <span class="ow">in</span> <span class="n">ipath</span><span class="p">:</span>
+                <span class="n">hop_distances</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hop</span><span class="p">[</span><span class="s2">&quot;hop_distance&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Check that the right key and respective values were pulled</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">distances</span> <span class="ow">in</span> <span class="n">hop_distances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">hop_seq_info</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">hop_seq_info</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="MigrationGraphComplexTest.test_not_matching_first"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.html#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_not_matching_first">[docs]</a>    <span class="k">def</span> <span class="nf">test_not_matching_first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">/pathfinder_files/Li6MnO4.json&quot;</span><span class="p">)</span>
         <span class="n">fpm_lmo</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">fpm_lmo</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">})</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="MigrationGraphComplexTest.test_order_path"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.html#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_order_path">[docs]</a>    <span class="k">def</span> <span class="nf">test_order_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># add list data to migration graph - to test if list data is flipped</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">hop_d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">unique_hops</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">hop_d</span><span class="p">[</span><span class="s2">&quot;iindex&quot;</span><span class="p">],</span> <span class="n">hop_d</span><span class="p">[</span><span class="s2">&quot;eindex&quot;</span><span class="p">]]}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hop_d</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">assign_cost_to_graph</span><span class="p">()</span>  <span class="c1"># use &#39;hop_distance&#39;</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">hop_list</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fpm_li</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">flip_hops</span><span class="o">=</span><span class="kc">False</span><span class="p">)]:</span>
+            <span class="n">ordered</span> <span class="o">=</span> <span class="n">order_path</span><span class="p">(</span><span class="n">hop_list</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+            <span class="c1"># check if isites and esites are oriented to form a coherent path</span>
+            <span class="k">for</span> <span class="n">h1</span><span class="p">,</span> <span class="n">h2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ordered</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ordered</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">h1</span><span class="p">[</span><span class="s2">&quot;eindex&quot;</span><span class="p">],</span> <span class="n">h2</span><span class="p">[</span><span class="s2">&quot;iindex&quot;</span><span class="p">])</span>
+
+            <span class="c1"># if hop was flipped, check list data was flipped too</span>
+            <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">ord_h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">hop_list</span><span class="p">,</span> <span class="n">ordered</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">h</span><span class="p">[</span><span class="s2">&quot;iindex&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ord_h</span><span class="p">[</span><span class="s2">&quot;iindex&quot;</span><span class="p">]:</span>  <span class="c1"># check only if hop was flipped</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ord_h</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ord_h</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="ChargeBarrierGraphTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.html#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest">[docs]</a><span class="k">class</span> <span class="nc">ChargeBarrierGraphTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
@@ -289,7 +326,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cbg</span><span class="o">.</span><span class="n">populate_edges_with_chg_density_info</span><span class="p">()</span>
         <span class="n">length_vs_chg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="nb">sorted</span><span class="p">([(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;chg_total&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+            <span class="nb">sorted</span><span class="p">((</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;hop&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;chg_total&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbg</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="p">)</span>
         <span class="n">prv</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">length</span><span class="p">,</span> <span class="n">chg</span> <span class="ow">in</span> <span class="n">length_vs_chg</span><span class="p">:</span>
@@ -326,7 +363,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
