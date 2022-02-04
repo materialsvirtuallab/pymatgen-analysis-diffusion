@@ -78,7 +78,7 @@ class IDPPSolver:
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8)
+            weights[ni] = 1.0 / (avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -255,7 +255,7 @@ class IDPPSolver:
         Args:
             vec: Vector.
         """
-        return vec / np.sqrt(np.sum(vec ** 2))
+        return vec / np.sqrt(np.sum(vec**2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
