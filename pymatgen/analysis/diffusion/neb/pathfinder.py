@@ -452,6 +452,7 @@ class MigrationHop(MSONable):
         min_atoms: int = 80,
         max_atoms: int = 240,
         min_length: float = 10.0,
+        tol: float = 1e-5,
     ) -> Tuple[Structure, Structure, Structure]:
         """
         Construct supercells that represents the start and end positions for migration analysis.
@@ -461,6 +462,7 @@ class MigrationHop(MSONable):
             max_atoms: Maximum number of atoms allowed in the supercell.
             min_atoms: Minimum number of atoms allowed in the supercell.
             min_length: Minimum length of the smallest supercell lattice vector.
+            tol: toleranace for identifying isite/esite within base_struct
 
         Returns:
             Start, End, Base Structures.
@@ -481,7 +483,12 @@ class MigrationHop(MSONable):
             min_length=min_length,
         )
         start_struct, end_struct, base_sc = get_start_end_structures(
-            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode  # type: ignore
+            self.isite,
+            self.esite,
+            base_struct,
+            sc_mat,
+            vac_mode=vac_mode,
+            tol=tol,
         )
         return start_struct, end_struct, base_sc
 
