@@ -486,7 +486,7 @@ class MigrationHop(MSONable):
             self.isite,
             self.esite,
             base_struct,
-            sc_mat,
+            sc_mat,  # type: ignore
             vac_mode=vac_mode,
             tol=tol,
         )
