@@ -192,7 +192,7 @@ class IDPPSolver:
         return idpp_structures
 
     @classmethod
-    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
+    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0, interpolate_lattices=False):
         """
         A class method that starts with end-point structures instead. The
         initial guess for the IDPP algo is then constructed using linear
@@ -206,14 +206,24 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol)
+            images = endpoints[0].interpolate(
+                endpoints[1],
+                nimages=nimages + 1,
+                autosort_tol=sort_tol,
+                interpolate_lattices=interpolate_lattices,
+            )
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
                     "Auto sorting is turned off because it is unable" " to match the end-point structures!",
                     UserWarning,
                 )
-                images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=0)
+                images = endpoints[0].interpolate(
+                    endpoints[1],
+                    nimages=nimages + 1,
+                    autosort_tol=0,
+                    interpolate_lattices=interpolate_lattices,
+                )
             else:
                 raise e
 
@@ -452,6 +462,7 @@ class MigrationHop(MSONable):
         min_atoms: int = 80,
         max_atoms: int = 240,
         min_length: float = 10.0,
+        tol: float = 1e-5,
     ) -> Tuple[Structure, Structure, Structure]:
         """
         Construct supercells that represents the start and end positions for migration analysis.
@@ -461,6 +472,7 @@ class MigrationHop(MSONable):
             max_atoms: Maximum number of atoms allowed in the supercell.
             min_atoms: Minimum number of atoms allowed in the supercell.
             min_length: Minimum length of the smallest supercell lattice vector.
+            tol: toleranace for identifying isite/esite within base_struct
 
         Returns:
             Start, End, Base Structures.
@@ -481,7 +493,12 @@ class MigrationHop(MSONable):
             min_length=min_length,
         )
         start_struct, end_struct, base_sc = get_start_end_structures(
-            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode  # type: ignore
+            self.isite,
+            self.esite,
+            base_struct,
+            sc_mat,  # type: ignore
+            vac_mode=vac_mode,
+            tol=tol,
         )
         return start_struct, end_struct, base_sc
 
