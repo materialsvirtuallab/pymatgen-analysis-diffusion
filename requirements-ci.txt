@@ -1,4 +1,4 @@
-pytest==6.2.5
+pytest==7.0.0
 pytest-cov==3.0.0
 coveralls==3.3.1
 mypy==0.931
@@ -7,4 +7,4 @@ flake8==4.0.1
 pylint==2.12.2
 black==22.1.0
 treon==0.1.3
-maggma==0.29.0
+maggma==0.39.1

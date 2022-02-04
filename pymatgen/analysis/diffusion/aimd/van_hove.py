@@ -119,8 +119,8 @@ class VanHoveAnalysis:
         ref_ions = []  # type: ArrayLike
 
         # auxiliary factor for 4*\pi*r^2
-        aux_factor = 4.0 * np.pi * interval ** 2
-        aux_factor[0] = np.pi * dr ** 2
+        aux_factor = 4.0 * np.pi * interval**2
+        aux_factor[0] = np.pi * dr**2
 
         for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
@@ -158,7 +158,7 @@ class VanHoveAnalysis:
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
-        zd = np.sum(images ** 2, axis=1)
+        zd = np.sum(images**2, axis=1)
         indx0 = np.argmin(zd)
 
         for it in range(reduced_nt):
@@ -172,7 +172,7 @@ class VanHoveAnalysis:
                     - ref_ions[it1, None, :, None, :]
                 )
                 dcc = lattice.get_cartesian_coords(dcf)
-                d2 = np.sum(dcc ** 2, axis=3)
+                d2 = np.sum(dcc**2, axis=3)
                 dists = [
                     d2[u, v, j] ** 0.5
                     for u in range(len(indices))

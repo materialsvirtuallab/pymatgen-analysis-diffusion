@@ -77,7 +77,7 @@ class RadialDistributionFunction:
         images = images.reshape((len(r) ** 3, 3))
 
         # Find the zero image vector
-        zd = np.sum(images ** 2, axis=1)
+        zd = np.sum(images**2, axis=1)
         indx0 = np.argmin(zd)
 
         for s in structures:
@@ -95,7 +95,7 @@ class RadialDistributionFunction:
         for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices):
             dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
-            d2 = np.sum(dcc ** 2, axis=3)
+            d2 = np.sum(dcc**2, axis=3)
             dists = [
                 d2[u, v, j] ** 0.5
                 for u in range(len(indices))
@@ -356,7 +356,7 @@ class RadialDistributionFunctionFast:
             for i, j in natoms.items():
                 self.density[s_index][i] = j / self.structures[s_index].volume
 
-        self.volumes = 4.0 * np.pi * self.r ** 2 * self.dr
+        self.volumes = 4.0 * np.pi * self.r**2 * self.dr
         self.volumes[self.volumes < 1e-8] = 1e8  # avoid divide by zero
         self.n_structures = len(self.structures)
         self.sigma = ceil(sigma / self.dr)
@@ -468,7 +468,7 @@ class RadialDistributionFunctionFast:
         if isinstance(species, str):
             species = [species]
         density = [sum(i[j] for j in species) for i in self.density]
-        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r ** 2 * self.dr) for i, rdf in enumerate(all_rdf)]
+        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr) for i, rdf in enumerate(all_rdf)]
         if is_average:
             cn = np.mean(cn, axis=0)
         return self.r, cn

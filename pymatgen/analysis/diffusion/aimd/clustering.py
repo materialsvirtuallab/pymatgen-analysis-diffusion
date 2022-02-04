@@ -80,7 +80,7 @@ class Kmeans:
         """
         dists = all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
-        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
+        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists**2)
 
     @staticmethod
     def get_centroids(points, labels, k, centroids):
@@ -149,7 +149,7 @@ class KmeansPBC(Kmeans):
         """
         dists = self.lattice.get_all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
-        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
+        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists**2)
 
     def get_centroids(self, points, labels, k, centroids):
         """
