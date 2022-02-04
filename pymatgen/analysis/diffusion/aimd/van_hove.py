@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -120,8 +119,8 @@ class VanHoveAnalysis:
         ref_ions = []  # type: ArrayLike
 
         # auxiliary factor for 4*\pi*r^2
-        aux_factor = 4.0 * np.pi * interval ** 2
-        aux_factor[0] = np.pi * dr ** 2
+        aux_factor = 4.0 * np.pi * interval**2
+        aux_factor[0] = np.pi * dr**2
 
         for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
@@ -159,7 +158,7 @@ class VanHoveAnalysis:
         images = images.reshape((len(r) ** 3, 3))
 
         # find the zero image vector
-        zd = np.sum(images ** 2, axis=1)
+        zd = np.sum(images**2, axis=1)
         indx0 = np.argmin(zd)
 
         for it in range(reduced_nt):
@@ -173,7 +172,7 @@ class VanHoveAnalysis:
                     - ref_ions[it1, None, :, None, :]
                 )
                 dcc = lattice.get_cartesian_coords(dcf)
-                d2 = np.sum(dcc ** 2, axis=3)
+                d2 = np.sum(dcc**2, axis=3)
                 dists = [
                     d2[u, v, j] ** 0.5
                     for u in range(len(indices))
@@ -216,7 +215,7 @@ class VanHoveAnalysis:
             grt = self.gsrt.copy()
             vmax = 1.0
             cb_ticks = [0, 1]
-            cb_label = "4$\pi r^2G_s$($t$,$r$)"
+            cb_label = r"4$\pi r^2G_s$($t$,$r$)"
 
         y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(len(self.interval) - 1)
         x = np.arange(np.shape(grt)[0]) * self.timeskip
@@ -232,7 +231,7 @@ class VanHoveAnalysis:
 
         plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
         plt.xlabel("Time (ps)", size=labelsize)
-        plt.ylabel("$r$ ($\AA$)", size=labelsize)
+        plt.ylabel(r"$r$ ($\AA$)", size=labelsize)
         plt.axis([x.min(), x.max(), y.min(), y.max()])
 
         cbar = plt.colorbar(ticks=cb_ticks)
@@ -267,7 +266,7 @@ class VanHoveAnalysis:
             ylim = [-0.005, 4.0]
         elif mode == "self":
             grt = self.gsrt.copy()
-            ylabel = "4$\pi r^2G_s$($t$,$r$)"
+            ylabel = r"4$\pi r^2G_s$($t$,$r$)"
             ylim = [-0.005, 1.0]
 
         plt = pretty_plot(12, 8)
@@ -542,7 +541,7 @@ class EvolutionAnalyzer:
         """
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
-        x_label, cb_label = "$r$ ({}-{}) ($\\rm\AA$)".format(*pair), "$g(r)$"
+        x_label, cb_label = f"$r$ ({pair[0]}-{pair[1]}) ($\\rm\\AA$)", "$g(r)$"
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
 
         return p
@@ -569,7 +568,7 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
         x_label, cb_label = (
-            "Atomic distribution along {} ".format(direction),
+            f"Atomic distribution along {direction}",
             "Probability",
         )
         p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)

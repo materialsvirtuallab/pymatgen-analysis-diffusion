@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -78,7 +77,7 @@ class RadialDistributionFunction:
         images = images.reshape((len(r) ** 3, 3))
 
         # Find the zero image vector
-        zd = np.sum(images ** 2, axis=1)
+        zd = np.sum(images**2, axis=1)
         indx0 = np.argmin(zd)
 
         for s in structures:
@@ -96,7 +95,7 @@ class RadialDistributionFunction:
         for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices):
             dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
-            d2 = np.sum(dcc ** 2, axis=3)
+            d2 = np.sum(dcc**2, axis=3)
             dists = [
                 d2[u, v, j] ** 0.5
                 for u in range(len(indices))
@@ -249,7 +248,7 @@ class RadialDistributionFunction:
                 label="Peaks",
             )
 
-        plt.xlabel("$r$ ($\\rm\AA$)")
+        plt.xlabel("$r$ ($\\rm\\AA$)")
         plt.ylabel("$g(r)$")
         plt.legend(loc="upper right", fontsize=36)
         plt.xlim(xlim[0], xlim[1])
@@ -276,7 +275,7 @@ class RadialDistributionFunction:
             f.write("\n")
 
             for r, gr in zip(self.interval, self.rdf):
-                f.write(delimiter.join(["%s" % v for v in [r, gr]]))
+                f.write(delimiter.join([str(v) for v in [r, gr]]))
                 f.write("\n")
 
 
@@ -357,7 +356,7 @@ class RadialDistributionFunctionFast:
             for i, j in natoms.items():
                 self.density[s_index][i] = j / self.structures[s_index].volume
 
-        self.volumes = 4.0 * np.pi * self.r ** 2 * self.dr
+        self.volumes = 4.0 * np.pi * self.r**2 * self.dr
         self.volumes[self.volumes < 1e-8] = 1e8  # avoid divide by zero
         self.n_structures = len(self.structures)
         self.sigma = ceil(sigma / self.dr)
@@ -441,8 +440,8 @@ class RadialDistributionFunctionFast:
             & (self.distances[index] > 1e-8)
         )
 
-        density = sum([self.density[index][i] for i in species])
-        natoms = sum([self.natoms[index][i] for i in ref_species])
+        density = sum(self.density[index][i] for i in species)
+        natoms = sum(self.natoms[index][i] for i in ref_species)
         distances = self.distances[index][indices]
         counts = self._dist_to_counts(distances)
         rdf_temp = counts / density / self.volumes / natoms
@@ -468,8 +467,8 @@ class RadialDistributionFunctionFast:
         all_rdf = self.get_rdf(ref_species, species, is_average=False)[1]
         if isinstance(species, str):
             species = [species]
-        density = [sum([i[j] for j in species]) for i in self.density]
-        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r ** 2 * self.dr) for i, rdf in enumerate(all_rdf)]
+        density = [sum(i[j] for j in species) for i in self.density]
+        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr) for i, rdf in enumerate(all_rdf)]
         if is_average:
             cn = np.mean(cn, axis=0)
         return self.r, cn

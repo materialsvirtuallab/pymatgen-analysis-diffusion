@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.tests.test_parse_entries &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
-    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../../../_static/flasky.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../../../../" src="../../../../../../_static/documentation_options.js"></script>
+    <title>pymatgen.analysis.diffusion.utils.tests.test_parse_entries &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
     <script src="../../../../../../_static/jquery.js"></script>
     <script src="../../../../../../_static/underscore.js"></script>
     <script src="../../../../../../_static/doctools.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.tests.test_parse_entries</a></li> 
       </ul>
@@ -48,8 +48,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.diffusion.utils.tests.test_parse_entries</h1><div class="highlight"><pre>
-<span></span><span class="c1"># coding: utf-8</span>
-<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedStructureEntry</span>
@@ -159,11 +158,11 @@
 
 <div class="viewcode-block" id="ParseEntriesTest.test_get_all_sym_sites"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_all_sym_sites">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_sym_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">struct11</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">struct11</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">struct11</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
         <span class="n">struct12</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">struct12</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">struct12</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
         <span class="n">struct22</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">struct22</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">8</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">struct22</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="mi">8</span><span class="p">)</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -186,7 +185,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>

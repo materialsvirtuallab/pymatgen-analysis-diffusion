@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 from monty.serialization import loadfn
@@ -109,11 +108,11 @@ class ParseEntriesTest(unittest.TestCase):
 
     def test_get_all_sym_sites(self):
         struct11 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li")
-        self.assertEquals(struct11.composition["Li"], 4)
+        self.assertEqual(struct11.composition["Li"], 4)
         struct12 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li")
-        self.assertEquals(struct12.composition["Li"], 4)
+        self.assertEqual(struct12.composition["Li"], 4)
         struct22 = get_sym_migration_ion_sites(self.base.structure, self.inserted_2Li.structure, migrating_ion="Li")
-        self.assertEquals(struct22.composition["Li"], 8)
+        self.assertEqual(struct22.composition["Li"], 8)
 
 
 if __name__ == "__main__":

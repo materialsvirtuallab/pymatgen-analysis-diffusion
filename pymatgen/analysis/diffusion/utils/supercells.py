@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 """
@@ -137,6 +136,7 @@ def get_start_end_structures(
     sc_mat: List[List[Union[int, float]]],
     vac_mode: bool,
     debug: bool = False,
+    tol: float = 1e-5,
 ) -> Tuple[Structure, Structure, Structure]:
     """
     Obtain the starting and terminating structures in a supercell for NEB calculations.
@@ -145,15 +145,16 @@ def get_start_end_structures(
         hop: object presenting the migration event
         base_struct: unit cell representation of the structure
         sc_mat: supercell transformation to create the simulation cell for the NEB calc
+        tol: toleranace for identifying isite/esite within base_struct
 
     Returns:
         initial structure, final structure, empty structure all in the supercell
     """
 
-    def remove_site_at_pos(structure: Structure, site: PeriodicSite):
+    def remove_site_at_pos(structure: Structure, site: PeriodicSite, tol: float):
         new_struct_sites = []
         for isite in structure:
-            if not vac_mode or (isite.distance(site) <= 1e-8):
+            if not vac_mode or (isite.distance(site) <= tol):
                 continue
             new_struct_sites.append(isite)
         return Structure.from_sites(new_struct_sites)
@@ -189,6 +190,6 @@ def get_start_end_structures(
             assert abs(np.linalg.norm(icart - ecart) - np.linalg.norm(isite.coords - esite.coords)) < 1e-5
         i_ref_ = PeriodicSite(species=esite.species_string, coords=ipos_sc, lattice=base_sc.lattice)
         e_ref_ = PeriodicSite(species=esite.species_string, coords=epos_sc, lattice=base_sc.lattice)
-        start_struct = remove_site_at_pos(start_struct, e_ref_)
-        end_struct = remove_site_at_pos(end_struct, i_ref_)
+        start_struct = remove_site_at_pos(start_struct, e_ref_, tol)
+        end_struct = remove_site_at_pos(end_struct, i_ref_, tol)
     return start_struct, end_struct, base_sc

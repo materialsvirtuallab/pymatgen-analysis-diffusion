@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -182,9 +181,9 @@ class ProbabilityDensityAnalysis:
 
         if nc < nions:
             raise ValueError(
-                "The number of clusters ({}) is smaller than that of "
-                "mobile ions ({})! Please try to decrease either "
-                "'p_ratio' or 'd_cut' values!".format(nc, nions)
+                f"The number of clusters ({nc}) is smaller than that of "
+                f"mobile ions ({nions})! Please try to decrease either "
+                "'p_ratio' or 'd_cut' values!"
             )
 
         # For each low-energy site (cluster centroid), its coordinates are obtained
@@ -227,7 +226,7 @@ class ProbabilityDensityAnalysis:
         """
 
         count = 1
-        VolinAu = self.structure.lattice.volume / 0.5291772083 ** 3
+        VolinAu = self.structure.lattice.volume / 0.5291772083**3
         symbols = self.structure.symbol_set
         natoms = [str(int(self.structure.composition[symbol])) for symbol in symbols]
         init_fcoords = np.array(self.structure.frac_coords)
@@ -237,21 +236,22 @@ class ProbabilityDensityAnalysis:
             f.write(" 1.00 \n")
 
             for i in range(3):
-                f.write(" {0} {1} {2} \n".format(*self.structure.lattice.matrix[i, :]))
+                v = self.structure.lattice.matrix[i, :]
+                f.write(f" {v[0]} {v[1]} {v[2]} \n")
 
             f.write(" " + " ".join(symbols) + "\n")
             f.write(" " + " ".join(natoms) + "\n")
             f.write("direct\n")
             for fcoord in init_fcoords:
-                f.write(" {0:.8f}  {1:.8f}  {2:.8f} \n".format(*fcoord))
+                f.write(" {:.8f}  {:.8f}  {:.8f} \n".format(*fcoord))  # pylint: disable=C0209
 
             f.write(" \n")
-            f.write(" {0} {1} {2} \n".format(*self.lens))
+            f.write(" {} {} {} \n".format(*self.lens))  # pylint: disable=C0209
 
             for i in range(self.lens[2]):
                 for j in range(self.lens[1]):
                     for k in range(self.lens[0]):
-                        f.write(" {0:.10e} ".format(self.Pr[k, j, i] * VolinAu))
+                        f.write(f" {(self.Pr[k, j, i] * VolinAu):.10e} ")
                         if count % 5 == 0:
                             f.write("\n")
                         count += 1

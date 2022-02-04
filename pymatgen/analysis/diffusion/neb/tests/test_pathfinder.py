@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 import glob
@@ -8,6 +7,7 @@ import unittest
 import numpy as np
 from pymatgen.core import PeriodicSite
 from pymatgen.core import Structure
+from pymatgen.core import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
@@ -217,7 +217,14 @@ class MigrationHopTest(PymatgenTest):
         start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=False)
         start_site = next(filter(lambda x: x.species_string == "Li", start.sites))
         end_site = next(filter(lambda x: x.species_string == "Li", end.sites))
+        assert start.composition == end.composition == Composition("Li1 Fe24 P24 O96")
+        assert b_sc.composition == Composition("Fe24 P24 O96")
         self.assertAlmostEqual(start_site.distance(end_site), dist_ref, 3)
+
+    def test_get_sc_structures_vacmode(self):
+        start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=True)
+        assert start.composition == end.composition == Composition("Li23 Fe24 P24 O96")
+        assert b_sc.composition == Composition("Li24 Fe24 P24 O96")
 
 
 if __name__ == "__main__":

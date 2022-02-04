@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 """
@@ -358,7 +357,7 @@ class MigrationGraph(MSONable):
             cost_val = np.prod([v[ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
 
-    def get_path(self, max_val=100000):
+    def get_path(self, max_val=100000, flip_hops=True):
         """
         obtain a pathway through the material using hops that are in the current graph
         Basic idea:
@@ -367,6 +366,10 @@ class MigrationGraph(MSONable):
             or any other neighboring UC not containing p1.
         Args:
             max_val: Filter the graph by a cost
+            flip_hops: If true, hops in paths returned will be flipped so
+                isites and esites match to form a coherent path.
+                If false, hops will retain their original orientation
+                from the migration graph.
         Returns:
             Generator for List of Dicts:
             Each dict contains the information of a hop
@@ -421,7 +424,10 @@ class MigrationGraph(MSONable):
                         found_ += 1
                 if found_ != 1:
                     raise RuntimeError("More than one edge matched in original graph.")
-            yield u, path_hops
+            if flip_hops is True:  # flip hops in path to form coherent pathway
+                yield u, order_path(path_hops, u)
+            else:
+                yield u, path_hops
 
     def get_summary_dict(self, added_keys: List[str] = None) -> dict:
         """
@@ -635,12 +641,7 @@ class ChargeBarrierGraph(MigrationGraph):
             isym = self.symm_structure.wyckoff_symbols[migration_hop.iindex]
             esym = self.symm_structure.wyckoff_symbols[migration_hop.eindex]
             mask_out.write_file(
-                "{}_{}_{}_tot({:0.2f}).vasp".format(
-                    mask_file_seedname,
-                    isym,
-                    esym,
-                    mask_out.data[self.potential_data_key].sum(),
-                )
+                f"{mask_file_seedname}_{isym}_{esym}_tot({mask_out.data[self.potential_data_key].sum():.2f}).vasp"
             )
 
         return (
@@ -766,6 +767,62 @@ def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str], key: s
         return [site_seq, key_seq]
 
     return site_seq
+
+
+def order_path(hop_list: List[Dict], start_u: Union[int, str]) -> List[Dict]:
+    """
+    Takes a list of hop dictionaries and flips hops (switches isite and esite)
+    as needed to form a coherent path / sequence of sites according to
+    get_hop_site_sequence().
+    For example if hop_list = [{iindex:0, eindex:1, etc.}, {iindex:0, eindex:1, etc.}]
+    then the output is [{iindex:0, eindex:1, etc.}, {iindex:1, eindex:0, etc.}] so that
+    the following hop iindex matches the previous hop's eindex.
+    Args:
+        hop_list: a list of the data on a sequence of hops
+        start_u: the site index of the starting sites
+    Returns:
+        a list of the data on a sequence of hops with hops in coherent orientation
+    """
+    seq = get_hop_site_sequence(hop_list, start_u)
+
+    ordered_path = []
+    for n, hop in zip(seq[:-1], hop_list):
+        if n == hop["iindex"]:  # don't flip hop
+            ordered_path.append(hop)
+        else:
+            # create flipped hop
+            fh = MigrationHop(
+                isite=hop["hop"].esite,
+                esite=hop["hop"].isite,
+                symm_structure=hop["hop"].symm_structure,
+                host_symm_struct=None,
+                symprec=hop["hop"].symprec,
+            )
+            # must manually set iindex and eindex
+            fh.iindex = hop["hop"].eindex
+            fh.eindex = hop["hop"].iindex
+            fhd = {
+                "to_jimage": tuple(-1 * i for i in hop["to_jimage"]),
+                "ipos": fh.isite.frac_coords,
+                "epos": fh.esite.frac_coords,
+                "ipos_cart": fh.isite.coords,
+                "epos_cart": fh.esite.coords,
+                "hop": fh,
+                "hop_label": hop["hop_label"],
+                "iindex": hop["eindex"],
+                "eindex": hop["iindex"],
+                "hop_distance": fh.length,
+            }
+            # flip any data that is in a list to match flipped hop orientation
+            for k in hop.keys():
+                if k not in fhd.keys():
+                    if isinstance(hop[k], list):
+                        fhd[k] = hop[k][::-1]
+                    else:
+                        fhd[k] = hop[k]
+            ordered_path.append(fhd)
+
+    return ordered_path
 
 
 """

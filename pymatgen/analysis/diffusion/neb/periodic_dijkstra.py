@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 """
@@ -86,7 +85,7 @@ def periodic_dijkstra(
     # use a default dict since we don't know how far out to search
     best_ans = defaultdict(lambda: math.inf)  # type: ignore
 
-    path_parent = dict()  # the parent of the current node in the optimal path
+    path_parent = {}  # the parent of the current node in the optimal path
     pq = []  # type: ignore
     for isource in sources:
         heapq.heappush(pq, (0, (isource, (0, 0, 0))))

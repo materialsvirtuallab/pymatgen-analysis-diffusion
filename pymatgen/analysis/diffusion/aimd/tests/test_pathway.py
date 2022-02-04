@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -39,7 +38,7 @@ class ProbabilityDensityTest(unittest.TestCase):
 
     def test_probability_classmethod(self):
         file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        data = json.load(open(file, "r"))
+        data = json.load(open(file))
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
@@ -53,7 +52,7 @@ class ProbabilityDensityTest(unittest.TestCase):
 
     def test_generate_stable_sites(self):
         file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        data = json.load(open(file, "r"))
+        data = json.load(open(file))
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
@@ -91,7 +90,7 @@ class SiteOccupancyTest(unittest.TestCase):
 
     def test_site_occupancy_classmethod(self):
         file = os.path.join(tests_dir, "cNa3PS4_pda.json")
-        data = json.load(open(file, "r"))
+        data = json.load(open(file))
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         structure = diff_analyzer.structure

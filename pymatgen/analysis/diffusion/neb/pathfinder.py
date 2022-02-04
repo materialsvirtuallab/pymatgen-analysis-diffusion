@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -79,7 +78,7 @@ class IDPPSolver:
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8)
+            weights[ni] = 1.0 / (avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -266,7 +265,7 @@ class IDPPSolver:
         Args:
             vec: Vector.
         """
-        return vec / np.sqrt(np.sum(vec ** 2))
+        return vec / np.sqrt(np.sum(vec**2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
@@ -363,24 +362,15 @@ class MigrationHop(MSONable):
             raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
     def __repr__(self):
+        ifc = self.isite.frac_coords
+        efc = self.esite.frac_coords
         return (
-            "Path of %.4f A from %s [%.3f, %.3f, %.3f] "
-            "(ind: %d, Wyckoff: %s) to %s [%.3f, %.3f, %.3f] (ind: %d, Wyckoff: %s)"
-            % (
-                self.length,
-                self.isite.specie,
-                self.isite.frac_coords[0],
-                self.isite.frac_coords[1],
-                self.isite.frac_coords[2],
-                self.iindex,
-                self.symm_structure.wyckoff_symbols[self.iindex],
-                self.esite.specie,
-                self.esite.frac_coords[0],
-                self.esite.frac_coords[1],
-                self.esite.frac_coords[2],
-                self.eindex,
-                self.symm_structure.wyckoff_symbols[self.eindex],
-            )
+            f"Path of {self.length:.4f} A from {self.isite.specie} "
+            f"[{ifc[0]:.3f}, {ifc[1]:.3f}, {ifc[2]:.3f}] "
+            f"(ind: {self.iindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.iindex]}) "
+            f"to {self.esite.specie} "
+            f"[{efc[0]:.3f}, {efc[1]:.3f}, {efc[2]:.3f}] "
+            f"(ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
         )
 
     @property
@@ -458,9 +448,12 @@ class MigrationHop(MSONable):
             if site.specie != self.isite.specie:
                 other_sites.append(site)
             else:
-                if not vac_mode or (self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8):
+                if self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8:
+                    migrating_specie_sites.append(site)
                     continue
-                migrating_specie_sites.append(site)
+
+                if vac_mode:
+                    other_sites.append(site)
         return migrating_specie_sites, other_sites
 
     def get_sc_structures(
@@ -469,6 +462,7 @@ class MigrationHop(MSONable):
         min_atoms: int = 80,
         max_atoms: int = 240,
         min_length: float = 10.0,
+        tol: float = 1e-5,
     ) -> Tuple[Structure, Structure, Structure]:
         """
         Construct supercells that represents the start and end positions for migration analysis.
@@ -478,6 +472,7 @@ class MigrationHop(MSONable):
             max_atoms: Maximum number of atoms allowed in the supercell.
             min_atoms: Minimum number of atoms allowed in the supercell.
             min_length: Minimum length of the smallest supercell lattice vector.
+            tol: toleranace for identifying isite/esite within base_struct
 
         Returns:
             Start, End, Base Structures.
@@ -487,7 +482,10 @@ class MigrationHop(MSONable):
 
         """
         migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
-        base_struct = Structure.from_sites(other_sites)
+        if vac_mode:
+            base_struct = Structure.from_sites(other_sites + migrating_specie_sites)
+        else:
+            base_struct = Structure.from_sites(other_sites)
         sc_mat = get_sc_fromstruct(
             base_struct=base_struct,
             min_atoms=min_atoms,
@@ -495,7 +493,12 @@ class MigrationHop(MSONable):
             min_length=min_length,
         )
         start_struct, end_struct, base_sc = get_start_end_structures(
-            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode  # type: ignore
+            self.isite,
+            self.esite,
+            base_struct,
+            sc_mat,  # type: ignore
+            vac_mode=vac_mode,
+            tol=tol,
         )
         return start_struct, end_struct, base_sc
 

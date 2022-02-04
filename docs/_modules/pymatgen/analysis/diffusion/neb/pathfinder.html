@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2021.4.29 documentation</title>
-    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../../_static/flasky.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <title>pymatgen.analysis.diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
     <script src="../../../../../_static/jquery.js"></script>
     <script src="../../../../../_static/underscore.js"></script>
     <script src="../../../../../_static/doctools.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2021.4.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.pathfinder</a></li> 
       </ul>
@@ -48,8 +48,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.diffusion.neb.pathfinder</h1><div class="highlight"><pre>
-<span></span><span class="c1"># coding: utf-8</span>
-<span class="c1"># Copyright (c) Materials Virtual Lab.</span>
+<span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -75,7 +74,6 @@
 
 <span class="c1"># TODO: (1) ipython notebook example files, unittests</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.structure</span> <span class="kn">import</span> <span class="n">SymmetrizedStructure</span>
-
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_sc_fromstruct</span><span class="p">,</span>
     <span class="n">get_start_end_structures</span><span class="p">,</span>
@@ -349,6 +347,7 @@
         <span class="n">isite</span><span class="p">:</span> <span class="n">Site</span><span class="p">,</span>
         <span class="n">esite</span><span class="p">:</span> <span class="n">Site</span><span class="p">,</span>
         <span class="n">symm_structure</span><span class="p">:</span> <span class="n">SymmetrizedStructure</span><span class="p">,</span>
+        <span class="n">host_symm_struct</span><span class="p">:</span> <span class="n">SymmetrizedStructure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">symprec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -356,6 +355,7 @@
 <span class="sd">            isite: Initial site</span>
 <span class="sd">            esite: End site</span>
 <span class="sd">            symm_structure: SymmetrizedStructure</span>
+<span class="sd">            host_symm_struct: SymmetrizedStructure of the host structure, used to for its spacegroup</span>
 <span class="sd">            symprec: used to determine equivalence</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">=</span> <span class="n">isite</span>
@@ -365,7 +365,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">=</span> <span class="n">symm_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">esite</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
-        <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">spacegroup</span>
+        <span class="k">if</span> <span class="n">host_symm_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">host_symm_structure</span> <span class="o">=</span> <span class="n">host_symm_struct</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_symm_structure</span><span class="o">.</span><span class="n">spacegroup</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">spacegroup</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">([</span><span class="n">isite</span><span class="p">],</span> <span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span> <span class="o">=</span> <span class="n">i</span>
@@ -398,24 +402,15 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No symmetrically equivalent site was found for </span><span class="si">{</span><span class="n">esite</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ifc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">efc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s2">&quot;Path of </span><span class="si">%.4f</span><span class="s2"> A from </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] &quot;</span>
-            <span class="s2">&quot;(ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">, </span><span class="si">%.3f</span><span class="s2">] (ind: </span><span class="si">%d</span><span class="s2">, Wyckoff: </span><span class="si">%s</span><span class="s2">)&quot;</span>
-            <span class="o">%</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">],</span>
-            <span class="p">)</span>
+            <span class="sa">f</span><span class="s2">&quot;Path of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> A from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">ifc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">ifc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">ifc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">] &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(ind: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="si">}</span><span class="s2">, Wyckoff: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">iindex</span><span class="p">]</span><span class="si">}</span><span class="s2">) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">efc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">efc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">efc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">] &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(ind: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="si">}</span><span class="s2">, Wyckoff: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">wyckoff_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -493,9 +488,12 @@
             <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="p">:</span>
                 <span class="n">other_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">vac_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span><span class="p">:</span>
+                    <span class="n">migrating_specie_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
                     <span class="k">continue</span>
-                <span class="n">migrating_specie_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">vac_mode</span><span class="p">:</span>
+                    <span class="n">other_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span>
 
 <div class="viewcode-block" id="MigrationHop.get_sc_structures"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.get_sc_structures">[docs]</a>    <span class="k">def</span> <span class="nf">get_sc_structures</span><span class="p">(</span>
@@ -522,7 +520,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_migrating_and_other_sites</span><span class="p">(</span><span class="n">vac_mode</span><span class="p">)</span>
-        <span class="n">base_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">other_sites</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vac_mode</span><span class="p">:</span>
+            <span class="n">base_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">other_sites</span> <span class="o">+</span> <span class="n">migrating_specie_sites</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">other_sites</span><span class="p">)</span>
         <span class="n">sc_mat</span> <span class="o">=</span> <span class="n">get_sc_fromstruct</span><span class="p">(</span>
             <span class="n">base_struct</span><span class="o">=</span><span class="n">base_struct</span><span class="p">,</span>
             <span class="n">min_atoms</span><span class="o">=</span><span class="n">min_atoms</span><span class="p">,</span>
@@ -676,7 +677,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>

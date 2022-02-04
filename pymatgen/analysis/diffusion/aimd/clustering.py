@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
@@ -81,7 +80,7 @@ class Kmeans:
         """
         dists = all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
-        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
+        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists**2)
 
     @staticmethod
     def get_centroids(points, labels, k, centroids):
@@ -116,7 +115,7 @@ class Kmeans:
             iterations: Number of iterations thus far.
         """
         if iterations > self.max_iterations:
-            warnings.warn("Max iterations %d reached!" % self.max_iterations)
+            warnings.warn(f"Max iterations {self.max_iterations} reached!")
             return True
         if old_centroids is None:
             return False
@@ -150,7 +149,7 @@ class KmeansPBC(Kmeans):
         """
         dists = self.lattice.get_all_distances(points, centroids)
         min_dists = np.min(dists, axis=1)
-        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists ** 2)
+        return np.where(dists == min_dists[:, None])[1], np.sum(min_dists**2)
 
     def get_centroids(self, points, labels, k, centroids):
         """
@@ -192,7 +191,7 @@ class KmeansPBC(Kmeans):
             iterations: Number of iterations thus far.
         """
         if iterations > self.max_iterations:
-            warnings.warn("Max iterations %d reached!" % self.max_iterations)
+            warnings.warn(f"Max iterations {self.max_iterations} reached!")
             return True
         if old_centroids is None:
             return False
