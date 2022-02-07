@@ -7,17 +7,17 @@ Van Hove analysis for correlations.
 
 import itertools
 from collections import Counter
-from typing import List, Tuple, Union, Callable
+from typing import Callable, List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pds
-from scipy.stats import norm
 from pymatgen.core import Structure
-from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.typing import ArrayLike
+from scipy.stats import norm
 
+from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 from .rdf import RadialDistributionFunction
 

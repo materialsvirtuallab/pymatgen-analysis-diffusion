@@ -12,8 +12,7 @@ from typing import Tuple
 
 import numpy as np
 from monty.json import MSONable
-from pymatgen.core import Site
-from pymatgen.core import PeriodicSite, Structure
+from pymatgen.core import PeriodicSite, Site, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -24,10 +23,8 @@ __date__ = "March 14, 2017"
 
 # TODO: (1) ipython notebook example files, unittests
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.analysis.diffusion.utils.supercells import (
-    get_sc_fromstruct,
-    get_start_end_structures,
-)
+
+from pymatgen.analysis.diffusion.utils.supercells import get_sc_fromstruct, get_start_end_structures
 
 logger = logging.getLogger(__name__)
 

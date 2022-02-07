@@ -5,21 +5,13 @@ import os
 import unittest
 
 import numpy as np
-from pymatgen.core import PeriodicSite
-from pymatgen.core import Structure
-from pymatgen.core import Composition
+from pymatgen.core import Composition, PeriodicSite, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
-from pymatgen.analysis.diffusion.neb.pathfinder import (
-    DistinctPathFinder,
-    IDPPSolver,
-    MigrationHop,
-)
-from pymatgen.analysis.diffusion.utils.supercells import (
-    get_start_end_structures,
-)
+from pymatgen.analysis.diffusion.neb.pathfinder import DistinctPathFinder, IDPPSolver, MigrationHop
+from pymatgen.analysis.diffusion.utils.supercells import get_start_end_structures
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"

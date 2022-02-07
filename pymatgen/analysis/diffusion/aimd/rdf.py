@@ -8,15 +8,15 @@ RDF implementation.
 from collections import Counter
 from math import ceil
 from multiprocessing import cpu_count
-from typing import List, Tuple, Union, Dict
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
+from joblib import Parallel, delayed
+from pymatgen.core import Structure
+from pymatgen.util.plotting import pretty_plot
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 from scipy.stats import norm
-from joblib import delayed, Parallel
-from pymatgen.core import Structure
-from pymatgen.util.plotting import pretty_plot
 
 
 class RadialDistributionFunction:

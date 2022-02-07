@@ -1,24 +1,21 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from pymatgen.core import Structure, Lattice
+from pymatgen.core import Lattice, Structure
 
 __author__ = "Iek-Heng Chu"
 __date__ = "01/16"
 
-import unittest
 import os
-import numpy as np
-import matplotlib
+import unittest
 from copy import deepcopy
 
+import matplotlib
+import numpy as np
 from monty.serialization import loadfn
+
+from pymatgen.analysis.diffusion.aimd.van_hove import EvolutionAnalyzer, RadialDistributionFunction, VanHoveAnalysis
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
-from pymatgen.analysis.diffusion.aimd.van_hove import (
-    VanHoveAnalysis,
-    RadialDistributionFunction,
-    EvolutionAnalyzer,
-)
 
 matplotlib.use("pdf")
 tests_dir = os.path.dirname(os.path.abspath(__file__))

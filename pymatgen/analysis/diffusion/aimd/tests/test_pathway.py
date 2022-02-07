@@ -4,17 +4,15 @@
 __author__ = "Iek-Heng Chu"
 __date__ = "01/16"
 
-import unittest
-import os
 import json
+import os
+import unittest
 
 import numpy as np
-from pymatgen.analysis.diffusion.aimd.pathway import (
-    ProbabilityDensityAnalysis,
-    SiteOccupancyAnalyzer,
-)
-from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 from pymatgen.core import Structure
+
+from pymatgen.analysis.diffusion.aimd.pathway import ProbabilityDensityAnalysis, SiteOccupancyAnalyzer
+from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
 

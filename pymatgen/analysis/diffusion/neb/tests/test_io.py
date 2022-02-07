@@ -1,13 +1,14 @@
+import os
+import unittest
+
 from pymatgen.core import Structure
+
 from pymatgen.analysis.diffusion.neb.io import (
     MVLCINEBEndPointSet,
     MVLCINEBSet,
-    get_endpoints_from_index,
     get_endpoint_dist,
+    get_endpoints_from_index,
 )
-
-import unittest
-import os
 
 __author__ = "hat003"
 

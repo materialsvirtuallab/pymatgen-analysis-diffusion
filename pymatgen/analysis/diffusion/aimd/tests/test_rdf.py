@@ -1,12 +1,11 @@
 import os
 import unittest
 
-from monty.serialization import loadfn
 import numpy as np
+from monty.serialization import loadfn
 from pymatgen.core import Lattice, Structure
 
 from pymatgen.analysis.diffusion.aimd.rdf import RadialDistributionFunctionFast
-
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))
 

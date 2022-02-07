@@ -2,14 +2,15 @@
 # Distributed under the terms of the BSD License.
 
 
+import itertools
 import unittest
 
 import numpy as np
-from scipy.cluster.vq import kmeans
-import itertools
 from pymatgen.core import Lattice
-from pymatgen.analysis.diffusion.aimd.clustering import Kmeans, KmeansPBC
 from pymatgen.util.coord import pbc_diff
+from scipy.cluster.vq import kmeans
+
+from pymatgen.analysis.diffusion.aimd.clustering import Kmeans, KmeansPBC
 
 
 class KmeansTest(unittest.TestCase):
