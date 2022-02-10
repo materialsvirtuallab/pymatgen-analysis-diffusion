@@ -11,7 +11,8 @@ import unittest
 import numpy as np
 from pymatgen.core import Structure
 
-from pymatgen.analysis.diffusion.aimd.pathway import ProbabilityDensityAnalysis, SiteOccupancyAnalyzer
+from pymatgen.analysis.diffusion.aimd.pathway import (
+    ProbabilityDensityAnalysis, SiteOccupancyAnalyzer)
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 tests_dir = os.path.dirname(os.path.abspath(__file__))

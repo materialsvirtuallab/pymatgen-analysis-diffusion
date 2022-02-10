@@ -10,12 +10,8 @@ from pymatgen.core import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 from pymatgen.analysis.diffusion.utils.parse_entries import (
-    _filter_and_merge,
-    get_inserted_on_base,
-    get_insertion_energy,
-    get_sym_migration_ion_sites,
-    process_entries,
-)
+    _filter_and_merge, get_inserted_on_base, get_insertion_energy,
+    get_sym_migration_ion_sites, process_entries)
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + "/test_files"
 
