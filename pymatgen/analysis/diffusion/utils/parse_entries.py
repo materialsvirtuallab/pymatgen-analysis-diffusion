@@ -8,9 +8,11 @@ import logging
 from typing import Dict, List, Optional, Union
 
 import numpy as np
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+from pymatgen.analysis.structure_matcher import (ElementComparator,
+                                                 StructureMatcher)
 from pymatgen.core import Composition, Lattice, Structure
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.computed_entries import (ComputedEntry,
+                                               ComputedStructureEntry)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Jimmy Shen"

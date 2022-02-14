@@ -9,13 +9,10 @@ from pymatgen.core import PeriodicSite, Structure
 from pymatgen.io.vasp import Chgcar
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import (
-    ChargeBarrierGraph,
-    MigrationGraph,
-    MigrationHop,
-    get_hop_site_sequence,
-    order_path,
-)
-from pymatgen.analysis.diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
+    ChargeBarrierGraph, MigrationGraph, MigrationHop, get_hop_site_sequence,
+    order_path)
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import \
+    _get_adjacency_with_images
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
