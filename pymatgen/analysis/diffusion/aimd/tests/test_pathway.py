@@ -10,6 +10,7 @@ import unittest
 
 import numpy as np
 from pymatgen.core import Structure
+from pymatgen.io.vasp import Chgcar
 
 from pymatgen.analysis.diffusion.aimd.pathway import ProbabilityDensityAnalysis, SiteOccupancyAnalyzer
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
@@ -66,6 +67,18 @@ class ProbabilityDensityTest(unittest.TestCase):
         self.assertEqual(s.composition["Na"], 48)
         self.assertEqual(s.composition["X"], 50)
         self.assertAlmostEqual(s[177].frac_coords[2], 0.57446809)
+
+    def test_to_chgcar(self):
+        file = os.path.join(tests_dir, "cNa3PS4_pda.json")
+        data = json.load(open(file))
+        diff_analyzer = DiffusionAnalyzer.from_dict(data)
+
+        # ProbabilityDensityAnalysis object
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer, interval=0.1)
+        pda.to_chgcar("CHGCAR.PDA")
+        chgcar = Chgcar.from_file("CHGCAR.PDA")
+        self.assertEqual(pda.structure.species, chgcar.structure.species)
+        os.remove("CHGCAR.PDA")
 
 
 class SiteOccupancyTest(unittest.TestCase):
