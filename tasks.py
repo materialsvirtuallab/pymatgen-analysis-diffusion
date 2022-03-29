@@ -5,13 +5,13 @@ Deployment file to facilitate releases of pymatgen.analysis.diffusion.
 """
 
 
-import glob
 import datetime
-import re
+import glob
 import json
-import requests
 import os
+import re
 
+import requests
 from invoke import task
 from monty.os import cd
 
