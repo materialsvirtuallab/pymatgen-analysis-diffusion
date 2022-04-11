@@ -12,8 +12,7 @@ from typing import Tuple
 
 import numpy as np
 from monty.json import MSONable
-from pymatgen.core import Site
-from pymatgen.core import PeriodicSite, Structure
+from pymatgen.core import PeriodicSite, Site, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -24,10 +23,8 @@ __date__ = "March 14, 2017"
 
 # TODO: (1) ipython notebook example files, unittests
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.analysis.diffusion.utils.supercells import (
-    get_sc_fromstruct,
-    get_start_end_structures,
-)
+
+from pymatgen.analysis.diffusion.utils.supercells import get_sc_fromstruct, get_start_end_structures
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +75,7 @@ class IDPPSolver:
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (avg_dist ** 4 + np.eye(natoms, dtype=np.float64) * 1e-8)
+            weights[ni] = 1.0 / (avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -192,7 +189,7 @@ class IDPPSolver:
         return idpp_structures
 
     @classmethod
-    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0):
+    def from_endpoints(cls, endpoints, nimages=5, sort_tol=1.0, interpolate_lattices=False):
         """
         A class method that starts with end-point structures instead. The
         initial guess for the IDPP algo is then constructed using linear
@@ -206,14 +203,24 @@ class IDPPSolver:
                 to increase the value in some cases.
         """
         try:
-            images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=sort_tol)
+            images = endpoints[0].interpolate(
+                endpoints[1],
+                nimages=nimages + 1,
+                autosort_tol=sort_tol,
+                interpolate_lattices=interpolate_lattices,
+            )
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
                     "Auto sorting is turned off because it is unable" " to match the end-point structures!",
                     UserWarning,
                 )
-                images = endpoints[0].interpolate(endpoints[1], nimages=nimages + 1, autosort_tol=0)
+                images = endpoints[0].interpolate(
+                    endpoints[1],
+                    nimages=nimages + 1,
+                    autosort_tol=0,
+                    interpolate_lattices=interpolate_lattices,
+                )
             else:
                 raise e
 
@@ -255,7 +262,7 @@ class IDPPSolver:
         Args:
             vec: Vector.
         """
-        return vec / np.sqrt(np.sum(vec ** 2))
+        return vec / np.sqrt(np.sum(vec**2))
 
     def _get_total_forces(self, x, true_forces, spring_const):
         """
@@ -452,6 +459,7 @@ class MigrationHop(MSONable):
         min_atoms: int = 80,
         max_atoms: int = 240,
         min_length: float = 10.0,
+        tol: float = 1e-5,
     ) -> Tuple[Structure, Structure, Structure]:
         """
         Construct supercells that represents the start and end positions for migration analysis.
@@ -461,6 +469,7 @@ class MigrationHop(MSONable):
             max_atoms: Maximum number of atoms allowed in the supercell.
             min_atoms: Minimum number of atoms allowed in the supercell.
             min_length: Minimum length of the smallest supercell lattice vector.
+            tol: toleranace for identifying isite/esite within base_struct
 
         Returns:
             Start, End, Base Structures.
@@ -481,7 +490,12 @@ class MigrationHop(MSONable):
             min_length=min_length,
         )
         start_struct, end_struct, base_sc = get_start_end_structures(
-            self.isite, self.esite, base_struct, sc_mat, vac_mode=vac_mode  # type: ignore
+            self.isite,
+            self.esite,
+            base_struct,
+            sc_mat,  # type: ignore
+            vac_mode=vac_mode,
+            tol=tol,
         )
         return start_struct, end_struct, base_sc
 

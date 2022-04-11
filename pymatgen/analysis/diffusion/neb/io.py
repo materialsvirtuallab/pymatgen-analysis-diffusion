@@ -7,8 +7,8 @@ Generate input fiels for NEB calculations.
 
 import copy
 
-from pymatgen.io.vasp.sets import MITRelaxSet, MITNEBSet
 from pymatgen.core import Structure
+from pymatgen.io.vasp.sets import MITNEBSet, MITRelaxSet
 
 __author__ = "Austen"
 

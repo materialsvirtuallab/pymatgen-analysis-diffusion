@@ -77,6 +77,8 @@ def set_ver(ctx):
             lines.append(re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, l.rstrip()))
     with open("setup.py", "wt") as f:
         f.write("\n".join(lines))
+    ctx.run("black pymatgen")
+    ctx.run("black setup.py")
 
 
 @task

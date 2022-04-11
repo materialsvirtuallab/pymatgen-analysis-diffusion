@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
-from pymatgen.core import Structure, PeriodicSite
+from pymatgen.core import PeriodicSite, Structure
 from pymatgen.io.vasp import Chgcar
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import (

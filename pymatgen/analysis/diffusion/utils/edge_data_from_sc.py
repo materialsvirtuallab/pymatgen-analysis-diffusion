@@ -13,12 +13,14 @@ __date__ = "February 2, 2021"
 
 import logging
 from typing import Tuple
+
 import numpy as np
-from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure import PeriodicSite, Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
 from pymatgen.analysis.diffusion.utils.parse_entries import get_matched_structure_mapping
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
 

@@ -5,6 +5,7 @@
  Algorithms for diffusion pathway analysis
 """
 
+import itertools
 from collections import Counter
 
 import numpy as np
@@ -226,8 +227,9 @@ class ProbabilityDensityAnalysis:
         """
 
         count = 1
-        VolinAu = self.structure.lattice.volume / 0.5291772083 ** 3
-        symbols = self.structure.symbol_set
+        VolinAu = self.structure.lattice.volume / 0.5291772083**3
+        syms = [site.specie.symbol for site in self.structure]
+        symbols = [a[0] for a in itertools.groupby(syms)]
         natoms = [str(int(self.structure.composition[symbol])) for symbol in symbols]
         init_fcoords = np.array(self.structure.frac_coords)
 

@@ -5,21 +5,13 @@ import os
 import unittest
 
 import numpy as np
-from pymatgen.core import PeriodicSite
-from pymatgen.core import Structure
-from pymatgen.core import Composition
+from pymatgen.core import Composition, PeriodicSite, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
-from pymatgen.analysis.diffusion.neb.pathfinder import (
-    DistinctPathFinder,
-    IDPPSolver,
-    MigrationHop,
-)
-from pymatgen.analysis.diffusion.utils.supercells import (
-    get_start_end_structures,
-)
+from pymatgen.analysis.diffusion.neb.pathfinder import DistinctPathFinder, IDPPSolver, MigrationHop
+from pymatgen.analysis.diffusion.utils.supercells import get_start_end_structures
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -76,7 +68,129 @@ class IDPPSolverTest(unittest.TestCase):
             )
         )
 
-        pass
+    def test_idpp_from_ep_diff_latt(self):
+
+        # This is the same test as test_idpp_from_ep where we want to interpolate
+        # different lattices.
+
+        # make a copy of the final_struct and distort the lattice by 5%
+        final_struct_strain = self.final_struct.copy()
+        final_struct_strain.apply_strain(0.05)
+
+        obj = IDPPSolver.from_endpoints(
+            [self.init_struct, final_struct_strain],
+            nimages=3,
+            sort_tol=1.0,
+            interpolate_lattices=True,
+        )
+        new_path = obj.run(
+            maxiter=5000,
+            tol=1e-5,
+            gtol=1e-3,
+            step_size=0.05,
+            max_disp=0.05,
+            spring_const=5.0,
+            species=["Li"],
+        )
+
+        self.assertEqual(len(new_path), 5)
+        self.assertEqual(new_path[1].num_sites, 111)
+
+        # For checking coords, the endpoints will have the same frac coords as the
+        # original test, whereas the midpoints will not have altered coord because
+        # of the differing lattice.
+        self.assertTrue(
+            np.allclose(
+                new_path[0][2].frac_coords,
+                np.array([0.50000014, 0.99999998, 0.74999964]),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[1][0].frac_coords,
+                np.array([0.47483465, 0.6740367, 0.26270862]),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[2][10].frac_coords,
+                np.array([0.48839604, 0.73135841, 0.73315875]),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[3][22].frac_coords,
+                np.array([0.27395552, 0.60307242, 0.95398018]),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[4][47].frac_coords,
+                np.array([0.59767531, 0.12640952, 0.37745006]),
+            )
+        )
+
+        # ensure the lattices are interpolated
+        self.assertTrue(
+            np.allclose(
+                new_path[0].lattice.matrix,
+                np.array(
+                    [
+                        [10.4117233, 0.0, 0.0],
+                        [0.0, 12.07835177, 0.0],
+                        [0.0, 0.0, 9.47759962],
+                    ]
+                ),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[1].lattice.matrix,
+                np.array(
+                    [
+                        [10.54186984, 0.0, 0.0],
+                        [0.0, 12.22933117, 0.0],
+                        [0.0, 0.0, 9.59606961],
+                    ]
+                ),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[2].lattice.matrix,
+                np.array(
+                    [
+                        [10.67201638, 0.0, 0.0],
+                        [0.0, 12.38031057, 0.0],
+                        [0.0, 0.0, 9.71453961],
+                    ]
+                ),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[3].lattice.matrix,
+                np.array(
+                    [
+                        [10.80216292, 0.0, 0.0],
+                        [0.0, 12.53128996, 0.0],
+                        [0.0, 0.0, 9.8330096],
+                    ]
+                ),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                new_path[4].lattice.matrix,
+                np.array(
+                    [
+                        [10.93230946, 0.0, 0.0],
+                        [0.0, 12.68226936, 0.0],
+                        [0.0, 0.0, 9.9514796],
+                    ]
+                ),
+            )
+        )
 
     def test_idpp(self):
         images = self.init_struct.interpolate(self.final_struct, nimages=4, autosort_tol=1.0)

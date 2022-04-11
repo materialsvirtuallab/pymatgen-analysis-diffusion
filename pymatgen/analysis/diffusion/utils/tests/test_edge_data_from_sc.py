@@ -2,10 +2,12 @@
 # Distributed under the terms of the BSD License.
 
 import os
+
 import numpy as np
 import pytest
-from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure import PeriodicSite, Structure
+
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 from pymatgen.analysis.diffusion.utils.edge_data_from_sc import add_edge_data_from_sc, get_uc_pos, get_unique_hop
 
