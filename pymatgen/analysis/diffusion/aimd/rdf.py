@@ -104,13 +104,10 @@ class RadialDistributionFunction:
                 for j in range(len(r) ** 3)
                 if indices[u] != reference_indices[v] or j != indx0
             ]
-            r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax + 1e-8, dists)]
+            r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax, dists)]
             dns.update(r_indices)
 
         for indx, dn in dns.most_common(ngrid):
-            if indx > len(interval) - 1:
-                continue
-
             # Volume of the thin shell
             ff = 4.0 / 3.0 * np.pi * (interval[indx + 1] ** 3 - interval[indx] ** 3)
             # print(norm.pdf(interval, interval[indx], sigma) * dn /
