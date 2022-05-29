@@ -60,15 +60,11 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.analyzer</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DiffusionAnalyzer</span><span class="p">,</span>
-    <span class="n">fit_arrhenius</span><span class="p">,</span>
-    <span class="n">get_conversion_factor</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.testing</span> <span class="kn">import</span> <span class="n">PymatgenTest</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.analyzer</span> <span class="kn">import</span> <span class="n">DiffusionAnalyzer</span><span class="p">,</span> <span class="n">fit_arrhenius</span><span class="p">,</span> <span class="n">get_conversion_factor</span>
 
 <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 

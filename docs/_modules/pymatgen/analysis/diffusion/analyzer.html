@@ -74,11 +74,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">OrderDisorderElementComparator</span><span class="p">,</span>
-    <span class="n">StructureMatcher</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">OrderDisorderElementComparator</span><span class="p">,</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Vasprun</span>
@@ -319,7 +315,7 @@
                     <span class="n">dcomponents</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">n</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>
 
                 <span class="c1"># Get msd</span>
-                <span class="n">sq_disp</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="n">sq_disp</span> <span class="o">=</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span>
                 <span class="n">sq_disp_ions</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sq_disp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">msd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">sq_disp_ions</span><span class="p">[:,</span> <span class="n">i</span><span class="p">][</span><span class="n">indices</span><span class="p">])</span>
 
@@ -385,7 +381,7 @@
             <span class="c1"># Drift and displacement information.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drift</span> <span class="o">=</span> <span class="n">drift</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">corrected_displacements</span> <span class="o">=</span> <span class="n">dc</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_ion_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dc</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_ion_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dc</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">max_framework_displacement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_ion_displacements</span><span class="p">[</span><span class="n">framework_indices</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">msd</span> <span class="o">=</span> <span class="n">msd</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mscd</span> <span class="o">=</span> <span class="n">mscd</span>
@@ -852,7 +848,7 @@
     <span class="n">n</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">species</span><span class="p">]</span>
 
     <span class="n">vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-24</span>  <span class="c1"># units cm^3</span>
-    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_get_vasprun</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -897,7 +893,7 @@
 <span class="sd">        new_temp (float): desired temperature. units: K</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (float) Diffusivity at extrapolated temp in mS/cm.</span>
+<span class="sd">        (float) Diffusivity at extrapolated temp in cm^2/s.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">new_temp</span><span class="p">))</span></div>

@@ -62,8 +62,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Site</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 
@@ -74,10 +73,8 @@
 
 <span class="c1"># TODO: (1) ipython notebook example files, unittests</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.structure</span> <span class="kn">import</span> <span class="n">SymmetrizedStructure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_sc_fromstruct</span><span class="p">,</span>
-    <span class="n">get_start_end_structures</span><span class="p">,</span>
-<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="n">get_sc_fromstruct</span><span class="p">,</span> <span class="n">get_start_end_structures</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -128,7 +125,7 @@
         <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">target_dists</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="p">):</span>
             <span class="n">avg_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">+</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
-            <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_dist</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-8</span><span class="p">)</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_dist</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-8</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ni</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">)):</span>
             <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
@@ -242,7 +239,7 @@
         <span class="k">return</span> <span class="n">idpp_structures</span></div>
 
 <div class="viewcode-block" id="IDPPSolver.from_endpoints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.from_endpoints">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class method that starts with end-point structures instead. The</span>
 <span class="sd">        initial guess for the IDPP algo is then constructed using linear</span>
@@ -256,14 +253,24 @@
 <span class="sd">                to increase the value in some cases.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="n">sort_tol</span><span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                <span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">autosort_tol</span><span class="o">=</span><span class="n">sort_tol</span><span class="p">,</span>
+                <span class="n">interpolate_lattices</span><span class="o">=</span><span class="n">interpolate_lattices</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;Unable to reliably match structures &quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;Auto sorting is turned off because it is unable&quot;</span> <span class="s2">&quot; to match the end-point structures!&quot;</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                    <span class="n">endpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">autosort_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">interpolate_lattices</span><span class="o">=</span><span class="n">interpolate_lattices</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">e</span>
 
@@ -305,7 +312,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            vec: Vector.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vec</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vec</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">_get_total_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -502,6 +509,7 @@
         <span class="n">min_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
         <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
         <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct supercells that represents the start and end positions for migration analysis.</span>
@@ -511,6 +519,7 @@
 <span class="sd">            max_atoms: Maximum number of atoms allowed in the supercell.</span>
 <span class="sd">            min_atoms: Minimum number of atoms allowed in the supercell.</span>
 <span class="sd">            min_length: Minimum length of the smallest supercell lattice vector.</span>
+<span class="sd">            tol: toleranace for identifying isite/esite within base_struct</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Start, End, Base Structures.</span>
@@ -531,7 +540,12 @@
             <span class="n">min_length</span><span class="o">=</span><span class="n">min_length</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">base_sc</span> <span class="o">=</span> <span class="n">get_start_end_structures</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="p">,</span> <span class="n">base_struct</span><span class="p">,</span> <span class="n">sc_mat</span><span class="p">,</span> <span class="n">vac_mode</span><span class="o">=</span><span class="n">vac_mode</span>  <span class="c1"># type: ignore</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="p">,</span>
+            <span class="n">base_struct</span><span class="p">,</span>
+            <span class="n">sc_mat</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">vac_mode</span><span class="o">=</span><span class="n">vac_mode</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">base_sc</span></div>
 

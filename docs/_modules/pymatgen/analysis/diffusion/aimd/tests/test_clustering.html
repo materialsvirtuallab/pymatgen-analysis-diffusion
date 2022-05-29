@@ -52,14 +52,15 @@
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 
 
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.clustering</span> <span class="kn">import</span> <span class="n">Kmeans</span><span class="p">,</span> <span class="n">KmeansPBC</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.clustering</span> <span class="kn">import</span> <span class="n">Kmeans</span><span class="p">,</span> <span class="n">KmeansPBC</span>
 
 
 <div class="viewcode-block" id="KmeansTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_clustering.html#pymatgen.analysis.diffusion.aimd.tests.test_clustering.KmeansTest">[docs]</a><span class="k">class</span> <span class="nc">KmeansTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>

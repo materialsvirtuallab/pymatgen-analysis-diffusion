@@ -50,21 +50,21 @@
   <h1>Source code for pymatgen.analysis.diffusion.utils.tests.test_parse_entries</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedStructureEntry</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.parse_entries</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_filter_and_merge</span><span class="p">,</span>
     <span class="n">get_inserted_on_base</span><span class="p">,</span>
-    <span class="n">process_entries</span><span class="p">,</span>
     <span class="n">get_insertion_energy</span><span class="p">,</span>
     <span class="n">get_sym_migration_ion_sites</span><span class="p">,</span>
-    <span class="n">_filter_and_merge</span><span class="p">,</span>
+    <span class="n">process_entries</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/test_files&quot;</span>

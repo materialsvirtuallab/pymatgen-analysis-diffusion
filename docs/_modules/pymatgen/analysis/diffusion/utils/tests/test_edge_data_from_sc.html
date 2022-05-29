@@ -52,10 +52,12 @@
 <span class="c1"># Distributed under the terms of the BSD License.</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.edge_data_from_sc</span> <span class="kn">import</span> <span class="n">add_edge_data_from_sc</span><span class="p">,</span> <span class="n">get_uc_pos</span><span class="p">,</span> <span class="n">get_unique_hop</span>
 

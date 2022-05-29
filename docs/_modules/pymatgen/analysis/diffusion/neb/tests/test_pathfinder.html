@@ -55,21 +55,13 @@
 <span class="kn">import</span> <span class="nn">unittest</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.testing</span> <span class="kn">import</span> <span class="n">PymatgenTest</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.pathfinder</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DistinctPathFinder</span><span class="p">,</span>
-    <span class="n">IDPPSolver</span><span class="p">,</span>
-    <span class="n">MigrationHop</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_start_end_structures</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.pathfinder</span> <span class="kn">import</span> <span class="n">DistinctPathFinder</span><span class="p">,</span> <span class="n">IDPPSolver</span><span class="p">,</span> <span class="n">MigrationHop</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="n">get_start_end_structures</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
@@ -124,9 +116,131 @@
                 <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">]),</span>
             <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="IDPPSolverTest.test_idpp_from_ep_diff_latt"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp_from_ep_diff_latt">[docs]</a>    <span class="k">def</span> <span class="nf">test_idpp_from_ep_diff_latt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># This is the same test as test_idpp_from_ep where we want to interpolate</span>
+        <span class="c1"># different lattices.</span>
+
+        <span class="c1"># make a copy of the final_struct and distort the lattice by 5%</span>
+        <span class="n">final_struct_strain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">final_struct_strain</span><span class="o">.</span><span class="n">apply_strain</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">IDPPSolver</span><span class="o">.</span><span class="n">from_endpoints</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="p">,</span> <span class="n">final_struct_strain</span><span class="p">],</span>
+            <span class="n">nimages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">new_path</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">maxiter</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+            <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">max_disp</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">spring_const</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span>
         <span class="p">)</span>
 
-        <span class="k">pass</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_path</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_sites</span><span class="p">,</span> <span class="mi">111</span><span class="p">)</span>
+
+        <span class="c1"># For checking coords, the endpoints will have the same frac coords as the</span>
+        <span class="c1"># original test, whereas the midpoints will not have altered coord because</span>
+        <span class="c1"># of the differing lattice.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.47483465</span><span class="p">,</span> <span class="mf">0.6740367</span><span class="p">,</span> <span class="mf">0.26270862</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.48839604</span><span class="p">,</span> <span class="mf">0.73135841</span><span class="p">,</span> <span class="mf">0.73315875</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.27395552</span><span class="p">,</span> <span class="mf">0.60307242</span><span class="p">,</span> <span class="mf">0.95398018</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ensure the lattices are interpolated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span><span class="mf">10.4117233</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.07835177</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.47759962</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span><span class="mf">10.54186984</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.22933117</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.59606961</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span><span class="mf">10.67201638</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.38031057</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.71453961</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span><span class="mf">10.80216292</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.53128996</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.8330096</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">[</span><span class="mf">10.93230946</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">12.68226936</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">9.9514796</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="IDPPSolverTest.test_idpp"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp">[docs]</a>    <span class="k">def</span> <span class="nf">test_idpp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>

@@ -69,21 +69,17 @@
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">MinimumDistanceNN</span><span class="p">,</span> <span class="n">NearNeighbors</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.path_finder</span> <span class="kn">import</span> <span class="n">ChgcarPotential</span><span class="p">,</span> <span class="n">NEBPathfinder</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> <span class="n">ComputedStructureEntry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">VolumetricData</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.structure</span> <span class="kn">import</span> <span class="n">SymmetrizedStructure</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.pathfinder</span> <span class="kn">import</span> <span class="n">MigrationHop</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.periodic_dijkstra</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_optimal_pathway_rev</span><span class="p">,</span>
-    <span class="n">periodic_dijkstra</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.periodic_dijkstra</span> <span class="kn">import</span> <span class="n">get_optimal_pathway_rev</span><span class="p">,</span> <span class="n">periodic_dijkstra</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.parse_entries</span> <span class="kn">import</span> <span class="n">process_entries</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
