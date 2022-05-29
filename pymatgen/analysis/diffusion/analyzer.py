@@ -843,7 +843,7 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
         new_temp (float): desired temperature. units: K
 
     Returns:
-        (float) Diffusivity at extrapolated temp in mS/cm.
+        (float) Diffusivity at extrapolated temp in cm^2/s.
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
     return c * np.exp(-Ea / (const.k / const.e * new_temp))
