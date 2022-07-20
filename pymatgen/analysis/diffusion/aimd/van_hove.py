@@ -385,7 +385,7 @@ class EvolutionAnalyzer:
             density (np.array): atomic concentration along one direction.
         """
         if direction in ["a", "b", "c"]:
-            l = structure.lattice.__getattribute__(direction)
+            l = structure.lattice.direction
             ind = ["a", "b", "c"].index(direction)
             assert window <= l, "Window range exceeds valid bounds!"
         else:

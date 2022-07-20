@@ -372,9 +372,7 @@ class MigrationGraph(MSONable):
         """
 
         if len(self.unique_hops) != len(self.unique_hops):
-            logger.error(
-                f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self.__str__()}"
-            )
+            logger.error(f"There are {len(self.unique_hops)} SC hops but {len(self.unique_hops)} UC hops in {self}")
 
         # for u, v, k, d in self.m_graph.graph.edges(data=True, keys=True):
         for u in self.m_graph.graph.nodes():
