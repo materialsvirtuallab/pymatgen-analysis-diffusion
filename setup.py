@@ -1,9 +1,9 @@
 # Copyright (c) Materials Virtual Lab
 # Distributed under the terms of the Modified BSD License.
 
-from setuptools import setup, find_namespace_packages
-
 import os
+
+from setuptools import find_namespace_packages, setup
 
 SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
