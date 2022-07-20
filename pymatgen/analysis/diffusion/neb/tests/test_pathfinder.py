@@ -292,6 +292,10 @@ class MigrationHopTest(PymatgenTest):
         symm_structure = a.get_symmetrized_structure()
         self.m_hop = MigrationHop(i_site, e_site, symm_structure)
 
+    def test_msonable(self):
+        hop_dict = self.m_hop.as_dict()
+        assert type(hop_dict) == dict
+
     def test_get_start_end_structs_from_hop(self):
         dist_ref = self.m_hop.length
         base = self.lifepo.copy()
