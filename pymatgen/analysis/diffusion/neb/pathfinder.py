@@ -320,10 +320,10 @@ class MigrationHop(MSONable):
         self.iindex = None
         self.eindex = None
         self.symm_structure = symm_structure
+        self.host_symm_struct = host_symm_struct
         self.symprec = symprec
         self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
         if host_symm_struct:
-            self.host_symm_structure = host_symm_struct
             sg = self.host_symm_structure.spacegroup
         else:
             sg = self.symm_structure.spacegroup
