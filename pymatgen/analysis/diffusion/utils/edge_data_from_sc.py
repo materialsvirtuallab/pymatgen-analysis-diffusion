@@ -137,7 +137,7 @@ def mh_eq(mh1, mh2):
         Boolean True if they're equal, False if they are not
     """
     assert mh1.symm_structure == mh2.symm_structure
-    return mh1.__eq__(mh2)
+    return mh1 == mh2
 
 
 def get_unique_hop(

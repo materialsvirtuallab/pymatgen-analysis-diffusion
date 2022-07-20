@@ -90,7 +90,7 @@ class IDPPSolver:
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
                     translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
-        self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)
+        self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)  # pylint: disable=E1121
         self.translations = translations
         self.weights = weights
         self.structures = structures

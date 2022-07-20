@@ -105,7 +105,7 @@ class ProbabilityDensityAnalysis:
         for i, n in count.most_common(ngrid):
             Pr[i] = float(n) / nsteps / len(indices) / lattice.volume * ngrid
 
-        Pr = Pr.reshape(lens[0], lens[1], lens[2])
+        Pr = Pr.reshape(lens[0], lens[1], lens[2])  # pylint: disable=E1121
 
         self.structure = structure
         self.trajectories = trajectories
