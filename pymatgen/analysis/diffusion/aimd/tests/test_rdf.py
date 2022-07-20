@@ -20,7 +20,6 @@ class RDFTest(unittest.TestCase):
             structure_list.append(s)
             if i == 9:
                 break
-        species = ["Na", "P", "S"]
 
         # Test from_species
         obj = RadialDistributionFunctionFast(structures=structure_list, ngrid=101, rmax=10.0, sigma=0.1)
