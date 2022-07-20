@@ -24,10 +24,7 @@ import warnings
 import numpy as np
 import scipy.constants as const
 from monty.json import MSONable
-from pymatgen.analysis.structure_matcher import (
-    OrderDisorderElementComparator,
-    StructureMatcher,
-)
+from pymatgen.analysis.structure_matcher import OrderDisorderElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
