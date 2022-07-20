@@ -489,7 +489,7 @@ class DiffusionAnalyzer(MSONable):
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(plot_dt, sd, label=sp.__str__())
+                plt.plot(plot_dt, sd, label=str(sp))
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "sites":
             for i, site in enumerate(self.structure):
