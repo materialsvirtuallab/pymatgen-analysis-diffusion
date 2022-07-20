@@ -14,7 +14,11 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer, fit_arrhenius, get_conversion_factor
+from pymatgen.analysis.diffusion.analyzer import (
+    DiffusionAnalyzer,
+    fit_arrhenius,
+    get_conversion_factor,
+)
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
