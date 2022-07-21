@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.neb.io module &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.neb.io module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.io module</a></li> 
       </ul>
     </div>  
@@ -48,15 +49,15 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.neb.io">
-<span id="pymatgen-analysis-diffusion-neb-io-module"></span><h1>pymatgen.analysis.diffusion.neb.io module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.neb.io" title="Permalink to this headline">¶</a></h1>
+<span id="pymatgen-analysis-diffusion-neb-io-module"></span><h1>pymatgen.analysis.diffusion.neb.io module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.neb.io" title="Permalink to this heading">¶</a></h1>
 <p>Generate input fiels for NEB calculations.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.io.MVLCINEBEndPointSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MVLCINEBEndPointSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/io.html#MVLCINEBEndPointSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.io.MVLCINEBEndPointSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITRelaxSet</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MITRelaxSet</span></code></p>
 <p>Class for writing NEB end points relaxation inputs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – Structure</p></li>
 <li><p><strong>**kwargs</strong> – Keyword args supported by VaspInputSets.</p></li>
@@ -68,12 +69,12 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.io.MVLCINEBSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MVLCINEBSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/io.html#MVLCINEBSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.io.MVLCINEBSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITNEBSet</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MITNEBSet</span></code></p>
 <p>MAVRL-tested settings for CI-NEB calculations. Note that these parameters
 requires the VTST modification of VASP from the Henkelman group. See
 <a class="reference external" href="http://theory.cm.utexas.edu/vtsttools/">http://theory.cm.utexas.edu/vtsttools/</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – Structure</p></li>
 <li><p><strong>**kwargs</strong> – Keyword args supported by VaspInputSets.</p></li>
@@ -92,10 +93,10 @@ boundary conditions.
 :param ep_1: the second endpoint structure.
 :type ep_1: Structure</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a list of distances between two structures.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dist (list)</p>
 </dd>
 </dl>
@@ -107,20 +108,20 @@ boundary conditions.
 <dd><p>This class reads in one perfect structure and the two endpoint structures
 are generated using site_indices.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<em>Structure</em>) – A perfect structure.</p></li>
 <li><p><strong>site_indices</strong> (<em>list of int</em>) – a two-element list indicating site indices.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>a two-element list of two endpoints</dt><dd><p>Structure object.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>endpoints (list of Structure)</p>
 </dd>
 </dl>
@@ -155,7 +156,7 @@ are generated using site_indices.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
