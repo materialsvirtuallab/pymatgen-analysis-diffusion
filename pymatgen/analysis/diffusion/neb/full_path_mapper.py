@@ -29,7 +29,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
 from pymatgen.analysis.diffusion.neb.pathfinder import MigrationHop
-from pymatgen.analysis.diffusion.neb.periodic_dijkstra import get_optimal_pathway_rev, periodic_dijkstra
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import (
+    get_optimal_pathway_rev,
+    periodic_dijkstra,
+)
 from pymatgen.analysis.diffusion.utils.parse_entries import process_entries
 
 logger = logging.getLogger(__name__)
