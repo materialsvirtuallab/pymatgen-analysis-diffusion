@@ -20,7 +20,6 @@ from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
 
 
-
 class RadialDistributionFunction:
     """
     Calculate the average radial distribution function for a given set of
