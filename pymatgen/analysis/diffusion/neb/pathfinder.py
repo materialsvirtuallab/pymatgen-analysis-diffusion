@@ -324,7 +324,7 @@ class MigrationHop(MSONable):
         self.symprec = symprec
         self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
         if host_symm_struct:
-            sg = self.host_symm_struct.spacegroup
+            sg = self.host_symm_struct.spacegroup  # type: ignore
         else:
             sg = self.symm_structure.spacegroup
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
