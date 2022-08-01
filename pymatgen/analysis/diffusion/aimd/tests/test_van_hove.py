@@ -14,7 +14,11 @@ import matplotlib
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.analysis.diffusion.aimd.van_hove import EvolutionAnalyzer, RadialDistributionFunction, VanHoveAnalysis
+from pymatgen.analysis.diffusion.aimd.van_hove import (
+    EvolutionAnalyzer,
+    RadialDistributionFunction,
+    VanHoveAnalysis,
+)
 
 matplotlib.use("pdf")
 tests_dir = os.path.dirname(os.path.abspath(__file__))
