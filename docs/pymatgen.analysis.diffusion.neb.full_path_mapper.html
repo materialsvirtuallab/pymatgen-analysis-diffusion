@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.neb.full_path_mapper module &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.neb.full_path_mapper module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.full_path_mapper module</a></li> 
       </ul>
     </div>  
@@ -48,12 +49,12 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.neb.full_path_mapper">
-<span id="pymatgen-analysis-diffusion-neb-full-path-mapper-module"></span><h1>pymatgen.analysis.diffusion.neb.full_path_mapper module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.neb.full_path_mapper" title="Permalink to this headline">¶</a></h1>
+<span id="pymatgen-analysis-diffusion-neb-full-path-mapper-module"></span><h1>pymatgen.analysis.diffusion.neb.full_path_mapper module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.neb.full_path_mapper" title="Permalink to this heading">¶</a></h1>
 <p>Migraiton Graph Analysis</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargeBarrierGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.analysis.graphs.StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_data_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#ChargeBarrierGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargeBarrierGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VolumetricData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_data_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#ChargeBarrierGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">MigrationGraph</span></code></a></p>
 <p>A Migration graph with additional charge density analysis on the charge density of the host material</p>
 <p>Construct the MigrationGraph object using a VolumetricData object.
 The graph is constructure using the structure, and cost values are assigned based on charge density analysis.
@@ -62,7 +63,7 @@ The graph is constructure using the structure, and cost values are assigned base
 <div><p>not have to contains all the metastable sites.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>migrating_specie</strong> (<em>Specie-like</em>) – The specie that migrates. E.g.,
 “Li”.</p></li>
@@ -87,7 +88,7 @@ The graph is constructure using the structure, and cost values are assigned base
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph.populate_edges_with_chg_density_info">
 <span class="sig-name descname"><span class="pre">populate_edges_with_chg_density_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tube_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#ChargeBarrierGraph.populate_edges_with_chg_density_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph.populate_edges_with_chg_density_info" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>tube_radius</strong> – Tube radius.</p>
 </dd>
 </dl>
@@ -97,8 +98,8 @@ The graph is constructure using the structure, and cost values are assigned base
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MigrationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.analysis.graphs.StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MigrationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>A python object for handling the migratrion graph of a given base
 structure and mobile specie sites within that base structure.</p>
 <p>Each mobile site is a node in the migration graph and hops
@@ -115,7 +116,7 @@ together based on their equivalence.
 structure, does not contain any migrating sites.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>m_graph</strong> – The StructureGraph object that defines the
 migration network</p></li>
@@ -127,7 +128,7 @@ of migration events</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.add_data_to_similar_edges">
-<span class="sig-name descname"><span class="pre">add_data_to_similar_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.add_data_to_similar_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.add_data_to_similar_edges" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_data_to_similar_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">MigrationHop</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.add_data_to_similar_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.add_data_to_similar_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert data to all edges with the same label
 :param target_label: The edge uniqueness label are adding data
 :param data: The data to passed to the different edges
@@ -156,7 +157,7 @@ Ask the graph for a pathway that connects to p1 from either within the (0,0,0) c
 or any other neighboring UC not containing p1.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>max_val</strong> – Filter the graph by a cost</p></li>
 <li><p><strong>flip_hops</strong> – If true, hops in paths returned will be flipped so
@@ -165,10 +166,10 @@ If false, hops will retain their original orientation
 from the migration graph.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Each dict contains the information of a hop</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Generator for List of Dicts</p>
 </dd>
 </dl>
@@ -176,11 +177,11 @@ from the migration graph.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_structure_from_entries">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure_from_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.get_structure_from_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_structure_from_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure_from_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.get_structure_from_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_structure_from_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read in a list of base entries and inserted entries.  Return a list of structures that contains metastable
 sites for the migration species decorated with a “insertion_energy” property.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>base_entries</strong> – List of entries that only contains the host lattice</p></li>
 <li><p><strong>inserted_entries</strong> – List of entries that contains the inserted structures</p></li>
@@ -199,7 +200,7 @@ stol parameter for more strict matching.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a list of host structures with working ion on all the metastable sites.
 The structures are ranked by the number of metastable sites (most is first)
 If the given entries are not enough to construct such a structure, return an empty list.</p>
@@ -215,19 +216,19 @@ If the given entries are not enough to construct such a structure, return an emp
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.host_structure">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host_structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pymatgen.core.structure.Structure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.host_structure" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host_structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Structure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.host_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>A structure that only contains the non-migrating species</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.only_sites">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">only_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pymatgen.core.structure.Structure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.only_sites" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">only_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Structure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.only_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>A structure that only contains the migrating species</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.symm_structure">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symm_structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pymatgen.symmetry.structure.SymmetrizedStructure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.symm_structure" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symm_structure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SymmetrizedStructure</span></em><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.symm_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>The symmetrized structure with the present item’s symprec value</p>
 </dd></dl>
 
@@ -239,13 +240,13 @@ If the given entries are not enough to construct such a structure, return an emp
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_base_structure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_base_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.analysis.graphs.StructureGraph</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_base_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_base_structure" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_base_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureGraph</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_base_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_base_structure" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>base_structure</strong> – base framework structure that does not contain any
 migrating sites.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A constructed MigrationGraph object</p>
 </dd>
 </dl>
@@ -253,7 +254,7 @@ migrating sites.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_distance">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_distance" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
 :param max_distance: Maximum length of NEB path in the unit</p>
 <blockquote>
@@ -261,7 +262,7 @@ migrating sites.</p>
 value to the min cutoff until finding 1D or &gt;1D percolating paths.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A constructed MigrationGraph object</p>
 </dd>
 </dl>
@@ -269,13 +270,13 @@ value to the min cutoff until finding 1D or &gt;1D percolating paths.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_local_env_strategy">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_local_env_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_local_env_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_local_env_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NearNeighbors</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#MigrationGraph.with_local_env_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
 :param structure: Input structure that contains all sites.
 :param migrating_specie: The specie that migrates. E.g. “Li”.
 :param nn: The specific local environment object used to connect the migrating ion sites.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A constructed MigrationGraph object</p>
 </dd>
 </dl>
@@ -297,7 +298,7 @@ are equilvalent under lattice translation
 :param sc_hop: MigrationHop object form pymatgen-diffusion.
 :param uc_hop: MigrationHop object form pymatgen-diffusion.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>image vector of lenght 3
 Is the UC hop flip of the SC hop</p>
 </dd>
@@ -306,12 +307,12 @@ Is the UC hop flip of the SC hop</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.generic_groupby">
-<span class="sig-name descname"><span class="pre">generic_groupby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_in:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp:</span> <span class="pre">typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">eq&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#generic_groupby"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.generic_groupby" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">generic_groupby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_in:</span> <span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">eq&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#generic_groupby"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.generic_groupby" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group a list of unsortable objects
 :param list_in: A list of generic objects
 :param comp: (Default value = operator.eq) The comparator</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>[int] list of labels for the input list</p>
 </dd>
 </dl>
@@ -326,7 +327,7 @@ Is the UC hop flip of the SC hop</p>
 :param key: property to track in a hop (e.g.: “hop_distance”)
 :type key: optional</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>String representation of the hop sequence (and property values if any)</p>
 </dd>
 </dl>
@@ -334,15 +335,15 @@ Is the UC hop flip of the SC hop</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.get_only_sites_from_structure">
-<span class="sig-name descname"><span class="pre">get_only_sites_from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pymatgen.core.structure.Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pymatgen.core.structure.Structure</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#get_only_sites_from_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.get_only_sites_from_structure" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_only_sites_from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_specie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Structure</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#get_only_sites_from_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.get_only_sites_from_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a copy of the structure with only the migrating sites.
 :param structure: The full_structure that contains all the sites
 :param migrating_specie: The name of migrating species</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Structure with all possible migrating ion sites</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Structure</p>
 </dd>
 </dl>
@@ -350,7 +351,7 @@ Is the UC hop flip of the SC hop</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.full_path_mapper.map_hop_sc2uc">
-<span class="sig-name descname"><span class="pre">map_hop_sc2uc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sc_hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#map_hop_sc2uc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.map_hop_sc2uc" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">map_hop_sc2uc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sc_hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">MigrationHop</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/full_path_mapper.html#map_hop_sc2uc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.full_path_mapper.map_hop_sc2uc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map a given hop in the SC onto the UC.
 :param sc_hop: MigrationHop object form pymatgen-diffusion.
 :param mg: MigrationGraph object from pymatgen-diffusion.</p>
@@ -376,7 +377,7 @@ the following hop iindex matches the previous hop’s eindex.
 :param hop_list: a list of the data on a sequence of hops
 :param start_u: the site index of the starting sites</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a list of the data on a sequence of hops with hops in coherent orientation</p>
 </dd>
 </dl>
@@ -411,7 +412,7 @@ the following hop iindex matches the previous hop’s eindex.
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>

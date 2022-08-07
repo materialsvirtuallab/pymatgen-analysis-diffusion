@@ -272,7 +272,7 @@ def _filter_and_merge(inserted_structure: Structure) -> Union[Structure, None]:
         col_sites = base.get_sites_in_sphere(i_site.coords, BASE_COLLISION_R)
         if len(col_sites) == 0:
             non_colliding_sites.append(i_site)
-    res = Structure.from_sites(non_colliding_sites + base.sites)
+    res = Structure.from_sites(non_colliding_sites + base.sites)  # type: ignore
     res.merge_sites(tol=SITE_MERGE_R, mode="average")
     return res
 

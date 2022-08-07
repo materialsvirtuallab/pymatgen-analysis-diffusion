@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.analyzer module &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.analyzer module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.analyzer module</a></li> 
       </ul>
     </div>  
@@ -48,7 +49,7 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.analyzer">
-<span id="pymatgen-analysis-diffusion-analyzer-module"></span><h1>pymatgen.analysis.diffusion.analyzer module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.analyzer" title="Permalink to this headline">¶</a></h1>
+<span id="pymatgen-analysis-diffusion-analyzer-module"></span><h1>pymatgen.analysis.diffusion.analyzer module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.analyzer" title="Permalink to this heading">¶</a></h1>
 <p>A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
 citing the following papers:</p>
@@ -66,7 +67,7 @@ citing the following papers:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiffusionAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_skip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_nsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class for performing diffusion analysis.</p>
 <p>This constructor is meant to be used with pre-processed data.
 Other convenient constructors are provided as class methods (see
@@ -81,7 +82,7 @@ diffusion estimate, a least squares regression of the MSD against
 time to obtain the slope, which is then related to the diffusivity.</p>
 <p>For traditional analysis, use smoothed=False and weighted=False.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<em>Structure</em>) – Initial structure.</p></li>
 <li><p><strong>displacements</strong> (<em>array</em>) – Numpy array of with shape [site,
@@ -137,7 +138,7 @@ set to the lattice in the “structure” argument.</p></li>
 <dd><p>Writes MSD data to a csv file that can be easily plotted in other
 software.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
 the extension is csv, a csv file is written. Otherwise,
 a dat format is assumed.</p>
@@ -149,7 +150,7 @@ a dat format is assumed.</p>
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
 </dd>
 </dl>
@@ -162,7 +163,7 @@ a dat format is assumed.</p>
 <dd><p>Convenient constructor that takes in a list of vasprun.xml paths to
 perform diffusion analysis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepaths</strong> (<em>[</em><em>str</em><em>]</em>) – List of paths to vasprun.xml files of runs. (
 must be ordered in sequence of MD simulation). For example,
@@ -204,7 +205,7 @@ Examples include smoothed, min_obs, avg_nsteps.</p></li>
 <dd><p>Convenient constructor that takes in a list of Structure objects to
 perform diffusion analysis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structures</strong> (<em>[</em><em>Structure</em><em>]</em>) – list of Structure objects (must be
 ordered in sequence of run). E.g., you may have performed
@@ -239,7 +240,7 @@ Examples include smoothed, min_obs, avg_nsteps.</p></li>
 <dd><p>Convenient constructor that takes in a list of Vasprun objects to
 perform diffusion analysis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vaspruns</strong> (<em>[</em><em>Vasprun</em><em>]</em>) – List of Vaspruns (must be ordered  in
 sequence of MD simulation). E.g., you may have performed
@@ -270,7 +271,7 @@ Examples include smoothed, min_obs, avg_nsteps.</p></li>
 iterator is to reduce memory usage as # of structures in MD can be
 huge. You don’t often need all the structures all at once.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<em>int</em>) – applies a start/stop/step to the iterator.
 Faster than applying it after generation, as it reduces the
@@ -294,7 +295,7 @@ for melting, especially if framework atoms can move via paddle-wheel
 or similar mechanism (which would show up in max framework displacement
 but doesn’t constitute melting).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made
 to an existing plot. Otherwise, a new plot will be created.</p></li>
@@ -315,7 +316,7 @@ a secondary mobile ion is present.</p></li>
 <dd><p>Get the plot of the smoothed msd vs time graph. Useful for
 checking convergence. This can be written to an image file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>plt</strong> – A plot object. Defaults to None, which means one will be
 generated.</p></li>
@@ -332,7 +333,7 @@ time will be plotted.</p></li>
 <span class="sig-name descname"><span class="pre">get_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_msd_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_mscd_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer.get_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.get_summary_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a summary of diffusion information.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>include_msd_t</strong> (<em>bool</em>) – Whether to include mean square displace and
 time data with the data.</p></li>
@@ -340,7 +341,7 @@ time data with the data.</p></li>
 time data with the data.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(dict) of diffusion and conductivity data.</p>
 </dd>
 </dl>
@@ -351,7 +352,7 @@ time data with the data.</p></li>
 <span class="sig-name descname"><span class="pre">plot_msd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer.plot_msd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.plot_msd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the smoothed msd vs time graph. Useful for checking convergence.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mode</strong> (<em>str</em>) – Can be “default” (the default, shows only the MSD for
 the diffusing specie, and its components), “ions” (individual
 square displacements of all ions), “species” (mean square
@@ -371,7 +372,7 @@ displacement for diffusing specie).</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
@@ -386,7 +387,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <span class="sig-name descname"><span class="pre">get_arrhenius_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivity_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_arrhenius_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an Arrhenius plot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures.</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
@@ -396,7 +397,7 @@ diffusivities. If None, no error bar is plotted.</p></li>
 <li><p><strong>\*\*kwargs</strong> – Any keyword args supported by matplotlib.pyplot.plot.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A matplotlib.pyplot object. Do plt.show() to show the plot.</p>
 </dd>
 </dl>
@@ -411,14 +412,14 @@ species. Note that the charge is based on the oxidation state of the
 species (where available), or else the number of valence electrons
 (usually a good guess, esp for main group ions).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<em>Structure</em>) – Input structure.</p></li>
 <li><p><strong>species</strong> (<em>Element/Species</em>) – Diffusing species.</p></li>
 <li><p><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Conversion factor.
 Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</p>
 </dd>
@@ -430,7 +431,7 @@ Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</p>
 <span class="sig-name descname"><span class="pre">get_extrapolated_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_extrapolated_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns extrapolated mS/cm conductivity.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
@@ -440,7 +441,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <li><p><strong>species</strong> (<em>string/Species</em>) – conducting species</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(float) Conductivity at extrapolated temp in mS/cm.</p>
 </dd>
 </dl>
@@ -451,7 +452,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <span class="sig-name descname"><span class="pre">get_extrapolated_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_temp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_extrapolated_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (Arrhenius) extrapolated diffusivity at new_temp</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
@@ -459,7 +460,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <li><p><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(float) Diffusivity at extrapolated temp in cm^2/s.</p>
 </dd>
 </dl>
@@ -494,7 +495,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v2022.4.22
+----------
+* Make MigrationHop MSONAble. (@acrutt)
+
 v2021.4.29
 ----------
 * Fixed msite calc order (@hmlli)

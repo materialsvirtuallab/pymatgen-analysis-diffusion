@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.pathway module</a></li> 
       </ul>
     </div>  
@@ -48,7 +49,7 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.aimd.pathway">
-<span id="pymatgen-analysis-diffusion-aimd-pathway-module"></span><h1>pymatgen.analysis.diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.pathway" title="Permalink to this headline">¶</a></h1>
+<span id="pymatgen-analysis-diffusion-aimd-pathway-module"></span><h1>pymatgen.analysis.diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.pathway" title="Permalink to this heading">¶</a></h1>
 <p>Algorithms for diffusion pathway analysis</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis">
@@ -71,7 +72,7 @@ Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
 (2) in fractional coordinates.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points
 (in Angstrom)</p></li>
@@ -84,7 +85,7 @@ Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>diffusion_analyzer</strong> (<a class="reference internal" href="pymatgen.analysis.diffusion.analyzer.html#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer" title="pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer"><em>DiffusionAnalyzer</em></a>) – A
 pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
@@ -107,7 +108,7 @@ given distance cutoff. Note that the low-energy sites may converge more
 slowly in fast conductors (more shallow energy landscape) than in the slow
 conductors.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>p_ratio</strong> (<em>float</em>) – Probability threshold above which a grid point is
 considered as a low-energy site.</p></li>
@@ -173,7 +174,7 @@ The occupancy of a site is determined based on the shortest distance scheme.</p>
 <dd></dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<em>pmg_structure</em>) – Initial structure.</p></li>
 <li><p><strong>coords_ref</strong> (<em>N_s x 3 array</em>) – Fractional coordinates of N_s given sites
@@ -190,7 +191,7 @@ simulation. Note that the coordinates are fractional.</p></li>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coords_ref</strong> (<em>nested list of floats</em>) – Fractional coordinates of a list
 of reference sites at which the site occupancy will be computed.</p></li>
@@ -239,7 +240,7 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>

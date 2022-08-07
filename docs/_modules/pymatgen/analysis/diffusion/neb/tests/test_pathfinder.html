@@ -1,16 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.tests.test_pathfinder &#8212; pymatgen-diffusion 2022.1.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.neb.tests.test_pathfinder &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
     <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
     <script src="../../../../../../_static/jquery.js"></script>
     <script src="../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../../../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
@@ -36,7 +37,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.1.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.tests.test_pathfinder</a></li> 
       </ul>
@@ -338,6 +339,10 @@
         <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span> <span class="o">=</span> <span class="n">MigrationHop</span><span class="p">(</span><span class="n">i_site</span><span class="p">,</span> <span class="n">e_site</span><span class="p">,</span> <span class="n">symm_structure</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MigrationHopTest.test_msonable"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_msonable">[docs]</a>    <span class="k">def</span> <span class="nf">test_msonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hop_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">hop_dict</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span></div>
+
 <div class="viewcode-block" id="MigrationHopTest.test_get_start_end_structs_from_hop"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_start_end_structs_from_hop">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_start_end_structs_from_hop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dist_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">length</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -416,7 +421,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
