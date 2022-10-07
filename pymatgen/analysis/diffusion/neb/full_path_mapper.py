@@ -251,13 +251,15 @@ class MigrationGraph(MSONable):
 
         if len(base_entries) == 0:
             logger.debug(
-                f"No base entries found among {[ient.composition.formula for ient in entries]}, make sure you include one."
+                f"No base entries found among {[ient.composition.formula for ient in entries]}, "
+                "make sure you include one."
             )
             return []
 
         if len(inserted_entries) == 0:
             logger.debug(
-                f"No inserted entries found among {[ient.composition.formula for ient in entries]}, make sure you include one."
+                f"No inserted entries found among {[ient.composition.formula for ient in entries]}, "
+                "make sure you include one."
             )
             return []
 
