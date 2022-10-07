@@ -218,8 +218,7 @@ class MigrationGraph(MSONable):
         sites for the migration species decorated with a "insertion_energy" property.
 
         Args:
-            base_entries: List of entries that only contains the host lattice
-            inserted_entries: List of entries that contains the inserted structures
+            entries: List of entries, must contain a mixture of inserted and empty structures.
             migrating_ion_entry: The metallic phase of the working ion, used to calculate insertion energies.
 
         Additional Kwargs:
@@ -251,10 +250,11 @@ class MigrationGraph(MSONable):
                 base_entries.append(ient)
 
         if len(base_entries) == 0:
-            logger.debug(f"No base entries found among {[ient.composition.formula for ient in entries]}")
+            logger.debug(f"No base entries found among {[ient.composition.formula for ient in entries]}, make sure you include one.")
             return []
-        if len(base_entries) == 0:
-            logger.debug(f"No inserted entries found among {[ient.composition.formula for ient in entries]}")
+        
+        if len(inserted_entries) == 0:
+            logger.debug(f"No inserted entries found among {[ient.composition.formula for ient in entries]}, make sure you include one.")
             return []
 
         l_base_and_inserted = process_entries(
