@@ -7,4 +7,4 @@ flake8
 pylint
 black
 treon==0.1.4
-maggma==0.49.5
+maggma==0.49.6
