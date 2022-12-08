@@ -16,7 +16,6 @@ from scipy.stats import norm
 
 from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.typing import ArrayLike
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 from .rdf import RadialDistributionFunction
