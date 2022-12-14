@@ -325,7 +325,7 @@ class MigrationGraph(MSONable):
         self,
         target_label: int | str,
         data: dict,
-        m_hop: MigrationHop = None,
+        m_hop: MigrationHop | None = None,
     ):
         """
         Insert data to all edges with the same label
@@ -433,7 +433,7 @@ class MigrationGraph(MSONable):
             else:
                 yield u, path_hops
 
-    def get_summary_dict(self, added_keys: list[str] = None) -> dict:
+    def get_summary_dict(self, added_keys: list[str] | None = None) -> dict:
         """
         Dictionary format, for saving to database
         """
@@ -699,7 +699,7 @@ class ChargeBarrierGraph(MigrationGraph):
                 min_path = path
         return min_path
 
-    def get_summary_dict(self, add_keys: list[str] = None):
+    def get_summary_dict(self, add_keys: list[str] | None = None):
         """
         Dictionary format, for saving to database
         """
