@@ -18,7 +18,6 @@ from scipy.stats import norm
 from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
-from pymatgen.util.typing import ArrayLike
 
 from .rdf import RadialDistributionFunction
 
@@ -116,8 +115,8 @@ class VanHoveAnalysis:
         gsrt = np.zeros((reduced_nt, ngrid), dtype=np.double)
         gdrt = np.zeros((reduced_nt, ngrid), dtype=np.double)
 
-        tracking_ions = []  # type: ArrayLike
-        ref_ions = []  # type: ArrayLike
+        tracking_ions = []
+        ref_ions = []
 
         # auxiliary factor for 4*\pi*r^2
         aux_factor = 4.0 * np.pi * interval**2
@@ -128,8 +127,8 @@ class VanHoveAnalysis:
             tracking_ions.append(all_fcoords[indices, :])
             ref_ions.append(all_fcoords[ref_indices, :])
 
-        tracking_ions = np.array(tracking_ions)
-        ref_ions = np.array(ref_ions)
+        tracking_ions = np.array(tracking_ions)  # type: ignore
+        ref_ions = np.array(ref_ions)  # type: ignore
 
         gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / float(avg_nsteps) / float(len(ref_indices))
 
@@ -168,9 +167,9 @@ class VanHoveAnalysis:
 
             for it1 in range(avg_nsteps):
                 dcf = (
-                    tracking_ions[it0 + it1, :, None, None, :]
+                    tracking_ions[it0 + it1, :, None, None, :]  # type: ignore
                     + images[None, None, :, :]
-                    - ref_ions[it1, None, :, None, :]
+                    - ref_ions[it1, None, :, None, :]  # type: ignore
                 )
                 dcc = lattice.get_cartesian_coords(dcf)
                 d2 = np.sum(dcc**2, axis=3)
