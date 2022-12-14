@@ -8,7 +8,7 @@ RDF implementation.
 from collections import Counter
 from math import ceil
 from multiprocessing import cpu_count
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 from joblib import Parallel, delayed

@@ -18,7 +18,6 @@ from typing import Union
 
 from maggma.stores import MongoStore
 from monty.serialization import MontyDecoder
-from pymatgen.entries.computed_entries import ComputedEntry
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
