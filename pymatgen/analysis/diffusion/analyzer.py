@@ -574,7 +574,7 @@ class DiffusionAnalyzer(MSONable):
         """
         fmt = "csv" if filename.lower().endswith(".csv") else "dat"
         delimiter = ", " if fmt == "csv" else " "
-        with open(filename, "wt") as f:
+        with open(filename, "w") as f:
             if fmt == "dat":
                 f.write("# ")
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))

@@ -68,14 +68,14 @@ def set_ver(ctx):
                 lines.append('__version__ = "%s"' % NEW_VER)
             else:
                 lines.append(l.rstrip())
-    with open("pymatgen/analysis/diffusion/__init__.py", "wt") as f:
+    with open("pymatgen/analysis/diffusion/__init__.py", "w") as f:
         f.write("\n".join(lines))
 
     lines = []
     with open("setup.py") as f:
         for l in f:
             lines.append(re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, l.rstrip()))
-    with open("setup.py", "wt") as f:
+    with open("setup.py", "w") as f:
         f.write("\n".join(lines))
     ctx.run("black pymatgen")
     ctx.run("black setup.py")
