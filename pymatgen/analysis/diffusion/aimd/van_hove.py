@@ -4,10 +4,11 @@
 """
 Van Hove analysis for correlations.
 """
+from __future__ import annotations
 
 import itertools
 from collections import Counter
-from typing import Callable, List, Tuple, Union
+from typing import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,6 +18,7 @@ from scipy.stats import norm
 from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
+from pymatgen.util.typing import ArrayLike
 
 from .rdf import RadialDistributionFunction
 
@@ -46,9 +48,9 @@ class VanHoveAnalysis:
         step_skip: int = 50,
         sigma: float = 0.1,
         cell_range: int = 1,
-        species: Union[Tuple, List] = ("Li", "Na"),
-        reference_species: Union[Tuple, List] = None,
-        indices: List = None,
+        species: tuple | list = ("Li", "Na"),
+        reference_species: tuple | list | None = None,
+        indices: list | None = None,
     ):
         """
         Initiation.
@@ -197,7 +199,7 @@ class VanHoveAnalysis:
         # time interval (in ps) in gsrt and gdrt.
         self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / 1000.0
 
-    def get_3d_plot(self, figsize: Tuple = (12, 8), mode: str = "distinct"):
+    def get_3d_plot(self, figsize: tuple = (12, 8), mode: str = "distinct"):
         """
         Plot 3D self-part or distinct-part of van Hove function, which is
         specified by the input argument 'type'.
@@ -240,7 +242,7 @@ class VanHoveAnalysis:
 
         return plt
 
-    def get_1d_plot(self, mode: str = "distinct", times: List = [0.0], colors: List = None):
+    def get_1d_plot(self, mode: str = "distinct", times: list = [0.0], colors: list | None = None):
         """
         Plot the van Hove function at given r or t.
 
@@ -292,7 +294,7 @@ class EvolutionAnalyzer:
     Analyze the evolution of structures during AIMD simulations.
     """
 
-    def __init__(self, structures: List, rmax: float = 10, step: int = 1, time_step: int = 2):
+    def __init__(self, structures: list, rmax: float = 10, step: int = 1, time_step: int = 2):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -337,7 +339,7 @@ class EvolutionAnalyzer:
         return list(pairs)
 
     @staticmethod
-    def rdf(structure: Structure, pair: Tuple, ngrid: int = 101, rmax: float = 10):
+    def rdf(structure: Structure, pair: tuple, ngrid: int = 101, rmax: float = 10):
         """
         Process rdf from a given structure and pair.
 
@@ -404,7 +406,7 @@ class EvolutionAnalyzer:
 
         return np.array(density)
 
-    def get_df(self, func: Callable, save_csv: str = None, **kwargs):
+    def get_df(self, func: Callable, save_csv: str | None = None, **kwargs):
         """
         Get the data frame for a given pair. This step would be very slow if
         there are hundreds or more structures to parse.
@@ -466,8 +468,8 @@ class EvolutionAnalyzer:
     @staticmethod
     def plot_evolution_from_data(
         df: pds.DataFrame,
-        x_label: str = None,
-        cb_label: str = None,
+        x_label: str | None = None,
+        cb_label: str | None = None,
         cmap=plt.cm.plasma,  # pylint: disable=E1101
     ):
         """
@@ -522,7 +524,7 @@ class EvolutionAnalyzer:
 
     def plot_rdf_evolution(
         self,
-        pair: Tuple,
+        pair: tuple,
         cmap=plt.cm.plasma,  # pylint: disable=E1101
         df: pds.DataFrame = None,
     ):

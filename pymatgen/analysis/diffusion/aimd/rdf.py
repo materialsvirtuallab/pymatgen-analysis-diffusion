@@ -4,11 +4,11 @@
 """
 RDF implementation.
 """
+from __future__ import annotations
 
 from collections import Counter
 from math import ceil
 from multiprocessing import cpu_count
-from typing import List, Tuple, Union
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -28,9 +28,9 @@ class RadialDistributionFunction:
 
     def __init__(
         self,
-        structures: List,
-        indices: List,
-        reference_indices: List,
+        structures: list,
+        indices: list,
+        reference_indices: list,
         ngrid: int = 101,
         rmax: float = 10.0,
         cell_range: int = 1,
@@ -38,7 +38,7 @@ class RadialDistributionFunction:
     ):
         """
         Args:
-            structures ([Structure]): List of structure
+            structures ([Structure]): list of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
             rmax (float): Maximum of radial grid (the minimum is always zero)
@@ -147,19 +147,19 @@ class RadialDistributionFunction:
     @classmethod
     def from_species(
         cls,
-        structures: List,
+        structures: list,
         ngrid: int = 101,
         rmax: float = 10.0,
         cell_range: int = 1,
         sigma: float = 0.1,
-        species: Union[Tuple, List] = ("Li", "Na"),
-        reference_species: Union[Tuple, List] = None,
+        species: tuple | list = ("Li", "Na"),
+        reference_species: tuple | list | None = None,
     ):
         """
         Initialize using species.
 
         Args:
-            structures (list of pmg_structure objects): List of structure
+            structures (list of pmg_structure objects): list of structure
                 objects with the same composition. Allow for ensemble averaging.
             ngrid (int): Number of radial grid points.
             rmax (float): Maximum of radial grid (the minimum is always zero).
@@ -206,7 +206,7 @@ class RadialDistributionFunction:
 
     def get_rdf_plot(
         self,
-        label: str = None,
+        label: str | None = None,
         xlim: tuple = (0.0, 8.0),
         ylim: tuple = (-0.005, 3.0),
         loc_peak: bool = False,
@@ -284,7 +284,7 @@ class RadialDistributionFunctionFast:
 
     def __init__(
         self,
-        structures: Union[Structure, List[Structure]],
+        structures: Structure | list[Structure],
         rmin: float = 0.0,
         rmax: float = 10.0,
         ngrid: float = 101,
@@ -346,7 +346,7 @@ class RadialDistributionFunctionFast:
         elements = np.array([str(i.specie) for i in structures[0]])  # type: ignore
         self.center_elements = [elements[i] for i in self.center_indices]
         self.neighbor_elements = [elements[i] for i in self.neighbor_indices]
-        self.density = [{}] * len(self.structures)  # type: List[Dict]
+        self.density = [{}] * len(self.structures)  # type: list[dict]
 
         self.natoms = [i.composition.to_data_dict["unit_cell_composition"] for i in self.structures]
 
@@ -377,8 +377,8 @@ class RadialDistributionFunctionFast:
 
     def get_rdf(
         self,
-        ref_species: Union[str, List[str]],
-        species: Union[str, List[str]],
+        ref_species: str | list[str],
+        species: str | list[str],
         is_average=True,
     ):
         """
@@ -406,8 +406,8 @@ class RadialDistributionFunctionFast:
 
     def get_one_rdf(
         self,
-        ref_species: Union[str, List[str]],
-        species: Union[str, List[str]],
+        ref_species: str | list[str],
+        species: str | list[str],
         index=0,
     ):
         """
@@ -472,7 +472,7 @@ class RadialDistributionFunctionFast:
         return self.r, cn
 
 
-def _get_neighbor_list(structure, r) -> Tuple:
+def _get_neighbor_list(structure, r) -> tuple:
     """
     Thin wrapper to enable parallel calculations
 

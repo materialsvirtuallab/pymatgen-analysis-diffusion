@@ -3,6 +3,7 @@
 """
 Migraiton Graph Analysis
 """
+from __future__ import annotations
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -14,7 +15,7 @@ import logging
 import operator
 from copy import deepcopy
 from itertools import starmap
-from typing import Callable, Dict, List, Union
+from typing import Callable
 
 import networkx as nx
 import numpy as np
@@ -209,16 +210,16 @@ class MigrationGraph(MSONable):
 
     @staticmethod
     def get_structure_from_entries(
-        entries: List[ComputedStructureEntry],
+        entries: list[ComputedStructureEntry],
         migrating_ion_entry: ComputedEntry,
         **kwargs,
-    ) -> List[Structure]:
+    ) -> list[Structure]:
         """
         Read in a list of base entries and inserted entries.  Return a list of structures that contains metastable
         sites for the migration species decorated with a "insertion_energy" property.
 
         Args:
-            entries: List of entries, must contain a mixture of inserted and empty structures.
+            entries: list of entries, must contain a mixture of inserted and empty structures.
             migrating_ion_entry: The metallic phase of the working ion, used to calculate insertion energies.
 
         Additional Kwargs:
@@ -322,7 +323,7 @@ class MigrationGraph(MSONable):
 
     def add_data_to_similar_edges(
         self,
-        target_label: Union[int, str],
+        target_label: int | str,
         data: dict,
         m_hop: MigrationHop = None,
     ):
@@ -376,7 +377,7 @@ class MigrationGraph(MSONable):
                 If false, hops will retain their original orientation
                 from the migration graph.
         Returns:
-            Generator for List of Dicts:
+            Generator for list of Dicts:
             Each dict contains the information of a hop
         """
 
@@ -432,7 +433,7 @@ class MigrationGraph(MSONable):
             else:
                 yield u, path_hops
 
-    def get_summary_dict(self, added_keys: List[str] = None) -> dict:
+    def get_summary_dict(self, added_keys: list[str] = None) -> dict:
         """
         Dictionary format, for saving to database
         """
@@ -698,7 +699,7 @@ class ChargeBarrierGraph(MigrationGraph):
                 min_path = path
         return min_path
 
-    def get_summary_dict(self, add_keys: List[str] = None):
+    def get_summary_dict(self, add_keys: list[str] = None):
         """
         Dictionary format, for saving to database
         """
@@ -737,7 +738,7 @@ def _shift_grid(vv):
     return vv + step / 2.0
 
 
-def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str], key: str = None) -> List:
+def get_hop_site_sequence(hop_list: list[dict], start_u: int | str, key: str | None = None) -> list:
     """
     Read in a list of hop dictionaries and print the sequence of sites (and relevant property values if any).
     Args:
@@ -772,7 +773,7 @@ def get_hop_site_sequence(hop_list: List[Dict], start_u: Union[int, str], key: s
     return site_seq
 
 
-def order_path(hop_list: List[Dict], start_u: Union[int, str]) -> List[Dict]:
+def order_path(hop_list: list[dict], start_u: int | str) -> list[dict]:
     """
     Takes a list of hop dictionaries and flips hops (switches isite and esite)
     as needed to form a coherent path / sequence of sites according to
