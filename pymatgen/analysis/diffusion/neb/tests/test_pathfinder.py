@@ -73,7 +73,6 @@ class IDPPSolverTest(unittest.TestCase):
         )
 
     def test_idpp_from_ep_diff_latt(self):
-
         # This is the same test as test_idpp_from_ep where we want to interpolate
         # different lattices.
 

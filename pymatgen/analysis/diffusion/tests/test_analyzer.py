@@ -461,7 +461,6 @@ class DiffusionAnalyzerTest(PymatgenTest):
             os.remove("test.csv")
 
     def test_from_structure_NPT(self):
-
         coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])
         coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]])
