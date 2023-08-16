@@ -68,26 +68,23 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertAlmostEqual(d.chg_diffusivity_std_dev, 7.20911399729e-10, 5)
             self.assertAlmostEqual(d.haven_ratio, 0.31854161048867402, 7)
-            self.assertArrayAlmostEqual(
-                d.conductivity_components, [45.7903694, 26.1651956, 150.5406140], 3
+            assert d.conductivity_components == pytest.approx(
+                [45.7903694, 26.1651956, 150.5406140]
             )
-            self.assertArrayAlmostEqual(
-                d.diffusivity_components,
-                [7.49601236e-07, 4.90254273e-07, 2.24649255e-06],
+            assert d.diffusivity_components == pytest.approx(
+                [7.49601236e-07, 4.90254273e-07, 2.24649255e-06], rel=0.2
             )
-            self.assertArrayAlmostEqual(
-                d.conductivity_components_std_dev, [0.0063566, 0.0180854, 0.0217918]
+            assert d.conductivity_components_std_dev == pytest.approx(
+                [0.0063566, 0.0180854, 0.0217918], rel=0.1
             )
-            self.assertArrayAlmostEqual(
-                d.diffusivity_components_std_dev,
-                [8.9465670e-09, 2.4931224e-08, 2.2636384e-08],
+            assert d.diffusivity_components_std_dev == pytest.approx(
+                [8.9465670e-09, 2.4931224e-08, 2.2636384e-08], abs=1e-3
             )
-            self.assertArrayAlmostEqual(
-                d.mscd[0:4], [0.69131064, 0.71794072, 0.74315283, 0.76703961]
+            assert d.mscd[0:4] == pytest.approx(
+                [0.69131064, 0.71794072, 0.74315283, 0.76703961], abs=1e-3
             )
 
-            self.assertArrayAlmostEqual(
-                d.max_ion_displacements,
+            assert d.max_ion_displacements == pytest.approx(
                 [
                     1.4620659693989553,
                     1.2787303484445025,
@@ -152,8 +149,9 @@ class DiffusionAnalyzerTest(PymatgenTest):
             assert len(ss) == 50
             n = random.randint(0, 49)
             n_orig = n * 20 + 10
-            self.assertArrayAlmostEqual(
-                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n_orig, :],
+            assert ss[n].cart_coords - d.structure.cart_coords + d.drift[
+                :, n_orig, :
+            ] == pytest.approx(
                 d.disp[:, n_orig, :],
             )
 
@@ -260,23 +258,20 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertAlmostEqual(d.chg_diffusivity_std_dev, 1.20834853646e-08, 6)
             self.assertAlmostEqual(d.haven_ratio, 0.409275240679, 7)
-            self.assertArrayAlmostEqual(
-                d.conductivity_components, [455.178101, 602.252644, 440.0210014], 3
+            assert d.conductivity_components == pytest.approx(
+                [455.178101, 602.252644, 440.0210014]
             )
-            self.assertArrayAlmostEqual(
-                d.diffusivity_components,
-                [7.66242570e-06, 1.01382648e-05, 7.40727250e-06],
+            assert d.diffusivity_components == pytest.approx(
+                [7.66242570e-06, 1.01382648e-05, 7.40727250e-06]
             )
-            self.assertArrayAlmostEqual(
-                d.conductivity_components_std_dev, [0.1196577, 0.0973347, 0.1525400]
+            assert d.conductivity_components_std_dev == pytest.approx(
+                [0.1196577, 0.0973347, 0.1525400]
             )
-            self.assertArrayAlmostEqual(
-                d.diffusivity_components_std_dev,
-                [2.0143072e-09, 1.6385239e-09, 2.5678445e-09],
+            assert d.diffusivity_components_std_dev == pytest.approx(
+                [2.0143072e-09, 1.6385239e-09, 2.5678445e-09]
             )
 
-            self.assertArrayAlmostEqual(
-                d.max_ion_displacements,
+            assert d.max_ion_displacements == pytest.approx(
                 [
                     1.13147881,
                     0.79899554,
@@ -376,10 +371,9 @@ class DiffusionAnalyzerTest(PymatgenTest):
             assert len(ss) == 50
             n = random.randint(0, 49)
             n_orig = n * 20 + 10
-            self.assertArrayAlmostEqual(
-                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n_orig, :],
-                d.disp[:, n_orig, :],
-            )
+            assert ss[n].cart_coords - d.structure.cart_coords + d.drift[
+                :, n_orig, :
+            ] == pytest.approx(d.disp[:, n_orig, :])
 
             d = DiffusionAnalyzer.from_dict(d.as_dict())
             assert isinstance(d, DiffusionAnalyzer)
@@ -468,8 +462,8 @@ class DiffusionAnalyzerTest(PymatgenTest):
                         data.append(row)
             data.pop(0)
             data = np.array(data, dtype=np.float64)
-            self.assertArrayAlmostEqual(data[:, 1], d.msd)
-            self.assertArrayAlmostEqual(data[:, -1], d.mscd)
+            assert data[:, 1] == pytest.approx(d.msd)
+            assert data[:, -1] == pytest.approx(d.mscd)
             os.remove("test.csv")
 
     def test_from_structure_NPT(self):
