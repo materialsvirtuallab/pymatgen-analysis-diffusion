@@ -15,16 +15,22 @@ __email__ = "jmmshn@lbl.gov"
 __date__ = "July 21, 2019"
 
 import logging
+from typing import TYPE_CHECKING
 
-from maggma.stores import MongoStore
 from monty.serialization import MontyDecoder
+
+if TYPE_CHECKING:
+    from maggma.stores import MongoStore
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 def get_entries_from_dbs(
-    structure_group_store: MongoStore, material_store: MongoStore, migrating_ion: str, material_id: str
+    structure_group_store: MongoStore,
+    material_store: MongoStore,
+    migrating_ion: str,
+    material_id: str,
 ):
     """
     Get the entries needed to construct a migration from a database that
@@ -53,7 +59,7 @@ def get_entries_from_dbs(
             else:
                 raise RuntimeError("Missing GGA or GGA+U calc type in <entries>")
 
-            if ignored_species in entry.composition.as_dict().keys():
+            if ignored_species in entry.composition.as_dict():
                 inserted_entries.append(entry)
             else:
                 base_entries.append(entry)

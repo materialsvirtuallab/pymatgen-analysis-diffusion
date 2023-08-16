@@ -12,11 +12,12 @@ from multiprocessing import cpu_count
 
 import numpy as np
 from joblib import Parallel, delayed
-from pymatgen.core import Structure
-from pymatgen.util.plotting import pretty_plot
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 from scipy.stats import norm
+
+from pymatgen.core import Structure
+from pymatgen.util.plotting import pretty_plot
 
 
 class RadialDistributionFunction:
@@ -93,7 +94,11 @@ class RadialDistributionFunction:
         self.rho = rho  # This is the average density
 
         for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices):
-            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
+            dcf = (
+                fcoords[:, None, None, :]
+                + images[None, None, :, :]
+                - ref_fcoords[None, :, None, :]
+            )
             dcc = latt.get_cartesian_coords(dcf)
             d2 = np.sum(dcc**2, axis=3)
             dists = [
@@ -123,14 +128,18 @@ class RadialDistributionFunction:
             )
 
             # additional dr factor renormalises overlapping gaussians.
-            raw_rdf[indx] += dn / float(len(reference_indices)) / ff / rho / len(fcoords_list)
+            raw_rdf[indx] += (
+                dn / float(len(reference_indices)) / ff / rho / len(fcoords_list)
+            )
 
         self.structures = structures
         self.cell_range = cell_range
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = {structures[0][i].species_string for i in indices}
-        self.reference_species = {structures[0][i].species_string for i in reference_indices}
+        self.reference_species = {
+            structures[0][i].species_string for i in reference_indices
+        }
         self.indices = indices
         self.reference_indices = reference_indices
         self.dr = dr
@@ -172,9 +181,15 @@ class RadialDistributionFunction:
                 eg: species=["H"], reference_species=["O"] to compute
                     O-H pair distribution in a water MD simulation.
         """
-        indices = [j for j, site in enumerate(structures[0]) if site.specie.symbol in species]
+        indices = [
+            j for j, site in enumerate(structures[0]) if site.specie.symbol in species
+        ]
         if reference_species:
-            reference_indices = [j for j, site in enumerate(structures[0]) if site.specie.symbol in reference_species]
+            reference_indices = [
+                j
+                for j, site in enumerate(structures[0])
+                if site.specie.symbol in reference_species
+            ]
 
             if len(reference_indices) < 1:
                 raise ValueError("Given reference species are not in the structure!")
@@ -201,7 +216,14 @@ class RadialDistributionFunction:
         """
         # Note: The average density from all input structures is used here.
         intervals = np.append(self.interval, self.interval[-1] + self.dr)
-        return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi * (intervals[1:] ** 3 - intervals[:-1] ** 3))
+        return np.cumsum(
+            self.raw_rdf
+            * self.rho
+            * 4.0
+            / 3.0
+            * np.pi
+            * (intervals[1:] ** 3 - intervals[:-1] ** 3)
+        )
 
     def get_rdf_plot(
         self,
@@ -221,13 +243,10 @@ class RadialDistributionFunction:
         """
 
         if label is None:
-            symbol_list = [e.symbol for e in self.structures[0].composition.keys()]
+            symbol_list = [e.symbol for e in self.structures[0].composition]
             symbol_list = [symbol for symbol in symbol_list if symbol in self.species]
 
-            if len(symbol_list) == 1:
-                label = symbol_list[0]
-            else:
-                label = "-".join(symbol_list)
+            label = symbol_list[0] if len(symbol_list) == 1 else "-".join(symbol_list)
 
         plt = pretty_plot(12, 8)
         plt.plot(self.interval, self.rdf, label=label, linewidth=4.0, zorder=1)
@@ -347,7 +366,9 @@ class RadialDistributionFunctionFast:
         self.neighbor_elements = [elements[i] for i in self.neighbor_indices]
         self.density = [{}] * len(self.structures)  # type: list[dict]
 
-        self.natoms = [i.composition.to_data_dict["unit_cell_composition"] for i in self.structures]
+        self.natoms = [
+            i.composition.to_data_dict["unit_cell_composition"] for i in self.structures
+        ]
 
         for s_index, natoms in enumerate(self.natoms):
             for i, j in natoms.items():
@@ -368,7 +389,9 @@ class RadialDistributionFunctionFast:
             1D array of counts in the bins centered on self.r
         """
         counts = np.zeros((self.ngrid,))
-        indices = np.array(np.floor((d - self.rmin + 0.5 * self.dr) / self.dr), dtype=int)
+        indices = np.array(
+            np.floor((d - self.rmin + 0.5 * self.dr) / self.dr), dtype=int
+        )
 
         unique, val_counts = np.unique(indices, return_counts=True)
         counts[unique] = val_counts
@@ -394,11 +417,15 @@ class RadialDistributionFunctionFast:
         """
         if self.n_jobs > 1:
             all_rdfs = Parallel(n_jobs=self.n_jobs)(
-                self.get_one_rdf(ref_species, species, i) for i in range(self.n_structures)
+                self.get_one_rdf(ref_species, species, i)
+                for i in range(self.n_structures)
             )
             all_rdfs = [i[1] for i in all_rdfs]
         else:
-            all_rdfs = [self.get_one_rdf(ref_species, species, i)[1] for i in range(self.n_structures)]
+            all_rdfs = [
+                self.get_one_rdf(ref_species, species, i)[1]
+                for i in range(self.n_structures)
+            ]
         if is_average:
             all_rdfs = np.mean(all_rdfs, axis=0)
         return self.r, all_rdfs
@@ -465,7 +492,10 @@ class RadialDistributionFunctionFast:
         if isinstance(species, str):
             species = [species]
         density = [sum(i[j] for j in species) for i in self.density]
-        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr) for i, rdf in enumerate(all_rdf)]
+        cn = [
+            np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr)
+            for i, rdf in enumerate(all_rdf)
+        ]
         if is_average:
             cn = np.mean(cn, axis=0)
         return self.r, cn

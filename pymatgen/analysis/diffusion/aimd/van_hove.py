@@ -8,18 +8,20 @@ from __future__ import annotations
 
 import itertools
 from collections import Counter
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pds
-from pymatgen.core import Structure
-from pymatgen.util.plotting import pretty_plot
+import pandas as pd
 from scipy.stats import norm
 
-from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
+from pymatgen.util.plotting import pretty_plot
 
 from .rdf import RadialDistributionFunction
+
+if TYPE_CHECKING:
+    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
+    from pymatgen.core import Structure
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -35,7 +37,7 @@ class VanHoveAnalysis:
 
     Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. "Role of Na+ Interstitials
     and Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4
-    Superionic Conductor". Chem. Mater. (2015), 27, pp 8318–8325
+    Superionic Conductor". Chem. Mater. (2015), 27, pp 8318-8325
     """
 
     def __init__(
@@ -101,11 +103,17 @@ class VanHoveAnalysis:
         structure = diffusion_analyzer.structure
 
         if indices is None:
-            indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
+            indices = [
+                j for j, site in enumerate(structure) if site.specie.symbol in species
+            ]
 
         ref_indices = indices
         if reference_species:
-            ref_indices = [j for j, site in enumerate(structure) if site.specie.symbol in reference_species]
+            ref_indices = [
+                j
+                for j, site in enumerate(structure)
+                if site.specie.symbol in reference_species
+            ]
 
         rho = float(len(indices)) / lattice.volume
 
@@ -122,7 +130,7 @@ class VanHoveAnalysis:
         aux_factor = 4.0 * np.pi * interval**2
         aux_factor[0] = np.pi * dr**2
 
-        for i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
+        for _i, ss in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             all_fcoords = np.array(ss.frac_coords)
             tracking_ions.append(all_fcoords[indices, :])
             ref_ions.append(all_fcoords[ref_indices, :])
@@ -130,7 +138,11 @@ class VanHoveAnalysis:
         tracking_ions = np.array(tracking_ions)  # type: ignore
         ref_ions = np.array(ref_ions)  # type: ignore
 
-        gaussians = norm.pdf(interval[:, None], interval[None, :], sigma) / float(avg_nsteps) / float(len(ref_indices))
+        gaussians = (
+            norm.pdf(interval[:, None], interval[None, :], sigma)
+            / float(avg_nsteps)
+            / float(len(ref_indices))
+        )
 
         # calculate self part of van Hove function
         image = np.array([0, 0, 0])
@@ -139,11 +151,15 @@ class VanHoveAnalysis:
             it0 = min(it * step_skip, ntsteps)
             for it1 in range(avg_nsteps):
                 dists = [
-                    lattice.get_distance_and_image(tracking_ions[it1][u], tracking_ions[it0 + it1][u], jimage=image)[0]
+                    lattice.get_distance_and_image(
+                        tracking_ions[it1][u], tracking_ions[it0 + it1][u], jimage=image
+                    )[0]
                     for u in range(len(indices))
                 ]
 
-                r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax, dists)]
+                r_indices = [
+                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
+                ]
                 dns.update(r_indices)  # type: ignore
 
             for indx, dn in dns.most_common(ngrid):
@@ -181,7 +197,9 @@ class VanHoveAnalysis:
                     if u != v or j != indx0
                 ]
 
-                r_indices = [int(dist / dr) for dist in filter(lambda e: e < rmax, dists)]
+                r_indices = [
+                    int(dist / dr) for dist in filter(lambda e: e < rmax, dists)
+                ]
                 dns.update(r_indices)
 
             for indx, dn in dns.most_common(ngrid):
@@ -217,7 +235,11 @@ class VanHoveAnalysis:
             cb_ticks = [0, 1]
             cb_label = r"4$\pi r^2G_s$($t$,$r$)"
 
-        y = np.arange(np.shape(grt)[1]) * self.interval[-1] / float(len(self.interval) - 1)
+        y = (
+            np.arange(np.shape(grt)[1])
+            * self.interval[-1]
+            / float(len(self.interval) - 1)
+        )
         x = np.arange(np.shape(grt)[0]) * self.timeskip
         X, Y = np.meshgrid(x, y, indexing="ij")
 
@@ -241,7 +263,9 @@ class VanHoveAnalysis:
 
         return plt
 
-    def get_1d_plot(self, mode: str = "distinct", times: list = [0.0], colors: list | None = None):
+    def get_1d_plot(
+        self, mode: str = "distinct", times: list = [0.0], colors: list | None = None
+    ):
         """
         Plot the van Hove function at given r or t.
 
@@ -276,7 +300,9 @@ class VanHoveAnalysis:
             index = min(index, np.shape(grt)[0] - 1)
             new_time = index * self.timeskip
             label = str(new_time) + " ps"
-            plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
+            plt.plot(
+                self.interval, grt[index], color=colors[i], label=label, linewidth=4.0
+            )
 
         plt.xlabel(r"$r$ ($\AA$)")
         plt.ylabel(ylabel)
@@ -293,7 +319,9 @@ class EvolutionAnalyzer:
     Analyze the evolution of structures during AIMD simulations.
     """
 
-    def __init__(self, structures: list, rmax: float = 10, step: int = 1, time_step: int = 2):
+    def __init__(
+        self, structures: list, rmax: float = 10, step: int = 1, time_step: int = 2
+    ):
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -302,7 +330,7 @@ class EvolutionAnalyzer:
 
         If you use this class, please consider citing the following paper:
         Tang, H.; Deng, Z.; Lin, Z.; Wang, Z.; Chu, I-H; Chen, C.; Zhu, Z.;
-        Zheng, C.; Ong, S. P. "Probing Solid–Solid Interfacial Reactions in
+        Zheng, C.; Ong, S. P. "Probing Solid-Solid Interfacial Reactions in
         All-Solid-State Sodium-Ion Batteries with First-Principles
         Calculations", Chem. Mater. (2018), 30(1), pp 163-173.
 
@@ -398,7 +426,11 @@ class EvolutionAnalyzer:
         for i in np.linspace(0, l - window, ngrid):
             atoms = []
             for j in [-1, 0, 1]:
-                temp = [s for s in atom_list if i - window < s.coords[ind] % l + l * j < i + window]
+                temp = [
+                    s
+                    for s in atom_list
+                    if i - window < s.coords[ind] % l + l * j < i + window
+                ]
                 atoms.extend(temp)
 
             density.append(len(atoms) / atom_total)
@@ -437,7 +469,7 @@ class EvolutionAnalyzer:
 
         index = np.arange(len(self.structures)) * self.time_step * self.step / 1000
         columns = np.linspace(0, self.rmax, ngrid)
-        df = pds.DataFrame(prop_table, index=index, columns=columns)
+        df = pd.DataFrame(prop_table, index=index, columns=columns)
 
         if save_csv is not None:
             df.to_csv(save_csv)
@@ -445,7 +477,7 @@ class EvolutionAnalyzer:
         return df
 
     @staticmethod
-    def get_min_dist(df: pds.DataFrame, tol: float = 1e-10):
+    def get_min_dist(df: pd.DataFrame, tol: float = 1e-10):
         """
         Get the shortest pair distance from the given DataFrame.
 
@@ -466,7 +498,7 @@ class EvolutionAnalyzer:
 
     @staticmethod
     def plot_evolution_from_data(
-        df: pds.DataFrame,
+        df: pd.DataFrame,
         x_label: str | None = None,
         cb_label: str | None = None,
         cmap=plt.cm.plasma,  # pylint: disable=E1101
@@ -525,7 +557,7 @@ class EvolutionAnalyzer:
         self,
         pair: tuple,
         cmap=plt.cm.plasma,  # pylint: disable=E1101
-        df: pds.DataFrame = None,
+        df: pd.DataFrame = None,
     ):
         """
         Plot the RDF evolution with time for a given pair.
@@ -542,16 +574,16 @@ class EvolutionAnalyzer:
         if df is None:
             df = self.get_df(func=EvolutionAnalyzer.rdf, pair=pair)
         x_label, cb_label = f"$r$ ({pair[0]}-{pair[1]}) ($\\rm\\AA$)", "$g(r)$"
-        p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
-
-        return p
+        return self.plot_evolution_from_data(
+            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
+        )
 
     def plot_atomic_evolution(
         self,
         specie: str,
         direction: str = "c",
         cmap=plt.cm.Blues,  # pylint: disable=E1101
-        df: pds.DataFrame = None,
+        df: pd.DataFrame = None,
     ):
         """
         Plot the atomic distribution evolution with time for a given species.
@@ -566,10 +598,13 @@ class EvolutionAnalyzer:
             matplotlib.axes._subplots.AxesSubplot object
         """
         if df is None:
-            df = self.get_df(func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction)
+            df = self.get_df(
+                func=EvolutionAnalyzer.atom_dist, specie=specie, direction=direction
+            )
         x_label, cb_label = (
             f"Atomic distribution along {direction}",
             "Probability",
         )
-        p = self.plot_evolution_from_data(df=df, x_label=x_label, cb_label=cb_label, cmap=cmap)
-        return p
+        return self.plot_evolution_from_data(
+            df=df, x_label=x_label, cb_label=cb_label, cmap=cmap
+        )

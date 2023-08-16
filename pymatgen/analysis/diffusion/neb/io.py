@@ -4,6 +4,7 @@
 """
 Generate input fiels for NEB calculations.
 """
+from __future__ import annotations
 
 import copy
 
@@ -101,7 +102,7 @@ def get_endpoints_from_index(structure, site_indices):
     if len(site_indices) != 2 or len(set(site_indices)) != 2:
         raise ValueError("Invalid indices!")
     if structure[site_indices[0]].specie != structure[site_indices[1]].specie:
-        raise ValueError("The site indices must be " "associated with identical species!")
+        raise ValueError("The site indices must be associated with identical species!")
 
     s = structure.copy()
     sites = s.sites
@@ -121,9 +122,7 @@ def get_endpoints_from_index(structure, site_indices):
     s_0 = Structure.from_sites(init_sites)
     s_1 = Structure.from_sites(final_sites)
 
-    endpoints = [s_0, s_1]
-
-    return endpoints
+    return [s_0, s_1]
 
 
 def get_endpoint_dist(ep_0, ep_1):
