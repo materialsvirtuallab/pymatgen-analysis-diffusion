@@ -155,7 +155,7 @@ class MigrationGraph(MSONable):
         return {d["hop_label"]: d for u, v, d in ihop_data}
 
     @classmethod
-    def with_base_structure(cls, base_structure: Structure, m_graph: StructureGraph, **kwargs) -> "MigrationGraph":
+    def with_base_structure(cls, base_structure: Structure, m_graph: StructureGraph, **kwargs) -> MigrationGraph:
         """
         Args:
             base_structure: base framework structure that does not contain any
@@ -170,7 +170,7 @@ class MigrationGraph(MSONable):
     @classmethod
     def with_local_env_strategy(
         cls, structure: Structure, migrating_specie: str, nn: NearNeighbors, **kwargs
-    ) -> "MigrationGraph":
+    ) -> MigrationGraph:
         """
         Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
         Args:
@@ -187,7 +187,7 @@ class MigrationGraph(MSONable):
     @classmethod
     def with_distance(
         cls, structure: Structure, migrating_specie: str, max_distance: float, **kwargs
-    ) -> "MigrationGraph":
+    ) -> MigrationGraph:
         """
         Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
         Args:
