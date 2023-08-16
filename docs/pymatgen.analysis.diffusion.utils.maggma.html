@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.utils.maggma module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.utils.maggma module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.maggma module</a></li> 
       </ul>
     </div>  
@@ -48,8 +45,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="pymatgen-analysis-diffusion-utils-maggma-module">
-<h1>pymatgen.analysis.diffusion.utils.maggma module<a class="headerlink" href="#pymatgen-analysis-diffusion-utils-maggma-module" title="Permalink to this heading">¶</a></h1>
+  <section id="module-pymatgen.analysis.diffusion.utils.maggma">
+<span id="pymatgen-analysis-diffusion-utils-maggma-module"></span><h1>pymatgen.analysis.diffusion.utils.maggma module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.maggma" title="Permalink to this heading">¶</a></h1>
+<p>Functions for querying Materials Project style MongoStores that contains
+cathode materials The functions are isolated from the rest of the package so
+that the rest of the package will not depend on Maggma</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs">
+<span class="sig-name descname"><span class="pre">get_entries_from_dbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_group_store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MongoStore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MongoStore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/maggma.html#get_entries_from_dbs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the entries needed to construct a migration from a database that
+contains topotactically matched structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_group_store</strong> – Electrode documents one per each similar group of
+insertion materials, can also use any db that contains a</p></li>
+<li><p><strong>material_store</strong> – Material documenets one per each similar structure (
+multiple tasks)</p></li>
+<li><p><strong>migrating_ion</strong> – The name of the migrating ion</p></li>
+<li><p><strong>structures</strong> (<em>material_ids list with topotactic</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -58,7 +77,17 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion.utils.maggma module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs"><code class="docutils literal notranslate"><span class="pre">get_entries_from_dbs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>

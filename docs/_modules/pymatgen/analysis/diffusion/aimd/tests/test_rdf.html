@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.aimd.tests.test_rdf &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../../_static/jquery.js"></script>
-    <script src="../../../../../../_static/underscore.js"></script>
-    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../../../_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.aimd.tests.test_rdf &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -37,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.tests.test_rdf</a></li> 
       </ul>
@@ -49,14 +46,16 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.diffusion.aimd.tests.test_rdf</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.rdf</span> <span class="kn">import</span> <span class="n">RadialDistributionFunctionFast</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span>
 
 <span class="n">tests_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -73,10 +72,12 @@
                 <span class="k">break</span>
 
         <span class="c1"># Test from_species</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">RadialDistributionFunctionFast</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="n">structure_list</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">RadialDistributionFunctionFast</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">structure_list</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span>
+        <span class="p">)</span>
 
         <span class="n">r</span><span class="p">,</span> <span class="n">s_na_rdf</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_rdf</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">s_na_rdf</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">101</span><span class="p">,))</span>
+        <span class="k">assert</span> <span class="n">s_na_rdf</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">101</span><span class="p">,)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">s_na_rdf</span><span class="p">)],</span> <span class="mf">2.9000</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
@@ -84,10 +85,14 @@
         <span class="c1"># create a simple cubic lattice</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
         <span class="n">atom_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
-        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span>
+            <span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">90</span>
+        <span class="p">)</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom_list</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
-        <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunctionFast</span><span class="p">(</span><span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="n">structure</span><span class="p">],</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">110</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="mf">6.0</span><span class="p">)</span></div></div>
+        <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunctionFast</span><span class="p">(</span>
+            <span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="n">structure</span><span class="p">],</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">500</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">110</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mf">6.0</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

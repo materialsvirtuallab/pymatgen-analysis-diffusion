@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.aimd.tests.test_van_hove module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.aimd.tests.test_van_hove module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.tests.test_van_hove module</a></li> 
       </ul>
     </div>  
@@ -136,7 +133,35 @@ not have a method with the specified name.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion.aimd.tests.test_van_hove module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.EvolutionAnalyzerTest"><code class="docutils literal notranslate"><span class="pre">EvolutionAnalyzerTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.EvolutionAnalyzerTest.test_get_df"><code class="docutils literal notranslate"><span class="pre">EvolutionAnalyzerTest.test_get_df()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest"><code class="docutils literal notranslate"><span class="pre">RDFTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.setUp"><code class="docutils literal notranslate"><span class="pre">RDFTest.setUp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_reference_species_not_in_structure"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_raises_ValueError_if_reference_species_not_in_structure()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_sigma_is_not_positive"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_raises_ValueError_if_sigma_is_not_positive()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_ValueError_if_species_not_in_structure"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_raises_ValueError_if_species_not_in_structure()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_raises_valueerror_if_ngrid_is_less_than_2"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_raises_valueerror_if_ngrid_is_less_than_2()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_rdf()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf_coordination_number"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_rdf_coordination_number()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.RDFTest.test_rdf_two_species_coordination_number"><code class="docutils literal notranslate"><span class="pre">RDFTest.test_rdf_two_species_coordination_number()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.VanHoveTest"><code class="docutils literal notranslate"><span class="pre">VanHoveTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.tests.test_van_hove.VanHoveTest.test_van_hove"><code class="docutils literal notranslate"><span class="pre">VanHoveTest.test_van_hove()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>

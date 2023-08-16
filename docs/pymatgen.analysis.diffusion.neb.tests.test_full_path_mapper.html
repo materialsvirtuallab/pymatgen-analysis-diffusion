@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper module</a></li> 
       </ul>
     </div>  
@@ -204,7 +201,48 @@ not have a method with the specified name.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraphTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest.setUp"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraphTest.setUp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest.test_get_summary_dict"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraphTest.test_get_summary_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest.test_integration"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraphTest.test_integration()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.ChargeBarrierGraphTest.test_populate_edges_with_chg_density_info"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraphTest.test_populate_edges_with_chg_density_info()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.setUp"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.setUp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_add_data_to_similar_edges"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_add_data_to_similar_edges()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_assign_cost_to_graph"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_assign_cost_to_graph()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_get_key_in_path"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_get_key_in_path()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_get_path"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_get_path()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_group_and_label_hops"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_group_and_label_hops()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_not_matching_first"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_not_matching_first()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_order_path"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_order_path()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_periodic_dijkstra"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_periodic_dijkstra()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphComplexTest.test_unique_hops_dict"><code class="docutils literal notranslate"><span class="pre">MigrationGraphComplexTest.test_unique_hops_dict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphFromEntriesTest"><code class="docutils literal notranslate"><span class="pre">MigrationGraphFromEntriesTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphFromEntriesTest.setUp"><code class="docutils literal notranslate"><span class="pre">MigrationGraphFromEntriesTest.setUp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphFromEntriesTest.test_m_graph_construction"><code class="docutils literal notranslate"><span class="pre">MigrationGraphFromEntriesTest.test_m_graph_construction()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphFromEntriesTest.test_m_graph_from_entries_failed"><code class="docutils literal notranslate"><span class="pre">MigrationGraphFromEntriesTest.test_m_graph_from_entries_failed()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphSimpleTest"><code class="docutils literal notranslate"><span class="pre">MigrationGraphSimpleTest</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphSimpleTest.setUp"><code class="docutils literal notranslate"><span class="pre">MigrationGraphSimpleTest.setUp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphSimpleTest.test_get_pos_and_migration_hop"><code class="docutils literal notranslate"><span class="pre">MigrationGraphSimpleTest.test_get_pos_and_migration_hop()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.neb.tests.test_full_path_mapper.MigrationGraphSimpleTest.test_get_summary_dict"><code class="docutils literal notranslate"><span class="pre">MigrationGraphSimpleTest.test_get_summary_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>
