@@ -269,9 +269,9 @@ class ProbabilityDensityAnalysis:
             f.write("direct\n")
             for fcoord in init_fcoords:
                 f.write(
-                    " {:.8f}  {:.8f}  {:.8f} \n".format(
+                    " {:.8f}  {:.8f}  {:.8f} \n".format(  # pylint: disable=C0209
                         *fcoord
-                    )  # pylint: disable=C0209
+                    )
                 )
 
             f.write(" \n")
