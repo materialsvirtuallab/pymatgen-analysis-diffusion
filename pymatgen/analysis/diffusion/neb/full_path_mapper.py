@@ -22,18 +22,14 @@ import numpy as np
 from monty.json import MSONable
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
-from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder
 from pymatgen.core import Composition, PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
-from pymatgen.analysis.diffusion.neb.pathfinder import MigrationHop
-from pymatgen.analysis.diffusion.neb.periodic_dijkstra import (
-    get_optimal_pathway_rev,
-    periodic_dijkstra,
-)
+from pymatgen.analysis.diffusion.neb.pathfinder import ChgcarPotential, MigrationHop, NEBPathfinder
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import get_optimal_pathway_rev, periodic_dijkstra
 from pymatgen.analysis.diffusion.utils.parse_entries import process_entries
 
 logger = logging.getLogger(__name__)

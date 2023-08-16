@@ -13,10 +13,10 @@ from typing import Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pds
-from scipy.stats import norm
-
 from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
+from scipy.stats import norm
+
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 from .rdf import RadialDistributionFunction
