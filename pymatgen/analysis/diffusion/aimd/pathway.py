@@ -53,7 +53,7 @@ class ProbabilityDensityAnalysis:
             j for j, site in enumerate(structure) if site.specie.symbol in species
         ]
         lattice = structure.lattice
-        frac_interval = [interval / l for l in lattice.abc]
+        frac_interval = [interval / length for length in lattice.abc]
         nsteps = len(trajectories)
 
         # generate the 3-D grid
@@ -165,7 +165,7 @@ class ProbabilityDensityAnalysis:
         Obtain a set of low-energy sites from probability density function with
         given probability threshold 'p_ratio'. The set of grid points with
         probability density higher than the threshold will further be clustered
-        using hierachical clustering method, with no two clusters closer than the
+        using hierarchical clustering method, with no two clusters closer than the
         given distance cutoff. Note that the low-energy sites may converge more
         slowly in fast conductors (more shallow energy landscape) than in the slow
         conductors.
@@ -173,7 +173,7 @@ class ProbabilityDensityAnalysis:
         Args:
             p_ratio (float): Probability threshold above which a grid point is
                 considered as a low-energy site.
-            d_cutoff (float): Distance cutoff used in hierachical clustering.
+            d_cutoff (float): Distance cutoff used in hierarchical clustering.
 
         Notes:
             The set of stable sites is stored in the `stable_sites` attribute
@@ -195,7 +195,7 @@ class ProbabilityDensityAnalysis:
         # Compressed distance matrix
         condensed_m = squareform((dist_matrix + dist_matrix.T) / 2.0)
 
-        # Linkage function for hierachical clustering.
+        # Linkage function for hierarchical clustering.
         z = linkage(condensed_m, method="single", metric="euclidean")
         cluster_indices = fcluster(z, t=d_cutoff, criterion="distance")
 
@@ -269,8 +269,10 @@ class ProbabilityDensityAnalysis:
             f.write("direct\n")
             for fcoord in init_fcoords:
                 f.write(
-                    " {:.8f}  {:.8f}  {:.8f} \n".format(*fcoord)
-                )  # pylint: disable=C0209
+                    " {:.8f}  {:.8f}  {:.8f} \n".format(
+                        *fcoord
+                    )  # pylint: disable=C0209
+                )
 
             f.write(" \n")
             f.write(" {} {} {} \n".format(*self.lens))  # pylint: disable=C0209
