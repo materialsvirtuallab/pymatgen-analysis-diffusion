@@ -19,13 +19,8 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import PeriodicSite, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from pymatgen.analysis.diffusion.neb.full_path_mapper import (
-    MigrationGraph,
-    MigrationHop,
-)
-from pymatgen.analysis.diffusion.utils.parse_entries import (
-    get_matched_structure_mapping,
-)
+from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
+from pymatgen.analysis.diffusion.utils.parse_entries import get_matched_structure_mapping
 
 logger = logging.getLogger(__name__)
 

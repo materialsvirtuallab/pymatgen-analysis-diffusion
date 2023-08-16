@@ -14,11 +14,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-from pymatgen.analysis.diffusion.analyzer import (
-    DiffusionAnalyzer,
-    fit_arrhenius,
-    get_conversion_factor,
-)
+from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer, fit_arrhenius, get_conversion_factor
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -461,7 +457,6 @@ class DiffusionAnalyzerTest(PymatgenTest):
             os.remove("test.csv")
 
     def test_from_structure_NPT(self):
-
         coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])
         coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]])

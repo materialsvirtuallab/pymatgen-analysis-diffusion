@@ -10,11 +10,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
-from pymatgen.analysis.diffusion.neb.pathfinder import (
-    DistinctPathFinder,
-    IDPPSolver,
-    MigrationHop,
-)
+from pymatgen.analysis.diffusion.neb.pathfinder import DistinctPathFinder, IDPPSolver, MigrationHop
 from pymatgen.analysis.diffusion.utils.supercells import get_start_end_structures
 
 __author__ = "Iek-Heng Chu"
@@ -73,7 +69,6 @@ class IDPPSolverTest(unittest.TestCase):
         )
 
     def test_idpp_from_ep_diff_latt(self):
-
         # This is the same test as test_idpp_from_ep where we want to interpolate
         # different lattices.
 

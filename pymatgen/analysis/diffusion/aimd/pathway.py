@@ -162,7 +162,7 @@ class ProbabilityDensityAnalysis:
         indices = np.where(self.Pr > self.Pr.max() * p_ratio)
         lattice = self.structure.lattice
 
-        for (x, y, z) in zip(indices[0], indices[1], indices[2]):
+        for x, y, z in zip(indices[0], indices[1], indices[2]):
             grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
 
         grid_fcoords = np.array(grid_fcoords)
@@ -326,7 +326,6 @@ class SiteOccupancyAnalyzer:
 
     @classmethod
     def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer, species=("Li", "Na")):
-
         """
         Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.
 

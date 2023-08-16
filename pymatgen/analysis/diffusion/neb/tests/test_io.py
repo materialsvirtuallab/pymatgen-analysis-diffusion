@@ -22,7 +22,6 @@ def get_path(path_str, dirname="./"):
 
 
 class MVLCINEBEndPointSetTest(unittest.TestCase):
-
     endpoint = Structure.from_file(get_path("POSCAR0", dirname="io_files"))
 
     def test_incar(self):
@@ -88,7 +87,6 @@ SIGMA = 0.05"""
 
 
 class MVLCINEBSetTest(unittest.TestCase):
-
     structures = [Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files")) for i in range(3)]
 
     def test_incar(self):
