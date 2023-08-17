@@ -13,8 +13,12 @@ __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
 import logging
+from typing import Tuple, Union
 
 import numpy as np
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure import PeriodicSite, Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import (
     MigrationGraph,
@@ -23,9 +27,6 @@ from pymatgen.analysis.diffusion.neb.full_path_mapper import (
 from pymatgen.analysis.diffusion.utils.parse_entries import (
     get_matched_structure_mapping,
 )
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.structure import PeriodicSite, Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def add_edge_data_from_sc(
     mg: MigrationGraph,
     i_sc: Structure,
     e_sc: Structure,
-    data_array: list,
+    data_array: Union[list, str, int, float],
     key: str = "custom_key",
     use_host_sg: bool = True,
 ) -> None:
@@ -52,19 +53,18 @@ def add_edge_data_from_sc(
     Returns:
         None
     """
-    wi = next(iter(mg.m_graph.graph.edges(data=True)))[2]["hop"].isite.specie.name
+    wi = list(mg.m_graph.graph.edges(data=True))[0][2]["hop"].isite.specie.name
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
-        raise ValueError(
-            "The number of working ions in each supercell structure should be one"
-        )
+        raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, use_host_sg)
     add_dict = {key: data_array}
-    mg.add_data_to_similar_edges(
-        target_label=uhop_index, data=add_dict, m_hop=mh_from_sc
-    )
+    if isinstance(data_array, list):
+        mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_hop=mh_from_sc)
+    else:
+        mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
 
 
 def get_uc_pos(
