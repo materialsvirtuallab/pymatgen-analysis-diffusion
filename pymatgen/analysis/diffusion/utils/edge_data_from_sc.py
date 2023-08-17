@@ -13,7 +13,7 @@ __email__ = "HLi98@lbl.gov"
 __date__ = "February 2, 2021"
 
 import logging
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 from pymatgen.analysis.structure_matcher import StructureMatcher
