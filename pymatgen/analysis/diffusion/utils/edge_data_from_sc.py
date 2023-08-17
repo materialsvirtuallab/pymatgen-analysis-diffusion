@@ -57,12 +57,16 @@ def add_edge_data_from_sc(
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
-        raise ValueError("The number of working ions in each supercell structure should be one")
+        raise ValueError(
+            "The number of working ions in each supercell structure should be one"
+        )
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, use_host_sg)
     add_dict = {key: data_array}
     if isinstance(data_array, list):
-        mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_hop=mh_from_sc)
+        mg.add_data_to_similar_edges(
+            target_label=uhop_index, data=add_dict, m_hop=mh_from_sc
+        )
     else:
         mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
 
