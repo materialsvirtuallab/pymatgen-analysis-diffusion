@@ -16,6 +16,7 @@ citing the following papers::
     Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
     24(1), 15-17. doi:10.1021/cm203303y
 """
+from __future__ import annotations
 
 import multiprocessing
 import warnings
@@ -23,6 +24,7 @@ import warnings
 import numpy as np
 import scipy.constants as const
 from monty.json import MSONable
+
 from pymatgen.analysis.structure_matcher import (
     OrderDisorderElementComparator,
     StructureMatcher,
@@ -261,21 +263,23 @@ class DiffusionAnalyzer(MSONable):
                 max_dt = min(len(indices) * nsteps // self.min_obs, nsteps)
                 if min_dt >= max_dt:
                     raise ValueError("Not enough data to calculate diffusivity")
-                timesteps = np.arange(min_dt, max_dt, max(int((max_dt - min_dt) / 200), 1))
+                timesteps = np.arange(
+                    min_dt, max_dt, max(int((max_dt - min_dt) / 200), 1)
+                )
 
             dt = timesteps * self.time_step * self.step_skip
 
             # calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
-            msd_components = np.zeros(dt.shape + (3,))
+            msd_components = np.zeros((*dt.shape, 3))
 
             # calculate mean square charge displacement
             mscd = np.zeros_like(msd, dtype=np.double)
 
             # calculate regional msd and number of diffusing specie in those regions
             msd_c_range = np.zeros_like(dt, dtype=np.double)
-            msd_c_range_components = np.zeros(dt.shape + (3,))
+            msd_c_range_components = np.zeros((*dt.shape, 3))
 
             for i, n in enumerate(timesteps):
                 if not smoothed:
@@ -300,32 +304,46 @@ class DiffusionAnalyzer(MSONable):
                     if not c_range_include_edge:
                         for index in indices:
                             if any(
-                                lower < structures[i][index].c < upper and lower < structures[i + 1][index].c < upper
+                                lower < structures[i][index].c < upper
+                                and lower < structures[i + 1][index].c < upper
                                 for (lower, upper) in c_ranges
                             ):
                                 indices_c_range.append(index)
                     else:
                         for index in indices:
                             if any(
-                                lower <= structures[i][index].c <= upper or lower <= structures[i + 1][index].c <= upper
+                                lower <= structures[i][index].c <= upper
+                                or lower <= structures[i + 1][index].c <= upper
                                 for (lower, upper) in c_ranges
                             ):
                                 indices_c_range.append(index)
                     msd_c_range[i] = np.average(sq_disp_ions[:, i][indices_c_range])
-                    msd_c_range_components[i] = np.average(dcomponents[indices_c_range] ** 2, axis=(0, 1))
+                    msd_c_range_components[i] = np.average(
+                        dcomponents[indices_c_range] ** 2, axis=(0, 1)
+                    )
 
                 # Get mscd
                 sq_chg_disp = np.sum(dx[indices, :, :], axis=0) ** 2
                 mscd[i] = np.average(np.sum(sq_chg_disp, axis=1), axis=0) / len(indices)
 
-            conv_factor = get_conversion_factor(self.structure, self.specie, self.temperature)
-            self.diffusivity, self.diffusivity_std_dev = get_diffusivity_from_msd(msd, dt, smoothed)
-            self.chg_diffusivity, self.chg_diffusivity_std_dev = get_diffusivity_from_msd(mscd, dt, smoothed)
+            conv_factor = get_conversion_factor(
+                self.structure, self.specie, self.temperature
+            )
+            self.diffusivity, self.diffusivity_std_dev = get_diffusivity_from_msd(
+                msd, dt, smoothed
+            )
+            (
+                self.chg_diffusivity,
+                self.chg_diffusivity_std_dev,
+            ) = get_diffusivity_from_msd(mscd, dt, smoothed)
             diffusivity_components = np.zeros(3)
             diffusivity_components_std_dev = np.zeros(3)
             for i in range(3):
                 diffusivity_components[i], diffusivity_components_std_dev[i] = (
-                    np.array(get_diffusivity_from_msd(msd_components[:, i], dt, smoothed)) * 3
+                    np.array(
+                        get_diffusivity_from_msd(msd_components[:, i], dt, smoothed)
+                    )
+                    * 3
                 )
             self.diffusivity_components = diffusivity_components
             self.diffusivity_components_std_dev = diffusivity_components_std_dev
@@ -335,29 +353,53 @@ class DiffusionAnalyzer(MSONable):
             self.chg_conductivity = self.chg_diffusivity * conv_factor
             self.chg_conductivity_std_dev = self.chg_diffusivity_std_dev * conv_factor
             self.conductivity_components = self.diffusivity_components * conv_factor
-            self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
+            self.conductivity_components_std_dev = (
+                self.diffusivity_components_std_dev * conv_factor
+            )
 
             if c_ranges:
-                self.diffusivity_c_range, self.diffusivity_c_range_std_dev = get_diffusivity_from_msd(
-                    msd_c_range, dt, smoothed
-                )
+                (
+                    self.diffusivity_c_range,
+                    self.diffusivity_c_range_std_dev,
+                ) = get_diffusivity_from_msd(msd_c_range, dt, smoothed)
                 diffusivity_c_range_components = np.zeros(3)
                 diffusivity_c_range_components_std_dev = np.zeros(3)
-                diffusivity_c_range_components[i], diffusivity_c_range_components_std_dev[i] = (
-                    np.array(get_diffusivity_from_msd(msd_c_range_components[:, i], dt, smoothed)) * 3
+                (
+                    diffusivity_c_range_components[i],
+                    diffusivity_c_range_components_std_dev[i],
+                ) = (
+                    np.array(
+                        get_diffusivity_from_msd(
+                            msd_c_range_components[:, i], dt, smoothed
+                        )
+                    )
+                    * 3
                 )
 
                 self.diffusivity_c_range_components = diffusivity_c_range_components
-                self.diffusivity_c_range_components_std_dev = diffusivity_c_range_components_std_dev
+                self.diffusivity_c_range_components_std_dev = (
+                    diffusivity_c_range_components_std_dev
+                )
 
                 n_specie_c_range = np.average([len(i) for i in indices_c_range])
-                vol_c_range = np.sum([max(min(upper, 1), 0) - max(min(lower, 1), 0) for (upper, lower) in c_ranges])
+                vol_c_range = np.sum(
+                    [
+                        max(min(upper, 1), 0) - max(min(lower, 1), 0)
+                        for (upper, lower) in c_ranges
+                    ]
+                )
                 n_density_c_range = n_specie_c_range / vol_c_range
                 conv_factor_c_range = conv_factor / len(indices) * n_density_c_range
 
-                self.conductivity_c_range = self.diffusivity_c_range * conv_factor_c_range
-                self.conductivity_c_range_std_dev = self.diffusivity_c_range_std_dev * conv_factor_c_range
-                self.conductivity_c_range_components = self.diffusivity_c_range_components * conv_factor_c_range
+                self.conductivity_c_range = (
+                    self.diffusivity_c_range * conv_factor_c_range
+                )
+                self.conductivity_c_range_std_dev = (
+                    self.diffusivity_c_range_std_dev * conv_factor_c_range
+                )
+                self.conductivity_c_range_components = (
+                    self.diffusivity_c_range_components * conv_factor_c_range
+                )
                 self.conductivity_c_range_components_std_dev = (
                     self.diffusivity_c_range_components_std_dev * conv_factor_c_range
                 )
@@ -366,7 +408,9 @@ class DiffusionAnalyzer(MSONable):
             self.drift = drift
             self.corrected_displacements = dc
             self.max_ion_displacements = np.max(np.sum(dc**2, axis=-1) ** 0.5, axis=1)
-            self.max_framework_displacement = np.max(self.max_ion_displacements[framework_indices])
+            self.max_framework_displacement = np.max(
+                self.max_ion_displacements[framework_indices]
+            )
             self.msd = msd
             self.mscd = mscd
             self.haven_ratio = self.diffusivity / self.chg_diffusivity
@@ -461,7 +505,9 @@ class DiffusionAnalyzer(MSONable):
         from pymatgen.util.plotting import pretty_plot
 
         if self.lattices is not None and len(self.lattices) > 1:
-            warnings.warn("Note the method doesn't apply to NPT-AIMD " "simulation analysis!")
+            warnings.warn(
+                "Note the method doesn't apply to NPT-AIMD simulation analysis!"
+            )
 
         plt = pretty_plot(12, 8, plt=plt)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
@@ -521,14 +567,16 @@ class DiffusionAnalyzer(MSONable):
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
-                indices = [i for i, site in enumerate(self.structure) if site.specie == sp]
+                indices = [
+                    i for i, site in enumerate(self.structure) if site.specie == sp
+                ]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
                 plt.plot(plot_dt, sd, label=str(sp))
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label=f"{str(site.specie)} - {i}")
+                plt.plot(plot_dt, sd, label=f"{site.specie!s} - {i}")
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
             plt.plot(plot_dt, self.mscd, "r")
@@ -579,13 +627,23 @@ class DiffusionAnalyzer(MSONable):
                 f.write("# ")
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
-            for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd):
-                f.write(delimiter.join([str(v) for v in [dt, msd] + list(msdc) + [mscd]]))
+            for dt, msd, msdc, mscd in zip(
+                self.dt, self.msd, self.msd_components, self.mscd
+            ):
+                f.write(delimiter.join([str(v) for v in [dt, msd, *list(msdc), mscd]]))
                 f.write("\n")
 
     @classmethod
     def from_structures(
-        cls, structures, specie, temperature, time_step, step_skip, initial_disp=None, initial_structure=None, **kwargs
+        cls,
+        structures,
+        specie,
+        temperature,
+        time_step,
+        step_skip,
+        initial_disp=None,
+        initial_structure=None,
+        **kwargs,
     ):
         r"""
         Convenient constructor that takes in a list of Structure objects to
@@ -638,17 +696,25 @@ class DiffusionAnalyzer(MSONable):
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
-        if np.array_equal(l[0], l[-1]):
-            l = np.array([l[0]])
-        else:
-            l = np.array(l)
+        l = np.array([l[0]]) if np.array_equal(l[0], l[-1]) else np.array(l)
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
-        return cls(structure, disp, specie, temperature, time_step, step_skip=step_skip, lattices=l, **kwargs)
+        return cls(
+            structure,
+            disp,
+            specie,
+            temperature,
+            time_step,
+            step_skip=step_skip,
+            lattices=l,
+            **kwargs,
+        )
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie, initial_disp=None, initial_structure=None, **kwargs):
+    def from_vaspruns(
+        cls, vaspruns, specie, initial_disp=None, initial_structure=None, **kwargs
+    ):
         r"""
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -682,9 +748,11 @@ class DiffusionAnalyzer(MSONable):
                     time_step = vr.parameters["POTIM"]
                     yield step_skip, temperature, time_step
                 # check that the runs are continuous
-                fdist = pbc_diff(vr.initial_structure.frac_coords, final_structure.frac_coords)
+                fdist = pbc_diff(
+                    vr.initial_structure.frac_coords, final_structure.frac_coords
+                )
                 if np.any(fdist > 0.001):
-                    raise ValueError("initial and final structures do not " "match.")
+                    raise ValueError("initial and final structures do not match.")
                 final_structure = vr.final_structure
 
                 assert (vr.ionic_step_skip or 1) == step_skip
@@ -707,7 +775,14 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_files(
-        cls, filepaths, specie, step_skip=10, ncores=None, initial_disp=None, initial_structure=None, **kwargs
+        cls,
+        filepaths,
+        specie,
+        step_skip=10,
+        ncores=None,
+        initial_disp=None,
+        initial_structure=None,
+        **kwargs,
     ):
         r"""
         Convenient constructor that takes in a list of vasprun.xml paths to
@@ -747,10 +822,13 @@ class DiffusionAnalyzer(MSONable):
         if ncores is not None and len(filepaths) > 1:
             with multiprocessing.Pool(ncores) as p:
                 vaspruns = p.imap(_get_vasprun, [(fp, step_skip) for fp in filepaths])
-                analyzer = cls.from_vaspruns(
-                    vaspruns, specie=specie, initial_disp=initial_disp, initial_structure=initial_structure, **kwargs
+                return cls.from_vaspruns(
+                    vaspruns,
+                    specie=specie,
+                    initial_disp=initial_disp,
+                    initial_structure=initial_structure,
+                    **kwargs,
                 )
-                return analyzer
 
         def vr(filepaths):
             offset = 0
@@ -761,7 +839,11 @@ class DiffusionAnalyzer(MSONable):
                 offset = (-(v.nionic_steps - offset)) % step_skip
 
         return cls.from_vaspruns(
-            vr(filepaths), specie=specie, initial_disp=initial_disp, initial_structure=initial_structure, **kwargs
+            vr(filepaths),
+            specie=specie,
+            initial_disp=initial_disp,
+            initial_structure=initial_structure,
+            **kwargs,
         )
 
     def as_dict(self):
@@ -824,15 +906,23 @@ def get_conversion_factor(structure, species, temperature):
         Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)
     """
     df_sp = get_el_sp(species)
-    if hasattr(df_sp, "oxi_state"):
-        z = df_sp.oxi_state
-    else:
-        z = df_sp.full_electronic_structure[-1][2]
+    z = (
+        df_sp.oxi_state
+        if hasattr(df_sp, "oxi_state")
+        else df_sp.full_electronic_structure[-1][2]
+    )
 
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z**2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
+    return (
+        1000
+        * n
+        / (vol * const.N_A)
+        * z**2
+        * (const.N_A * const.e) ** 2
+        / (const.R * temperature)
+    )
 
 
 def _get_vasprun(args):
@@ -859,10 +949,11 @@ def fit_arrhenius(temps, diffusivities):
     w, res, _, _ = np.linalg.lstsq(a, logd, rcond=None)
     w = np.array(w)
     n = len(temps)
-    if n > 2:
-        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
-    else:
-        std_Ea = None
+    std_Ea = (
+        (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
+        if n > 2
+        else None
+    )
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
 
 
@@ -959,9 +1050,9 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, spe
     Returns:
         (float) Conductivity at extrapolated temp in mS/cm.
     """
-    return get_extrapolated_diffusivity(temps, diffusivities, new_temp) * get_conversion_factor(
-        structure, species, new_temp
-    )
+    return get_extrapolated_diffusivity(
+        temps, diffusivities, new_temp
+    ) * get_conversion_factor(structure, species, new_temp)
 
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):

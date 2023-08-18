@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.aimd.tests.test_pathway &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../../_static/jquery.js"></script>
-    <script src="../../../../../../_static/underscore.js"></script>
-    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../../../_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.aimd.tests.test_pathway &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -37,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.tests.test_pathway</a></li> 
       </ul>
@@ -51,6 +48,7 @@
   <h1>Source code for pymatgen.analysis.diffusion.aimd.tests.test_pathway</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Materials Virtual Lab.</span>
 <span class="c1"># Distributed under the terms of the BSD License.</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;01/16&quot;</span>
@@ -60,11 +58,14 @@
 <span class="kn">import</span> <span class="nn">unittest</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.pathway</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ProbabilityDensityAnalysis</span><span class="p">,</span>
+    <span class="n">SiteOccupancyAnalyzer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.analyzer</span> <span class="kn">import</span> <span class="n">DiffusionAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Chgcar</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.aimd.pathway</span> <span class="kn">import</span> <span class="n">ProbabilityDensityAnalysis</span><span class="p">,</span> <span class="n">SiteOccupancyAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.analyzer</span> <span class="kn">import</span> <span class="n">DiffusionAnalyzer</span>
 
 <span class="n">tests_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -92,7 +93,9 @@
         <span class="n">diff_analyzer</span> <span class="o">=</span> <span class="n">DiffusionAnalyzer</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># ProbabilityDensityAnalysis object</span>
-        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span><span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span>
+            <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.5</span>
+        <span class="p">)</span>
         <span class="n">dV</span> <span class="o">=</span> <span class="n">pda</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="n">pda</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pda</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">pda</span><span class="o">.</span><span class="n">lens</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">Pr_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">Pr</span><span class="p">)</span> <span class="o">*</span> <span class="n">dV</span>
 
@@ -106,17 +109,19 @@
         <span class="n">diff_analyzer</span> <span class="o">=</span> <span class="n">DiffusionAnalyzer</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># ProbabilityDensityAnalysis object</span>
-        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span><span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span>
+            <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.1</span>
+        <span class="p">)</span>
         <span class="n">pda</span><span class="o">.</span><span class="n">generate_stable_sites</span><span class="p">(</span><span class="n">p_ratio</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">),</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.24113475177304966</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">stable_sites</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.5193661971830985</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="n">pda</span><span class="o">.</span><span class="n">get_full_structure</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">num_sites</span><span class="p">,</span> <span class="mi">178</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">],</span> <span class="mi">48</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">==</span> <span class="mi">178</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">48</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">50</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">177</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.57446809</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProbabilityDensityTest.test_to_chgcar"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_pathway.html#pymatgen.analysis.diffusion.aimd.tests.test_pathway.ProbabilityDensityTest.test_to_chgcar">[docs]</a>    <span class="k">def</span> <span class="nf">test_to_chgcar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -125,10 +130,12 @@
         <span class="n">diff_analyzer</span> <span class="o">=</span> <span class="n">DiffusionAnalyzer</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># ProbabilityDensityAnalysis object</span>
-        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span><span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">pda</span> <span class="o">=</span> <span class="n">ProbabilityDensityAnalysis</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span>
+            <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.1</span>
+        <span class="p">)</span>
         <span class="n">pda</span><span class="o">.</span><span class="n">to_chgcar</span><span class="p">(</span><span class="s2">&quot;CHGCAR.PDA&quot;</span><span class="p">)</span>
         <span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CHGCAR.PDA&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">pda</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">pda</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;CHGCAR.PDA&quot;</span><span class="p">)</span></div></div>
 
 
@@ -143,12 +150,14 @@
         <span class="n">coords_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">structure</span> <span class="k">if</span> <span class="n">ss</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s2">&quot;Na&quot;</span><span class="p">]</span>
 
         <span class="c1"># SiteOccupancyAnalyzer object</span>
-        <span class="n">socc</span> <span class="o">=</span> <span class="n">SiteOccupancyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">coords_ref</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">))</span>
+        <span class="n">socc</span> <span class="o">=</span> <span class="n">SiteOccupancyAnalyzer</span><span class="p">(</span>
+            <span class="n">structure</span><span class="p">,</span> <span class="n">coords_ref</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">site_occ</span> <span class="o">=</span> <span class="n">socc</span><span class="o">.</span><span class="n">site_occ</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">site_occ</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">site_occ</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span> <span class="mf">0.98</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">site_occ</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="mf">0.875</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">),</span> <span class="mi">48</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">)</span> <span class="o">==</span> <span class="mi">48</span></div>
 
 <div class="viewcode-block" id="SiteOccupancyTest.test_site_occupancy_classmethod"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_pathway.html#pymatgen.analysis.diffusion.aimd.tests.test_pathway.SiteOccupancyTest.test_site_occupancy_classmethod">[docs]</a>    <span class="k">def</span> <span class="nf">test_site_occupancy_classmethod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tests_dir</span><span class="p">,</span> <span class="s2">&quot;cNa3PS4_pda.json&quot;</span><span class="p">)</span>
@@ -159,12 +168,14 @@
         <span class="n">coords_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">structure</span> <span class="k">if</span> <span class="n">ss</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s2">&quot;Na&quot;</span><span class="p">]</span>
 
         <span class="c1"># SiteOccupancyAnalyzer object</span>
-        <span class="n">socc</span> <span class="o">=</span> <span class="n">SiteOccupancyAnalyzer</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span><span class="p">)</span>
+        <span class="n">socc</span> <span class="o">=</span> <span class="n">SiteOccupancyAnalyzer</span><span class="o">.</span><span class="n">from_diffusion_analyzer</span><span class="p">(</span>
+            <span class="n">coords_ref</span><span class="p">,</span> <span class="n">diffusion_analyzer</span><span class="o">=</span><span class="n">diff_analyzer</span>
+        <span class="p">)</span>
         <span class="n">site_occ</span> <span class="o">=</span> <span class="n">socc</span><span class="o">.</span><span class="n">site_occ</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">site_occ</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">site_occ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.98</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">site_occ</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="mf">0.97</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">),</span> <span class="mi">48</span><span class="p">)</span></div></div>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_ref</span><span class="p">)</span> <span class="o">==</span> <span class="mi">48</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

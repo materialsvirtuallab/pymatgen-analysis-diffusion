@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.neb package &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.neb package &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb package</a></li> 
       </ul>
     </div>  
@@ -59,10 +56,88 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html">pymatgen.analysis.diffusion.neb.full_path_mapper module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html">pymatgen.analysis.diffusion.neb.io module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html">pymatgen.analysis.diffusion.neb.pathfinder module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html">pymatgen.analysis.diffusion.neb.periodic_dijkstra module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html">pymatgen.analysis.diffusion.neb.full_path_mapper module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph.get_least_chg_path"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraph.get_least_chg_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph.get_summary_dict"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraph.get_summary_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.ChargeBarrierGraph.populate_edges_with_chg_density_info"><code class="docutils literal notranslate"><span class="pre">ChargeBarrierGraph.populate_edges_with_chg_density_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><code class="docutils literal notranslate"><span class="pre">MigrationGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.add_data_to_similar_edges"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.add_data_to_similar_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.assign_cost_to_graph"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.assign_cost_to_graph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_path"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.get_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_structure_from_entries"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.get_structure_from_entries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.get_summary_dict"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.get_summary_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.host_structure"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.host_structure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.only_sites"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.only_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.symm_structure"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.symm_structure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.unique_hops"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.unique_hops</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_base_structure"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.with_base_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_distance"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.with_distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph.with_local_env_strategy"><code class="docutils literal notranslate"><span class="pre">MigrationGraph.with_local_env_strategy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.almost"><code class="docutils literal notranslate"><span class="pre">almost()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.check_uc_hop"><code class="docutils literal notranslate"><span class="pre">check_uc_hop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.generic_groupby"><code class="docutils literal notranslate"><span class="pre">generic_groupby()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.get_hop_site_sequence"><code class="docutils literal notranslate"><span class="pre">get_hop_site_sequence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.get_only_sites_from_structure"><code class="docutils literal notranslate"><span class="pre">get_only_sites_from_structure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.map_hop_sc2uc"><code class="docutils literal notranslate"><span class="pre">map_hop_sc2uc()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.order_path"><code class="docutils literal notranslate"><span class="pre">order_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html">pymatgen.analysis.diffusion.neb.io module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBEndPointSet"><code class="docutils literal notranslate"><span class="pre">MVLCINEBEndPointSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBSet"><code class="docutils literal notranslate"><span class="pre">MVLCINEBSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoint_dist"><code class="docutils literal notranslate"><span class="pre">get_endpoint_dist()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoints_from_index"><code class="docutils literal notranslate"><span class="pre">get_endpoints_from_index()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html">pymatgen.analysis.diffusion.neb.pathfinder module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.ChgcarPotential"><code class="docutils literal notranslate"><span class="pre">ChgcarPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder"><code class="docutils literal notranslate"><span class="pre">DistinctPathFinder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder.get_paths"><code class="docutils literal notranslate"><span class="pre">DistinctPathFinder.get_paths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder.write_all_paths"><code class="docutils literal notranslate"><span class="pre">DistinctPathFinder.write_all_paths()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.FreeVolumePotential"><code class="docutils literal notranslate"><span class="pre">FreeVolumePotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver"><code class="docutils literal notranslate"><span class="pre">IDPPSolver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.from_endpoints"><code class="docutils literal notranslate"><span class="pre">IDPPSolver.from_endpoints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.get_unit_vector"><code class="docutils literal notranslate"><span class="pre">IDPPSolver.get_unit_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.run"><code class="docutils literal notranslate"><span class="pre">IDPPSolver.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><code class="docutils literal notranslate"><span class="pre">MigrationHop</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.get_sc_structures"><code class="docutils literal notranslate"><span class="pre">MigrationHop.get_sc_structures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.get_structures"><code class="docutils literal notranslate"><span class="pre">MigrationHop.get_structures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.length"><code class="docutils literal notranslate"><span class="pre">MigrationHop.length</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.write_path"><code class="docutils literal notranslate"><span class="pre">MigrationHop.write_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MixedPotential"><code class="docutils literal notranslate"><span class="pre">MixedPotential</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder"><code class="docutils literal notranslate"><span class="pre">NEBPathfinder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.images"><code class="docutils literal notranslate"><span class="pre">NEBPathfinder.images</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.interpolate"><code class="docutils literal notranslate"><span class="pre">NEBPathfinder.interpolate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.plot_images"><code class="docutils literal notranslate"><span class="pre">NEBPathfinder.plot_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.string_relax"><code class="docutils literal notranslate"><span class="pre">NEBPathfinder.string_relax()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential"><code class="docutils literal notranslate"><span class="pre">StaticPotential</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.gaussian_smear"><code class="docutils literal notranslate"><span class="pre">StaticPotential.gaussian_smear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.get_v"><code class="docutils literal notranslate"><span class="pre">StaticPotential.get_v()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.normalize"><code class="docutils literal notranslate"><span class="pre">StaticPotential.normalize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.rescale_field"><code class="docutils literal notranslate"><span class="pre">StaticPotential.rescale_field()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html">pymatgen.analysis.diffusion.neb.periodic_dijkstra module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html#pymatgen.analysis.diffusion.neb.periodic_dijkstra.get_optimal_pathway_rev"><code class="docutils literal notranslate"><span class="pre">get_optimal_pathway_rev()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra"><code class="docutils literal notranslate"><span class="pre">periodic_dijkstra()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.periodic_dijkstra.html#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra_on_sgraph"><code class="docutils literal notranslate"><span class="pre">periodic_dijkstra_on_sgraph()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

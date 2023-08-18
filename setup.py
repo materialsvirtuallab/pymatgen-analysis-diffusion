@@ -1,5 +1,5 @@
-# Copyright (c) Materials Virtual Lab
-# Distributed under the terms of the Modified BSD License.
+"""Setup file for pymatgen.analysis.diffusion."""
+from __future__ import annotations
 
 import os
 
@@ -14,7 +14,7 @@ with open(os.path.join(SETUP_PTH, "README.rst")) as f:
 setup(
     name="pymatgen-analysis-diffusion",
     packages=find_namespace_packages(include=["pymatgen.analysis.*"]),
-    version="2022.7.21",
+    version="2023.8.15",
     install_requires=["pymatgen>=2022.0.3", "joblib"],
     extras_require={},
     package_data={},

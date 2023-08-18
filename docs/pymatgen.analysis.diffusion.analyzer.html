@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.analyzer module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.analyzer module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.analyzer module</a></li> 
       </ul>
     </div>  
@@ -66,7 +63,7 @@ citing the following papers:</p>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiffusionAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_skip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_nsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiffusionAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specie</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_skip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_nsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_ranges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_range_include_edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#DiffusionAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class for performing diffusion analysis.</p>
 <p>This constructor is meant to be used with pre-processed data.
@@ -74,9 +71,9 @@ Other convenient constructors are provided as class methods (see
 from_vaspruns and from_files).</p>
 <p>Given a matrix of displacements (see arguments below for expected
 format), the diffusivity is given by:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="n">dt</span> <span class="o">*</span> <span class="o">&lt;</span><span class="n">mean</span> <span class="n">square</span> <span class="n">displacement</span><span class="o">&gt;</span>
-</pre></div>
-</div>
+<blockquote>
+<div><p>D = 1 / 2dt * &lt;mean square displacement&gt;</p>
+</div></blockquote>
 <p>where d is the dimensionality, t is the time. To obtain a reliable
 diffusion estimate, a least squares regression of the MSD against
 time to obtain the slope, which is then related to the diffusivity.</p>
@@ -123,6 +120,19 @@ timestep. Default of 1000 is usually pretty good.</p></li>
 <li><p><strong>lattices</strong> (<em>array</em>) – Numpy array of lattice matrix of every step. Used
 for NPT-AIMD. For NVT-AIMD, the lattice at each time step is
 set to the lattice in the “structure” argument.</p></li>
+<li><p><strong>c_ranges</strong> (<em>list</em>) – A list of fractional ranges of z-axis to define
+regions and calculate regional MSD and regional diffusivity.
+If the start and end positions of a diffusing specie between
+two time steps are all within the c_ranges, that displacement
+is collected to calculate MSD in that time step. units: Å.
+Default to None.</p></li>
+<li><p><strong>c_range_include_edge</strong> (<em>bool</em>) – Whether to include displacements start or end
+on the edge of the defined c_ranges into the calculation of regional
+MSD. Default to False.</p></li>
+<li><p><strong>structures</strong> (<em>list</em>) – A list of trajectory structures only used in the
+calculation of regional MSD and regional diffusivity. These structures
+should be the same as those used to construct the diffusion analyzer.
+Default to None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -427,6 +437,43 @@ Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.get_diffusivity_from_msd">
+<span class="sig-name descname"><span class="pre">get_diffusivity_from_msd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_diffusivity_from_msd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_diffusivity_from_msd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns diffusivity and standard deviation of diffusivity given by:</p>
+<blockquote>
+<div><p>D = 1 / 2dt * &lt;mean square displacement&gt;</p>
+</div></blockquote>
+<p>where d is the dimensionality, t is the time. To obtain a reliable
+diffusion estimate, a least squares regression of the MSD against
+time to obtain the slope, which is then related to the diffusivity.</p>
+<p>For traditional analysis, use smoothed=False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msd</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of mean square displacements. units: Å^2</p></li>
+<li><p><strong>dt</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of time steps corresponding to MSD. units: fs</p></li>
+<li><p><strong>smoothed</strong> (<em>str</em>) – <p>Whether to smooth the MSD, and what mode to smooth.
+Supported modes are:</p>
+<ol class="lowerroman simple">
+<li><p>”max”, which tries to use the maximum #
+of data points for each time origin, subject to a
+minimum # of observations given by min_obs, and then
+weights the observations based on the variance
+accordingly. This is the default.</p></li>
+<li><p>”constant”, in which each timestep is averaged over
+the number of time_steps given by min_steps.</p></li>
+<li><p>None / False / any other false-like quantity. No</p></li>
+</ol>
+<blockquote>
+<div><p>smoothing.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.get_extrapolated_conductivity">
 <span class="sig-name descname"><span class="pre">get_extrapolated_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_extrapolated_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns extrapolated mS/cm conductivity.</p>
@@ -474,7 +521,36 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion.analyzer module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.as_dict"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.as_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.export_msdt"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.export_msdt()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_dict"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_files"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.from_files()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_structures"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.from_structures()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.from_vaspruns"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.from_vaspruns()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.get_drift_corrected_structures"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.get_drift_corrected_structures()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.get_framework_rms_plot"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.get_framework_rms_plot()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.get_msd_plot"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.get_msd_plot()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.get_summary_dict"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.get_summary_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer.plot_msd"><code class="docutils literal notranslate"><span class="pre">DiffusionAnalyzer.plot_msd()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.fit_arrhenius"><code class="docutils literal notranslate"><span class="pre">fit_arrhenius()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot"><code class="docutils literal notranslate"><span class="pre">get_arrhenius_plot()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.get_conversion_factor"><code class="docutils literal notranslate"><span class="pre">get_conversion_factor()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.get_diffusivity_from_msd"><code class="docutils literal notranslate"><span class="pre">get_diffusivity_from_msd()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_conductivity"><code class="docutils literal notranslate"><span class="pre">get_extrapolated_conductivity()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity"><code class="docutils literal notranslate"><span class="pre">get_extrapolated_diffusivity()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>

@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css" />
-    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../_static/jquery.js"></script>
-    <script src="../../../../../_static/underscore.js"></script>
-    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../../_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.neb.pathfinder &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
 
@@ -37,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.pathfinder</a></li> 
       </ul>
@@ -55,40 +52,47 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Algorithms for NEB migration path analysis.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_sc_fromstruct</span><span class="p">,</span>
+    <span class="n">get_start_end_structures</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Poscar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Iek-Heng Chu&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 14, 2017&quot;</span>
-
-
-<span class="c1"># TODO: (1) ipython notebook example files, unittests</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.structure</span> <span class="kn">import</span> <span class="n">SymmetrizedStructure</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="n">get_sc_fromstruct</span><span class="p">,</span> <span class="n">get_start_end_structures</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.symmetry.structure</span> <span class="kn">import</span> <span class="n">SymmetrizedStructure</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+<span class="c1"># TODO: (1) ipython notebook example files, unittests</span>
+
 
 <div class="viewcode-block" id="IDPPSolver"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver">[docs]</a><span class="k">class</span> <span class="nc">IDPPSolver</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A solver using image dependent pair potential (IDPP) algo to get an improved</span>
 <span class="sd">    initial NEB path. For more details about this algo, please refer to</span>
 <span class="sd">    Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization.</span>
 
 <span class="sd">        Args:</span>
@@ -126,7 +130,9 @@
         <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">target_dists</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="p">):</span>
             <span class="n">avg_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">+</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
-            <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_dist</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-8</span><span class="p">)</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">avg_dist</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-8</span>
+            <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ni</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">)):</span>
             <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
@@ -134,11 +140,15 @@
 
             <span class="k">if</span> <span class="n">ni</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">natoms</span><span class="p">):</span>
-                    <span class="n">img</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">img</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span>
+                        <span class="n">frac_coords</span><span class="p">,</span> <span class="n">structures</span><span class="p">[</span><span class="n">ni</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+                    <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">translations</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
                     <span class="n">translations</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_coords</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1121</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_coords</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">nimages</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span>
+        <span class="p">)</span>  <span class="c1"># pylint: disable=E1121</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">translations</span> <span class="o">=</span> <span class="n">translations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
@@ -155,7 +165,7 @@
         <span class="n">spring_const</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
         <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform iterative minimization of the set of objective functions in an</span>
 <span class="sd">        NEB-like manner. In each iteration, the total force matrix for each</span>
 <span class="sd">        image is constructed, which comprises both the spring forces and true</span>
@@ -190,21 +200,27 @@
             <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="ow">in</span> <span class="n">species</span>
+            <span class="p">]</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given species are not in the system!&quot;</span><span class="p">)</span>
 
         <span class="c1"># Iterative minimization</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxiter</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxiter</span><span class="p">):</span>
             <span class="c1"># Get the sets of objective functions, true and total force</span>
             <span class="c1"># matrices.</span>
             <span class="n">funcs</span><span class="p">,</span> <span class="n">true_forces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_funcs_and_forces</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
-            <span class="n">tot_forces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_total_forces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="o">=</span><span class="n">spring_const</span><span class="p">)</span>
+            <span class="n">tot_forces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_total_forces</span><span class="p">(</span>
+                <span class="n">coords</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="o">=</span><span class="n">spring_const</span>
+            <span class="p">)</span>
 
             <span class="c1"># Each atom is allowed to move up to max_disp</span>
             <span class="n">disp_mat</span> <span class="o">=</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">tot_forces</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="n">disp_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">)</span> <span class="o">*</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">disp_mat</span><span class="p">)</span>
+            <span class="n">disp_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">disp_mat</span><span class="p">)</span> <span class="o">*</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">disp_mat</span>
+            <span class="p">)</span>
             <span class="n">coords</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">indices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">disp_mat</span>
 
             <span class="n">max_force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tot_forces</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
@@ -216,7 +232,9 @@
             <span class="n">old_funcs</span> <span class="o">=</span> <span class="n">funcs</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Maximum iteration number is reached without convergence!&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Maximum iteration number is reached without convergence!&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span>
+            <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
             <span class="c1"># generate the improved image structure</span>
@@ -240,8 +258,10 @@
         <span class="k">return</span> <span class="n">idpp_structures</span></div>
 
 <div class="viewcode-block" id="IDPPSolver.from_endpoints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.from_endpoints">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">from_endpoints</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class method that starts with end-point structures instead. The</span>
 <span class="sd">        initial guess for the IDPP algo is then constructed using linear</span>
 <span class="sd">        interpolation.</span>
@@ -263,7 +283,8 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;Unable to reliably match structures &quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Auto sorting is turned off because it is unable&quot;</span> <span class="s2">&quot; to match the end-point structures!&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Auto sorting is turned off because it is unable&quot;</span>
+                    <span class="s2">&quot; to match the end-point structures!&quot;</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">images</span> <span class="o">=</span> <span class="n">endpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
@@ -278,7 +299,7 @@
         <span class="k">return</span> <span class="n">IDPPSolver</span><span class="p">(</span><span class="n">images</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_funcs_and_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the set of objective functions as well as their gradients,</span>
 <span class="sd">        i.e. &quot;effective true forces&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -293,7 +314,11 @@
             <span class="n">vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">ni</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">trans</span><span class="p">[</span><span class="n">ni</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">)]</span>
 
             <span class="n">trial_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">aux</span> <span class="o">=</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span>
+                <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span>
+                <span class="o">/</span> <span class="p">(</span><span class="n">trial_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+            <span class="p">)</span>
 
             <span class="c1"># Objective function</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">trial_dist</span> <span class="o">-</span> <span class="n">target_dists</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">ni</span><span class="p">])</span>
@@ -308,7 +333,7 @@
 
 <div class="viewcode-block" id="IDPPSolver.get_unit_vector"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.IDPPSolver.get_unit_vector">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_unit_vector</span><span class="p">(</span><span class="n">vec</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the unit vector of a vector.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            vec: Vector.</span>
@@ -316,7 +341,7 @@
         <span class="k">return</span> <span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vec</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">_get_total_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">true_forces</span><span class="p">,</span> <span class="n">spring_const</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the total force on each image structure, which is equal to</span>
 <span class="sd">        the spring force along the tangent + true force perpendicular to the</span>
 <span class="sd">        tangent. Note that the spring force is the modified version in the</span>
@@ -335,18 +360,22 @@
             <span class="n">tangent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unit_vector</span><span class="p">(</span><span class="n">tangent</span><span class="p">)</span>
 
             <span class="c1"># Spring force</span>
-            <span class="n">spring_force</span> <span class="o">=</span> <span class="n">spring_const</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec2</span><span class="p">))</span> <span class="o">*</span> <span class="n">tangent</span>
+            <span class="n">spring_force</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">spring_const</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec2</span><span class="p">))</span> <span class="o">*</span> <span class="n">tangent</span>
+            <span class="p">)</span>
 
             <span class="c1"># Total force</span>
             <span class="n">flat_ft</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="n">total_force</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">spring_force</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">flat_ft</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)</span> <span class="o">*</span> <span class="n">tangent</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">total_force</span> <span class="o">=</span> <span class="n">true_forces</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span>
+                <span class="n">spring_force</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">flat_ft</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)</span> <span class="o">*</span> <span class="n">tangent</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">total_forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_force</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">total_forces</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MigrationHop"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop">[docs]</a><span class="k">class</span> <span class="nc">MigrationHop</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A convenience container representing a migration path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -358,7 +387,7 @@
         <span class="n">host_symm_struct</span><span class="p">:</span> <span class="n">SymmetrizedStructure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">symprec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            isite: Initial site</span>
 <span class="sd">            esite: End site</span>
@@ -373,11 +402,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">=</span> <span class="n">symm_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host_symm_struct</span> <span class="o">=</span> <span class="n">host_symm_struct</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">esite</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">host_symm_struct</span><span class="p">:</span>
-            <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_symm_struct</span><span class="o">.</span><span class="n">spacegroup</span>  <span class="c1"># type: ignore</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">spacegroup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
+            <span class="n">esite</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">esite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">esite</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="p">)</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_symm_struct</span><span class="o">.</span><span class="n">spacegroup</span> <span class="k">if</span> <span class="n">host_symm_struct</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">spacegroup</span>  <span class="c1"># type: ignore</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">([</span><span class="n">isite</span><span class="p">],</span> <span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span> <span class="o">=</span> <span class="n">i</span>
@@ -405,9 +434,13 @@
                 <span class="k">break</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iindex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No symmetrically equivalent site was found for </span><span class="si">{</span><span class="n">isite</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No symmetrically equivalent site was found for </span><span class="si">{</span><span class="n">isite</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eindex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No symmetrically equivalent site was found for </span><span class="si">{</span><span class="n">esite</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No symmetrically equivalent site was found for </span><span class="si">{</span><span class="n">esite</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ifc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span>
@@ -423,7 +456,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            (float) Length of migration path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -449,7 +482,7 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MigrationHop.get_structures"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.get_structures">[docs]</a>    <span class="k">def</span> <span class="nf">get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">vac_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">idpp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">idpp_kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate structures for NEB calculation.</span>
 
 <span class="sd">        Args:</span>
@@ -476,12 +509,20 @@
 <span class="sd">            the migrating ion. This makes it easier to perform subsequent</span>
 <span class="sd">            analysis.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_migrating_and_other_sites</span><span class="p">(</span><span class="n">vac_mode</span><span class="p">)</span>
+        <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_migrating_and_other_sites</span><span class="p">(</span>
+            <span class="n">vac_mode</span>
+        <span class="p">)</span>
 
-        <span class="n">start_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">]</span> <span class="o">+</span> <span class="n">migrating_specie_sites</span> <span class="o">+</span> <span class="n">other_sites</span><span class="p">)</span>
-        <span class="n">end_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="p">]</span> <span class="o">+</span> <span class="n">migrating_specie_sites</span> <span class="o">+</span> <span class="n">other_sites</span><span class="p">)</span>
+        <span class="n">start_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="o">*</span><span class="n">other_sites</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">end_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="p">,</span> <span class="o">*</span><span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="o">*</span><span class="n">other_sites</span><span class="p">]</span>
+        <span class="p">)</span>
 
-        <span class="n">structures</span> <span class="o">=</span> <span class="n">start_structure</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">structures</span> <span class="o">=</span> <span class="n">start_structure</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+            <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">idpp</span><span class="p">:</span>
             <span class="n">solver</span> <span class="o">=</span> <span class="n">IDPPSolver</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span>
@@ -496,7 +537,10 @@
             <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">specie</span><span class="p">:</span>
                 <span class="n">other_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span>
+                    <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">esite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-8</span>
+                <span class="p">):</span>
                     <span class="n">migrating_specie_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
                     <span class="k">continue</span>
 
@@ -511,8 +555,8 @@
         <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
         <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct supercells that represents the start and end positions for migration analysis.</span>
 
 <span class="sd">        Args:</span>
@@ -529,7 +573,9 @@
 <span class="sd">            If in vacancy mode, the base structure is the fully intercalated structure</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_migrating_and_other_sites</span><span class="p">(</span><span class="n">vac_mode</span><span class="p">)</span>
+        <span class="n">migrating_specie_sites</span><span class="p">,</span> <span class="n">other_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_migrating_and_other_sites</span><span class="p">(</span>
+            <span class="n">vac_mode</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">vac_mode</span><span class="p">:</span>
             <span class="n">base_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">other_sites</span> <span class="o">+</span> <span class="n">migrating_specie_sites</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -551,7 +597,7 @@
         <span class="k">return</span> <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">base_sc</span></div>
 
 <div class="viewcode-block" id="MigrationHop.write_path"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop.write_path">[docs]</a>    <span class="k">def</span> <span class="nf">write_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the path to a file for easy viewing.</span>
 
 <span class="sd">        Args:</span>
@@ -566,7 +612,7 @@
 
 
 <div class="viewcode-block" id="DistinctPathFinder"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder">[docs]</a><span class="k">class</span> <span class="nc">DistinctPathFinder</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determines symmetrically distinct paths between existing sites.</span>
 <span class="sd">    The path info can then be used to set up either vacancy or interstitial</span>
 <span class="sd">    diffusion (assuming site positions are known). Note that this works mainly</span>
@@ -581,7 +627,7 @@
         <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">perc_mode</span><span class="o">=</span><span class="s2">&quot;&gt;1d&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure: Input structure that contains all sites.</span>
 <span class="sd">            migrating_specie (Specie-like): The specie that migrates. E.g.,</span>
@@ -639,7 +685,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">max_path_length</span> <span class="o">=</span> <span class="n">max_path_length</span>
 
 <div class="viewcode-block" id="DistinctPathFinder.get_paths"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder.get_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            [MigrationHop] All distinct migration paths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -647,7 +693,9 @@
         <span class="k">for</span> <span class="n">sites</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
                 <span class="n">site0</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
+                    <span class="n">site0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.01</span>
+                <span class="p">):</span>
                     <span class="k">if</span> <span class="n">nn</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">:</span>
                         <span class="n">path</span> <span class="o">=</span> <span class="n">MigrationHop</span><span class="p">(</span><span class="n">site0</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="p">)</span>
                         <span class="n">paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -655,7 +703,7 @@
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DistinctPathFinder.write_all_paths"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.DistinctPathFinder.write_all_paths">[docs]</a>    <span class="k">def</span> <span class="nf">write_all_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write a file containing all paths, using hydrogen as a placeholder for</span>
 <span class="sd">        the images. H is chosen as it is the smallest atom. This is extremely</span>
 <span class="sd">        useful for path visualization in a standard software like VESTA.</span>
@@ -667,13 +715,497 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paths</span><span class="p">():</span>
-            <span class="n">structures</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_structures</span><span class="p">(</span><span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_structures</span><span class="p">(</span>
+                <span class="n">nimages</span><span class="o">=</span><span class="n">nimages</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">migrating_specie</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
             <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="p">))</span>
         <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
         <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NEBPathfinder"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder">[docs]</a><span class="k">class</span> <span class="nc">NEBPathfinder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General pathfinder for interpolating between two structures, where the</span>
+<span class="sd">    interpolating path is calculated with the elastic band method with</span>
+<span class="sd">    respect to the given static potential for sites whose indices are given</span>
+<span class="sd">    in relax_sites, and is linear otherwise.</span>
+
+<span class="sd">    If you use PathFinder algorithm for your research, please consider citing the</span>
+<span class="sd">    following work::</span>
+
+<span class="sd">        Ziqin Rong, Daniil Kitchaev, Pieremanuele Canepa, Wenxuan Huang, Gerbrand</span>
+<span class="sd">        Ceder, The Journal of Chemical Physics 145 (7), 074112</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">relax_sites</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">n_images</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mid_struct</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            start_struct, end_struct: Endpoint structures to interpolate</span>
+<span class="sd">            relax_sites: List of site indices whose interpolation paths should</span>
+<span class="sd">                be relaxed</span>
+<span class="sd">            v: Static potential field to use for the elastic band relaxation</span>
+<span class="sd">            n_images: Number of interpolation images to generate</span>
+<span class="sd">            mid_struct: (optional) additional structure between the start and end structures to help.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span> <span class="o">=</span> <span class="n">start_struct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__s2</span> <span class="o">=</span> <span class="n">end_struct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span> <span class="o">=</span> <span class="n">mid_struct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span> <span class="o">=</span> <span class="n">relax_sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span> <span class="o">=</span> <span class="n">n_images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__images</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+
+<div class="viewcode-block" id="NEBPathfinder.interpolate"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds a set of n_images from self.s1 to self.s2, where all sites except</span>
+<span class="sd">        for the ones given in relax_sites, the interpolation is linear (as in</span>
+<span class="sd">        pymatgen.core.structure.interpolate), and for the site indices given</span>
+<span class="sd">        in relax_sites, the path is relaxed by the elastic band method within</span>
+<span class="sd">        the static potential V.</span>
+
+<span class="sd">        If a mid point is defined we will interpolate from s1--&gt; mid --&gt;s2</span>
+<span class="sd">        The final number of images will still be n_images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># to make arithmetic easier we will do the interpolation in two parts with n images each</span>
+            <span class="c1"># then just take every other image at the end, this results in exactly n images</span>
+            <span class="n">images_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">images_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__s2</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">images_0</span> <span class="o">+</span> <span class="n">images_1</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__s2</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span> <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">site_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span><span class="p">:</span>
+            <span class="n">start_f</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+            <span class="n">end_f</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+
+            <span class="n">path</span> <span class="o">=</span> <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">string_relax</span><span class="p">(</span>
+                <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__f2d</span><span class="p">(</span><span class="n">start_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">),</span>
+                <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__f2d</span><span class="p">(</span><span class="n">end_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span>
+                <span class="n">n_images</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">dr</span><span class="o">=</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">image_i</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span>
+                    <span class="n">site_i</span><span class="p">,</span>
+                    <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__d2f</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">image_i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">)</span>
+                    <span class="o">-</span> <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                    <span class="n">frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__images</span> <span class="o">=</span> <span class="n">images</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of structures interpolating between the start and</span>
+<span class="sd">        endpoint structures.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__images</span>
+
+<div class="viewcode-block" id="NEBPathfinder.plot_images"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.plot_images">[docs]</a>    <span class="k">def</span> <span class="nf">plot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a POSCAR with the calculated diffusion path with respect to the first endpoint.</span>
+<span class="sd">        :param outfile: Output file for the POSCAR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sum_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">site_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span><span class="p">:</span>
+                <span class="n">sum_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="n">sum_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sum_struct</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">sum_struct</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NEBPathfinder.string_relax"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.NEBPathfinder.string_relax">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">string_relax</span><span class="p">(</span>
+        <span class="n">start</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">,</span>
+        <span class="n">V</span><span class="p">,</span>
+        <span class="n">n_images</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">dr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">h</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">k</span><span class="o">=</span><span class="mf">0.17</span><span class="p">,</span>
+        <span class="n">min_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">max_tol</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implements path relaxation via the elastic band method. In general, the</span>
+<span class="sd">        method is to define a path by a set of points (images) connected with</span>
+<span class="sd">        bands with some elasticity constant k. The images then relax along the</span>
+<span class="sd">        forces found in the potential field V, counterbalanced by the elastic</span>
+<span class="sd">        response of the elastic band. In general the endpoints of the band can</span>
+<span class="sd">        be allowed to relax also to their local minima, but in this calculation</span>
+<span class="sd">        they are kept fixed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start: Starting point of the path calculation given in discrete</span>
+<span class="sd">                coordinates with respect to the grid in V.</span>
+<span class="sd">            end: Endpoints of the path calculation.</span>
+<span class="sd">            V: potential field through which to calculate the path</span>
+<span class="sd">            n_images: number of images used to define the path. In general</span>
+<span class="sd">                anywhere from 20 to 40 seems to be good.</span>
+<span class="sd">            dr: Conversion ratio from discrete coordinates to real coordinates</span>
+<span class="sd">                for each of the three coordinate vectors</span>
+<span class="sd">            h: Step size for the relaxation. h = 0.1 works reliably, but is</span>
+<span class="sd">                slow. h=10 diverges with large gradients but for the types of</span>
+<span class="sd">                gradients seen in CHGCARs, works pretty reliably</span>
+<span class="sd">            k: Elastic constant for the band (in real units, not discrete)</span>
+<span class="sd">            min_iter: Minimum number of iterations to perform. Defaults to 100.</span>
+<span class="sd">            max_iter: Number of optimization steps the string will</span>
+<span class="sd">                take before exiting (even if unconverged). Defaults to 10000.</span>
+<span class="sd">            max_tol: Convergence threshold such that if the string moves by</span>
+<span class="sd">                less than max_tol in a step, and at least min_iter steps have</span>
+<span class="sd">                passed, the algorithm will terminate. Depends strongly on the</span>
+<span class="sd">                size of the gradients in V, but 5e-6 works reasonably well for</span>
+<span class="sd">                CHGCARs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#</span>
+        <span class="c1"># This code is based on the MATLAB example provided by</span>
+        <span class="c1"># Prof. Eric Vanden-Eijnden of NYU</span>
+        <span class="c1"># (http://www.cims.nyu.edu/~eve2/main.htm)</span>
+        <span class="c1">#</span>
+
+        <span class="c1"># logger.debug(f&quot;Getting path from {start} to {end} (coords wrt V grid)&quot;)</span>
+
+        <span class="c1"># Set parameters</span>
+        <span class="n">dr</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="o">/</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dr</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">keff</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">dr</span> <span class="o">*</span> <span class="n">n_images</span>
+        <span class="n">h0</span> <span class="o">=</span> <span class="n">h</span>
+
+        <span class="c1"># Initialize string</span>
+        <span class="n">g1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_images</span><span class="p">)</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">s1</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">g1</span><span class="p">])</span> <span class="o">+</span> <span class="n">s0</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">ls</span> <span class="o">/</span> <span class="n">ls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fi</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">ls</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">fi</span><span class="p">(</span><span class="n">g1</span><span class="p">)</span>
+
+        <span class="c1"># Evaluate initial distances (for elastic equilibrium)</span>
+        <span class="n">ds0_plus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds0_minus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds0_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds0_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds0_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ds0_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds0_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds0_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Evaluate potential gradient outside the loop, as potential does not</span>
+        <span class="c1"># change per step in this approximation.</span>
+        <span class="n">dV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+
+        <span class="c1"># Evolve string</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">):</span>
+            <span class="c1"># Gradually decay step size to prevent oscillations</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">h0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="n">min_iter</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_iter</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">min_iter</span>
+                <span class="k">else</span> <span class="n">h0</span>
+            <span class="p">)</span>
+            <span class="c1"># Calculate forces acting on string</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">s0</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># store copy for endpoint fixing below (fixes GH 2732)</span>
+            <span class="n">edV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">[</span>
+                        <span class="n">dV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                        <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">dV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                        <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">dV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                        <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">]</span>
+                    <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">s</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="c1"># if(step % 100 == 0):</span>
+            <span class="c1">#    logger.debug(edV)</span>
+
+            <span class="c1"># Update according to force due to potential and string elasticity</span>
+            <span class="n">ds_plus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ds_minus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">Fpot</span> <span class="o">=</span> <span class="n">edV</span>
+            <span class="n">Fel</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">keff</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_plus</span><span class="p">))</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">ds_plus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">Fel</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">keff</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_minus</span><span class="p">))</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">ds_minus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">s</span> <span class="o">-=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">Fpot</span> <span class="o">+</span> <span class="n">Fel</span><span class="p">)</span>
+
+            <span class="c1"># Fix endpoints</span>
+            <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">s0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">s0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Re-parametrize string</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">ls</span> <span class="o">/</span> <span class="n">ls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fi</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">ls</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">fi</span><span class="p">(</span><span class="n">g1</span><span class="p">)</span>
+
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">s</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dr</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_images</span> <span class="o">/</span> <span class="n">h</span>
+
+            <span class="k">if</span> <span class="n">tol</span> <span class="o">&gt;</span> <span class="mf">1e10</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Pathfinding failed, path diverged! Consider reducing h to avoid divergence.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">min_iter</span> <span class="ow">and</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">max_tol</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged at </span><span class="si">{</span><span class="n">step</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step</span><span class="si">=}</span><span class="s2"> - ds = </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__f2d</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts fractional coordinates to discrete coordinates with respect to</span>
+<span class="sd">        the grid size of v.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># frac_coords = frac_coords % 1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__d2f</span><span class="p">(</span><span class="n">disc_coords</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a point given in discrete coordinates with respect to the</span>
+<span class="sd">        grid in v to fractional coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">disc_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">disc_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">disc_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StaticPotential"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential">[docs]</a><span class="k">class</span> <span class="nc">StaticPotential</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a general static potential for diffusion calculations. Implements</span>
+<span class="sd">    grid-rescaling and smearing for the potential grid. Also provides a</span>
+<span class="sd">    function to normalize the potential from 0 to 1 (recommended).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">pot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param struct: atomic structure of the potential</span>
+<span class="sd">        :param pot: volumentric data to be used as a potential</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">pot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__s</span> <span class="o">=</span> <span class="n">struct</span>
+
+<div class="viewcode-block" id="StaticPotential.get_v"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.get_v">[docs]</a>    <span class="k">def</span> <span class="nf">get_v</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the potential.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span></div>
+
+<div class="viewcode-block" id="StaticPotential.normalize"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the potential range 0 to 1.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StaticPotential.rescale_field"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.rescale_field">[docs]</a>    <span class="k">def</span> <span class="nf">rescale_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Changes the discretization of the potential field by linear</span>
+<span class="sd">        interpolation. This is necessary if the potential field</span>
+<span class="sd">        obtained from DFT is strangely skewed, or is too fine or coarse. Obeys</span>
+<span class="sd">        periodic boundary conditions at the edges of</span>
+<span class="sd">        the cell. Alternatively useful for mixing potentials that originally</span>
+<span class="sd">        are on different grids.</span>
+
+<span class="sd">        :param new_dim: tuple giving the numpy shape of the new grid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wrap&quot;</span><span class="p">)</span>
+        <span class="n">ogrid_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">v_ogrid</span> <span class="o">=</span> <span class="n">padded_v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+            <span class="mi">0</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="mi">0</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="mi">0</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">]</span>
+
+        <span class="n">v_ngrid</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span>
+            <span class="n">ogrid_list</span><span class="p">,</span> <span class="n">v_ogrid</span><span class="p">,</span> <span class="p">(</span><span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">v_ngrid</span></div>
+
+<div class="viewcode-block" id="StaticPotential.gaussian_smear"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.StaticPotential.gaussian_smear">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian_smear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies an isotropic Gaussian smear of width (standard deviation) r to</span>
+<span class="sd">        the potential field. This is necessary to avoid finding paths through</span>
+<span class="sd">        narrow minima or nodes that may exist in the field (although any</span>
+<span class="sd">        potential or charge distribution generated from GGA should be</span>
+<span class="sd">        relatively smooth anyway). The smearing obeys periodic</span>
+<span class="sd">        boundary conditions at the edges of the cell.</span>
+
+<span class="sd">        :param r - Smearing width in Cartesian coordinates, in the same units</span>
+<span class="sd">            as the structure lattice vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Since scaling factor in fractional coords is not isotropic, have to</span>
+        <span class="c1"># have different radii in 3 directions</span>
+        <span class="n">a_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span>
+        <span class="n">b_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span>
+        <span class="n">c_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span>
+
+        <span class="c1"># Conversion factors for discretization of v</span>
+        <span class="n">v_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">r_frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">a_lat</span><span class="p">,</span> <span class="n">r</span> <span class="o">/</span> <span class="n">b_lat</span><span class="p">,</span> <span class="n">r</span> <span class="o">/</span> <span class="n">c_lat</span><span class="p">)</span>
+        <span class="n">r_disc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">r_frac</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">r_frac</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">r_frac</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Apply smearing</span>
+        <span class="c1"># Gaussian filter</span>
+        <span class="n">gauss_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g_a</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">g_b</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">g_c</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">g_a</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">g_b</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">g_c</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">g_a</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">g_b</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">])][</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">g_c</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">g</span><span class="p">))</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">gauss</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span>
+        <span class="n">gauss</span> <span class="o">=</span> <span class="n">gauss</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gauss</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span>
+            <span class="p">((</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wrap&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">smeared_v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">padded_v</span><span class="p">,</span> <span class="n">gauss</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">smeared_v</span></div></div>
+
+
+<div class="viewcode-block" id="ChgcarPotential"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.ChgcarPotential">[docs]</a><span class="k">class</span> <span class="nc">ChgcarPotential</span><span class="p">(</span><span class="n">StaticPotential</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a potential field based on the charge density output from VASP.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar</span><span class="p">,</span> <span class="n">smear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param chgcar: Chgcar object based on a VASP run of the structure of</span>
+<span class="sd">            interest (Chgcar.from_file(&quot;CHGCAR&quot;))</span>
+<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the</span>
+<span class="sd">            potential</span>
+<span class="sd">        :param normalize: Whether or not to normalize the potential to range</span>
+<span class="sd">            from 0 to 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">StaticPotential</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smear</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_smear</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FreeVolumePotential"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.FreeVolumePotential">[docs]</a><span class="k">class</span> <span class="nc">FreeVolumePotential</span><span class="p">(</span><span class="n">StaticPotential</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a potential field based on geometric distances from atoms in the</span>
+<span class="sd">    structure - basically, the potential</span>
+<span class="sd">    is lower at points farther away from any atoms in the structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">smear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param struct: Unit cell on which to base the potential</span>
+<span class="sd">        :param dim: Grid size for the potential</span>
+<span class="sd">        :param smear: Whether or not to apply a Gaussian smearing to the</span>
+<span class="sd">            potential</span>
+<span class="sd">        :param normalize: Whether or not to normalize the potential to range</span>
+<span class="sd">            from 0 to 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__s</span> <span class="o">=</span> <span class="n">struct</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">FreeVolumePotential</span><span class="o">.</span><span class="n">__add_gaussians</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="n">StaticPotential</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smear</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_smear</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__add_gaussians</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
+        <span class="n">gauss_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a_d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">b_d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">c_d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">coords_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+                    <span class="n">d_f</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                        <span class="n">s</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">coords_f</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="c1"># logger.debug(d_f)</span>
+                    <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">a_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">b_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">c_d</span><span class="p">)]</span> <span class="o">=</span> <span class="n">d_f</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MixedPotential"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MixedPotential">[docs]</a><span class="k">class</span> <span class="nc">MixedPotential</span><span class="p">(</span><span class="n">StaticPotential</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a potential that is a weighted sum of some other potentials.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potentials</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">smear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            potentials: List of objects extending the StaticPotential superclass</span>
+<span class="sd">            coefficients: Mixing weights for the elements of the potentials list</span>
+<span class="sd">            smear: Whether or not to apply a Gaussian smearing to the potential</span>
+<span class="sd">            normalize: Whether or not to normalize the potential to range from</span>
+<span class="sd">                0 to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">potentials</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_v</span><span class="p">()</span> <span class="o">*</span> <span class="n">coefficients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">potentials</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__s</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">potentials</span><span class="p">)):</span>
+            <span class="n">v</span> <span class="o">+=</span> <span class="n">potentials</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_v</span><span class="p">()</span> <span class="o">*</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">StaticPotential</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smear</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_smear</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span></div>
 </pre></div>
 
             <div class="clearer"></div>

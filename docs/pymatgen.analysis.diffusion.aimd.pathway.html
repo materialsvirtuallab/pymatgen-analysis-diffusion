@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/flasky.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -38,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.pathway module</a></li> 
       </ul>
     </div>  
@@ -61,7 +58,7 @@ Note that int_{Omega}d^3rP(r) = 1</p>
 <p>If you use this class, please consider citing the following paper:</p>
 <p>Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. “Role of Na+ Interstitials and
 Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4 Superionic
-Conductor”. Chem. Mater. (2015), 27, pp 8318–8325.</p>
+Conductor”. Chem. Mater. (2015), 27, pp 8318-8325.</p>
 <p>Initialization.
 :param structure: crystal structure
 :type structure: Structure
@@ -76,7 +73,7 @@ Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points
 (in Angstrom)</p></li>
-<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</p></li>
+<li><p><strong>species</strong> (<em>list</em><em> of </em><em>str</em>) – list of species that are of interest</p></li>
 </ul>
 </dd>
 </dl>
@@ -91,7 +88,7 @@ Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
 pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
 <li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points (in
 Angstrom)</p></li>
-<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest</p></li>
+<li><p><strong>species</strong> (<em>list</em><em> of </em><em>str</em>) – list of species that are of interest</p></li>
 </ul>
 </dd>
 </dl>
@@ -103,7 +100,7 @@ Angstrom)</p></li>
 <dd><p>Obtain a set of low-energy sites from probability density function with
 given probability threshold ‘p_ratio’. The set of grid points with
 probability density higher than the threshold will further be clustered
-using hierachical clustering method, with no two clusters closer than the
+using hierarchical clustering method, with no two clusters closer than the
 given distance cutoff. Note that the low-energy sites may converge more
 slowly in fast conductors (more shallow energy landscape) than in the slow
 conductors.</p>
@@ -112,7 +109,7 @@ conductors.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>p_ratio</strong> (<em>float</em>) – Probability threshold above which a grid point is
 considered as a low-energy site.</p></li>
-<li><p><strong>d_cutoff</strong> (<em>float</em>) – Distance cutoff used in hierachical clustering.</p></li>
+<li><p><strong>d_cutoff</strong> (<em>float</em>) – Distance cutoff used in hierarchical clustering.</p></li>
 </ul>
 </dd>
 </dl>
@@ -182,7 +179,7 @@ at which the site occupancy will be computed.</p></li>
 <li><p><strong>trajectories</strong> (<em>Ntimesteps x Nions x 3 array</em>) – Ionic trajectories from MD
 simulation, where Ntimesteps is the number of time steps in MD
 simulation. Note that the coordinates are fractional.</p></li>
-<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</p></li>
+<li><p><strong>species</strong> (<em>list</em><em> of </em><em>str</em>) – list of species that are of interest.</p></li>
 </ul>
 </dd>
 </dl>
@@ -193,11 +190,11 @@ simulation. Note that the coordinates are fractional.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>coords_ref</strong> (<em>nested list of floats</em>) – Fractional coordinates of a list
+<li><p><strong>coords_ref</strong> (<em>nested list</em><em> of </em><em>floats</em>) – Fractional coordinates of a list
 of reference sites at which the site occupancy will be computed.</p></li>
 <li><p><strong>diffusion_analyzer</strong> (<a class="reference internal" href="pymatgen.analysis.diffusion.analyzer.html#pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer" title="pymatgen.analysis.diffusion.analyzer.DiffusionAnalyzer"><em>DiffusionAnalyzer</em></a>) – A
 pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
-<li><p><strong>species</strong> (<em>list of str</em>) – list of species that are of interest.</p></li>
+<li><p><strong>species</strong> (<em>list</em><em> of </em><em>str</em>) – list of species that are of interest.</p></li>
 </ul>
 </dd>
 </dl>
@@ -219,7 +216,32 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.diffusion.aimd.pathway module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis"><code class="docutils literal notranslate"><span class="pre">ProbabilityDensityAnalysis</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer"><code class="docutils literal notranslate"><span class="pre">ProbabilityDensityAnalysis.from_diffusion_analyzer()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites"><code class="docutils literal notranslate"><span class="pre">ProbabilityDensityAnalysis.generate_stable_sites()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure"><code class="docutils literal notranslate"><span class="pre">ProbabilityDensityAnalysis.get_full_structure()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar"><code class="docutils literal notranslate"><span class="pre">ProbabilityDensityAnalysis.to_chgcar()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.site_occ</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.coords_ref</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.nsites</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.structure</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.from_diffusion_analyzer()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy"><code class="docutils literal notranslate"><span class="pre">SiteOccupancyAnalyzer.get_average_site_occupancy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   </ul></li>

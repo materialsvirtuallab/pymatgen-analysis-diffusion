@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 import os
 import unittest
-
-from pymatgen.core import Structure
 
 from pymatgen.analysis.diffusion.neb.io import (
     MVLCINEBEndPointSet,
@@ -9,6 +9,7 @@ from pymatgen.analysis.diffusion.neb.io import (
     get_endpoint_dist,
     get_endpoints_from_index,
 )
+from pymatgen.core import Structure
 
 __author__ = "hat003"
 
@@ -17,12 +18,10 @@ test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
 def get_path(path_str, dirname="./"):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, dirname, path_str)
-    return path
+    return os.path.join(cwd, dirname, path_str)
 
 
 class MVLCINEBEndPointSetTest(unittest.TestCase):
-
     endpoint = Structure.from_file(get_path("POSCAR0", dirname="io_files"))
 
     def test_incar(self):
@@ -49,7 +48,7 @@ NELMIN   =  4
 NSW      =  99
 PREC     =  Accurate
 SIGMA    =  0.05"""
-        self.assertEqual(incar_string, incar_expect)
+        assert incar_string == incar_expect
 
     def test_incar_user_setting(self):
         user_incar_settings = {
@@ -84,12 +83,14 @@ NPAR = 4
 NSW = 100
 PREC = Accurate
 SIGMA = 0.05"""
-        self.assertEqual(incar_string.strip(), incar_expect.strip())
+        assert incar_string.strip() == incar_expect.strip()
 
 
 class MVLCINEBSetTest(unittest.TestCase):
-
-    structures = [Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files")) for i in range(3)]
+    structures = [
+        Structure.from_file(get_path("POSCAR" + str(i), dirname="io_files"))
+        for i in range(3)
+    ]
 
     def test_incar(self):
         m = MVLCINEBSet(self.structures)
@@ -122,7 +123,7 @@ POTIM = 0
 PREC = Accurate
 SIGMA = 0.05
 SPRING = -5"""
-        self.assertEqual(incar_string.strip(), incar_expect.strip())
+        assert incar_string.strip() == incar_expect.strip()
 
     def test_incar_user_setting(self):
         user_incar_settings = {"IOPT": 3, "EDIFFG": -0.05, "NPAR": 4, "ISIF": 3}
@@ -156,7 +157,7 @@ POTIM    =  0
 PREC     =  Accurate
 SIGMA    =  0.05
 SPRING   =  -5"""
-        self.assertEqual(incar_string.strip(), incar_expect.strip())
+        assert incar_string.strip() == incar_expect.strip()
 
 
 class UtilityTest(unittest.TestCase):
@@ -167,14 +168,20 @@ class UtilityTest(unittest.TestCase):
     structure = Structure.from_file(get_path("POSCAR", dirname="io_files"))
 
     def test_get_endpoints_from_index(self):
-        endpoints = get_endpoints_from_index(structure=self.structure, site_indices=[0, 1])
+        endpoints = get_endpoints_from_index(
+            structure=self.structure, site_indices=[0, 1]
+        )
         ep_0 = endpoints[0].as_dict()
         ep_1 = endpoints[1].as_dict()
-        ep_0_expect = Structure.from_file(get_path("POSCAR_ep0", dirname="io_files")).as_dict()
-        ep_1_expect = Structure.from_file(get_path("POSCAR_ep1", dirname="io_files")).as_dict()
+        ep_0_expect = Structure.from_file(
+            get_path("POSCAR_ep0", dirname="io_files")
+        ).as_dict()
+        ep_1_expect = Structure.from_file(
+            get_path("POSCAR_ep1", dirname="io_files")
+        ).as_dict()
 
-        self.assertEqual(ep_0, ep_0_expect)
-        self.assertEqual(ep_1, ep_1_expect)
+        assert ep_0 == ep_0_expect
+        assert ep_1 == ep_1_expect
 
     def test_get_endpoint_dist(self):
         ep0 = Structure.from_file(get_path("POSCAR_ep0", dirname="io_files"))
@@ -182,7 +189,7 @@ class UtilityTest(unittest.TestCase):
         distances = get_endpoint_dist(ep0, ep1)
 
         self.assertAlmostEqual(max(distances), 6.3461081051543893, 7)
-        self.assertEqual(min(distances), 0.0)
+        assert min(distances) == 0.0
 
 
 if __name__ == "__main__":

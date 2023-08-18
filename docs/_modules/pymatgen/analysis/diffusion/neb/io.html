@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.io &#8212; pymatgen-diffusion 2022.7.21 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css" />
-    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../_static/jquery.js"></script>
-    <script src="../../../../../_static/underscore.js"></script>
-    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../../_static/doctools.js"></script>
+    <title>pymatgen.analysis.diffusion.neb.io &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js?v=7d1ab505"></script>
+    <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
 
@@ -37,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2022.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.io</a></li> 
       </ul>
@@ -55,6 +52,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Generate input fiels for NEB calculations.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 
@@ -65,12 +63,12 @@
 
 
 <div class="viewcode-block" id="MVLCINEBEndPointSet"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBEndPointSet">[docs]</a><span class="k">class</span> <span class="nc">MVLCINEBEndPointSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing NEB end points relaxation inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure: Structure</span>
 <span class="sd">            \*\*kwargs: Keyword args supported by VaspInputSets.</span>
@@ -95,14 +93,14 @@
 
 
 <div class="viewcode-block" id="MVLCINEBSet"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.MVLCINEBSet">[docs]</a><span class="k">class</span> <span class="nc">MVLCINEBSet</span><span class="p">(</span><span class="n">MITNEBSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MAVRL-tested settings for CI-NEB calculations. Note that these parameters</span>
 <span class="sd">    requires the VTST modification of VASP from the Henkelman group. See</span>
 <span class="sd">    http://theory.cm.utexas.edu/vtsttools/</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure: Structure</span>
 <span class="sd">            \*\*kwargs: Keyword args supported by VaspInputSets.</span>
@@ -136,7 +134,7 @@
 
 
 <div class="viewcode-block" id="get_endpoints_from_index"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoints_from_index">[docs]</a><span class="k">def</span> <span class="nf">get_endpoints_from_index</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site_indices</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class reads in one perfect structure and the two endpoint structures</span>
 <span class="sd">    are generated using site_indices.</span>
 
@@ -152,7 +150,7 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">site_indices</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid indices!&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">structure</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span> <span class="o">!=</span> <span class="n">structure</span><span class="p">[</span><span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The site indices must be &quot;</span> <span class="s2">&quot;associated with identical species!&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The site indices must be associated with identical species!&quot;</span><span class="p">)</span>
 
     <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">sites</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sites</span>
@@ -172,13 +170,11 @@
     <span class="n">s_0</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">init_sites</span><span class="p">)</span>
     <span class="n">s_1</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">final_sites</span><span class="p">)</span>
 
-    <span class="n">endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_0</span><span class="p">,</span> <span class="n">s_1</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">endpoints</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">s_0</span><span class="p">,</span> <span class="n">s_1</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="get_endpoint_dist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.neb.io.html#pymatgen.analysis.diffusion.neb.io.get_endpoint_dist">[docs]</a><span class="k">def</span> <span class="nf">get_endpoint_dist</span><span class="p">(</span><span class="n">ep_0</span><span class="p">,</span> <span class="n">ep_1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate a list of site distances between two endpoints, assuming periodic</span>
 <span class="sd">    boundary conditions.</span>
 <span class="sd">    Args:</span>

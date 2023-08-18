@@ -4,6 +4,7 @@
 """
  Algorithms for diffusion pathway analysis
 """
+from __future__ import annotations
 
 import itertools
 from collections import Counter
@@ -23,7 +24,7 @@ class ProbabilityDensityAnalysis:
 
     Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. "Role of Na+ Interstitials and
     Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4 Superionic
-    Conductor". Chem. Mater. (2015), 27, pp 8318–8325.
+    Conductor". Chem. Mater. (2015), 27, pp 8318-8325.
     """
 
     def __init__(self, structure, trajectories, interval=0.5, species=("Li", "Na")):
@@ -45,11 +46,14 @@ class ProbabilityDensityAnalysis:
 
         # All fractional coordinates are between 0 and 1.
         trajectories -= np.floor(trajectories)
-        assert np.all(trajectories >= 0) and np.all(trajectories <= 1)
+        assert np.all(trajectories >= 0)
+        assert np.all(trajectories <= 1)
 
-        indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
+        indices = [
+            j for j, site in enumerate(structure) if site.specie.symbol in species
+        ]
         lattice = structure.lattice
-        frac_interval = [interval / l for l in lattice.abc]
+        frac_interval = [interval / length for length in lattice.abc]
         nsteps = len(trajectories)
 
         # generate the 3-D grid
@@ -81,20 +85,35 @@ class ProbabilityDensityAnalysis:
                 for i in range(3):
                     next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[i] - 1 else 0
 
-                agrid = np.array([corner_i[0], next_i[0]])[:, None] * np.array([1, 0, 0])[None, :]
-                bgrid = np.array([corner_i[1], next_i[1]])[:, None] * np.array([0, 1, 0])[None, :]
-                cgrid = np.array([corner_i[2], next_i[2]])[:, None] * np.array([0, 0, 1])[None, :]
+                agrid = (
+                    np.array([corner_i[0], next_i[0]])[:, None]
+                    * np.array([1, 0, 0])[None, :]
+                )
+                bgrid = (
+                    np.array([corner_i[1], next_i[1]])[:, None]
+                    * np.array([0, 1, 0])[None, :]
+                )
+                cgrid = (
+                    np.array([corner_i[2], next_i[2]])[:, None]
+                    * np.array([0, 0, 1])[None, :]
+                )
 
-                grid_indices = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
+                grid_indices = (
+                    agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
+                )
                 grid_indices = grid_indices.reshape(8, 3)
 
                 mini_grid = [grid[indx[0], indx[1], indx[2]] for indx in grid_indices]
                 dist_matrix = lattice.get_all_distances(mini_grid, fcoord)
-                indx = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0][0]
+                indx = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0][
+                    0
+                ]
 
                 # 3-index label mapping to single index
                 min_indx = (
-                    grid_indices[indx][0] * len(rb) * len(rc) + grid_indices[indx][1] * len(rc) + grid_indices[indx][2]
+                    grid_indices[indx][0] * len(rb) * len(rc)
+                    + grid_indices[indx][1] * len(rc)
+                    + grid_indices[indx][2]
                 )
 
                 # make sure the index does not go out of bound.
@@ -116,7 +135,9 @@ class ProbabilityDensityAnalysis:
         self.stable_sites = None
 
     @classmethod
-    def from_diffusion_analyzer(cls, diffusion_analyzer, interval=0.5, species=("Li", "Na")):
+    def from_diffusion_analyzer(
+        cls, diffusion_analyzer, interval=0.5, species=("Li", "Na")
+    ):
         """
         Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.
 
@@ -130,19 +151,21 @@ class ProbabilityDensityAnalysis:
         structure = diffusion_analyzer.structure
         trajectories = []
 
-        for i, s in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
+        for _i, s in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
             trajectories.append(s.frac_coords)
 
         trajectories = np.array(trajectories)
 
-        return ProbabilityDensityAnalysis(structure, trajectories, interval=interval, species=species)
+        return ProbabilityDensityAnalysis(
+            structure, trajectories, interval=interval, species=species
+        )
 
     def generate_stable_sites(self, p_ratio=0.25, d_cutoff=1.0):
         """
         Obtain a set of low-energy sites from probability density function with
         given probability threshold 'p_ratio'. The set of grid points with
         probability density higher than the threshold will further be clustered
-        using hierachical clustering method, with no two clusters closer than the
+        using hierarchical clustering method, with no two clusters closer than the
         given distance cutoff. Note that the low-energy sites may converge more
         slowly in fast conductors (more shallow energy landscape) than in the slow
         conductors.
@@ -150,7 +173,7 @@ class ProbabilityDensityAnalysis:
         Args:
             p_ratio (float): Probability threshold above which a grid point is
                 considered as a low-energy site.
-            d_cutoff (float): Distance cutoff used in hierachical clustering.
+            d_cutoff (float): Distance cutoff used in hierarchical clustering.
 
         Notes:
             The set of stable sites is stored in the `stable_sites` attribute
@@ -162,7 +185,7 @@ class ProbabilityDensityAnalysis:
         indices = np.where(self.Pr > self.Pr.max() * p_ratio)
         lattice = self.structure.lattice
 
-        for (x, y, z) in zip(indices[0], indices[1], indices[2]):
+        for x, y, z in zip(indices[0], indices[1], indices[2]):
             grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
 
         grid_fcoords = np.array(grid_fcoords)
@@ -172,7 +195,7 @@ class ProbabilityDensityAnalysis:
         # Compressed distance matrix
         condensed_m = squareform((dist_matrix + dist_matrix.T) / 2.0)
 
-        # Linkage function for hierachical clustering.
+        # Linkage function for hierarchical clustering.
         z = linkage(condensed_m, method="single", metric="euclidean")
         cluster_indices = fcluster(z, t=d_cutoff, criterion="distance")
 
@@ -245,7 +268,11 @@ class ProbabilityDensityAnalysis:
             f.write(" " + " ".join(natoms) + "\n")
             f.write("direct\n")
             for fcoord in init_fcoords:
-                f.write(" {:.8f}  {:.8f}  {:.8f} \n".format(*fcoord))  # pylint: disable=C0209
+                f.write(
+                    " {:.8f}  {:.8f}  {:.8f} \n".format(  # pylint: disable=C0209
+                        *fcoord
+                    )
+                )
 
             f.write(" \n")
             f.write(" {} {} {} \n".format(*self.lens))  # pylint: disable=C0209
@@ -298,10 +325,14 @@ class SiteOccupancyAnalyzer:
         trajectories = np.array(trajectories)
         count = Counter()
 
-        indices = [i for i, site in enumerate(structure) if site.specie.symbol in species]
+        indices = [
+            i for i, site in enumerate(structure) if site.specie.symbol in species
+        ]
 
         for it in range(len(trajectories)):
-            dist_matrix = lattice.get_all_distances(coords_ref, trajectories[it, indices, :])
+            dist_matrix = lattice.get_all_distances(
+                coords_ref, trajectories[it, indices, :]
+            )
             labels = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0]
             count.update(labels)
 
@@ -325,8 +356,9 @@ class SiteOccupancyAnalyzer:
         return np.sum(self.site_occ[indices]) / len(indices)
 
     @classmethod
-    def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer, species=("Li", "Na")):
-
+    def from_diffusion_analyzer(
+        cls, coords_ref, diffusion_analyzer, species=("Li", "Na")
+    ):
         """
         Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.
 
