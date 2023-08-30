@@ -3,6 +3,7 @@
 """
 Dijkstra's path search on a graph where the nodes are on a periodic graph
 """
+from __future__ import annotations
 
 __author__ = "Jimmy Shen"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -13,14 +14,17 @@ __date__ = "April 11, 2019"
 import heapq
 import math
 from collections import defaultdict
-from typing import Callable, Dict, Set
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
-from networkx.classes.graph import Graph
-from pymatgen.analysis.graphs import StructureGraph
+
+if TYPE_CHECKING:
+    from networkx.classes.graph import Graph
+
+    from pymatgen.analysis.graphs import StructureGraph
 
 
-def _get_adjacency_with_images(G: Graph) -> Dict:
+def _get_adjacency_with_images(G: Graph) -> dict:
     """
     Return an adjacency dictionary with properly oriented "to_image" values.
     Note: the current implementation assumes that the original
@@ -48,7 +52,7 @@ def _get_adjacency_with_images(G: Graph) -> Dict:
     # Make sure all the to_jimages are pointing in the correct direction
     for u, value1 in p_graph.items():
         for v, value2 in value1.items():
-            for k, d in value2.items():
+            for d in value2.values():
                 if u > v:
                     d["to_jimage"] = tuple(np.multiply(-1, d["to_jimage"]))
     return p_graph
@@ -96,7 +100,7 @@ def periodic_dijkstra(
         if min_val < best_ans[(cur_idx, cur_image)]:
             best_ans[(cur_idx, cur_image)] = min_val
         for next_node, keyed_data in conn_dict[cur_idx].items():
-            for k, d in keyed_data.items():
+            for d in keyed_data.values():
                 # get the node index, image pair
                 new_image = tuple(np.add(cur_image, d["to_jimage"]))
                 next_index_pair = (next_node, new_image)
@@ -116,7 +120,7 @@ def periodic_dijkstra(
 
 def periodic_dijkstra_on_sgraph(
     sgraph: StructureGraph,
-    sources: Set,
+    sources: set,
     weight: str = "weight",
     max_image: int = 1,
     target_reached: Callable = lambda idx, jimage: False,
