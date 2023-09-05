@@ -13,6 +13,7 @@ from copy import deepcopy
 
 import matplotlib as mpl
 import numpy as np
+import pytest
 from monty.serialization import loadfn
 
 from pymatgen.analysis.diffusion.aimd.van_hove import (
@@ -157,25 +158,25 @@ class RDFTest(unittest.TestCase):
         self.structure = Structure(lattice, atom_list, coords)
 
     def test_raises_valueerror_if_ngrid_is_less_than_2(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(
                 structures=[self.structure], ngrid=1
             )
 
     def test_raises_ValueError_if_sigma_is_not_positive(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(
                 structures=[self.structure], sigma=0
             )
 
     def test_raises_ValueError_if_species_not_in_structure(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(
                 structures=[self.structure], species=["Cl"]
             )
 
     def test_raises_ValueError_if_reference_species_not_in_structure(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(
                 structures=[self.structure], species=["S"], reference_species=["Cl"]
             )

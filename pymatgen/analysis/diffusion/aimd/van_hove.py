@@ -264,7 +264,10 @@ class VanHoveAnalysis:
         return plt
 
     def get_1d_plot(
-        self, mode: str = "distinct", times: list = [0.0], colors: list | None = None
+        self,
+        mode: str = "distinct",
+        times: list | None = None,
+        colors: list | None = None,
     ):
         """
         Plot the van Hove function at given r or t.
@@ -276,6 +279,8 @@ class VanHoveAnalysis:
             colors (list strings/tuples): Additional color settings. If not set,
                             seaborn.color_plaette("Set1", 10) will be used.
         """
+        if times is None:
+            times = [0.0]
         if colors is None:
             import seaborn as sns
 

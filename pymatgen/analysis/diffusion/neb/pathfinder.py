@@ -877,7 +877,7 @@ class NEBPathfinder:
         dV = np.gradient(V)
 
         # Evolve string
-        for step in range(0, max_iter):
+        for step in range(max_iter):
             # Gradually decay step size to prevent oscillations
             h = (
                 h0 * np.exp(-2 * (step - min_iter) / max_iter)
