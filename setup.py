@@ -25,6 +25,7 @@ setup(
     license="BSD",
     description="Add-on to pymatgen for diffusion analysis.",
     long_description=desc,
+    long_description_content_type="text/x-rst",
     keywords=["VASP", "diffusion", "molecular dynamics", "MD"],
     classifiers=[
         "Programming Language :: Python :: 3",

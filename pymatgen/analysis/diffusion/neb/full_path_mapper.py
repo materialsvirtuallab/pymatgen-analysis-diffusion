@@ -369,13 +369,15 @@ class MigrationGraph(MSONable):
                                 continue
                             d[k] = d[k][::-1]  # flip the data in the array
 
-    def assign_cost_to_graph(self, cost_keys=["hop_distance"]):
+    def assign_cost_to_graph(self, cost_keys=None):
         """
         Read the data dict on each add and populate a cost key
         Args:
             cost_keys: a list of keys for data on each edge.
                 The SC Graph is decorated with a "cost" key that is the product of the different keys here
         """
+        if cost_keys is None:
+            cost_keys = ["hop_distance"]
         for k, v in self.unique_hops.items():
             cost_val = np.prod([v[ik] for ik in cost_keys])
             self.add_data_to_similar_edges(k, {"cost": cost_val})
