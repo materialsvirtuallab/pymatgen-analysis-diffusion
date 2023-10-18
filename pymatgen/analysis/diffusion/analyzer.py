@@ -485,7 +485,7 @@ class DiffusionAnalyzer(MSONable):
             d["mscd"] = self.mscd.tolist()
         return d
 
-    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
+    def get_framework_rms_plot(self, granularity=200, matching_s=None):
         """
         Get the plot of rms framework displacement vs time. Useful for checking
         for melting, especially if framework atoms can move via paddle-wheel
@@ -493,8 +493,6 @@ class DiffusionAnalyzer(MSONable):
         but doesn't constitute melting).
 
         Args:
-            plt (matplotlib.pyplot): If plt is supplied, changes will be made
-                to an existing plot. Otherwise, a new plot will be created.
             granularity (int): Number of structures to match
             matching_s (Structure): Optionally match to a disordered structure
                 instead of the first structure in the analyzer. Required when
@@ -509,7 +507,7 @@ class DiffusionAnalyzer(MSONable):
                 "Note the method doesn't apply to NPT-AIMD simulation analysis!"
             )
 
-        plt = pretty_plot(12, 8, plt=plt)
+        plt = pretty_plot(12, 8)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
         f = (matching_s or self.structure).copy()
         f.remove_species([self.specie])
@@ -543,7 +541,7 @@ class DiffusionAnalyzer(MSONable):
         plt.tight_layout()
         return plt
 
-    def get_msd_plot(self, plt=None, mode="specie"):
+    def get_msd_plot(self, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
         checking convergence. This can be written to an image file.
@@ -557,7 +555,7 @@ class DiffusionAnalyzer(MSONable):
         """
         from pymatgen.util.plotting import pretty_plot
 
-        plt = pretty_plot(12, 8, plt=plt)
+        plt = pretty_plot(12, 8)
         if np.max(self.dt) > 100000:
             plot_dt = self.dt / 1000
             unit = "ps"
@@ -670,21 +668,21 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
+            **kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
-        p, l = [], []
+        p, lattices = [], []
         for i, s in enumerate(structures):
             if i == 0:
                 structure = s
             p.append(np.array(s.frac_coords)[:, None])
-            l.append(s.lattice.matrix)
+            lattices.append(s.lattice.matrix)
         if initial_structure is not None:
             p.insert(0, np.array(initial_structure.frac_coords)[:, None])
-            l.insert(0, initial_structure.lattice.matrix)
+            lattices.insert(0, initial_structure.lattice.matrix)
         else:
             p.insert(0, p[0])
-            l.insert(0, l[0])
+            lattices.insert(0, lattices[0])
 
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
@@ -692,11 +690,15 @@ class DiffusionAnalyzer(MSONable):
         f_disp = np.cumsum(dp, axis=1)
         c_disp = []
         for i in f_disp:
-            c_disp.append([np.dot(d, m) for d, m in zip(i, l[1:])])
+            c_disp.append([np.dot(d, m) for d, m in zip(i, lattices[1:])])
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
-        l = np.array([l[0]]) if np.array_equal(l[0], l[-1]) else np.array(l)
+        lattices = (
+            np.array([lattices[0]])
+            if np.array_equal(lattices[0], lattices[-1])
+            else np.array(lattices)
+        )
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
@@ -707,7 +709,7 @@ class DiffusionAnalyzer(MSONable):
             temperature,
             time_step,
             step_skip=step_skip,
-            lattices=l,
+            lattices=lattices,
             **kwargs,
         )
 
