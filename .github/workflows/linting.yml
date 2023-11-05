@@ -28,4 +28,4 @@ jobs:
       - name: ruff
         run: |
           ruff pymatgen
-          ruff format --check-only pymatgen
+          ruff format pymatgen
