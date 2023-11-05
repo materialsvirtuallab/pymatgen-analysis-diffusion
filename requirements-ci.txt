@@ -2,9 +2,5 @@ pytest
 pytest-cov
 coveralls
 mypy
-pydocstyle
-flake8
-pylint
-black
 treon==0.1.4
 maggma==0.57.4
