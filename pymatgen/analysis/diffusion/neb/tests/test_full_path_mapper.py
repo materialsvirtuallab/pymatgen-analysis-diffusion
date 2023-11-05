@@ -44,8 +44,8 @@ class MigrationGraphSimpleTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.fpm.get_summary_dict()
-        assert "hop_label", summary_dict["hops"][0]
-        assert "hop_label", summary_dict["unique_hops"][0]
+        assert "hop_label" in summary_dict["hops"][0]
+        assert "hop_label" in summary_dict["unique_hops"][0]
 
 
 class MigrationGraphFromEntriesTest(unittest.TestCase):
@@ -283,7 +283,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
     def test_integration(self):
         """
-        Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
+        Sanity check: for a long enough diagonally hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
         total_chg_per_vol = (
             self.cbg.potential_field.data["total"].sum()
@@ -338,8 +338,8 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.cbg.get_summary_dict()
-        assert "chg_total", summary_dict["hops"][0]
-        assert "chg_total", summary_dict["unique_hops"][0]
+        assert "chg_total" in summary_dict["hops"][0]
+        assert "chg_total" in summary_dict["unique_hops"][0]
 
 
 if __name__ == "__main__":
