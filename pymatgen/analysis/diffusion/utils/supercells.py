@@ -90,12 +90,13 @@ def _get_sc_from_struct_pmg(
 # Something is broken with how ASE generates supercells
 # now many calls to `find_optimal_cell_shape` results in
 # `Failed to find a transformation matrix`
-# So remove this funtionality now in favour of decreasing the max_length
+# So remove this functionality now in favour of decreasing the max_length
 #
 # def _get_sc_from_struct_ase(
 #     base_struct: Structure, min_atoms: int=80, max_atoms: int=240
 # ) -> List[List[int]]:
-#     """generate the best supercell from a unitcell using ASE's method, is slower but more exhaustive
+#     """generate the best supercell from a unit cell using ASE's method, is slower but
+#     more exhaustive
 #
 #     Args:
 #         base_struct (pymatgen.Structure): unit cell
@@ -119,7 +120,7 @@ def _get_sc_from_struct_pmg(
 #             continue
 #         deviation = get_deviation_from_optimal_cell_shape(np.dot(sc_mat, atoms.cell))
 #         dd = {"deviation": deviation, "P1": sc_mat}
-#         # base_struct_sc.to('poscar', f'/Users/lik/Desktop/enpoints_{base_struct_sc.num_sites}.vasp')
+#         # base_struct_sc.to('poscar', f'endpoints_{base_struct_sc.num_sites}.vasp')
 #         res.append(dd)
 #         if deviation < 0.3:
 #             logger.debug("Found good cell")

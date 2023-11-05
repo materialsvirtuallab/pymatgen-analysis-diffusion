@@ -235,7 +235,7 @@ class MigrationGraph(MSONable):
             symprec:  symmetry parameter for SpacegroupAnalyzer
             ltol: Fractional length tolerance for StructureMatcher
             stol: Site tolerance for StructureMatcher
-            angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
+            angle_tol: Angle tolerance for StructureMatcher and SpacegroupAnalyzer
             only_single_cat: If True, only use single cation insertions so the
             site energy is more accurate use_strict_tol: halve the ltol and
             stol parameter for more strict matching.
@@ -509,7 +509,7 @@ class ChargeBarrierGraph(MigrationGraph):
     ):
         """
         Construct the MigrationGraph object using a VolumetricData object.
-        The graph is constructure using the structure, and cost values are assigned based on charge density analysis.
+        The graph is constructed using the structure, and cost values are assigned based on charge density analysis.
         Args:
             potential_field: Input VolumetricData object that describes the field does
                 not have to contains all the metastable sites.
@@ -523,7 +523,7 @@ class ChargeBarrierGraph(MigrationGraph):
         self._setup_grids()
 
     def _setup_grids(self):
-        """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
+        """Populate the internal variables used for defining the grid points in the charge density analysis"""
 
         # set up the grid
         aa = np.linspace(
@@ -918,12 +918,14 @@ def almost(a, b):
 def check_uc_hop(sc_hop, uc_hop):
     """
     See if hop in the 2X2X2 supercell and a unit cell hop
-    are equilvalent under lattice translation
+    are equivalent under lattice translation
+
     Args:
         sc_hop: MigrationHop object form pymatgen-diffusion.
         uc_hop: MigrationHop object form pymatgen-diffusion.
+
     Return:
-        image vector of lenght 3
+        image vector of length 3
         Is the UC hop flip of the SC hop
     """
 

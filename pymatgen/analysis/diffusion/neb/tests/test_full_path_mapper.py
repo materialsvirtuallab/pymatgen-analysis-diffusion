@@ -92,7 +92,8 @@ class MigrationGraphComplexTest(unittest.TestCase):
             structure=struct, migrating_specie="Li", max_distance=4
         )
 
-        # Particularity difficult pathfinding since both the starting and ending positions are outside the unit cell
+        # Particularity difficult path finding since both the starting and ending
+        # positions are outside the unit cell
         struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
         self.fpm_mg = MigrationGraph.with_distance(
             structure=struct, migrating_specie="Mg", max_distance=2
@@ -100,7 +101,8 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
     def test_group_and_label_hops(self):
         """
-        Check that the set of end points in a group of similiarly labeled hops are all the same
+        Check that the set of end points in a group of similarly labeled hops are all
+        the same.
         """
         edge_labs = np.array(
             [d["hop_label"] for u, v, d in self.fpm_li.m_graph.graph.edges(data=True)]
@@ -123,7 +125,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
     def test_unique_hops_dict(self):
         """
-        Check that the unique hops are inequilvalent
+        Check that the unique hops are inequivalent
         """
         unique_list = [v for k, v in self.fpm_li.unique_hops.items()]
         all_pairs = [
