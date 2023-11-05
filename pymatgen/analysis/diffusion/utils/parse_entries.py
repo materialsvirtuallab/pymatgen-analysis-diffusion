@@ -44,25 +44,28 @@ def process_entries(
     angle_tol: float = 5.0,
 ) -> list[dict]:
     """
-    Process a list of base entries and inserted entries to create input for migration path analysis Each inserted
-    entries can be mapped to more than one base entry. Return groups of structures decorated with the working ions
-    to indicate the metastable sites, ranked by the number of working ion sites (highest number is the first).
+    Process a list of base entries and inserted entries to create input for migration
+    path analysis Each inserted entries can be mapped to more than one base entry.
+    Return groups of structures decorated with the working ions to indicate the
+    metastable sites, ranked by the number of working ion sites (highest number is the
+    first).
 
     Args:
-        base_entries: Full list of base entires
-        inserted_entries: Full list of inserted entires
-        migrating_ion_entry: The metallic phase of the working ion, used to calculate insertion energies.
+        base_entries: Full list of base entries
+        inserted_entries: Full list of inserted entries
+        migrating_ion_entry: The metallic phase of the working ion, used to calculate
+            insertion energies.
         symprec:  symmetry parameter for SpacegroupAnalyzer
         ltol: Fractional length tolerance for StructureMatcher
         stol: Site tolerance for StructureMatcher
-        angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
+        angle_tol: Angle tolerance for StructureMatcher and SpacegroupAnalyzer
         only_single_cat: If True, only use single cation insertions so the
             site energy is more accurate use_strict_tol: halve the ltol and
             stol parameter for more strict matching.
 
     Returns:
-        list: List of dictionaries that each contain
-        {'base' : Structure Object of host, 'inserted' : Structure object of all inserted sites}
+        list: List of dictionaries that each contain {'base': Structure Object of host,
+            'inserted': Structure object of all inserted sites}
     """
     working_ion = str(migrating_ion_entry.composition.elements[0])
     sm_no_wion = StructureMatcher(
@@ -122,8 +125,9 @@ def process_entries(
         struct_wo_sym_ops = _filter_and_merge(mapped_cell.get_sorted_structure())
         if struct_wo_sym_ops is None:
             logger.warning(
-                f"No meta-stable sites were found during symmetry mapping for base {base_ent.entry_id}."
-                "Consider playing with the various tolerances (ltol, stol, angle_tol)."
+                f"No meta-stable sites were found during symmetry mapping for base "
+                f"{base_ent.entry_id}. Consider playing with the various tolerances "
+                "(ltol, stol, angle_tol)."
             )
             continue
 
@@ -169,7 +173,9 @@ def get_matched_structure_mapping(
     except TypeError:
         return None
     sc = s1 * sc_m
-    sc.lattice = Lattice.from_parameters(*sc.lattice.abc, *sc.lattice.angles, vesta=True)  # type: ignore
+    sc.lattice = Lattice.from_parameters(
+        *sc.lattice.abc, *sc.lattice.angles, vesta=True
+    )  # type: ignore
     return sc_m, total_t
 
 
@@ -180,10 +186,11 @@ def get_inserted_on_base(
     sm: StructureMatcher,
 ) -> Structure | None:
     """
-    For a structured-matched pair of base and inserted entries, map all of the Li positions in the inserted entry to
-    positions in the base entry and return a new structure where all the sites are decorated with the insertion
-    energy. Since the calculation of the insertion energy needs the energy of the metallic working ion,
-    a `migrating_ion_entry` must also be provided.
+    For a structured-matched pair of base and inserted entries, map all of the Li
+    positions in the inserted entry to positions in the base entry and return a new
+    structure where all the sites are decorated with the insertion energy. Since the
+    calculation of the insertion energy needs the energy of the metallic working ion, a
+    `migrating_ion_entry` must also be provided.
 
     Args:
         base_ent: The entry for the host structure
@@ -227,8 +234,9 @@ def get_sym_migration_ion_sites(
     angle_tol: float = 5.0,
 ) -> Structure:
     """
-    Take one inserted entry then map out all symmetry equivalent copies of the cation sites in base entry.
-    Each site is decorated with the insertion energy calculated from the base and inserted entries.
+    Take one inserted entry then map out all symmetry equivalent copies of the cation
+    sites in base entry. Each site is decorated with the insertion energy calculated
+    from the base and inserted entries.
 
     Args:
         inserted_entry: entry that contains cation
@@ -274,9 +282,10 @@ def get_sym_migration_ion_sites(
 
 def _filter_and_merge(inserted_structure: Structure) -> Structure | None:
     """
-    For each site in a structure, split it into a migration sublattice where all sites contain the "insertion_energy"
-    property and a host lattice. For each site in the migration sublattice if there is collision with the host sites,
-    remove the migration site. Finally merge all the migration sites.
+    For each site in a structure, split it into a migration sublattice where all sites
+    contain the "insertion_energy" property and a host lattice. For each site in the
+    migration sublattice if there is collision with the host sites, remove the migration
+    site. Finally merge all the migration sites.
     """
     migration_sites = []
     base_sites = []
@@ -314,9 +323,11 @@ def get_insertion_energy(
         inserted_entry: The entry for the inserted structure
         migrating_ion_entry: The entry for the metallic phase of the working ion
     Returns:
-        The insertion energy defined as (E[inserted] - (E[Base] + n * E[working_ion]))/(n)
+        float: insertion energy defined as
+            (E[inserted] - (E[Base] + n * E[working_ion])) / n
         Where n is the number of working ions and E[inserted].
-        Additionally, and E[base] and E[inserted] are for structures of the same size (sans working ion)
+        Additionally, and E[base] and E[inserted] are for structures of the same size
+        (sans working ion)
     """
     wi_ = str(migrating_ion_entry.composition.elements[0])
     comp_inserted_no_wi = inserted_entry.composition.as_dict()
