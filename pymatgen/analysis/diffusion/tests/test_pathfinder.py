@@ -16,4 +16,4 @@ class PathfinderTest(PymatgenTest):
         hop = spinel_mg.unique_hops[0]["hop"]
         hop_dict = hop.as_dict()
 
-        assert type(hop_dict) == dict
+        assert isinstance(hop_dict, dict)

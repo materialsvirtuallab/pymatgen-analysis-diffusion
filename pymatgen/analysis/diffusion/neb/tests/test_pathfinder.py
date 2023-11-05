@@ -263,7 +263,7 @@ class MigrationHopTest(PymatgenTest):
 
     def test_msonable(self):
         hop_dict = self.m_hop.as_dict()
-        assert type(hop_dict) == dict
+        assert isinstance(hop_dict, dict)
 
     def test_get_start_end_structs_from_hop(self):
         dist_ref = self.m_hop.length

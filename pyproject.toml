@@ -48,15 +48,20 @@ ignore = [
   "D105",    # Missing docstring in magic method
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
+  "E501",
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
   "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PT009",
+  "PT011",
   "PT013",   # pytest-incorrect-pytest-import
   "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "SIM115",
+
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -119,7 +124,8 @@ ignore_missing_imports = true
 [tool.codespell]
 ignore-words-list = """
 titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,hove,
-fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew
+fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew,fof,
+tje,afe
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true

@@ -353,21 +353,22 @@ class MigrationGraph(MSONable):
         for _u, _v, d in self.m_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
                 d.update(data)
-                if m_hop is not None:
-                    # Try to override the data.
-                    if not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
+                # Try to override the data.
+                if (
+                    m_hop is not None
+                    and not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
                         [m_hop.isite], [d["hop"].isite]
-                    ):
-                        # "The data going to this edge needs to be flipped"
-                        for k in data:
-                            if isinstance(data[k], (np.ndarray, np.generic)):
-                                raise Warning(
-                                    "The data provided will only be flipped "
-                                    "if it a list"
-                                )
-                            if not isinstance(data[k], list):
-                                continue
-                            d[k] = d[k][::-1]  # flip the data in the array
+                    )
+                ):
+                    # "The data going to this edge needs to be flipped"
+                    for k in data:
+                        if isinstance(data[k], (np.ndarray, np.generic)):
+                            raise Warning(
+                                "The data provided will only be flipped if it a list"
+                            )
+                        if not isinstance(data[k], list):
+                            continue
+                        d[k] = d[k][::-1]  # flip the data in the array
 
     def assign_cost_to_graph(self, cost_keys=None):
         """
@@ -649,13 +650,13 @@ class ChargeBarrierGraph(MigrationGraph):
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
         Args:
             migration_hop: MigrationHop object that represents a given hop
-            mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
+            mask_file_seedname(string): seed name for output of the migration path masks (for debugging and
                 visualization) (Default value = None)
         Returns:
             float: The total charge density in a tube that connects two sites of a given edges of the graph
         """
         try:
-            self._tube_radius
+            _ = self._tube_radius
         except NameError:
             logger.warning(
                 "The radius of the tubes for charge analysis need to be defined first."
