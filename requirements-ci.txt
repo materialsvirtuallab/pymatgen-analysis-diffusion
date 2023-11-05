@@ -1,6 +1,7 @@
+coveralls
+maggma==0.57.4
+mypy
 pytest
 pytest-cov
-coveralls
-mypy
+ruff
 treon==0.1.4
-maggma==0.57.4
