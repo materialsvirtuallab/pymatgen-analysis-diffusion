@@ -316,7 +316,3 @@ class MigrationHopTest(PymatgenTest):
         start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=True)
         assert start.composition == end.composition == Composition("Li23 Fe24 P24 O96")
         assert b_sc.composition == Composition("Li24 Fe24 P24 O96")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -338,9 +338,5 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.cbg.get_summary_dict()
-        assert "chg_total" in summary_dict["hops"][0]
-        assert "chg_total" in summary_dict["unique_hops"][0]
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert "chg_total", summary_dict["hops"][0]  # noqa: PLW0129
+        assert "chg_total", summary_dict["unique_hops"][0]  # noqa: PLW0129

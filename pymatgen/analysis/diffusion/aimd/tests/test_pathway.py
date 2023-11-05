@@ -128,7 +128,3 @@ class SiteOccupancyTest(unittest.TestCase):
         self.assertAlmostEqual(site_occ[1], 0.98, 12)
         self.assertAlmostEqual(site_occ[26], 0.97, 12)
         assert len(coords_ref) == 48
-
-
-if __name__ == "__main__":
-    unittest.main()
