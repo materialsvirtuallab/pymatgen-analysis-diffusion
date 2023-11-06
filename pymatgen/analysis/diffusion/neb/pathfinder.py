@@ -82,9 +82,7 @@ class IDPPSolver:
         weights = np.zeros_like(target_dists, dtype=np.float64)
         for ni in range(nimages):
             avg_dist = (target_dists[ni] + structures[ni + 1].distance_matrix) / 2.0
-            weights[ni] = 1.0 / (
-                avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8
-            )
+            weights[ni] = 1.0 / (avg_dist**4 + np.eye(natoms, dtype=np.float64) * 1e-8)
 
         for ni, i in itertools.product(range(nimages + 2), range(natoms)):
             frac_coords = structures[ni][i].frac_coords
@@ -98,9 +96,7 @@ class IDPPSolver:
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
                     translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
-        self.init_coords = np.array(init_coords).reshape(
-            nimages + 2, natoms, 3
-        )  # pylint: disable=E1121
+        self.init_coords = np.array(init_coords).reshape(nimages + 2, natoms, 3)  # pylint: disable=E1121
         self.translations = translations
         self.weights = weights
         self.structures = structures
@@ -344,7 +340,8 @@ class MigrationHop(MSONable):
             isite: Initial site
             esite: End site
             symm_structure: SymmetrizedStructure
-            host_symm_struct: SymmetrizedStructure of the host structure, used to for its spacegroup
+            host_symm_struct: SymmetrizedStructure of the host structure, used to for
+                its spacegroup
             symprec: used to determine equivalence
         """
         self.isite = isite
@@ -358,7 +355,11 @@ class MigrationHop(MSONable):
             esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
         )
 
-        sg = self.host_symm_struct.spacegroup if host_symm_struct else self.symm_structure.spacegroup  # type: ignore
+        sg = (
+            self.host_symm_struct.spacegroup  # type: ignore[union-attr]
+            if host_symm_struct
+            else self.symm_structure.spacegroup  # type: ignore[union-attr]
+        )
         for i, sites in enumerate(self.symm_structure.equivalent_sites):
             if sg.are_symmetrically_equivalent([isite], [sites[0]]):
                 self.iindex = i
@@ -397,13 +398,14 @@ class MigrationHop(MSONable):
     def __repr__(self):
         ifc = self.isite.frac_coords
         efc = self.esite.frac_coords
+        wyk_symbols = self.symm_structure.wyckoff_symbols
         return (
             f"Path of {self.length:.4f} A from {self.isite.specie} "
             f"[{ifc[0]:.3f}, {ifc[1]:.3f}, {ifc[2]:.3f}] "
-            f"(ind: {self.iindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.iindex]}) "
+            f"(ind: {self.iindex}, Wyckoff: {wyk_symbols[self.iindex]}) "
             f"to {self.esite.specie} "
             f"[{efc[0]:.3f}, {efc[1]:.3f}, {efc[2]:.3f}] "
-            f"(ind: {self.eindex}, Wyckoff: {self.symm_structure.wyckoff_symbols[self.eindex]})"
+            f"(ind: {self.eindex}, Wyckoff: {wyk_symbols[self.eindex]})"
         )
 
     @property
@@ -509,7 +511,8 @@ class MigrationHop(MSONable):
         tol: float = 1e-5,
     ) -> tuple[Structure, Structure, Structure]:
         """
-        Construct supercells that represents the start and end positions for migration analysis.
+        Construct supercells that represents the start and end positions for migration
+        analysis.
 
         Args:
             vac_mode: If true simulate vacancy diffusion.
@@ -702,7 +705,8 @@ class NEBPathfinder:
                 be relaxed
             v: Static potential field to use for the elastic band relaxation
             n_images: Number of interpolation images to generate
-            mid_struct: (optional) additional structure between the start and end structures to help.
+            mid_struct: (optional) additional structure between the start and end
+                structures to help.
         """
         self.__s1 = start_struct
         self.__s2 = end_struct
@@ -725,8 +729,9 @@ class NEBPathfinder:
         The final number of images will still be n_images.
         """
         if self.__mid is not None:
-            # to make arithmetic easier we will do the interpolation in two parts with n images each
-            # then just take every other image at the end, this results in exactly n images
+            # to make arithmetic easier we will do the interpolation in two parts with n
+            # images each then just take every other image at the end, this results in
+            # exactly n images
             images_0 = self.__s1.interpolate(
                 self.__mid, nimages=self.__n_images, interpolate_lattices=False
             )[:-1]
@@ -774,7 +779,8 @@ class NEBPathfinder:
 
     def plot_images(self, outfile):
         """
-        Generates a POSCAR with the calculated diffusion path with respect to the first endpoint.
+        Generates a POSCAR with the calculated diffusion path with respect to the first
+        endpoint.
         :param outfile: Output file for the POSCAR.
         """
         sum_struct = self.__images[0].sites
@@ -937,7 +943,8 @@ class NEBPathfinder:
 
             if tol > 1e10:
                 raise ValueError(
-                    "Pathfinding failed, path diverged! Consider reducing h to avoid divergence."
+                    "Pathfinding failed, path diverged! Consider reducing h to avoid "
+                    "divergence."
                 )
 
             if step > min_iter and tol < max_tol:
@@ -1065,7 +1072,7 @@ class StaticPotential:
                     g = np.array([g_a / v_dim[0], g_b / v_dim[1], g_c / v_dim[2]]).T
                     gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][
                         int(g_c + r_disc[2])
-                    ] = (la.norm(np.dot(self.__s.lattice.matrix, g)) / r)
+                    ] = la.norm(np.dot(self.__s.lattice.matrix, g)) / r
         gauss = scipy.stats.norm.pdf(gauss_dist)
         gauss = gauss / np.sum(gauss, dtype=float)
         padded_v = np.pad(

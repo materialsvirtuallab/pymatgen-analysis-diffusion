@@ -3,7 +3,7 @@
 """
 Deployment file to facilitate releases of pymatgen.analysis.diffusion.
 """
-
+from __future__ import annotations
 
 import datetime
 import glob
@@ -77,8 +77,8 @@ def set_ver(ctx):
             lines.append(re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, l.rstrip()))
     with open("setup.py", "w") as f:
         f.write("\n".join(lines))
-    ctx.run("black pymatgen")
-    ctx.run("black setup.py")
+    ctx.run("ruff format pymatgen")
+    ctx.run("ruff format setup.py")
 
 
 @task

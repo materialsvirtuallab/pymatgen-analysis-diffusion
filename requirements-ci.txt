@@ -1,10 +1,7 @@
+coveralls
+maggma==0.57.5
+mypy
 pytest
 pytest-cov
-coveralls
-mypy
-pydocstyle
-flake8
-pylint
-black
+ruff
 treon==0.1.4
-maggma==0.57.5

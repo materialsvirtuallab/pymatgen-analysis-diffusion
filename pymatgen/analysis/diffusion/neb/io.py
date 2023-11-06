@@ -2,7 +2,7 @@
 # Distributed under the terms of the BSD License.
 
 """
-Generate input fiels for NEB calculations.
+Generate input fields for NEB calculations.
 """
 from __future__ import annotations
 

@@ -39,7 +39,7 @@ def get_entries_from_dbs(
     Args:
         structure_group_store: Electrode documents one per each similar group of
             insertion materials, can also use any db that contains a
-        material_store: Material documenets one per each similar structure (
+        material_store: Material documents one per each similar structure (
             multiple tasks)
         migrating_ion: The name of the migrating ion
         material_ids list with topotactic structures

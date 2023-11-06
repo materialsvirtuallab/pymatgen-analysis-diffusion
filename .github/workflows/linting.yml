@@ -11,32 +11,21 @@ jobs:
         python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-ci.txt --quiet
-    - name: mypy
-      run: |
-        mypy --namespace-packages --explicit-package-bases pymatgen
-    - name: black
-      run: |
-        black --version
-        black --check --diff --color pymatgen
-    - name: flake8
-      run: |
-        flake8 --count --show-source --statistics pymatgen
-        # exit-zero treats all errors as warnings.
-        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-    - name: pydocstyle
-      run: |
-        pydocstyle --count pymatgen
-    - name: pylint
-      run: |
-        pylint pymatgen
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-ci.txt --quiet
+      - name: mypy
+        run: |
+          mypy --namespace-packages --explicit-package-bases pymatgen
+      - name: ruff
+        run: |
+          ruff pymatgen
+          ruff format pymatgen

@@ -202,7 +202,3 @@ class EvolutionAnalyzerTest(unittest.TestCase):
         )
         assert check
         self.assertAlmostEqual(max(np.array(rdf)[0]), 1.772465, 4)
-
-
-if __name__ == "__main__":
-    unittest.main()

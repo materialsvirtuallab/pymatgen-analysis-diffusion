@@ -418,9 +418,9 @@ class EvolutionAnalyzer:
             density (np.array): atomic concentration along one direction.
         """
         if direction in ["a", "b", "c"]:
-            l = getattr(structure.lattice, direction)
+            latt_len = getattr(structure.lattice, direction)
             ind = ["a", "b", "c"].index(direction)
-            assert window <= l, "Window range exceeds valid bounds!"
+            assert window <= latt_len, "Window range exceeds valid bounds!"
         else:
             raise ValueError("Choose from a, b and c!")
 
@@ -428,13 +428,13 @@ class EvolutionAnalyzer:
         atom_total = structure.composition[specie]
         density = []
 
-        for i in np.linspace(0, l - window, ngrid):
+        for i in np.linspace(0, latt_len - window, ngrid):
             atoms = []
             for j in [-1, 0, 1]:
                 temp = [
                     s
                     for s in atom_list
-                    if i - window < s.coords[ind] % l + l * j < i + window
+                    if i - window < s.coords[ind] % latt_len + latt_len * j < i + window
                 ]
                 atoms.extend(temp)
 

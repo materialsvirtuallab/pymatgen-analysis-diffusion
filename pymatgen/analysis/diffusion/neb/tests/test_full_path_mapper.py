@@ -44,8 +44,8 @@ class MigrationGraphSimpleTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.fpm.get_summary_dict()
-        assert "hop_label", summary_dict["hops"][0]
-        assert "hop_label", summary_dict["unique_hops"][0]
+        assert "hop_label" in summary_dict["hops"][0]
+        assert "hop_label" in summary_dict["unique_hops"][0]
 
 
 class MigrationGraphFromEntriesTest(unittest.TestCase):
@@ -92,7 +92,8 @@ class MigrationGraphComplexTest(unittest.TestCase):
             structure=struct, migrating_specie="Li", max_distance=4
         )
 
-        # Particularity difficult pathfinding since both the starting and ending positions are outside the unit cell
+        # Particularity difficult path finding since both the starting and ending
+        # positions are outside the unit cell
         struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
         self.fpm_mg = MigrationGraph.with_distance(
             structure=struct, migrating_specie="Mg", max_distance=2
@@ -100,7 +101,8 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
     def test_group_and_label_hops(self):
         """
-        Check that the set of end points in a group of similiarly labeled hops are all the same
+        Check that the set of end points in a group of similarly labeled hops are all
+        the same.
         """
         edge_labs = np.array(
             [d["hop_label"] for u, v, d in self.fpm_li.m_graph.graph.edges(data=True)]
@@ -123,7 +125,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
     def test_unique_hops_dict(self):
         """
-        Check that the unique hops are inequilvalent
+        Check that the unique hops are inequivalent
         """
         unique_list = [v for k, v in self.fpm_li.unique_hops.items()]
         all_pairs = [
@@ -281,7 +283,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
     def test_integration(self):
         """
-        Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
+        Sanity check: for a long enough diagonally hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
         total_chg_per_vol = (
             self.cbg.potential_field.data["total"].sum()
@@ -336,9 +338,5 @@ class ChargeBarrierGraphTest(unittest.TestCase):
 
     def test_get_summary_dict(self):
         summary_dict = self.cbg.get_summary_dict()
-        assert "chg_total", summary_dict["hops"][0]
-        assert "chg_total", summary_dict["unique_hops"][0]
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert "chg_total", summary_dict["hops"][0]  # noqa: PLW0129
+        assert "chg_total", summary_dict["unique_hops"][0]  # noqa: PLW0129

@@ -49,7 +49,7 @@ given that it forms the basis for most of the analyses::
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314-319. doi:10.1016/j.commatsci.2012.10.028.
 
-In addtion, some of the analyses may also have relevant publications that
+In addition, some of the analyses may also have relevant publications that
 you should cite. Please consult the documentation of each module.
 
 Contributing
@@ -58,8 +58,8 @@ Contributing
 We welcome contributions in all forms. If you'd like to contribute, please
 fork this repository, make changes and send us a pull request!
 
-Acknowledgements
-================
+Acknowledgments
+===============
 
 We gratefully acknowledge funding from the following agencies for the
 development of this code:
