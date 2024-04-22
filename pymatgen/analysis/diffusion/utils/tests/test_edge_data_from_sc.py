@@ -57,8 +57,8 @@ def test_add_edge_data_from_sc():
         mg_Li,
         i_sc=input_struct_i,
         e_sc=input_struct_e,
-        data_array=test_single_key,
-        key=test_single,
+        data_array=test_single,
+        key=test_single_key,
     )
 
     edge_data = []
