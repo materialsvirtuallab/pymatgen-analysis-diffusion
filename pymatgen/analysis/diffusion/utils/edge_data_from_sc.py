@@ -34,7 +34,7 @@ def add_edge_data_from_sc(
     mg: MigrationGraph,
     i_sc: Structure,
     e_sc: Structure,
-    data_array: list | str | int | float,
+    data_array: list | str | float,
     key: str = "custom_key",
     use_host_sg: bool = True,
 ) -> None:
