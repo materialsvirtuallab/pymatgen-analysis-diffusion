@@ -75,7 +75,7 @@ def test_add_edge_data_from_sc():
     if not all(i == hop_labels[0] for i in hop_labels):
         errors.append("Not all data are added to the same unique hop")
 
-    assert not errors, "errors occured:\n" + "\n".join(errors)
+    assert not errors, "errors occurred:\n" + "\n".join(errors)
 
 
 def test_get_uc_pos():
@@ -121,7 +121,7 @@ def test_get_uc_pos():
     if not test_p2.__eq__(p2):
         errors.append("Ending site does not match")
 
-    assert not errors, "errors occured:\n" + "\n".join(errors)
+    assert not errors, "errors occurred:\n" + "\n".join(errors)
 
 
 def test_get_unique_hop_host():
@@ -136,7 +136,7 @@ def test_get_unique_hop_host():
 
 
 def test_get_unique_host_nonhost():
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(RuntimeError) as exc_info:
         get_unique_hop(
             mg_Mg,
             mg_input_struct_i,
@@ -144,5 +144,8 @@ def test_get_unique_host_nonhost():
             mg_input_struct_e[0],
             use_host_sg=False,
         )
-    expected_exception = "No symmetrically equivalent site was found for [0.53593472 2.8352428  4.54752366] Mg"
-    assert exc_info.value.args[0] == expected_exception
+
+    assert exc_info.value.args[0] == (
+        "No symmetrically equivalent site was found for [0.53593472 "
+        "2.8352428  4.54752366] Mg"
+    )

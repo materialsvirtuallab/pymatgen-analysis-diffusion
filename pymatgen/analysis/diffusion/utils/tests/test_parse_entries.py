@@ -137,7 +137,3 @@ class ParseEntriesTest(unittest.TestCase):
             self.base.structure, self.inserted_2Li.structure, migrating_ion="Li"
         )
         assert struct22.composition["Li"] == 8
-
-
-if __name__ == "__main__":
-    unittest.main()

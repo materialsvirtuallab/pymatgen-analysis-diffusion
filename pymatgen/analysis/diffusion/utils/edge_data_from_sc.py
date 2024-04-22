@@ -39,15 +39,17 @@ def add_edge_data_from_sc(
     use_host_sg: bool = True,
 ) -> None:
     """
-    Add a data entry and key to edges within FullPathMapper object with the same hop_label.
-    These hops are equivalent by symmetry to the 2 positions given in the supercell structures.
+    Add a data entry and key to edges within FullPathMapper object with the same
+    hop_label. These hops are equivalent by symmetry to the 2 positions given in the
+    supercell structures.
 
     Args:
         i_sc: Supercell structure containing working ion at initial position
         e_sc: Supercell structure containing working ion at ending position
         data_array: The data to be added to the edges
         key: Key of the edge attribute to be added
-        use_host_sg: Flag t whether or not to use the host structure's spacegroup to initiate MigrationHop
+        use_host_sg: Flag t whether or not to use the host structure's spacegroup to
+            initiate MigrationHop
 
     Returns:
         None
@@ -77,12 +79,12 @@ def get_uc_pos(
     sc: Structure,
     sm: StructureMatcher,
 ) -> tuple[PeriodicSite, PeriodicSite, PeriodicSite]:
-    """Take positions in the supercel and transform into the unitcell positions
+    """Take positions in the supercell and transform into the unit cell positions
 
     Args:
         isite: initial site in the SC
         esite: ending site in the SC
-        uc: Unit Cell structre
+        uc: Unit Cell structure
         sc: Super Cell structure
         sm: StructureMatcher object with the working ion ignored
 
@@ -166,10 +168,11 @@ def get_unique_hop(
         sc: Structure of the supercell used for the NEB calculation
         isite: Initial position in the supercell
         esite: Final position in the supercell
-        use_host_sg: Flag t whether or not to use the host structure's spacegroup to initiate MigrationHop
+        use_host_sg: Flag t whether or not to use the host structure's spacegroup to
+            initiate MigrationHop
 
     Returns:
-        The index of the unique hop, the MigrationHop object trasformed from the SC
+        The index of the unique hop, the MigrationHop object transformed from the SC
     """
     sm = StructureMatcher(
         ignored_species=[
