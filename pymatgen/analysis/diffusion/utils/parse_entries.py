@@ -262,7 +262,7 @@ def get_sym_migration_ion_sites(
     sym_migration_struct = Structure.from_sites(sym_migration_ion_sites)
     for op in sa.get_space_group_operations():
         struct_tmp = sym_migration_struct.copy()
-        struct_tmp.apply_operation(symmop=op, fractional=True)
+        struct_tmp.apply_operation(op, fractional=True)
         for isite in struct_tmp.sites:
             if isite.species_string == wi_:
                 sym_migration_struct.insert(
