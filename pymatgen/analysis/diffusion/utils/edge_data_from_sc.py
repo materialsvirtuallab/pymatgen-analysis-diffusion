@@ -4,6 +4,7 @@
 """
 Function to add edge data to MigrationGraph through 2 SC structures
 """
+
 from __future__ import annotations
 
 __author__ = "Haoming Li"

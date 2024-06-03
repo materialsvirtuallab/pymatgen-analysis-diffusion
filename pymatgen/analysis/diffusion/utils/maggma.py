@@ -5,6 +5,7 @@ Functions for querying Materials Project style MongoStores that contains
 cathode materials The functions are isolated from the rest of the package so
 that the rest of the package will not depend on Maggma
 """
+
 from __future__ import annotations
 
 __author__ = "Jimmy Shen"

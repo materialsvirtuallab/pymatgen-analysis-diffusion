@@ -3,6 +3,7 @@
 """
 Dijkstra's path search on a graph where the nodes are on a periodic graph
 """
+
 from __future__ import annotations
 
 __author__ = "Jimmy Shen"

@@ -4,6 +4,7 @@
 """
 Functions for combining many ComputedEntry objects into MigrationGraph objects.
 """
+
 from __future__ import annotations
 
 import logging

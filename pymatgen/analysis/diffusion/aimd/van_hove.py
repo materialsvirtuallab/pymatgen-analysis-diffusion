@@ -4,6 +4,7 @@
 """
 Van Hove analysis for correlations.
 """
+
 from __future__ import annotations
 
 import itertools

@@ -16,6 +16,7 @@ citing the following papers::
     Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
     24(1), 15-17. doi:10.1021/cm203303y
 """
+
 from __future__ import annotations
 
 import multiprocessing

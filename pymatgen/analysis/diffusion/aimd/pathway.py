@@ -2,8 +2,9 @@
 # Distributed under the terms of the BSD License.
 
 """
- Algorithms for diffusion pathway analysis
+Algorithms for diffusion pathway analysis
 """
+
 from __future__ import annotations
 
 import itertools

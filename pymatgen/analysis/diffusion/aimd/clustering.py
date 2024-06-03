@@ -6,6 +6,7 @@ This module implements clustering algorithms to determine centroids, with
 adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
+
 from __future__ import annotations
 
 import random

@@ -4,6 +4,7 @@
 """
 Algorithms for NEB migration path analysis.
 """
+
 from __future__ import annotations
 
 import itertools
