@@ -14,6 +14,8 @@ pymatgen for structural manipulations, file io, and preliminary analyses. This i
 and will always be, a scientific work in progress. Pls check back regularly for
 more details.
 
+Documentation available via `Github Pages <https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion>`_.
+
 Major Update (v2021.3.5)
 ========================
 
