@@ -142,11 +142,11 @@ lint.ignore = [
   "SIM115",
 
 ]
-pydocstyle.convention = "google"
+lint.pydocstyle.convention = "google"
 lint.isort.required-imports = ["from __future__ import annotations"]
 lint.isort.split-on-trailing-comma = false
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D"]
 "tasks.py" = ["D"]
 
