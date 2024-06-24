@@ -88,8 +88,9 @@ def update_doc(ctx):
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py sdist bdist_wheel")
-    ctx.run("twine upload dist/*")
+    ctx.run("python -m build", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
 
 
 @task
@@ -103,7 +104,7 @@ def release_github(ctx):
         "prerelease": False,
     }
     response = requests.post(
-        "https://api.github.com/repos/materialsvirtuallab/pymatgen-diffusion/releases",
+        "https://api.github.com/repos/materialsvirtuallab/pymatgen-analysis-diffusion/releases",
         data=json.dumps(payload),
         headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
     )
