@@ -50,7 +50,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "pymatgen>=2024.6.10", "joblib"
+    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
+    'numpy>=1.25.0 ; platform_system != "Windows"',
+    "pymatgen>=2024.6.10",
+    "joblib"
 ]
 version = "2023.8.15"
 
