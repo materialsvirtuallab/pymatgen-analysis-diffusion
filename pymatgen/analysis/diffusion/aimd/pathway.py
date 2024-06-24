@@ -47,9 +47,7 @@ class ProbabilityDensityAnalysis:
         assert np.all(trajectories >= 0)
         assert np.all(trajectories <= 1)
 
-        indices = [
-            j for j, site in enumerate(structure) if site.specie.symbol in species
-        ]
+        indices = [j for j, site in enumerate(structure) if site.specie.symbol in species]
         lattice = structure.lattice
         frac_interval = [interval / length for length in lattice.abc]
         nsteps = len(trajectories)
@@ -83,35 +81,20 @@ class ProbabilityDensityAnalysis:
                 for i in range(3):
                     next_i[i] = corner_i[i] + 1 if corner_i[i] < lens[i] - 1 else 0
 
-                agrid = (
-                    np.array([corner_i[0], next_i[0]])[:, None]
-                    * np.array([1, 0, 0])[None, :]
-                )
-                bgrid = (
-                    np.array([corner_i[1], next_i[1]])[:, None]
-                    * np.array([0, 1, 0])[None, :]
-                )
-                cgrid = (
-                    np.array([corner_i[2], next_i[2]])[:, None]
-                    * np.array([0, 0, 1])[None, :]
-                )
+                agrid = np.array([corner_i[0], next_i[0]])[:, None] * np.array([1, 0, 0])[None, :]
+                bgrid = np.array([corner_i[1], next_i[1]])[:, None] * np.array([0, 1, 0])[None, :]
+                cgrid = np.array([corner_i[2], next_i[2]])[:, None] * np.array([0, 0, 1])[None, :]
 
-                grid_indices = (
-                    agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
-                )
+                grid_indices = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
                 grid_indices = grid_indices.reshape(8, 3)
 
                 mini_grid = [grid[indx[0], indx[1], indx[2]] for indx in grid_indices]
                 dist_matrix = lattice.get_all_distances(mini_grid, fcoord)
-                indx = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0][
-                    0
-                ]
+                indx = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0][0]
 
                 # 3-index label mapping to single index
                 min_indx = (
-                    grid_indices[indx][0] * len(rb) * len(rc)
-                    + grid_indices[indx][1] * len(rc)
-                    + grid_indices[indx][2]
+                    grid_indices[indx][0] * len(rb) * len(rc) + grid_indices[indx][1] * len(rc) + grid_indices[indx][2]
                 )
 
                 # make sure the index does not go out of bound.
@@ -133,9 +116,7 @@ class ProbabilityDensityAnalysis:
         self.stable_sites = None
 
     @classmethod
-    def from_diffusion_analyzer(
-        cls, diffusion_analyzer, interval=0.5, species=("Li", "Na")
-    ):
+    def from_diffusion_analyzer(cls, diffusion_analyzer, interval=0.5, species=("Li", "Na")):
         """
         Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.
 
@@ -154,9 +135,7 @@ class ProbabilityDensityAnalysis:
 
         trajectories = np.array(trajectories)
 
-        return ProbabilityDensityAnalysis(
-            structure, trajectories, interval=interval, species=species
-        )
+        return ProbabilityDensityAnalysis(structure, trajectories, interval=interval, species=species)
 
     def generate_stable_sites(self, p_ratio=0.25, d_cutoff=1.0):
         """
@@ -319,14 +298,10 @@ class SiteOccupancyAnalyzer:
         trajectories = np.array(trajectories)
         count = Counter()
 
-        indices = [
-            i for i, site in enumerate(structure) if site.specie.symbol in species
-        ]
+        indices = [i for i, site in enumerate(structure) if site.specie.symbol in species]
 
         for it in range(len(trajectories)):
-            dist_matrix = lattice.get_all_distances(
-                coords_ref, trajectories[it, indices, :]
-            )
+            dist_matrix = lattice.get_all_distances(coords_ref, trajectories[it, indices, :])
             labels = np.where(dist_matrix == np.min(dist_matrix, axis=0)[None, :])[0]
             count.update(labels)
 
@@ -344,15 +319,11 @@ class SiteOccupancyAnalyzer:
         self.site_occ = site_occ
 
     def get_average_site_occupancy(self, indices):
-        """
-        Get the average site occupancy over a subset of reference sites.
-        """
+        """Get the average site occupancy over a subset of reference sites."""
         return np.sum(self.site_occ[indices]) / len(indices)
 
     @classmethod
-    def from_diffusion_analyzer(
-        cls, coords_ref, diffusion_analyzer, species=("Li", "Na")
-    ):
+    def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer, species=("Li", "Na")):
         """
         Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.
 

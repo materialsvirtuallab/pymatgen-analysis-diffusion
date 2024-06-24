@@ -1,9 +1,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Functions for combining many ComputedEntry objects into MigrationGraph objects.
-"""
+"""Functions for combining many ComputedEntry objects into MigrationGraph objects."""
+
 from __future__ import annotations
 
 import logging
@@ -79,23 +78,16 @@ def process_entries(
 
     # grouping of inserted structures with base structures
     all_sga = [
-        SpacegroupAnalyzer(
-            itr_base_ent.structure, symprec=symprec, angle_tolerance=angle_tol
-        )
+        SpacegroupAnalyzer(itr_base_ent.structure, symprec=symprec, angle_tolerance=angle_tol)
         for itr_base_ent in base_entries
     ]
 
     entries_with_num_symmetry_ops = [
-        (ient, len(all_sga[itr_ent].get_space_group_operations()))
-        for itr_ent, ient in enumerate(base_entries)
+        (ient, len(all_sga[itr_ent].get_space_group_operations())) for itr_ent, ient in enumerate(base_entries)
     ]
 
-    entries_with_num_symmetry_ops = sorted(
-        entries_with_num_symmetry_ops, key=lambda x: x[0].energy_per_atom
-    )
-    entries_with_num_symmetry_ops = sorted(
-        entries_with_num_symmetry_ops, key=lambda x: x[1], reverse=True
-    )
+    entries_with_num_symmetry_ops = sorted(entries_with_num_symmetry_ops, key=lambda x: x[0].energy_per_atom)
+    entries_with_num_symmetry_ops = sorted(entries_with_num_symmetry_ops, key=lambda x: x[1], reverse=True)
     entries_with_num_symmetry_ops = sorted(
         entries_with_num_symmetry_ops,
         key=lambda x: x[0].structure.num_sites,
@@ -131,9 +123,7 @@ def process_entries(
             )
             continue
 
-        struct_sym = get_sym_migration_ion_sites(
-            base_ent.structure, struct_wo_sym_ops, working_ion
-        )
+        struct_sym = get_sym_migration_ion_sites(base_ent.structure, struct_wo_sym_ops, working_ion)
         results.append(
             {
                 "base": base_ent.structure,
@@ -142,14 +132,10 @@ def process_entries(
         )
 
     results = filter(lambda x: len(x["inserted"]) != 0, results)  # type: ignore
-    return sorted(
-        results, key=lambda x: x["inserted"].composition[working_ion], reverse=True
-    )
+    return sorted(results, key=lambda x: x["inserted"].composition[working_ion], reverse=True)
 
 
-def get_matched_structure_mapping(
-    base: Structure, inserted: Structure, sm: StructureMatcher
-):
+def get_matched_structure_mapping(base: Structure, inserted: Structure, sm: StructureMatcher):
     """
     Get the mapping from the inserted structure onto the base structure,
     assuming that the inserted structure sans the working ion is some kind
@@ -167,15 +153,11 @@ def get_matched_structure_mapping(
     s1, s2 = sm._process_species([base, inserted])
     fu, _ = sm._get_supercell_size(s1, s2)
     try:
-        val, dist, sc_m, total_t, mapping = sm._strict_match(
-            s1, s2, fu=fu, s1_supercell=True
-        )
+        val, dist, sc_m, total_t, mapping = sm._strict_match(s1, s2, fu=fu, s1_supercell=True)
     except TypeError:
         return None
     sc = s1 * sc_m
-    sc.lattice = Lattice.from_parameters(
-        *sc.lattice.abc, *sc.lattice.angles, vesta=True
-    )  # type: ignore
+    sc.lattice = Lattice.from_parameters(*sc.lattice.abc, *sc.lattice.angles, vesta=True)  # type: ignore
     return sc_m, total_t
 
 
@@ -201,9 +183,7 @@ def get_inserted_on_base(
     Returns:
         List of entries for each working ion in the list of
     """
-    mapped_result = get_matched_structure_mapping(
-        base_ent.structure, inserted_ent.structure, sm
-    )
+    mapped_result = get_matched_structure_mapping(base_ent.structure, inserted_ent.structure, sm)
     if mapped_result is None:
         return None
 
@@ -239,9 +219,9 @@ def get_sym_migration_ion_sites(
     from the base and inserted entries.
 
     Args:
-        inserted_entry: entry that contains cation
-        base_struct_entry: the entry containing the base structure
-        migrating_ion_entry: the name of the migrating species
+        base_struct: the base structure.
+        inserted_struct: inserted structure.
+        migrating_ion: Ion that migrates.
         symprec: the symprec tolerance for the space group analysis
         angle_tol: the angle tolerance for the space group analysis
 
@@ -274,9 +254,7 @@ def get_sym_migration_ion_sites(
 
             # must clean up as you go or the number of sites explodes
             if len(sym_migration_struct) > 1:
-                sym_migration_struct.merge_sites(
-                    tol=SITE_MERGE_R, mode="average"
-                )  # keeps removing duplicates
+                sym_migration_struct.merge_sites(tol=SITE_MERGE_R, mode="average")  # keeps removing duplicates
     return sym_migration_struct
 
 
@@ -290,9 +268,7 @@ def _filter_and_merge(inserted_structure: Structure) -> Structure | None:
     migration_sites = []
     base_sites = []
     for i_site in inserted_structure:
-        if "insertion_energy" in i_site.properties and isinstance(
-            i_site.properties["insertion_energy"], float
-        ):
+        if "insertion_energy" in i_site.properties and isinstance(i_site.properties["insertion_energy"], float):
             migration_sites.append(i_site)
         else:
             base_sites.append(i_site)
@@ -327,7 +303,7 @@ def get_insertion_energy(
             (E[inserted] - (E[Base] + n * E[working_ion])) / n
         Where n is the number of working ions and E[inserted].
         Additionally, and E[base] and E[inserted] are for structures of the same size
-        (sans working ion)
+        (sans working ion).
     """
     wi_ = str(migrating_ion_entry.composition.elements[0])
     comp_inserted_no_wi = inserted_entry.composition.as_dict()

@@ -1,9 +1,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Generate input fields for NEB calculations.
-"""
+"""Generate input fields for NEB calculations."""
+
 from __future__ import annotations
 
 import copy
@@ -15,15 +14,13 @@ __author__ = "Austen"
 
 
 class MVLCINEBEndPointSet(MITRelaxSet):
-    """
-    Class for writing NEB end points relaxation inputs.
-    """
+    """Class for writing NEB end points relaxation inputs."""
 
     def __init__(self, structure, **kwargs):
         r"""
         Args:
             structure: Structure
-            \*\*kwargs: Keyword args supported by VaspInputSets.
+            **kwargs: Keyword args supported by VaspInputSets.
         """
         user_incar_settings = kwargs.get("user_incar_settings", {})
         defaults = {
@@ -48,14 +45,14 @@ class MVLCINEBSet(MITNEBSet):
     """
     MAVRL-tested settings for CI-NEB calculations. Note that these parameters
     requires the VTST modification of VASP from the Henkelman group. See
-    http://theory.cm.utexas.edu/vtsttools/
+    http://theory.cm.utexas.edu/vtsttools/.
     """
 
     def __init__(self, structures, **kwargs):
         r"""
         Args:
-            structure: Structure
-            \*\*kwargs: Keyword args supported by VaspInputSets.
+            structures: Input structures.
+            **kwargs: Keyword args supported by VaspInputSets.
         """
         user_incar_settings = kwargs.get("user_incar_settings", {})
 

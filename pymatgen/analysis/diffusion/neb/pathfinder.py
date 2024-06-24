@@ -1,9 +1,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Algorithms for NEB migration path analysis.
-"""
+"""Algorithms for NEB migration path analysis."""
+
 from __future__ import annotations
 
 import itertools
@@ -86,9 +85,7 @@ class IDPPSolver:
 
             if ni not in [0, nimages + 1]:
                 for j in range(i + 1, natoms):
-                    img = latt.get_distance_and_image(
-                        frac_coords, structures[ni][j].frac_coords
-                    )[1]
+                    img = latt.get_distance_and_image(frac_coords, structures[ni][j].frac_coords)[1]
                     translations[ni - 1, i, j] = latt.get_cartesian_coords(img)
                     translations[ni - 1, j, i] = -latt.get_cartesian_coords(img)
 
@@ -143,9 +140,7 @@ class IDPPSolver:
             indices = list(range(len(self.structures[0])))
         else:
             species = [get_el_sp(sp) for sp in species]
-            indices = [
-                i for i, site in enumerate(self.structures[0]) if site.specie in species
-            ]
+            indices = [i for i, site in enumerate(self.structures[0]) if site.specie in species]
 
             if len(indices) == 0:
                 raise ValueError("The given species are not in the system!")
@@ -155,15 +150,11 @@ class IDPPSolver:
             # Get the sets of objective functions, true and total force
             # matrices.
             funcs, true_forces = self._get_funcs_and_forces(coords)
-            tot_forces = self._get_total_forces(
-                coords, true_forces, spring_const=spring_const
-            )
+            tot_forces = self._get_total_forces(coords, true_forces, spring_const=spring_const)
 
             # Each atom is allowed to move up to max_disp
             disp_mat = step_size * tot_forces[:, indices, :]
-            disp_mat = np.where(
-                np.abs(disp_mat) > max_disp, np.sign(disp_mat) * max_disp, disp_mat
-            )
+            disp_mat = np.where(np.abs(disp_mat) > max_disp, np.sign(disp_mat) * max_disp, disp_mat)
             coords[1 : (self.nimages + 1), indices] += disp_mat
 
             max_force = np.abs(tot_forces[:, indices, :]).max()
@@ -175,9 +166,7 @@ class IDPPSolver:
             old_funcs = funcs
 
         else:
-            warnings.warn(
-                "Maximum iteration number is reached without convergence!", UserWarning
-            )
+            warnings.warn("Maximum iteration number is reached without convergence!", UserWarning)
 
         for ni in range(self.nimages):
             # generate the improved image structure
@@ -202,7 +191,11 @@ class IDPPSolver:
 
     @classmethod
     def from_endpoints(
-        cls, endpoints, nimages=5, sort_tol=1.0, interpolate_lattices=False
+        cls,
+        endpoints,
+        nimages: int = 5,
+        sort_tol: float = 1.0,
+        interpolate_lattices: bool = False,
     ):
         """
         A class method that starts with end-point structures instead. The
@@ -215,6 +208,7 @@ class IDPPSolver:
             sort_tol (float): Distance tolerance (in Angstrom) used to match the
                 atomic indices between start and end structures. Need
                 to increase the value in some cases.
+            interpolate_lattices (bool): Whether to interpolate lattices between the start and end structures.
         """
         try:
             images = endpoints[0].interpolate(
@@ -226,8 +220,7 @@ class IDPPSolver:
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
-                    "Auto sorting is turned off because it is unable"
-                    " to match the end-point structures!",
+                    "Auto sorting is turned off because it is unable" " to match the end-point structures!",
                     UserWarning,
                 )
                 images = endpoints[0].interpolate(
@@ -244,7 +237,7 @@ class IDPPSolver:
     def _get_funcs_and_forces(self, x):
         """
         Calculate the set of objective functions as well as their gradients,
-        i.e. "effective true forces"
+        i.e. "effective true forces".
         """
         funcs = []
         funcs_prime = []
@@ -257,11 +250,7 @@ class IDPPSolver:
             vec = [x[ni + 1, i] - x[ni + 1] - trans[ni, i] for i in range(natoms)]
 
             trial_dist = np.linalg.norm(vec, axis=2)
-            aux = (
-                (trial_dist - target_dists[ni])
-                * weights[ni]
-                / (trial_dist + np.eye(natoms, dtype=np.float64))
-            )
+            aux = (trial_dist - target_dists[ni]) * weights[ni] / (trial_dist + np.eye(natoms, dtype=np.float64))
 
             # Objective function
             func = np.sum((trial_dist - target_dists[ni]) ** 2 * weights[ni])
@@ -303,24 +292,18 @@ class IDPPSolver:
             tangent = self.get_unit_vector(tangent)
 
             # Spring force
-            spring_force = (
-                spring_const * (np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
-            )
+            spring_force = spring_const * (np.linalg.norm(vec1) - np.linalg.norm(vec2)) * tangent
 
             # Total force
             flat_ft = true_forces[ni - 1].copy().flatten()
-            total_force = true_forces[ni - 1] + (
-                spring_force - np.dot(flat_ft, tangent) * tangent
-            ).reshape(natoms, 3)
+            total_force = true_forces[ni - 1] + (spring_force - np.dot(flat_ft, tangent) * tangent).reshape(natoms, 3)
             total_forces.append(total_force)
 
         return np.array(total_forces)
 
 
 class MigrationHop(MSONable):
-    """
-    A convenience container representing a migration path.
-    """
+    """A convenience container representing a migration path."""
 
     def __init__(
         self,
@@ -337,7 +320,7 @@ class MigrationHop(MSONable):
             symm_structure: SymmetrizedStructure
             host_symm_struct: SymmetrizedStructure of the host structure, used to for
                 its spacegroup
-            symprec: used to determine equivalence
+            symprec: used to determine equivalence.
         """
         self.isite = isite
         self.esite = esite
@@ -346,9 +329,7 @@ class MigrationHop(MSONable):
         self.symm_structure = symm_structure
         self.host_symm_struct = host_symm_struct
         self.symprec = symprec
-        self.msite = PeriodicSite(
-            esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice
-        )
+        self.msite = PeriodicSite(esite.specie, (isite.frac_coords + esite.frac_coords) / 2, esite.lattice)
 
         sg = (
             self.host_symm_struct.spacegroup  # type: ignore[union-attr]
@@ -382,13 +363,9 @@ class MigrationHop(MSONable):
                 break
 
         if self.iindex is None:
-            raise RuntimeError(
-                f"No symmetrically equivalent site was found for {isite}"
-            )
+            raise RuntimeError(f"No symmetrically equivalent site was found for {isite}")
         if self.eindex is None:
-            raise RuntimeError(
-                f"No symmetrically equivalent site was found for {esite}"
-            )
+            raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
     def __repr__(self):
         ifc = self.isite.frac_coords
@@ -451,27 +428,19 @@ class MigrationHop(MSONable):
             idpp (bool): Defaults to False. If True, the generated structures
                 will be run through the IDPPSolver to generate a better guess
                 for the minimum energy path.
-            \*\*idpp_kwargs: Passthrough kwargs for the IDPPSolver.run.
+            **idpp_kwargs: Passthrough kwargs for the IDPPSolver.run.
 
         Returns:
             [Structure] Note that the first site of each structure is always
             the migrating ion. This makes it easier to perform subsequent
             analysis.
         """
-        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
-            vac_mode
-        )
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
 
-        start_structure = Structure.from_sites(
-            [self.isite, *migrating_specie_sites, *other_sites]
-        )
-        end_structure = Structure.from_sites(
-            [self.esite, *migrating_specie_sites, *other_sites]
-        )
+        start_structure = Structure.from_sites([self.isite, *migrating_specie_sites, *other_sites])
+        end_structure = Structure.from_sites([self.esite, *migrating_specie_sites, *other_sites])
 
-        structures = start_structure.interpolate(
-            end_structure, nimages=nimages + 1, pbc=False
-        )
+        structures = start_structure.interpolate(end_structure, nimages=nimages + 1, pbc=False)
 
         if idpp:
             solver = IDPPSolver(structures)
@@ -486,10 +455,7 @@ class MigrationHop(MSONable):
             if site.specie != self.isite.specie:
                 other_sites.append(site)
             else:
-                if (
-                    self.isite.distance(site) <= 1e-8
-                    or self.esite.distance(site) <= 1e-8
-                ):
+                if self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8:
                     migrating_specie_sites.append(site)
                     continue
 
@@ -523,9 +489,7 @@ class MigrationHop(MSONable):
             If in vacancy mode, the base structure is the fully intercalated structure
 
         """
-        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(
-            vac_mode
-        )
+        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
         if vac_mode:
             base_struct = Structure.from_sites(other_sites + migrating_specie_sites)
         else:
@@ -552,7 +516,7 @@ class MigrationHop(MSONable):
 
         Args:
             fname (str): File name.
-            \*\*kwargs: Kwargs supported by NEBPath.get_structures.
+            **kwargs: Kwargs supported by NEBPath.get_structures.
         """
         sites = []
         for st in self.get_structures(**kwargs):
@@ -643,9 +607,7 @@ class DistinctPathFinder:
         for sites in self.symm_structure.equivalent_sites:
             if sites[0].specie == self.migrating_specie:
                 site0 = sites[0]
-                for nn in self.symm_structure.get_neighbors(
-                    site0, r=round(self.max_path_length, 3) + 0.01
-                ):
+                for nn in self.symm_structure.get_neighbors(site0, r=round(self.max_path_length, 3) + 0.01):
                     if nn.specie == self.migrating_specie:
                         path = MigrationHop(site0, nn, self.symm_structure)
                         paths.add(path)
@@ -661,18 +623,16 @@ class DistinctPathFinder:
         Args:
             fname (str): Filename
             nimages (int): Number of images per path.
-            \*\*kwargs: Passthrough kwargs to path.get_structures.
+            **kwargs: Passthrough kwargs to path.get_structures.
         """
         sites = []
         for p in self.get_paths():
-            structures = p.get_structures(
-                nimages=nimages, species=[self.migrating_specie], **kwargs
-            )
+            structures = p.get_structures(nimages=nimages, species=[self.migrating_specie], **kwargs)
             sites.append(structures[0][0])
             sites.append(structures[-1][0])
             for s in structures[1:-1]:
                 sites.append(PeriodicSite("H", s[0].frac_coords, s.lattice))
-        sites.extend(structures[0].sites[1:])
+        sites.extend(structures[0].sites[1:])  # type: ignore
         Structure.from_sites(sites).to(filename=fname)
 
 
@@ -690,12 +650,11 @@ class NEBPathfinder:
         Ceder, The Journal of Chemical Physics 145 (7), 074112
     """
 
-    def __init__(
-        self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None
-    ):
+    def __init__(self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None):
         """
         Args:
-            start_struct, end_struct: Endpoint structures to interpolate
+            start_struct: Starting structure
+            end_struct: End structure to interpolate
             relax_sites: List of site indices whose interpolation paths should
                 be relaxed
             v: Static potential field to use for the elastic band relaxation
@@ -727,18 +686,12 @@ class NEBPathfinder:
             # to make arithmetic easier we will do the interpolation in two parts with n
             # images each then just take every other image at the end, this results in
             # exactly n images
-            images_0 = self.__s1.interpolate(
-                self.__mid, nimages=self.__n_images, interpolate_lattices=False
-            )[:-1]
-            images_1 = self.__mid.interpolate(
-                self.__s2, nimages=self.__n_images, interpolate_lattices=False
-            )
+            images_0 = self.__s1.interpolate(self.__mid, nimages=self.__n_images, interpolate_lattices=False)[:-1]
+            images_1 = self.__mid.interpolate(self.__s2, nimages=self.__n_images, interpolate_lattices=False)
             images = images_0 + images_1
             images = images[::2]
         else:
-            images = self.__s1.interpolate(
-                self.__s2, nimages=self.__n_images, interpolate_lattices=False
-            )
+            images = self.__s1.interpolate(self.__s2, nimages=self.__n_images, interpolate_lattices=False)
         for site_i in self.__relax_sites:
             start_f = images[0].sites[site_i].frac_coords
             end_f = images[-1].sites[site_i].frac_coords
@@ -757,8 +710,7 @@ class NEBPathfinder:
             for image_i, image in enumerate(images):
                 image.translate_sites(
                     site_i,
-                    NEBPathfinder.__d2f(path[image_i], self.__v)
-                    - image.sites[site_i].frac_coords,
+                    NEBPathfinder.__d2f(path[image_i], self.__v) - image.sites[site_i].frac_coords,
                     frac_coords=True,
                     to_unit_cell=True,
                 )
@@ -776,7 +728,9 @@ class NEBPathfinder:
         """
         Generates a POSCAR with the calculated diffusion path with respect to the first
         endpoint.
-        :param outfile: Output file for the POSCAR.
+
+        Args:
+            outfile: Output file for the POSCAR.
         """
         sum_struct = self.__images[0].sites
         for image in self.__images:
@@ -847,11 +801,7 @@ class NEBPathfinder:
         # logger.debug(f"Getting path from {start} to {end} (coords wrt V grid)")
 
         # Set parameters
-        dr = (
-            np.array([1 / V.shape[0], 1 / V.shape[1], 1 / V.shape[2]])
-            if not dr
-            else np.array(dr, dtype=float)
-        )
+        dr = np.array([1 / V.shape[0], 1 / V.shape[1], 1 / V.shape[2]]) if not dr else np.array(dr, dtype=float)
         keff = k * dr * n_images
         h0 = h
 
@@ -880,23 +830,16 @@ class NEBPathfinder:
         # Evolve string
         for step in range(max_iter):
             # Gradually decay step size to prevent oscillations
-            h = (
-                h0 * np.exp(-2 * (step - min_iter) / max_iter)
-                if step > min_iter
-                else h0
-            )
+            h = h0 * np.exp(-2 * (step - min_iter) / max_iter) if step > min_iter else h0
             # Calculate forces acting on string
             d = V.shape
             s0 = s.copy()  # store copy for endpoint fixing below (fixes GH 2732)
             edV = np.array(
                 [
                     [
-                        dV[0][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
-                        dV[1][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
-                        dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
+                        dV[0][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
+                        dV[1][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
+                        dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
                     ]
                     for pt in s
                 ]
@@ -910,16 +853,8 @@ class NEBPathfinder:
             ds_plus[0] = ds_plus[0] - ds_plus[0]
             ds_minus[-1] = ds_minus[-1] - ds_minus[-1]
             Fpot = edV
-            Fel = (
-                keff
-                * (la.norm(ds_plus) - la.norm(ds0_plus))
-                * (ds_plus / la.norm(ds_plus))
-            )
-            Fel += (
-                keff
-                * (la.norm(ds_minus) - la.norm(ds0_minus))
-                * (ds_minus / la.norm(ds_minus))
-            )
+            Fel = keff * (la.norm(ds_plus) - la.norm(ds0_plus)) * (ds_plus / la.norm(ds_plus))
+            Fel += keff * (la.norm(ds_minus) - la.norm(ds0_minus)) * (ds_minus / la.norm(ds_minus))
             s -= h * (Fpot + Fel)
 
             # Fix endpoints
@@ -937,10 +872,7 @@ class NEBPathfinder:
             tol = la.norm((s - s0) * dr) / n_images / h
 
             if tol > 1e10:
-                raise ValueError(
-                    "Pathfinding failed, path diverged! Consider reducing h to avoid "
-                    "divergence."
-                )
+                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid " "divergence.")
 
             if step > min_iter and tol < max_tol:
                 logger.debug(f"Converged at {step=}")
@@ -1011,24 +943,17 @@ class StaticPotential:
         """
         v_dim = self.__v.shape
         padded_v = np.lib.pad(self.__v, ((0, 1), (0, 1), (0, 1)), mode="wrap")
-        ogrid_list = np.array(
-            [
-                list(c)
-                for c in list(np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))
-            ]
-        )
-        v_ogrid = padded_v.reshape(
-            ((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1)
-        )
+        ogrid_list = np.array([list(c) for c in list(np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
+        v_ogrid = padded_v.reshape(((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
         ngrid_a, ngrid_b, ngrid_c = np.mgrid[
             0 : v_dim[0] : v_dim[0] / new_dim[0],
             0 : v_dim[1] : v_dim[1] / new_dim[1],
             0 : v_dim[2] : v_dim[2] / new_dim[2],
         ]
 
-        v_ngrid = scipy.interpolate.griddata(
-            ogrid_list, v_ogrid, (ngrid_a, ngrid_b, ngrid_c), method="linear"
-        ).reshape((new_dim[0], new_dim[1], new_dim[2]))
+        v_ngrid = scipy.interpolate.griddata(ogrid_list, v_ogrid, (ngrid_a, ngrid_b, ngrid_c), method="linear").reshape(
+            (new_dim[0], new_dim[1], new_dim[2])
+        )
         self.__v = v_ngrid
 
     def gaussian_smear(self, r):
@@ -1065,9 +990,9 @@ class StaticPotential:
             for g_b in np.arange(-2 * r_disc[1], 2 * r_disc[1] + 1, 1):
                 for g_c in np.arange(-2 * r_disc[2], 2 * r_disc[2] + 1, 1):
                     g = np.array([g_a / v_dim[0], g_b / v_dim[1], g_c / v_dim[2]]).T
-                    gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][
-                        int(g_c + r_disc[2])
-                    ] = la.norm(np.dot(self.__s.lattice.matrix, g)) / r
+                    gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][int(g_c + r_disc[2])] = (
+                        la.norm(np.dot(self.__s.lattice.matrix, g)) / r
+                    )
         gauss = scipy.stats.norm.pdf(gauss_dist)
         gauss = gauss / np.sum(gauss, dtype=float)
         padded_v = np.pad(
@@ -1131,9 +1056,7 @@ class FreeVolumePotential(StaticPotential):
             for b_d in np.arange(0, dim[1], 1):
                 for c_d in np.arange(0, dim[2], 1):
                     coords_f = np.array([a_d / dim[0], b_d / dim[1], c_d / dim[2]])
-                    d_f = sorted(
-                        s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1]
-                    )[0][1]
+                    d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1])[0][1]
                     # logger.debug(d_f)
                     gauss_dist[int(a_d)][int(b_d)][int(c_d)] = d_f / r
         return scipy.stats.norm.pdf(gauss_dist)

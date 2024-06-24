@@ -3,8 +3,9 @@
 """
 Functions for querying Materials Project style MongoStores that contains
 cathode materials The functions are isolated from the rest of the package so
-that the rest of the package will not depend on Maggma
+that the rest of the package will not depend on Maggma.
 """
+
 from __future__ import annotations
 
 __author__ = "Jimmy Shen"
@@ -42,7 +43,7 @@ def get_entries_from_dbs(
         material_store: Material documents one per each similar structure (
             multiple tasks)
         migrating_ion: The name of the migrating ion
-        material_ids list with topotactic structures
+        material_id: Material id
     """
     with structure_group_store as store:
         sg_doc = store.query_one({structure_group_store.key: material_id})
