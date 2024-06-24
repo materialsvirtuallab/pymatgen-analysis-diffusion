@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.aimd.tests.test_rdf &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.aimd.tests.test_rdf &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=608d49bb"></script>
+    <script src="../../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.tests.test_rdf</a></li> 
       </ul>
@@ -60,8 +60,12 @@
 <span class="n">tests_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="RDFTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest">[docs]</a><span class="k">class</span> <span class="nc">RDFTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<div class="viewcode-block" id="RDFTest.test_rdf"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest.test_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">test_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RDFTest">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest">[docs]</a>
+<span class="k">class</span> <span class="nc">RDFTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="RDFTest.test_rdf">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest.test_rdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Parse the DiffusionAnalyzer object from json file directly</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tests_dir</span><span class="p">,</span> <span class="s2">&quot;cNa3PS4_pda.json&quot;</span><span class="p">))</span>
 
@@ -81,7 +85,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">s_na_rdf</span><span class="p">)],</span> <span class="mf">2.9000</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RDFTest.test_rdf_coordination_number"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest.test_rdf_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">test_rdf_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RDFTest.test_rdf_coordination_number">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.aimd.tests.test_rdf.html#pymatgen.analysis.diffusion.aimd.tests.test_rdf.RDFTest.test_rdf_coordination_number">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_rdf_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># create a simple cubic lattice</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
         <span class="n">atom_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
@@ -92,11 +99,9 @@
         <span class="n">rdf</span> <span class="o">=</span> <span class="n">RadialDistributionFunctionFast</span><span class="p">(</span>
             <span class="n">structures</span><span class="o">=</span><span class="p">[</span><span class="n">structure</span><span class="p">],</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">ngrid</span><span class="o">=</span><span class="mi">500</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">110</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mf">6.0</span></div></div>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rdf</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">110</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mf">6.0</span></div>
+</div>
 
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 
             <div class="clearer"></div>
@@ -111,7 +116,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
@@ -119,7 +124,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

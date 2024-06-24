@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.utils.parse_entries module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.parse_entries module &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/documentation_options.js?v=608d49bb"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.parse_entries module</a></li> 
       </ul>
     </div>  
@@ -46,15 +46,16 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.utils.parse_entries">
-<span id="pymatgen-analysis-diffusion-utils-parse-entries-module"></span><h1>pymatgen.analysis.diffusion.utils.parse_entries module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.parse_entries" title="Permalink to this heading">¶</a></h1>
+<span id="pymatgen-analysis-diffusion-utils-parse-entries-module"></span><h1>pymatgen.analysis.diffusion.utils.parse_entries module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.parse_entries" title="Link to this heading">¶</a></h1>
 <p>Functions for combining many ComputedEntry objects into MigrationGraph objects.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.parse_entries.get_inserted_on_base">
-<span class="sig-name descname"><span class="pre">get_inserted_on_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_ent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_ent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_inserted_on_base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_inserted_on_base" title="Permalink to this definition">¶</a></dt>
-<dd><p>For a structured-matched pair of base and inserted entries, map all of the Li positions in the inserted entry to
-positions in the base entry and return a new structure where all the sites are decorated with the insertion
-energy. Since the calculation of the insertion energy needs the energy of the metallic working ion,
-a <cite>migrating_ion_entry</cite> must also be provided.</p>
+<span class="sig-name descname"><span class="pre">get_inserted_on_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_ent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_ent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Structure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_inserted_on_base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_inserted_on_base" title="Link to this definition">¶</a></dt>
+<dd><p>For a structured-matched pair of base and inserted entries, map all of the Li
+positions in the inserted entry to positions in the base entry and return a new
+structure where all the sites are decorated with the insertion energy. Since the
+calculation of the insertion energy needs the energy of the metallic working ion, a
+<cite>migrating_ion_entry</cite> must also be provided.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -72,23 +73,31 @@ a <cite>migrating_ion_entry</cite> must also be provided.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.parse_entries.get_insertion_energy">
-<span class="sig-name descname"><span class="pre">get_insertion_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_insertion_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_insertion_energy" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_insertion_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedStructureEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_insertion_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_insertion_energy" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the insertion energy for a given inserted entry
 :param base_entry: The entry for the host structure
 :param inserted_entry: The entry for the inserted structure
 :param migrating_ion_entry: The entry for the metallic phase of the working ion</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The insertion energy defined as (E[inserted] - (E[Base] + n * E[working_ion]))/(n)
-Where n is the number of working ions and E[inserted].
-Additionally, and E[base] and E[inserted] are for structures of the same size (sans working ion)</p>
+<dd class="field-odd"><p><dl class="simple">
+<dt>insertion energy defined as</dt><dd><p>(E[inserted] - (E[Base] + n * E[working_ion])) / n</p>
+</dd>
+</dl>
+<p>Where n is the number of working ions and E[inserted].
+Additionally, and E[base] and E[inserted] are for structures of the same size
+(sans working ion).</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.parse_entries.get_matched_structure_mapping">
-<span class="sig-name descname"><span class="pre">get_matched_structure_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_matched_structure_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_matched_structure_mapping" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_matched_structure_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_matched_structure_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_matched_structure_mapping" title="Link to this definition">¶</a></dt>
 <dd><p>Get the mapping from the inserted structure onto the base structure,
 assuming that the inserted structure sans the working ion is some kind
 of SC of the base.</p>
@@ -112,15 +121,16 @@ total-t : translation to apply on s1 * sc_m to get s2</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.parse_entries.get_sym_migration_ion_sites">
-<span class="sig-name descname"><span class="pre">get_sym_migration_ion_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Structure</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_sym_migration_ion_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_sym_migration_ion_sites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Take one inserted entry then map out all symmetry equivalent copies of the cation sites in base entry.
-Each site is decorated with the insertion energy calculated from the base and inserted entries.</p>
+<span class="sig-name descname"><span class="pre">get_sym_migration_ion_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Structure</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#get_sym_migration_ion_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.get_sym_migration_ion_sites" title="Link to this definition">¶</a></dt>
+<dd><p>Take one inserted entry then map out all symmetry equivalent copies of the cation
+sites in base entry. Each site is decorated with the insertion energy calculated
+from the base and inserted entries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>inserted_entry</strong> – entry that contains cation</p></li>
-<li><p><strong>base_struct_entry</strong> – the entry containing the base structure</p></li>
-<li><p><strong>migrating_ion_entry</strong> – the name of the migrating species</p></li>
+<li><p><strong>base_struct</strong> – the base structure.</p></li>
+<li><p><strong>inserted_struct</strong> – inserted structure.</p></li>
+<li><p><strong>migrating_ion</strong> – Ion that migrates.</p></li>
 <li><p><strong>symprec</strong> – the symprec tolerance for the space group analysis</p></li>
 <li><p><strong>angle_tol</strong> – the angle tolerance for the space group analysis</p></li>
 </ul>
@@ -133,28 +143,34 @@ Each site is decorated with the insertion energy calculated from the base and in
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.parse_entries.process_entries">
-<span class="sig-name descname"><span class="pre">process_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#process_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.process_entries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process a list of base entries and inserted entries to create input for migration path analysis Each inserted
-entries can be mapped to more than one base entry. Return groups of structures decorated with the working ions
-to indicate the metastable sites, ranked by the number of working ion sites (highest number is the first).</p>
+<span class="sig-name descname"><span class="pre">process_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inserted_entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ComputedStructureEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrating_ion_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ComputedEntry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/parse_entries.html#process_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.parse_entries.process_entries" title="Link to this definition">¶</a></dt>
+<dd><p>Process a list of base entries and inserted entries to create input for migration
+path analysis Each inserted entries can be mapped to more than one base entry.
+Return groups of structures decorated with the working ions to indicate the
+metastable sites, ranked by the number of working ion sites (highest number is the
+first).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>base_entries</strong> – Full list of base entires</p></li>
-<li><p><strong>inserted_entries</strong> – Full list of inserted entires</p></li>
-<li><p><strong>migrating_ion_entry</strong> – The metallic phase of the working ion, used to calculate insertion energies.</p></li>
+<li><p><strong>base_entries</strong> – Full list of base entries</p></li>
+<li><p><strong>inserted_entries</strong> – Full list of inserted entries</p></li>
+<li><p><strong>migrating_ion_entry</strong> – The metallic phase of the working ion, used to calculate
+insertion energies.</p></li>
 <li><p><strong>symprec</strong> – symmetry parameter for SpacegroupAnalyzer</p></li>
 <li><p><strong>ltol</strong> – Fractional length tolerance for StructureMatcher</p></li>
 <li><p><strong>stol</strong> – Site tolerance for StructureMatcher</p></li>
-<li><p><strong>angle_tol</strong> – Angle tolerance fro StructureMatcher and SpacegroupAnalyzer</p></li>
+<li><p><strong>angle_tol</strong> – Angle tolerance for StructureMatcher and SpacegroupAnalyzer</p></li>
 <li><p><strong>only_single_cat</strong> – If True, only use single cation insertions so the
 site energy is more accurate use_strict_tol: halve the ltol and
 stol parameter for more strict matching.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of dictionaries that each contain
-{‘base’ : Structure Object of host, ‘inserted’ : Structure object of all inserted sites}</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>List of dictionaries that each contain {‘base’: Structure Object of host,</dt><dd><p>’inserted’: Structure object of all inserted sites}</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
@@ -196,7 +212,7 @@ stol parameter for more strict matching.</p></li>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -204,7 +220,7 @@ stol parameter for more strict matching.</p></li>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

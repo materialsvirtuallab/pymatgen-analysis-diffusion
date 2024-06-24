@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=608d49bb"></script>
+    <script src="../../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc</a></li> 
       </ul>
@@ -56,11 +56,7 @@
 <span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.edge_data_from_sc</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">add_edge_data_from_sc</span><span class="p">,</span>
-    <span class="n">get_uc_pos</span><span class="p">,</span>
-    <span class="n">get_unique_hop</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.edge_data_from_sc</span> <span class="kn">import</span> <span class="n">add_edge_data_from_sc</span><span class="p">,</span> <span class="n">get_uc_pos</span><span class="p">,</span> <span class="n">get_unique_hop</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
 
@@ -86,7 +82,9 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="test_add_edge_data_from_sc"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_add_edge_data_from_sc">[docs]</a><span class="k">def</span> <span class="nf">test_add_edge_data_from_sc</span><span class="p">():</span>
+<div class="viewcode-block" id="test_add_edge_data_from_sc">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_add_edge_data_from_sc">[docs]</a>
+<span class="k">def</span> <span class="nf">test_add_edge_data_from_sc</span><span class="p">():</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">test_key</span> <span class="o">=</span> <span class="s2">&quot;test_key&quot;</span>
@@ -113,10 +111,13 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">hop_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hop_labels</span><span class="p">):</span>
         <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Not all data are added to the same unique hop&quot;</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">,</span> <span class="s2">&quot;errors occured:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">,</span> <span class="s2">&quot;errors occurred:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test_get_uc_pos"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_uc_pos">[docs]</a><span class="k">def</span> <span class="nf">test_get_uc_pos</span><span class="p">():</span>
+
+<div class="viewcode-block" id="test_get_uc_pos">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_uc_pos">[docs]</a>
+<span class="k">def</span> <span class="nf">test_get_uc_pos</span><span class="p">():</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># set up parameters to initiate get_uc_pos</span>
@@ -159,10 +160,13 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">test_p2</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">p2</span><span class="p">):</span>
         <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ending site does not match&quot;</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">,</span> <span class="s2">&quot;errors occured:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">,</span> <span class="s2">&quot;errors occurred:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test_get_unique_hop_host"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_hop_host">[docs]</a><span class="k">def</span> <span class="nf">test_get_unique_hop_host</span><span class="p">():</span>
+
+<div class="viewcode-block" id="test_get_unique_hop_host">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_hop_host">[docs]</a>
+<span class="k">def</span> <span class="nf">test_get_unique_hop_host</span><span class="p">():</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">get_unique_hop</span><span class="p">(</span>
         <span class="n">mg_Mg</span><span class="p">,</span>
         <span class="n">mg_input_struct_i</span><span class="p">,</span>
@@ -173,8 +177,11 @@
     <span class="k">assert</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span></div>
 
 
-<div class="viewcode-block" id="test_get_unique_host_nonhost"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_host_nonhost">[docs]</a><span class="k">def</span> <span class="nf">test_get_unique_host_nonhost</span><span class="p">():</span>
-    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
+
+<div class="viewcode-block" id="test_get_unique_host_nonhost">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.tests.test_edge_data_from_sc.test_get_unique_host_nonhost">[docs]</a>
+<span class="k">def</span> <span class="nf">test_get_unique_host_nonhost</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
         <span class="n">get_unique_hop</span><span class="p">(</span>
             <span class="n">mg_Mg</span><span class="p">,</span>
             <span class="n">mg_input_struct_i</span><span class="p">,</span>
@@ -182,8 +189,12 @@
             <span class="n">mg_input_struct_e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">use_host_sg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">expected_exception</span> <span class="o">=</span> <span class="s2">&quot;No symmetrically equivalent site was found for [0.53593472 2.8352428  4.54752366] Mg&quot;</span>
-    <span class="k">assert</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected_exception</span></div>
+
+    <span class="k">assert</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span>
+        <span class="s2">&quot;No symmetrically equivalent site was found for [0.53593472 &quot;</span>
+        <span class="s2">&quot;2.8352428  4.54752366] Mg&quot;</span>
+    <span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -198,7 +209,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
@@ -206,7 +217,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

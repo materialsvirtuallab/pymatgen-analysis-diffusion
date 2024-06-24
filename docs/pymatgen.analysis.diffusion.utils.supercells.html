@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.utils.supercells module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.supercells module &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/documentation_options.js?v=608d49bb"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.supercells module</a></li> 
       </ul>
     </div>  
@@ -46,11 +46,11 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.utils.supercells">
-<span id="pymatgen-analysis-diffusion-utils-supercells-module"></span><h1>pymatgen.analysis.diffusion.utils.supercells module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.supercells" title="Permalink to this heading">¶</a></h1>
-<p>Functions for creating supercells for NEB calculations</p>
+<span id="pymatgen-analysis-diffusion-utils-supercells-module"></span><h1>pymatgen.analysis.diffusion.utils.supercells module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.supercells" title="Link to this heading">¶</a></h1>
+<p>Functions for creating supercells for NEB calculations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct">
-<span class="sig-name descname"><span class="pre">get_sc_fromstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_sc_fromstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_sc_fromstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_sc_fromstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct" title="Link to this definition">¶</a></dt>
 <dd><p>Generate the best supercell from a unitcell.
 The CubicSupercellTransformation from PMG is much faster but don’t iterate over as many
 supercell configurations so it’s less able to find the best configuration in a give cell size.
@@ -76,15 +76,19 @@ The min_length is decreased by 10% (geometrically) until a supercell can be cons
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures">
-<span class="sig-name descname"><span class="pre">get_start_end_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_start_end_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_start_end_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Structure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Structure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/supercells.html#get_start_end_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures" title="Link to this definition">¶</a></dt>
 <dd><p>Obtain the starting and terminating structures in a supercell for NEB calculations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Initial site index.</p></li>
+<li><p><strong>esite</strong> – End site index.</p></li>
 <li><p><strong>hop</strong> – object presenting the migration event</p></li>
 <li><p><strong>base_struct</strong> – unit cell representation of the structure</p></li>
 <li><p><strong>sc_mat</strong> – supercell transformation to create the simulation cell for the NEB calc</p></li>
-<li><p><strong>tol</strong> – toleranace for identifying isite/esite within base_struct</p></li>
+<li><p><strong>vac_mode</strong> – Vacuum mode.</p></li>
+<li><p><strong>debug</strong> – debug mode.</p></li>
+<li><p><strong>tol</strong> – toleranace for identifying isite/esite within base_struct.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -124,7 +128,7 @@ The min_length is decreased by 10% (geometrically) until a supercell can be cons
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -132,7 +136,7 @@ The min_length is decreased by 10% (geometrically) until a supercell can be cons
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

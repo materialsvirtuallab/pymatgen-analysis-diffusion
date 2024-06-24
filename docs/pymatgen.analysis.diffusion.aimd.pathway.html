@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.aimd.pathway module &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/documentation_options.js?v=608d49bb"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.pathway module</a></li> 
       </ul>
     </div>  
@@ -46,12 +46,13 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.aimd.pathway">
-<span id="pymatgen-analysis-diffusion-aimd-pathway-module"></span><h1>pymatgen.analysis.diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.pathway" title="Permalink to this heading">¶</a></h1>
-<p>Algorithms for diffusion pathway analysis</p>
+<span id="pymatgen-analysis-diffusion-aimd-pathway-module"></span><h1>pymatgen.analysis.diffusion.aimd.pathway module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.aimd.pathway" title="Link to this heading">¶</a></h1>
+<p>Algorithms for diffusion pathway analysis.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProbabilityDensityAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProbabilityDensityAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Probability density analysis class.</p>
 <p>Compute the time-averaged probability density distribution of selected
 species on a “uniform” (in terms of fractional coordinates) 3-D grid.
 Note that int_{Omega}d^3rP(r) = 1</p>
@@ -59,18 +60,15 @@ Note that int_{Omega}d^3rP(r) = 1</p>
 <p>Zhu, Z.; Chu, I.-H.; Deng, Z. and Ong, S. P. “Role of Na+ Interstitials and
 Dopants in Enhancing the Na+ Conductivity of the Cubic Na3PS4 Superionic
 Conductor”. Chem. Mater. (2015), 27, pp 8318-8325.</p>
-<p>Initialization.
-:param structure: crystal structure
-:type structure: Structure
-:param trajectories: ionic trajectories of the structure</p>
-<blockquote>
-<div><p>from MD simulations. It should be (1) stored as 3-D array [
-Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
-(2) in fractional coordinates.</p>
-</div></blockquote>
+<p>Initialization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>Structure</em>) – crystal structure</p></li>
+<li><p><strong>trajectories</strong> (<em>numpy array</em>) – ionic trajectories of the structure
+from MD simulations. It should be (1) stored as 3-D array [
+Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
+(2) in fractional coordinates.</p></li>
 <li><p><strong>interval</strong> (<em>float</em>) – the interval between two nearest grid points
 (in Angstrom)</p></li>
 <li><p><strong>species</strong> (<em>list</em><em> of </em><em>str</em>) – list of species that are of interest</p></li>
@@ -79,7 +77,7 @@ Ntimesteps, Nions, 3] where 3 refers to a,b,c components;
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.from_diffusion_analyzer" title="Link to this definition">¶</a></dt>
 <dd><p>Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -96,7 +94,7 @@ Angstrom)</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites">
-<span class="sig-name descname"><span class="pre">generate_stable_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.generate_stable_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">generate_stable_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.generate_stable_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.generate_stable_sites" title="Link to this definition">¶</a></dt>
 <dd><p>Obtain a set of low-energy sites from probability density function with
 given probability threshold ‘p_ratio’. The set of grid points with
 probability density higher than the threshold will further be clustered
@@ -120,14 +118,14 @@ as a Nx3 numpy array.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure">
-<span class="sig-name descname"><span class="pre">get_full_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.get_full_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_full_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.get_full_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.get_full_structure" title="Link to this definition">¶</a></dt>
 <dd><p>Generate the structure with the low-energy sites included. In the end, a
 pymatgen Structure object will be returned.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar">
-<span class="sig-name descname"><span class="pre">to_chgcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CHGCAR.vasp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.to_chgcar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_chgcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CHGCAR.vasp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#ProbabilityDensityAnalysis.to_chgcar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.ProbabilityDensityAnalysis.to_chgcar" title="Link to this definition">¶</a></dt>
 <dd><p>Save the probability density distribution in the format of CHGCAR,
 which can be visualized by VESTA.</p>
 </dd></dl>
@@ -136,13 +134,13 @@ which can be visualized by VESTA.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SiteOccupancyAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SiteOccupancyAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class that analyzes the site occupancy of given species using MD trajectories.
 The occupancy of a site is determined based on the shortest distance scheme.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ">
-<span class="sig-name descname"><span class="pre">site_occ</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">site_occ</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.site_occ" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">N</span> <span class="pre">x</span> <span class="pre">1</span> <span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">that</span> <span class="pre">stores</span> <span class="pre">the</span> <span class="pre">occupancy</span> <span class="pre">of</span> <span class="pre">all</span> <span class="pre">sites</span> <span class="pre">associated</span> <span class="pre">with</span></span></dt>
 <dt class="sig sig-object py">
@@ -151,21 +149,21 @@ The occupancy of a site is determined based on the shortest distance scheme.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref">
-<span class="sig-name descname"><span class="pre">coords_ref</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">coords_ref</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.coords_ref" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">N</span> <span class="pre">x</span> <span class="pre">3</span> <span class="pre">numpy</span> <span class="pre">array</span> <span class="pre">of</span> <span class="pre">fractional</span> <span class="pre">coordinates</span> <span class="pre">of</span> <span class="pre">all</span> <span class="pre">reference</span> <span class="pre">sites.</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites">
-<span class="sig-name descname"><span class="pre">nsites</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">nsites</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.nsites" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Number</span> <span class="pre">of</span> <span class="pre">reference</span> <span class="pre">sites.</span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure">
-<span class="sig-name descname"><span class="pre">structure</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">structure</span></span><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.structure" title="Link to this definition">¶</a></dt>
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">Initial</span> <span class="pre">structure.</span></span></dt>
 <dd></dd></dl>
@@ -185,7 +183,7 @@ simulation. Note that the coordinates are fractional.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_diffusion_analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_analyzer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Li',</span> <span class="pre">'Na')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.from_diffusion_analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.from_diffusion_analyzer" title="Link to this definition">¶</a></dt>
 <dd><p>Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -202,7 +200,7 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy">
-<span class="sig-name descname"><span class="pre">get_average_site_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.get_average_site_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_average_site_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/aimd/pathway.html#SiteOccupancyAnalyzer.get_average_site_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.aimd.pathway.SiteOccupancyAnalyzer.get_average_site_occupancy" title="Link to this definition">¶</a></dt>
 <dd><p>Get the average site occupancy over a subset of reference sites.</p>
 </dd></dl>
 
@@ -253,7 +251,7 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -261,7 +259,7 @@ pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object</p></li>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

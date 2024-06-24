@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.maggma &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.maggma &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
-    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../_static/documentation_options.js?v=608d49bb"></script>
+    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
 
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.maggma</a></li> 
       </ul>
@@ -51,8 +51,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Functions for querying Materials Project style MongoStores that contains</span>
 <span class="sd">cathode materials The functions are isolated from the rest of the package so</span>
-<span class="sd">that the rest of the package will not depend on Maggma</span>
+<span class="sd">that the rest of the package will not depend on Maggma.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
@@ -74,7 +75,9 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_entries_from_dbs"><a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.maggma.html#pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs">[docs]</a><span class="k">def</span> <span class="nf">get_entries_from_dbs</span><span class="p">(</span>
+<div class="viewcode-block" id="get_entries_from_dbs">
+<a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.maggma.html#pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs">[docs]</a>
+<span class="k">def</span> <span class="nf">get_entries_from_dbs</span><span class="p">(</span>
     <span class="n">structure_group_store</span><span class="p">:</span> <span class="n">MongoStore</span><span class="p">,</span>
     <span class="n">material_store</span><span class="p">:</span> <span class="n">MongoStore</span><span class="p">,</span>
     <span class="n">migrating_ion</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -87,12 +90,11 @@
 <span class="sd">    Args:</span>
 <span class="sd">        structure_group_store: Electrode documents one per each similar group of</span>
 <span class="sd">            insertion materials, can also use any db that contains a</span>
-<span class="sd">        material_store: Material documenets one per each similar structure (</span>
+<span class="sd">        material_store: Material documents one per each similar structure (</span>
 <span class="sd">            multiple tasks)</span>
 <span class="sd">        migrating_ion: The name of the migrating ion</span>
-<span class="sd">        material_ids list with topotactic structures</span>
+<span class="sd">        material_id: Material id</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">with</span> <span class="n">structure_group_store</span> <span class="k">as</span> <span class="n">store</span><span class="p">:</span>
         <span class="n">sg_doc</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">query_one</span><span class="p">({</span><span class="n">structure_group_store</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="n">material_id</span><span class="p">})</span>
     <span class="n">ignored_species</span> <span class="o">=</span> <span class="n">migrating_ion</span>
@@ -113,6 +115,7 @@
                 <span class="n">base_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">base_entries</span><span class="p">,</span> <span class="n">inserted_entries</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -127,7 +130,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
@@ -135,7 +138,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

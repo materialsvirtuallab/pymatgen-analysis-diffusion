@@ -54,7 +54,7 @@ dependencies = [
     "pymatgen>=2024.6.10",
     "joblib"
 ]
-version = "2023.8.15"
+version = "2024.6.24"
 
 [project.urls]
 Homepage = "http://materialsvirtuallab.github.io/pymatgen-analysis-diffusion/"
