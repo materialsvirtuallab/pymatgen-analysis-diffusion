@@ -273,7 +273,7 @@ class DiffusionAnalyzer(MSONable):
             # calculate regional msd and number of diffusing specie in those regions
             msd_c_range = np.zeros_like(dt, dtype=np.double)
             msd_c_range_components = np.zeros((*dt.shape, 3))
-
+            indices_c_range = []
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i : i + 1, :]
@@ -293,7 +293,6 @@ class DiffusionAnalyzer(MSONable):
 
                 # Get regional msd
                 if c_ranges:
-                    indices_c_range = []
                     if not c_range_include_edge:
                         for index in indices:
                             if any(
@@ -323,9 +322,9 @@ class DiffusionAnalyzer(MSONable):
             ) = get_diffusivity_from_msd(mscd, dt, smoothed)
             diffusivity_components = np.zeros(3)
             diffusivity_components_std_dev = np.zeros(3)
-            for i in range(3):
-                diffusivity_components[i], diffusivity_components_std_dev[i] = (
-                    np.array(get_diffusivity_from_msd(msd_components[:, i], dt, smoothed)) * 3
+            for j in range(3):
+                diffusivity_components[j], diffusivity_components_std_dev[j] = (
+                    np.array(get_diffusivity_from_msd(msd_components[:, j], dt, smoothed)) * 3
                 )
             self.diffusivity_components = diffusivity_components
             self.diffusivity_components_std_dev = diffusivity_components_std_dev
@@ -344,15 +343,16 @@ class DiffusionAnalyzer(MSONable):
                 ) = get_diffusivity_from_msd(msd_c_range, dt, smoothed)
                 diffusivity_c_range_components = np.zeros(3)
                 diffusivity_c_range_components_std_dev = np.zeros(3)
-                (
-                    diffusivity_c_range_components[i],
-                    diffusivity_c_range_components_std_dev[i],
-                ) = np.array(get_diffusivity_from_msd(msd_c_range_components[:, i], dt, smoothed)) * 3
+                for j in range(3):
+                    (
+                        diffusivity_c_range_components[j],
+                        diffusivity_c_range_components_std_dev[j],
+                    ) = np.array(get_diffusivity_from_msd(msd_c_range_components[:, j], dt, smoothed)) * 3
 
                 self.diffusivity_c_range_components = diffusivity_c_range_components
                 self.diffusivity_c_range_components_std_dev = diffusivity_c_range_components_std_dev
 
-                n_specie_c_range = np.average([len(i) for i in indices_c_range])
+                n_specie_c_range = np.average([len(j) for j in indices_c_range])
                 vol_c_range = np.sum([max(min(upper, 1), 0) - max(min(lower, 1), 0) for (upper, lower) in c_ranges])
                 n_density_c_range = n_specie_c_range / vol_c_range
                 conv_factor_c_range = conv_factor / len(indices) * n_density_c_range
@@ -544,7 +544,7 @@ class DiffusionAnalyzer(MSONable):
             plt.plot(plot_dt, self.msd_components[:, 2], "b")
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
 
-        plt.xlabel(f"Timestep ({unit})")
+        plt.set_xlabel(f"Timestep ({unit})")
         if mode == "mscd":
             plt.set_ylabel("MSCD ($\\AA^2$)")
         else:
@@ -627,9 +627,8 @@ class DiffusionAnalyzer(MSONable):
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         p, lattices = [], []
-        for i, s in enumerate(structures):
-            if i == 0:
-                structure = s
+        structure = structures[0]
+        for s in structures:
             p.append(np.array(s.frac_coords)[:, None])
             lattices.append(s.lattice.matrix)
         if initial_structure is not None:
@@ -691,12 +690,12 @@ class DiffusionAnalyzer(MSONable):
         """
 
         def get_structures(vaspruns):
+            step_skip = vaspruns[0].ionic_step_skip or 1
+            final_structure = vaspruns[0].initial_structure
+            temperature = vaspruns[0].parameters["TEEND"]
+            time_step = vaspruns[0].parameters["POTIM"]
             for i, vr in enumerate(vaspruns):
                 if i == 0:
-                    step_skip = vr.ionic_step_skip or 1
-                    final_structure = vr.initial_structure
-                    temperature = vr.parameters["TEEND"]
-                    time_step = vr.parameters["POTIM"]
                     yield step_skip, temperature, time_step
                 # check that the runs are continuous
                 fdist = pbc_diff(vr.initial_structure.frac_coords, final_structure.frac_coords)

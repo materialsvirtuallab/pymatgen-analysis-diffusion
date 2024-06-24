@@ -1,9 +1,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-RDF implementation.
-"""
+"""RDF implementation."""
+
 from __future__ import annotations
 
 from collections import Counter
@@ -93,11 +92,7 @@ class RadialDistributionFunction:
         self.rho = rho  # This is the average density
 
         for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices):
-            dcf = (
-                fcoords[:, None, None, :]
-                + images[None, None, :, :]
-                - ref_fcoords[None, :, None, :]
-            )
+            dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
             d2 = np.sum(dcc**2, axis=3)
             dists = [
@@ -127,18 +122,14 @@ class RadialDistributionFunction:
             )
 
             # additional dr factor renormalises overlapping gaussians.
-            raw_rdf[indx] += (
-                dn / float(len(reference_indices)) / ff / rho / len(fcoords_list)
-            )
+            raw_rdf[indx] += dn / float(len(reference_indices)) / ff / rho / len(fcoords_list)
 
         self.structures = structures
         self.cell_range = cell_range
         self.rmax = rmax
         self.ngrid = ngrid
         self.species = {structures[0][i].species_string for i in indices}
-        self.reference_species = {
-            structures[0][i].species_string for i in reference_indices
-        }
+        self.reference_species = {structures[0][i].species_string for i in reference_indices}
         self.indices = indices
         self.reference_indices = reference_indices
         self.dr = dr
@@ -180,15 +171,9 @@ class RadialDistributionFunction:
                 eg: species=["H"], reference_species=["O"] to compute
                     O-H pair distribution in a water MD simulation.
         """
-        indices = [
-            j for j, site in enumerate(structures[0]) if site.specie.symbol in species
-        ]
+        indices = [j for j, site in enumerate(structures[0]) if site.specie.symbol in species]
         if reference_species:
-            reference_indices = [
-                j
-                for j, site in enumerate(structures[0])
-                if site.specie.symbol in reference_species
-            ]
+            reference_indices = [j for j, site in enumerate(structures[0]) if site.specie.symbol in reference_species]
 
             if len(reference_indices) < 1:
                 raise ValueError("Given reference species are not in the structure!")
@@ -208,21 +193,14 @@ class RadialDistributionFunction:
     @property
     def coordination_number(self):
         """
-        returns running coordination number
+        returns running coordination number.
 
         Returns:
             numpy array
         """
         # Note: The average density from all input structures is used here.
         intervals = np.append(self.interval, self.interval[-1] + self.dr)
-        return np.cumsum(
-            self.raw_rdf
-            * self.rho
-            * 4.0
-            / 3.0
-            * np.pi
-            * (intervals[1:] ** 3 - intervals[:-1] ** 3)
-        )
+        return np.cumsum(self.raw_rdf * self.rho * 4.0 / 3.0 * np.pi * (intervals[1:] ** 3 - intervals[:-1] ** 3))
 
     def get_rdf_plot(
         self,
@@ -262,8 +240,8 @@ class RadialDistributionFunction:
                 label="Peaks",
             )
 
-        plt.xlabel("$r$ ($\\rm\\AA$)")
-        plt.ylabel("$g(r)$")
+        plt.set_xlabel("$r$ ($\\rm\\AA$)")
+        plt.set_ylabel("$g(r)$")
         plt.legend(loc="upper right", fontsize=36)
         plt.xlim(xlim[0], xlim[1])
         plt.ylim(ylim[0], ylim[1])
@@ -294,9 +272,7 @@ class RadialDistributionFunction:
 
 
 class RadialDistributionFunctionFast:
-    """
-    Fast radial distribution analysis.
-    """
+    """Fast radial distribution analysis."""
 
     def __init__(
         self,
@@ -364,9 +340,7 @@ class RadialDistributionFunctionFast:
         self.neighbor_elements = [elements[i] for i in self.neighbor_indices]
         self.density = [{}] * len(self.structures)  # type: list[dict]
 
-        self.natoms = [
-            i.composition.to_data_dict["unit_cell_composition"] for i in self.structures
-        ]
+        self.natoms = [i.composition.to_data_dict["unit_cell_composition"] for i in self.structures]
 
         for s_index, natoms in enumerate(self.natoms):
             for i, j in natoms.items():
@@ -379,7 +353,7 @@ class RadialDistributionFunctionFast:
 
     def _dist_to_counts(self, d):
         """
-        Convert a distance array for counts in the bin
+        Convert a distance array for counts in the bin.
 
         Args:
             d: (1D np.array)
@@ -388,9 +362,7 @@ class RadialDistributionFunctionFast:
             1D array of counts in the bins centered on self.r
         """
         counts = np.zeros((self.ngrid,))
-        indices = np.array(
-            np.floor((d - self.rmin + 0.5 * self.dr) / self.dr), dtype=int
-        )
+        indices = np.array(np.floor((d - self.rmin + 0.5 * self.dr) / self.dr), dtype=int)
 
         unique, val_counts = np.unique(indices, return_counts=True)
         counts[unique] = val_counts
@@ -409,22 +381,18 @@ class RadialDistributionFunctionFast:
             species (list of species or just single specie str): the species that we are interested in.
                 The rdfs are calculated on these species.
             is_average (bool): whether to take the average over
-                all structures
+                all structures.
 
         Returns:
             (x, rdf) x is the radial points, and rdf is the rdf value.
         """
         if self.n_jobs > 1:
             all_rdfs = Parallel(n_jobs=self.n_jobs)(
-                self.get_one_rdf(ref_species, species, i)
-                for i in range(self.n_structures)
+                self.get_one_rdf(ref_species, species, i) for i in range(self.n_structures)
             )
             all_rdfs = [i[1] for i in all_rdfs]
         else:
-            all_rdfs = [
-                self.get_one_rdf(ref_species, species, i)[1]
-                for i in range(self.n_structures)
-            ]
+            all_rdfs = [self.get_one_rdf(ref_species, species, i)[1] for i in range(self.n_structures)]
         if is_average:
             all_rdfs = np.mean(all_rdfs, axis=0)
         return self.r, all_rdfs
@@ -437,7 +405,7 @@ class RadialDistributionFunctionFast:
     ):
         """
         Get the RDF for one structure, indicated by the index of the structure
-        in all structures
+        in all structures.
 
         Args:
             ref_species (list of species or just single specie str): the reference species.
@@ -474,7 +442,7 @@ class RadialDistributionFunctionFast:
 
     def get_coordination_number(self, ref_species, species, is_average=True):
         """
-        returns running coordination number
+        returns running coordination number.
 
         Args:
             ref_species (list of species or just single specie str): the reference species.
@@ -491,10 +459,7 @@ class RadialDistributionFunctionFast:
         if isinstance(species, str):
             species = [species]
         density = [sum(i[j] for j in species) for i in self.density]
-        cn = [
-            np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr)
-            for i, rdf in enumerate(all_rdf)
-        ]
+        cn = [np.cumsum(rdf * density[i] * 4.0 * np.pi * self.r**2 * self.dr) for i, rdf in enumerate(all_rdf)]
         if is_average:
             cn = np.mean(cn, axis=0)
         return self.r, cn
@@ -502,7 +467,7 @@ class RadialDistributionFunctionFast:
 
 def _get_neighbor_list(structure, r) -> tuple:
     """
-    Thin wrapper to enable parallel calculations
+    Thin wrapper to enable parallel calculations.
 
     Args:
         structure (pymatgen Structure): pymatgen structure
