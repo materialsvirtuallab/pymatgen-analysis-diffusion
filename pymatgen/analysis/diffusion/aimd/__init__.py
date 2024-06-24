@@ -1,3 +1,1 @@
-"""
-Modules for AIMD simulation analysis.
-"""
+"""Modules for AIMD simulation analysis."""
