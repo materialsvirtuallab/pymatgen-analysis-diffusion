@@ -530,8 +530,8 @@ class ChargeBarrierGraph(MigrationGraph):
         aa, bb, cc = map(_shift_grid, [aa, bb, cc])
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")
         dist_from_pos = self.potential_field.structure.lattice.get_all_distances(
-            fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
-            fcoords2=pos_frac,
+            np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
+            pos_frac,
         )
         return dist_from_pos.reshape(AA.shape)
 
