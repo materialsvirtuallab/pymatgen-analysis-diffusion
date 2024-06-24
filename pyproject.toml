@@ -57,11 +57,11 @@ dependencies = [
 version = "2023.8.15"
 
 [project.urls]
-Homepage = "https://pymatgen.org"
-Documentation = "https://pymatgen.org"
-Repository = "https://github.com/materialsproject/pymatgen"
-Issues = "https://github.com/materialsproject/pymatgen/issues"
-Pypi = "https://pypi.org/project/pymatgen"
+Homepage = "http://materialsvirtuallab.github.io/pymatgen-analysis-diffusion/"
+Documentation = "http://materialsvirtuallab.github.io/pymatgen-analysis-diffusion/"
+Repository = "https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion"
+Issues = "https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion/issues"
+Pypi = "https://pypi.org/project/pymatgen-analysis-diffusion"
 
 [project.optional-dependencies]
 ase = ["ase>=3.23.0"]
