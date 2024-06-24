@@ -235,7 +235,7 @@ class MigrationGraph(MSONable):
             symprec:  symmetry parameter for SpacegroupAnalyzer
             ltol: Fractional length tolerance for StructureMatcher
             stol: Site tolerance for StructureMatcher
-            angle_tol: Angle tolerance fro StructureMatcher and SpacegroupAnalyzer
+            angle_tol: Angle tolerance for StructureMatcher and SpacegroupAnalyzer
             only_single_cat: If True, only use single cation insertions so the
             site energy is more accurate use_strict_tol: halve the ltol and
             stol parameter for more strict matching.
@@ -353,21 +353,22 @@ class MigrationGraph(MSONable):
         for _u, _v, d in self.m_graph.graph.edges(data=True):
             if d["hop_label"] == target_label:
                 d.update(data)
-                if m_hop is not None:
-                    # Try to override the data.
-                    if not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
+                # Try to override the data.
+                if (
+                    m_hop is not None
+                    and not m_hop.symm_structure.spacegroup.are_symmetrically_equivalent(
                         [m_hop.isite], [d["hop"].isite]
-                    ):
-                        # "The data going to this edge needs to be flipped"
-                        for k in data:
-                            if isinstance(data[k], (np.ndarray, np.generic)):
-                                raise Warning(
-                                    "The data provided will only be flipped "
-                                    "if it a list"
-                                )
-                            if not isinstance(data[k], list):
-                                continue
-                            d[k] = d[k][::-1]  # flip the data in the array
+                    )
+                ):
+                    # "The data going to this edge needs to be flipped"
+                    for k in data:
+                        if isinstance(data[k], (np.ndarray, np.generic)):
+                            raise Warning(
+                                "The data provided will only be flipped if it a list"
+                            )
+                        if not isinstance(data[k], list):
+                            continue
+                        d[k] = d[k][::-1]  # flip the data in the array
 
     def assign_cost_to_graph(self, cost_keys=None):
         """
@@ -509,7 +510,7 @@ class ChargeBarrierGraph(MigrationGraph):
     ):
         """
         Construct the MigrationGraph object using a VolumetricData object.
-        The graph is constructure using the structure, and cost values are assigned based on charge density analysis.
+        The graph is constructed using the structure, and cost values are assigned based on charge density analysis.
         Args:
             potential_field: Input VolumetricData object that describes the field does
                 not have to contains all the metastable sites.
@@ -523,7 +524,7 @@ class ChargeBarrierGraph(MigrationGraph):
         self._setup_grids()
 
     def _setup_grids(self):
-        """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
+        """Populate the internal variables used for defining the grid points in the charge density analysis"""
 
         # set up the grid
         aa = np.linspace(
@@ -649,13 +650,13 @@ class ChargeBarrierGraph(MigrationGraph):
         Calculate the amount of charge that a migrating ion has to move through in order to complete a hop
         Args:
             migration_hop: MigrationHop object that represents a given hop
-            mask_file_seedname(string): seedname for output of the migration path masks (for debugging and
+            mask_file_seedname(string): seed name for output of the migration path masks (for debugging and
                 visualization) (Default value = None)
         Returns:
             float: The total charge density in a tube that connects two sites of a given edges of the graph
         """
         try:
-            self._tube_radius
+            _ = self._tube_radius
         except NameError:
             logger.warning(
                 "The radius of the tubes for charge analysis need to be defined first."
@@ -918,12 +919,14 @@ def almost(a, b):
 def check_uc_hop(sc_hop, uc_hop):
     """
     See if hop in the 2X2X2 supercell and a unit cell hop
-    are equilvalent under lattice translation
+    are equivalent under lattice translation
+
     Args:
         sc_hop: MigrationHop object form pymatgen-diffusion.
         uc_hop: MigrationHop object form pymatgen-diffusion.
+
     Return:
-        image vector of lenght 3
+        image vector of length 3
         Is the UC hop flip of the SC hop
     """
 

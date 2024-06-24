@@ -45,7 +45,3 @@ class RDFTest(unittest.TestCase):
             structures=[structure], rmax=5.0, sigma=0.01, ngrid=500
         )
         assert np.round(rdf.get_coordination_number("S", "S")[1][110], 2) == 6.0
-
-
-if __name__ == "__main__":
-    unittest.main()

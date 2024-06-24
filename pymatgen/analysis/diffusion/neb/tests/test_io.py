@@ -190,7 +190,3 @@ class UtilityTest(unittest.TestCase):
 
         self.assertAlmostEqual(max(distances), 6.3461081051543893, 7)
         assert min(distances) == 0.0
-
-
-if __name__ == "__main__":
-    unittest.main()

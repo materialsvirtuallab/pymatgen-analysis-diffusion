@@ -205,7 +205,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.chg_conductivity, 1.06440821953e-09, 4)
 
             # Can't average over 2000 steps because this is a 1000-step run.
-            self.assertRaises(
+            self.assertRaises(  # noqa: PT027
                 ValueError,
                 DiffusionAnalyzer,
                 d.structure,
@@ -427,7 +427,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.chg_conductivity, 554.5240271992852, 6)
 
             # Can't average over 2000 steps because this is a 1000-step run.
-            self.assertRaises(
+            self.assertRaises(  # noqa: PT027
                 ValueError,
                 DiffusionAnalyzer,
                 d.structure,
