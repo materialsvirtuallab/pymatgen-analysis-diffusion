@@ -1,11 +1,9 @@
-# Copyright (c) Materials Virtual Lab.
-# Distributed under the terms of the BSD License.
-
 """
 This module implements clustering algorithms to determine centroids, with
 adaption for periodic boundary conditions. This can be used, for example, to
 determine likely atomic positions from MD trajectories.
 """
+
 from __future__ import annotations
 
 import random
@@ -24,9 +22,7 @@ __date__ = "3/18/15"
 
 
 class Kmeans:
-    """
-    Simple kmeans clustering.
-    """
+    """Simple kmeans clustering."""
 
     def __init__(self, max_iterations: int = 1000):
         """

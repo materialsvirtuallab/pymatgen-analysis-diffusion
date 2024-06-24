@@ -9,9 +9,10 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
+from __future__ import annotations
 
-import sys
 import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -21,7 +22,7 @@ sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen_diffusion"))
 sys.path.insert(0, os.path.dirname("../.."))
 
-from pymatgen.analysis.diffusion import __version__, __author__
+from pymatgen.analysis.diffusion import __author__, __version__
 
 # -- General configuration -----------------------------------------------------
 

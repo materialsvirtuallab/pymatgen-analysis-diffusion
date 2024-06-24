@@ -77,7 +77,6 @@ class VanHoveAnalysis:
                 will be selected for the analysis. If this is given, "species"
                 parameter will be ignored.
         """
-
         # initial check
         if step_skip <= 0:
             raise ValueError("skip_step should be >=1!")
@@ -221,7 +220,6 @@ class VanHoveAnalysis:
         Plot 3D self-part or distinct-part of van Hove function, which is
         specified by the input argument 'type'.
         """
-
         assert mode in ["distinct", "self"]
 
         if mode == "distinct":
@@ -514,7 +512,6 @@ class EvolutionAnalyzer:
         implement in the future.
 
         Args:
-
             df (pandas.DataFrame): input DataFrame object, index is the radial
                 distance in Angstrom, and column is the time step in ps.
             x_label (str): x label
@@ -573,6 +570,7 @@ class EvolutionAnalyzer:
                 cmocean.cm.thermal is recommended
             df (DataFrame): external data, index is the radial distance in
                 Angstrom, and column is the time step in ps.
+
         Returns:
             matplotlib.axes._subplots.AxesSubplot object
         """
@@ -599,6 +597,7 @@ class EvolutionAnalyzer:
             cmap (color map): the color map used in heat map.
             df (DataFrame): external data, index is the atomic distance in
                          Angstrom, and column is the time step in ps.
+
         Returns:
             matplotlib.axes._subplots.AxesSubplot object
         """

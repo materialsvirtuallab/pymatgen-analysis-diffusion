@@ -19,10 +19,7 @@ import scipy.stats
 from monty.json import MSONable
 from scipy.interpolate import interp1d
 
-from pymatgen.analysis.diffusion.utils.supercells import (
-    get_sc_fromstruct,
-    get_start_end_structures,
-)
+from pymatgen.analysis.diffusion.utils.supercells import get_sc_fromstruct, get_start_end_structures
 from pymatgen.core import PeriodicSite, Site, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.io.vasp.inputs import Poscar
@@ -51,7 +48,6 @@ class IDPPSolver:
             structures (list of pmg_structure) : Initial guess of the NEB path
                 (including initial and final end-point structures).
         """
-
         latt = structures[0].lattice
         natoms = structures[0].num_sites
         nimages = len(structures) - 2
@@ -139,7 +135,6 @@ class IDPPSolver:
         Returns:
             [Structure] Complete IDPP path (including end-point structures)
         """
-
         coords = self.init_coords.copy()
         old_funcs = np.zeros((self.nimages,), dtype=np.float64)
         idpp_structures = [self.structures[0]]
@@ -283,6 +278,7 @@ class IDPPSolver:
     def get_unit_vector(vec):
         """
         Calculate the unit vector of a vector.
+
         Args:
             vec: Vector.
         """
@@ -295,7 +291,6 @@ class IDPPSolver:
         tangent. Note that the spring force is the modified version in the
         literature (e.g. Henkelman et al., J. Chem. Phys. 113, 9901 (2000)).
         """
-
         total_forces = []
         natoms = np.shape(true_forces)[1]
 

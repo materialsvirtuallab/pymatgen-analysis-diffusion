@@ -29,6 +29,7 @@ def _get_adjacency_with_images(G: Graph) -> dict:
     Return an adjacency dictionary with properly oriented "to_image" values.
     Note: the current implementation assumes that the original
     "to_jimage" value always corresponds to a an edge u -> v where u <= v.
+
     Returns:
         dict: Nested dictionary with [start][end][edge_key][data_field]
     """
@@ -79,11 +80,11 @@ def periodic_dijkstra(
         target_reached (callable, optional): A function of (site_index, jimage) used to check
             for stop iteration. This function is always called on the top of heap so it might miss the optimal path but
             often can find a "good enough" path very quickly.
+
     Returns:
         best_ans: a dictionary of the best cost found to periodic node keyed by (site_index, jimage)
         path_parent: dictionary of optimal path parent for each node given in index-image pairs.
     """
-
     conn_dict = _get_adjacency_with_images(G.to_undirected())
 
     # use a default dict since we don't know how far out to search
@@ -138,6 +139,7 @@ def periodic_dijkstra_on_sgraph(
         target_reached (callable, optional): A function of (site_index, jimage) used to check
             for stop iteration. This function is always called on the top of heap so it might miss the optimal path but
             often can find a "good enough" path very quickly.
+
     Returns:
         best_ans: a dictionary of the best cost found to periodic node keyed by (site_index, jimage)
         path_parent: dictionary of optimal path parent for each node given in index-image pairs.

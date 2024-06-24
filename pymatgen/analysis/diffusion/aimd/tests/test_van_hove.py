@@ -16,11 +16,7 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 
-from pymatgen.analysis.diffusion.aimd.van_hove import (
-    EvolutionAnalyzer,
-    RadialDistributionFunction,
-    VanHoveAnalysis,
-)
+from pymatgen.analysis.diffusion.aimd.van_hove import EvolutionAnalyzer, RadialDistributionFunction, VanHoveAnalysis
 
 mpl.use("pdf")
 tests_dir = os.path.dirname(os.path.abspath(__file__))

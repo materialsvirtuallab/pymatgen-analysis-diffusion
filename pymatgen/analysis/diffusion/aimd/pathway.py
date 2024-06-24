@@ -1,9 +1,5 @@
-# Copyright (c) Materials Virtual Lab.
-# Distributed under the terms of the BSD License.
+"""Algorithms for diffusion pathway analysis."""
 
-"""
- Algorithms for diffusion pathway analysis
-"""
 from __future__ import annotations
 
 import itertools
@@ -16,6 +12,8 @@ from scipy.spatial.distance import squareform
 
 class ProbabilityDensityAnalysis:
     r"""
+    Probability density analysis class.
+
     Compute the time-averaged probability density distribution of selected
     species on a "uniform" (in terms of fractional coordinates) 3-D grid.
     Note that \int_{\Omega}d^3rP(r) = 1
@@ -30,6 +28,7 @@ class ProbabilityDensityAnalysis:
     def __init__(self, structure, trajectories, interval=0.5, species=("Li", "Na")):
         """
         Initialization.
+
         Args:
             structure (Structure): crystal structure
             trajectories (numpy array): ionic trajectories of the structure
@@ -40,7 +39,6 @@ class ProbabilityDensityAnalysis:
                 (in Angstrom)
             species(list of str): list of species that are of interest
         """
-
         # initial settings
         trajectories = np.array(trajectories)
 
@@ -179,7 +177,6 @@ class ProbabilityDensityAnalysis:
             The set of stable sites is stored in the `stable_sites` attribute
             as a Nx3 numpy array.
         """
-
         # Set of grid points with high probability density.
         grid_fcoords = []
         indices = np.where(self.Pr > self.Pr.max() * p_ratio)
@@ -236,7 +233,6 @@ class ProbabilityDensityAnalysis:
         Generate the structure with the low-energy sites included. In the end, a
         pymatgen Structure object will be returned.
         """
-
         full_structure = self.structure.copy()
         for fcoord in self.stable_sites:
             full_structure.append("X", fcoord)
@@ -248,7 +244,6 @@ class ProbabilityDensityAnalysis:
         Save the probability density distribution in the format of CHGCAR,
         which can be visualized by VESTA.
         """
-
         count = 1
         VolinAu = self.structure.lattice.volume / 0.5291772083**3
         syms = [site.specie.symbol for site in self.structure]
@@ -319,7 +314,6 @@ class SiteOccupancyAnalyzer:
                 simulation. Note that the coordinates are fractional.
             species(list of str): list of species that are of interest.
         """
-
         lattice = structure.lattice
         coords_ref = np.array(coords_ref)
         trajectories = np.array(trajectories)
@@ -369,7 +363,6 @@ class SiteOccupancyAnalyzer:
                 pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer object
             species(list of str): list of species that are of interest.
         """
-
         trajectories = []
 
         # Initial structure.

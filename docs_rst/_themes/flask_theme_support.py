@@ -1,7 +1,21 @@
 # flasky extensions.  flasky pygments style based on tango style
+from __future__ import annotations
+
 from pygments.style import Style
-from pygments.token import Keyword, Name, Comment, String, Error, \
-     Number, Operator, Generic, Whitespace, Punctuation, Other, Literal
+from pygments.token import (
+    Comment,
+    Error,
+    Generic,
+    Keyword,
+    Literal,
+    Name,
+    Number,
+    Operator,
+    Other,
+    Punctuation,
+    String,
+    Whitespace,
+)
 
 
 class FlaskyStyle(Style):

@@ -51,7 +51,6 @@ class RadialDistributionFunction:
             reference_indices ([int]): set this option along with 'indices'
                 parameter to compute radial distribution function.
         """
-
         if ngrid < 2:
             raise ValueError("ngrid should be greater than 1!")
         if sigma <= 0:
@@ -241,7 +240,6 @@ class RadialDistributionFunction:
             ylim (list): Set the y limits of the current axes.
             loc_peak (bool): Label peaks if True.
         """
-
         if label is None:
             symbol_list = [e.symbol for e in self.structures[0].composition]
             symbol_list = [symbol for symbol in symbol_list if symbol in self.species]
@@ -385,6 +383,7 @@ class RadialDistributionFunctionFast:
 
         Args:
             d: (1D np.array)
+
         Returns:
             1D array of counts in the bins centered on self.r
         """

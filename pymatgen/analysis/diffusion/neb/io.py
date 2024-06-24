@@ -98,7 +98,6 @@ def get_endpoints_from_index(structure, site_indices):
         endpoints (list of Structure): a two-element list of two endpoints
                                         Structure object.
     """
-
     if len(site_indices) != 2 or len(set(site_indices)) != 2:
         raise ValueError("Invalid indices!")
     if structure[site_indices[0]].specie != structure[site_indices[1]].specie:
@@ -129,9 +128,11 @@ def get_endpoint_dist(ep_0, ep_1):
     """
     Calculate a list of site distances between two endpoints, assuming periodic
     boundary conditions.
+
     Args:
         ep_0 (Structure): the first endpoint structure.
         ep_1 (Structure): the second endpoint structure.
+
     Returns:
         dist (list): a list of distances between two structures.
     """

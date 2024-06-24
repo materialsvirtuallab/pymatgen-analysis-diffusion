@@ -44,7 +44,6 @@ def get_entries_from_dbs(
         migrating_ion: The name of the migrating ion
         material_ids list with topotactic structures
     """
-
     with structure_group_store as store:
         sg_doc = store.query_one({structure_group_store.key: material_id})
     ignored_species = migrating_ion
