@@ -466,7 +466,7 @@ class DiffusionAnalyzer(MSONable):
         if self.lattices is not None and len(self.lattices) > 1:
             warnings.warn("Note the method doesn't apply to NPT-AIMD simulation analysis!")
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
         f = (matching_s or self.structure).copy()
         f.remove_species([self.specie])
@@ -492,13 +492,12 @@ class DiffusionAnalyzer(MSONable):
             plot_dt = np.linspace(0, max_dt, len(rms))
             unit = "fs"
         rms = np.array(rms)
-        plt.plot(plot_dt, rms[:, 0], label="RMS")
-        plt.plot(plot_dt, rms[:, 1], label="max")
-        plt.legend(loc="best")
-        plt.set_xlabel(f"Timestep ({unit})")
-        plt.set_ylabel("normalized distance")
-        plt.tight_layout()
-        return plt
+        ax.plot(plot_dt, rms[:, 0], label="RMS")
+        ax.plot(plot_dt, rms[:, 1], label="max")
+        ax.legend(loc="best")
+        ax.set_xlabel(f"Timestep ({unit})")
+        ax.set_ylabel("normalized distance")
+        return ax
 
     def get_msd_plot(self, mode="specie"):
         """
@@ -506,15 +505,13 @@ class DiffusionAnalyzer(MSONable):
         checking convergence. This can be written to an image file.
 
         Args:
-            plt: A plot object. Defaults to None, which means one will be
-                generated.
             mode (str): Determines type of msd plot. By "species", "sites",
                 or direction (default). If mode = "mscd", the smoothed mscd vs.
                 time will be plotted.
         """
         from pymatgen.util.plotting import pretty_plot
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         if np.max(self.dt) > 100000:
             plot_dt = self.dt / 1000
             unit = "ps"
@@ -526,31 +523,30 @@ class DiffusionAnalyzer(MSONable):
             for sp in sorted(self.structure.composition.keys()):
                 indices = [i for i, site in enumerate(self.structure) if site.specie == sp]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
-                plt.plot(plot_dt, sd, label=str(sp))
-            plt.legend(loc=2, prop={"size": 20})
+                ax.plot(plot_dt, sd, label=str(sp))
+            ax.legend(loc=2, prop={"size": 20})
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label=f"{site.specie!s} - {i}")
-            plt.legend(loc=2, prop={"size": 20})
+                ax.plot(plot_dt, sd, label=f"{site.specie!s} - {i}")
+            ax.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
-            plt.plot(plot_dt, self.mscd, "r")
-            plt.legend(["Overall"], loc=2, prop={"size": 20})
+            ax.plot(plot_dt, self.mscd, "r")
+            ax.legend(["Overall"], loc=2, prop={"size": 20})
         else:
             # Handle default / invalid mode case
-            plt.plot(plot_dt, self.msd, "k")
-            plt.plot(plot_dt, self.msd_components[:, 0], "r")
-            plt.plot(plot_dt, self.msd_components[:, 1], "g")
-            plt.plot(plot_dt, self.msd_components[:, 2], "b")
-            plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
+            ax.plot(plot_dt, self.msd, "k")
+            ax.plot(plot_dt, self.msd_components[:, 0], "r")
+            ax.plot(plot_dt, self.msd_components[:, 1], "g")
+            ax.plot(plot_dt, self.msd_components[:, 2], "b")
+            ax.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
 
-        plt.set_xlabel(f"Timestep ({unit})")
+        ax.set_xlabel(f"Timestep ({unit})")
         if mode == "mscd":
-            plt.set_ylabel("MSCD ($\\AA^2$)")
+            ax.set_ylabel("MSCD ($\\AA^2$)")
         else:
-            plt.set_ylabel("MSD ($\\AA^2$)")
-        plt.tight_layout()
-        return plt
+            ax.set_ylabel("MSD ($\\AA^2$)")
+        return ax
 
     def plot_msd(self, mode="default"):
         """
@@ -998,23 +994,23 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:
-        A matplotlib.pyplot object. Do plt.show() to show the plot.
+        A matplotlib.Axes object. Do ax.show() to show the plot.
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting import pretty_plot
 
-    plt = pretty_plot(12, 8)
+    ax = pretty_plot(12, 8)
 
     # log10 of the arrhenius fit
     arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
 
-    plt.plot(t_1, diffusivities, "ko", t_1, arr, "k--", markersize=10, **kwargs)
+    ax.plot(t_1, diffusivities, "ko", t_1, arr, "k--", markersize=10, **kwargs)
     if diffusivity_errors is not None:
         n = len(diffusivity_errors)
-        plt.errorbar(
+        ax.errorbar(
             t_1[0:n],
             diffusivities[0:n],
             yerr=diffusivity_errors,
@@ -1023,16 +1019,14 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
             capthick=2,
             linewidth=2,
         )
-    ax = plt.axes()
     ax.set_yscale("log")
-    plt.text(
+    ax.text(
         0.6,
         0.85,
         f"E$_a$ = {(Ea * 1000):.0f} meV",
         fontsize=30,
-        transform=plt.axes().transAxes,
+        transform=ax.transAxes,
     )
-    plt.set_ylabel("D (cm$^2$/s)")
-    plt.set_xlabel("1000/T (K$^{-1}$)")
-    plt.tight_layout()
-    return plt
+    ax.set_ylabel("D (cm$^2$/s)")
+    ax.set_xlabel("1000/T (K$^{-1}$)")
+    return ax

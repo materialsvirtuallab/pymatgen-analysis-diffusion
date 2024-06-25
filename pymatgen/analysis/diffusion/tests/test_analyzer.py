@@ -7,11 +7,17 @@ import json
 import os
 import random
 
+import matplotlib as mpl
 import numpy as np
 import pytest
 import scipy.constants as const
 
-from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer, fit_arrhenius, get_conversion_factor
+from pymatgen.analysis.diffusion.analyzer import (
+    DiffusionAnalyzer,
+    fit_arrhenius,
+    get_arrhenius_plot,
+    get_conversion_factor,
+)
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
@@ -42,6 +48,9 @@ class FuncTest(PymatgenTest):
         self.assertAlmostEqual(r2[0], 0)
         self.assertAlmostEqual(r2[1], 10)
         assert r2[2] is None
+
+        ax = get_arrhenius_plot(temps, diffusivities)
+        assert isinstance(ax, mpl.axes.Axes)
 
 
 class DiffusionAnalyzerTest(PymatgenTest):
@@ -462,3 +471,6 @@ class DiffusionAnalyzerTest(PymatgenTest):
             smoothed=None,
         )
         assert d.disp[1] == pytest.approx(np.array([[0.0, 0.0, 0.0], [0.21, 0.21, 0.21], [0.40, 0.40, 0.40]]))
+
+        ax = d.get_msd_plot()
+        assert isinstance(ax, mpl.axes.Axes)

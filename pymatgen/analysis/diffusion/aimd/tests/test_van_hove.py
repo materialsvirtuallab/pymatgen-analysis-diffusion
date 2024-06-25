@@ -41,6 +41,8 @@ class VanHoveTest(unittest.TestCase):
         assert check
         self.assertAlmostEqual(vh.gsrt[0, 0], 3.98942280401, 10)
         self.assertAlmostEqual(vh.gdrt[10, 0], 9.68574868168, 10)
+        ax = vh.get_1d_plot()
+        assert isinstance(ax, mpl.axes.Axes)
 
 
 class RDFTest(unittest.TestCase):
@@ -182,3 +184,6 @@ class EvolutionAnalyzerTest(unittest.TestCase):
         check = np.shape(rdf) == (10, 101) and np.shape(atom_dist) == (10, 101) and ("Na", "Na") in eva.pairs
         assert check
         self.assertAlmostEqual(max(np.array(rdf)[0]), 1.772465, 4)
+
+        ax = eva.plot_rdf_evolution(("Na", "Na"))
+        assert isinstance(ax, mpl.axes.Axes)

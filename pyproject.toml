@@ -52,9 +52,11 @@ classifiers = [
 dependencies = [
     'numpy>=1.25.0,<3.0',
     "pymatgen>=2024.6.10",
-    "joblib"
+    "joblib",
+    "ase",
+    "seaborn"
 ]
-version = "2024.6.24"
+version = "2024.6.25.1"
 
 [project.urls]
 Homepage = "http://materialsvirtuallab.github.io/pymatgen-analysis-diffusion/"
@@ -64,17 +66,11 @@ Issues = "https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion/iss
 Pypi = "https://pypi.org/project/pymatgen-analysis-diffusion"
 
 [project.optional-dependencies]
-ase = ["ase>=3.23.0"]
-# don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
-tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
-vis = ["vtk>=6.0.0"]
-abinit = ["netcdf4>=1.6.5"]
-mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
-electronic_structure = ["fdint>=2.0.2"]
 ci = [
     "pytest>=8",
     "pytest-cov>=4",
     "pytest-split>=0.8",
+    "maggma"
 ]
 docs = [
     "sphinx",
@@ -84,7 +80,7 @@ docs = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["pymatgen.analysis.*"]
+include = ["pymatgen.*"]
 
 
 [tool.ruff]
@@ -154,7 +150,7 @@ lint.isort.split-on-trailing-comma = false
 
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings"
 
 [tool.coverage.run]
 branch = true

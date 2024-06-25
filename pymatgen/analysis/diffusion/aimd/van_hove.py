@@ -202,6 +202,13 @@ class VanHoveAnalysis:
         """
         Plot 3D self-part or distinct-part of van Hove function, which is
         specified by the input argument 'type'.
+
+        Args:
+            figsize (tuple): fig size in inches.
+            mode (str): 'distinct' or 'both'.
+
+        Returns:
+            matplotlib.axes._subplots.Axes: axes object.
         """
         assert mode in ["distinct", "self"]
 
@@ -226,19 +233,20 @@ class VanHoveAnalysis:
         plt.xticks(fontsize=ticksize)
         plt.yticks(fontsize=ticksize)
 
+        ax = plt.gca()
+
         labelsize = int(figsize[0] * 3)
 
-        plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
-        plt.set_xlabel("Time (ps)", size=labelsize)
-        plt.set_ylabel(r"$r$ ($\AA$)", size=labelsize)
-        plt.axis([x.min(), x.max(), y.min(), y.max()])
+        ax.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
+        ax.set_xlabel("Time (ps)", size=labelsize)
+        ax.set_ylabel(r"$r$ ($\AA$)", size=labelsize)
+        ax.axis([x.min(), x.max(), y.min(), y.max()])
 
         cbar = plt.colorbar(ticks=cb_ticks)
         cbar.set_label(label=cb_label, size=labelsize)
         cbar.ax.tick_params(labelsize=ticksize)
-        plt.tight_layout()
 
-        return plt
+        return ax
 
     def get_1d_plot(
         self,
@@ -255,6 +263,9 @@ class VanHoveAnalysis:
                             function will be plotted.
             colors (list strings/tuples): Additional color settings. If not set,
                             seaborn.color_plaette("Set1", 10) will be used.
+
+        Returns:
+            matplotlib.axes._subplots.Axes: axes object.
         """
         if times is None:
             times = [0.0]
@@ -275,23 +286,22 @@ class VanHoveAnalysis:
             ylabel = r"4$\pi r^2G_s$($t$,$r$)"
             ylim = [-0.005, 1.0]
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         for i, time in enumerate(times):
             index = int(np.round(time / self.timeskip))
             index = min(index, np.shape(grt)[0] - 1)
             new_time = index * self.timeskip
             label = str(new_time) + " ps"
-            plt.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
+            ax.plot(self.interval, grt[index], color=colors[i], label=label, linewidth=4.0)
 
-        plt.set_xlabel(r"$r$ ($\AA$)")
-        plt.set_ylabel(ylabel)
-        plt.legend(loc="upper right", fontsize=36)
-        plt.xlim(0.0, self.interval[-1] - 1.0)
-        plt.ylim(ylim[0], ylim[1])
-        plt.tight_layout()
+        ax.set_xlabel(r"$r$ ($\AA$)")
+        ax.set_ylabel(ylabel)
+        ax.legend(loc="upper right", fontsize=36)
+        ax.set_xlim(0.0, self.interval[-1] - 1.0)
+        ax.set_ylim(ylim[0], ylim[1])
 
-        return plt
+        return ax
 
 
 class EvolutionAnalyzer:
@@ -517,13 +527,12 @@ class EvolutionAnalyzer:
 
         plt.xticks(rotation="horizontal")
 
-        plt.set_xlabel(x_label, fontsize=30)
-        plt.set_ylabel("Time (ps)", fontsize=30)
+        ax.set_xlabel(x_label, fontsize=30)
+        ax.set_ylabel("Time (ps)", fontsize=30)
 
         plt.yticks(rotation="horizontal")
-        plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_rdf_evolution(
         self,
