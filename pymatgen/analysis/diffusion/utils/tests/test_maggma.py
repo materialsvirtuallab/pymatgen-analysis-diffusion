@@ -20,9 +20,7 @@ __date__ = "April 10, 2019"
 def maggma_stores():
     return {
         "sgroups": JSONStore(f"{dir_path}/maggma_sgroup_store.json", key="group_id"),
-        "materials": JSONStore(
-            f"{dir_path}/maggma_materials_store.json", key="material_id"
-        ),
+        "materials": JSONStore(f"{dir_path}/maggma_materials_store.json", key="material_id"),
     }
 
 

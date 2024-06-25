@@ -45,11 +45,7 @@ class Kmeans:
             provide the index for each point, and ss in the final sum squared
             distances.
         """
-        centroids = (
-            np.array(random.sample(list(points), k))
-            if initial_centroids is None
-            else initial_centroids
-        )
+        centroids = np.array(random.sample(list(points), k)) if initial_centroids is None else initial_centroids
 
         # Initialize book keeping vars.
         iterations = 0
@@ -173,9 +169,7 @@ class KmeansPBC(Kmeans):
             if len(ind) > 0:
                 c = np.zeros(n)
                 for j in ind:
-                    dist, image = self.lattice.get_distance_and_image(
-                        centroids[i], points[j]
-                    )
+                    dist, image = self.lattice.get_distance_and_image(centroids[i], points[j])
                     c += points[j] + image
                 c /= len(ind)
                 c = np.mod(c, 1)
@@ -199,10 +193,7 @@ class KmeansPBC(Kmeans):
             return True
         if old_centroids is None:
             return False
-        return all(
-            np.allclose(pbc_diff(c1, c2), [0, 0, 0])
-            for c1, c2 in zip(old_centroids, centroids)
-        )
+        return all(np.allclose(pbc_diff(c1, c2), [0, 0, 0]) for c1, c2 in zip(old_centroids, centroids))
 
 
 def get_random_centroid(points):
