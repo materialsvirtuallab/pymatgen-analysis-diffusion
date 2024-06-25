@@ -52,7 +52,9 @@ classifiers = [
 dependencies = [
     'numpy>=1.25.0,<2.0',
     "pymatgen>=2024.6.10",
-    "joblib"
+    "joblib",
+    "ase",
+    "seaborn"
 ]
 version = "2024.6.24"
 
@@ -64,13 +66,6 @@ Issues = "https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion/iss
 Pypi = "https://pypi.org/project/pymatgen-analysis-diffusion"
 
 [project.optional-dependencies]
-ase = ["ase>=3.23.0"]
-# don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
-tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
-vis = ["vtk>=6.0.0"]
-abinit = ["netcdf4>=1.6.5"]
-mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
-electronic_structure = ["fdint>=2.0.2"]
 ci = [
     "pytest>=8",
     "pytest-cov>=4",
