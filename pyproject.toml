@@ -50,7 +50,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    'numpy>=1.25.0,<2.0',
+    'numpy>=1.25.0,<3.0',
     "pymatgen>=2024.6.10",
     "joblib"
 ]
