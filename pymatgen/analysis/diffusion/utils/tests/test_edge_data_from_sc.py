@@ -26,12 +26,8 @@ mg_uc_full_sites = Structure.from_file(f"{test_dir}/test_files/Mg3VOPO4_uc.vasp"
 mg_input_struct_i = Structure.from_file(f"{test_dir}/test_files/Mg3VOPO4_sc_i.vasp")
 mg_input_struct_e = Structure.from_file(f"{test_dir}/test_files/Mg3VOPO4_sc_e.vasp")
 
-mg_Li = MigrationGraph.with_distance(
-    structure=uc_full_sites, migrating_specie="Li", max_distance=5
-)
-mg_Mg = MigrationGraph.with_distance(
-    structure=mg_uc_full_sites, migrating_specie="Mg", max_distance=4
-)
+mg_Li = MigrationGraph.with_distance(structure=uc_full_sites, migrating_specie="Li", max_distance=5)
+mg_Mg = MigrationGraph.with_distance(structure=mg_uc_full_sites, migrating_specie="Mg", max_distance=4)
 
 
 def test_add_edge_data_from_sc():
@@ -72,9 +68,7 @@ def test_get_uc_pos():
     isite = next(x for x in input_struct_i.sites if x.species_string == "Li")
     esite = next(x for x in input_struct_e.sites if x.species_string == "Li")
     sm = StructureMatcher(
-        ignored_species=[
-            next(iter(mg_Li.m_graph.graph.edges(data=True)))[2]["hop"].isite.specie.name
-        ]
+        ignored_species=[next(iter(mg_Li.m_graph.graph.edges(data=True)))[2]["hop"].isite.specie.name]
     )
     wi_specie = mg_Li.symm_structure[-1].specie
 
@@ -132,6 +126,5 @@ def test_get_unique_host_nonhost():
         )
 
     assert exc_info.value.args[0] == (
-        "No symmetrically equivalent site was found for [0.53593472 "
-        "2.8352428  4.54752366] Mg"
+        "No symmetrically equivalent site was found for [0.53593472 " "2.8352428  4.54752366] Mg"
     )

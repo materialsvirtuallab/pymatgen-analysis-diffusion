@@ -27,14 +27,10 @@ def get_path(path_str, dirname="./"):
 
 class IDPPSolverTest(unittest.TestCase):
     init_struct = Structure.from_file(get_path("CONTCAR-0", dirname="pathfinder_files"))
-    final_struct = Structure.from_file(
-        get_path("CONTCAR-1", dirname="pathfinder_files")
-    )
+    final_struct = Structure.from_file(get_path("CONTCAR-1", dirname="pathfinder_files"))
 
     def test_idpp_from_ep(self):
-        obj = IDPPSolver.from_endpoints(
-            [self.init_struct, self.final_struct], nimages=3, sort_tol=1.0
-        )
+        obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct], nimages=3, sort_tol=1.0)
         new_path = obj.run(
             maxiter=5000,
             tol=1e-5,
@@ -47,21 +43,11 @@ class IDPPSolverTest(unittest.TestCase):
 
         assert len(new_path) == 5
         assert new_path[1].num_sites == 111
-        assert np.allclose(
-            new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964])
-        )
-        assert np.allclose(
-            new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])
-        )
-        assert np.allclose(
-            new_path[2][10].frac_coords, np.array([0.50113915, 0.74958704, 0.75147021])
-        )
-        assert np.allclose(
-            new_path[3][22].frac_coords, np.array([0.28422885, 0.62568764, 0.98975444])
-        )
-        assert np.allclose(
-            new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006])
-        )
+        assert np.allclose(new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964]))
+        assert np.allclose(new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066]))
+        assert np.allclose(new_path[2][10].frac_coords, np.array([0.50113915, 0.74958704, 0.75147021]))
+        assert np.allclose(new_path[3][22].frac_coords, np.array([0.28422885, 0.62568764, 0.98975444]))
+        assert np.allclose(new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006]))
 
     def test_idpp_from_ep_diff_latt(self):
         # This is the same test as test_idpp_from_ep where we want to interpolate
@@ -93,21 +79,11 @@ class IDPPSolverTest(unittest.TestCase):
         # For checking coords, the endpoints will have the same frac coords as the
         # original test, whereas the midpoints will not have altered coord because
         # of the differing lattice.
-        assert np.allclose(
-            new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964])
-        )
-        assert np.allclose(
-            new_path[1][0].frac_coords, np.array([0.47483465, 0.6740367, 0.26270862])
-        )
-        assert np.allclose(
-            new_path[2][10].frac_coords, np.array([0.48839604, 0.73135841, 0.73315875])
-        )
-        assert np.allclose(
-            new_path[3][22].frac_coords, np.array([0.27395552, 0.60307242, 0.95398018])
-        )
-        assert np.allclose(
-            new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006])
-        )
+        assert np.allclose(new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964]))
+        assert np.allclose(new_path[1][0].frac_coords, np.array([0.47483465, 0.6740367, 0.26270862]))
+        assert np.allclose(new_path[2][10].frac_coords, np.array([0.48839604, 0.73135841, 0.73315875]))
+        assert np.allclose(new_path[3][22].frac_coords, np.array([0.27395552, 0.60307242, 0.95398018]))
+        assert np.allclose(new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006]))
 
         # ensure the lattices are interpolated
         assert np.allclose(
@@ -162,9 +138,7 @@ class IDPPSolverTest(unittest.TestCase):
         )
 
     def test_idpp(self):
-        images = self.init_struct.interpolate(
-            self.final_struct, nimages=4, autosort_tol=1.0
-        )
+        images = self.init_struct.interpolate(self.final_struct, nimages=4, autosort_tol=1.0)
         obj = IDPPSolver(images)
         new_path = obj.run(
             maxiter=5000,
@@ -178,15 +152,9 @@ class IDPPSolverTest(unittest.TestCase):
 
         assert len(new_path) == 5
         assert new_path[1].num_sites == 111
-        assert np.allclose(
-            new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964])
-        )
-        assert np.allclose(
-            new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066])
-        )
-        assert np.allclose(
-            new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006])
-        )
+        assert np.allclose(new_path[0][2].frac_coords, np.array([0.50000014, 0.99999998, 0.74999964]))
+        assert np.allclose(new_path[1][0].frac_coords, np.array([0.482439, 0.68264727, 0.26525066]))
+        assert np.allclose(new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006]))
 
 
 class DistinctPathFinderTest(PymatgenTest):
@@ -246,9 +214,7 @@ class DistinctPathFinderTest(PymatgenTest):
 class MigrationHopTest(PymatgenTest):
     def setUp(self):
         self.lifepo = self.get_structure("LiFePO4")
-        m_graph = MigrationGraph.with_distance(
-            self.lifepo, max_distance=4.0, migrating_specie="Li"
-        )
+        m_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
         gen = iter(m_graph.m_graph.graph.edges(data=True))
         u, v, d = next(gen)
         i_site = PeriodicSite("Li", coords=d["ipos"], lattice=self.lifepo.lattice)
