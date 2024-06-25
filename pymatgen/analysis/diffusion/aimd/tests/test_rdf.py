@@ -24,9 +24,7 @@ class RDFTest(unittest.TestCase):
                 break
 
         # Test from_species
-        obj = RadialDistributionFunctionFast(
-            structures=structure_list, ngrid=101, rmax=10.0, sigma=0.1
-        )
+        obj = RadialDistributionFunctionFast(structures=structure_list, ngrid=101, rmax=10.0, sigma=0.1)
 
         r, s_na_rdf = obj.get_rdf("S", "Na")
         assert s_na_rdf.shape == (101,)
@@ -37,11 +35,7 @@ class RDFTest(unittest.TestCase):
         # create a simple cubic lattice
         coords = np.array([[0.5, 0.5, 0.5]])
         atom_list = ["S"]
-        lattice = Lattice.from_parameters(
-            a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90
-        )
+        lattice = Lattice.from_parameters(a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90)
         structure = Structure(lattice, atom_list, coords)
-        rdf = RadialDistributionFunctionFast(
-            structures=[structure], rmax=5.0, sigma=0.01, ngrid=500
-        )
+        rdf = RadialDistributionFunctionFast(structures=[structure], rmax=5.0, sigma=0.01, ngrid=500)
         assert np.round(rdf.get_coordination_number("S", "S")[1][110], 2) == 6.0

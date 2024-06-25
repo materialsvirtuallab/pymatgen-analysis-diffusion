@@ -45,9 +45,7 @@ class KmeansPBCTest(unittest.TestCase):
         initial = [[0, 0, 0], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25], [0.5, 0, 0]]
         for c in initial:
             for _i in range(100):
-                pts.append(
-                    np.array(c) + np.random.randn(3) * 0.01 + np.random.randint(3)
-                )
+                pts.append(np.array(c) + np.random.randn(3) * 0.01 + np.random.randint(3))
         pts = np.array(pts)
         k = KmeansPBC(lattice)
         centroids, labels, ss = k.cluster(pts, 4)
