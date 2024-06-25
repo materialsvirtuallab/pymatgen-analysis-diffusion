@@ -224,11 +224,11 @@ class RadialDistributionFunction:
 
             label = symbol_list[0] if len(symbol_list) == 1 else "-".join(symbol_list)
 
-        plt = pretty_plot(12, 8)
-        plt.plot(self.interval, self.rdf, label=label, linewidth=4.0, zorder=1)
+        ax = pretty_plot(12, 8)
+        ax.plot(self.interval, self.rdf, label=label, linewidth=4.0, zorder=1)
 
         if loc_peak:
-            plt.scatter(
+            ax.scatter(
                 self.peak_r,
                 self.peak_rdf,
                 marker="P",
@@ -240,14 +240,13 @@ class RadialDistributionFunction:
                 label="Peaks",
             )
 
-        plt.set_xlabel("$r$ ($\\rm\\AA$)")
-        plt.set_ylabel("$g(r)$")
-        plt.legend(loc="upper right", fontsize=36)
-        plt.xlim(xlim[0], xlim[1])
-        plt.ylim(ylim[0], ylim[1])
-        plt.tight_layout()
+        ax.set_xlabel("$r$ ($\\rm\\AA$)")
+        ax.set_ylabel("$g(r)$")
+        ax.legend(loc="upper right", fontsize=36)
+        ax.set_xlim(xlim[0], xlim[1])
+        ax.set_ylim(ylim[0], ylim[1])
 
-        return plt
+        return ax
 
     def export_rdf(self, filename: str):
         """

@@ -84,7 +84,7 @@ docs = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["pymatgen.analysis.*"]
+include = ["pymatgen.analysis.diffusion.*"]
 
 
 [tool.ruff]
@@ -154,7 +154,7 @@ lint.isort.split-on-trailing-comma = false
 
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings"
 
 [tool.coverage.run]
 branch = true
