@@ -18,16 +18,21 @@ from __future__ import annotations
 
 import multiprocessing
 import warnings
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import scipy.constants as const
 from monty.json import MSONable
+from scipy.optimize import curve_fit
 
 from pymatgen.analysis.structure_matcher import OrderDisorderElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord import pbc_diff
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
@@ -861,7 +866,12 @@ def _get_vasprun(args):
     return Vasprun(args[0], ionic_step_skip=args[1], parse_dos=False, parse_eigen=False)
 
 
-def fit_arrhenius(temps, diffusivities):
+def fit_arrhenius(
+    temps: Sequence[float],
+    diffusivities: Sequence[float],
+    mode: Literal["linear", "exp"] = "linear",
+    diffusivity_errors: Sequence[float] | None = None,
+) -> tuple[float, float, float | None]:
     """
     Returns Ea, c, standard error of Ea from the Arrhenius fit.
         D = c * exp(-Ea/kT).
@@ -870,16 +880,35 @@ def fit_arrhenius(temps, diffusivities):
         temps ([float]): A sequence of temperatures. units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
+        mode (str): The fitting mode. Supported modes are:
+                i. "linear" (default), which fits ln(D) vs 1/T.
+                ii. "exp", which fits D vs T.
+            Hint: Use "exp" with diffusivity errors if the errors are
+            not homoscadastic in the linear representation. Avoid using
+            "exp" without errors.
+        diffusivity_errors ([float]): A sequence of absolute errors in diffusivities. units: cm^2/s
     """
-    t_1 = 1 / np.array(temps)
-    logd = np.log(diffusivities)
-    # Do a least squares regression of log(D) vs 1/T
-    a = np.array([t_1, np.ones(len(temps))]).T
-    w, res, _, _ = np.linalg.lstsq(a, logd, rcond=None)
-    w = np.array(w)
-    n = len(temps)
-    std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e if n > 2 else None
-    return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
+    if mode not in ["linear", "exp"]:
+        raise ValueError("Mode must be 'linear' or 'exp'.")
+    if mode == "linear":
+        t_1 = 1 / np.array(temps)
+        # Do a least squares regression of log(D) vs 1/T
+        a = np.array([t_1, np.ones(len(temps))]).T
+        w, res, _, _ = np.linalg.lstsq(a, np.log(diffusivities), rcond=None)
+        w = np.array(w)
+        n = len(temps)
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e if n > 2 else None
+        return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
+    if mode == "exp":
+
+        def arrhenius(t, Ea, c):
+            return c * np.exp(-Ea / (const.k / const.e * t))
+
+        guess = fit_arrhenius(temps, diffusivities, mode="linear")[0:2]  # Use linear fit to get initial guess
+
+        popt, pcov = curve_fit(arrhenius, temps, diffusivities, guess, diffusivity_errors)
+        return popt[0], popt[1], pcov[0, 0] ** 0.5
+    return None
 
 
 def get_diffusivity_from_msd(msd, dt, smoothed="max"):
@@ -943,7 +972,7 @@ def get_diffusivity_from_msd(msd, dt, smoothed="max"):
     return diffusivity, diffusivity_std_dev
 
 
-def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
+def get_extrapolated_diffusivity(temps, diffusivities, new_temp, mode: Literal["linear", "exp"] = "linear"):
     """
     Returns (Arrhenius) extrapolated diffusivity at new_temp.
 
@@ -952,11 +981,12 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
+        mode (str): The fitting mode. See fit_arrhenius for details.
 
     Returns:
         (float) Diffusivity at extrapolated temp in cm^2/s.
     """
-    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities, mode)
     return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
@@ -980,7 +1010,14 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, spe
     )
 
 
-def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
+def get_arrhenius_plot(
+    temps,
+    diffusivities,
+    diffusivity_errors=None,
+    mode: Literal["linear", "exp"] = "linear",
+    unit: Literal["eV", "meV"] = "meV",
+    **kwargs,
+):
     r"""
     Returns an Arrhenius plot.
 
@@ -990,28 +1027,32 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
             from DiffusionAnalyzer.diffusivity).
         diffusivity_errors ([float]): A sequence of errors for the
             diffusivities. If None, no error bar is plotted.
+        mode (str): The fitting mode. See fit_arrhenius for details.
+        unit (str): The unit for the activation energy. Supported units are
+            "eV" and "meV".
         **kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:
         A matplotlib.Axes object. Do ax.show() to show the plot.
     """
-    Ea, c, _ = fit_arrhenius(temps, diffusivities)
+    Ea, c, _ = fit_arrhenius(temps, diffusivities, mode, diffusivity_errors)
 
     from pymatgen.util.plotting import pretty_plot
 
     ax = pretty_plot(12, 8)
 
     # log10 of the arrhenius fit
-    arr = c * np.exp(-Ea / (const.k / const.e * np.array(temps)))
+    t = np.linspace(min(temps), max(temps), 100) if mode == "exp" else np.array(temps)
+    arr = c * np.exp(-Ea / (const.k / const.e * t))
 
-    t_1 = 1000 / np.array(temps)
+    x = 1000 / np.array(temps) if mode == "linear" else np.array(temps)
 
-    ax.plot(t_1, diffusivities, "ko", t_1, arr, "k--", markersize=10, **kwargs)
+    _ = ax.plot(x, diffusivities, "ko", x if mode == "linear" else t, arr, "k--", markersize=10, **kwargs)
     if diffusivity_errors is not None:
         n = len(diffusivity_errors)
         ax.errorbar(
-            t_1[0:n],
+            x[0:n],
             diffusivities[0:n],
             yerr=diffusivity_errors,
             fmt="ko",
@@ -1019,14 +1060,14 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
             capthick=2,
             linewidth=2,
         )
-    ax.set_yscale("log")
+    ax.set_yscale("log") if mode == "linear" else None
     ax.text(
-        0.6,
+        0.6 if mode == "linear" else 0.1,
         0.85,
-        f"E$_a$ = {(Ea * 1000):.0f} meV",
+        f"E$_a$ = {(Ea * 1000):.0f} meV" if unit == "meV" else f"E$_a$ = {Ea:.2f} eV",
         fontsize=30,
         transform=ax.transAxes,
     )
     ax.set_ylabel("D (cm$^2$/s)")
-    ax.set_xlabel("1000/T (K$^{-1}$)")
+    ax.set_xlabel("1000/T (K$^{-1}$)" if mode == "linear" else "T (K)")
     return ax

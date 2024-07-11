@@ -38,10 +38,16 @@ class FuncTest(PymatgenTest):
         temps = np.array([300, 1000, 500])
         diffusivities = c * np.exp(-Ea / (k * temps))
         diffusivities *= np.array([1.00601834013, 1.00803236262, 0.98609720824])
+
         r = fit_arrhenius(temps, diffusivities)
         self.assertAlmostEqual(r[0], Ea)
         self.assertAlmostEqual(r[1], c)
         self.assertAlmostEqual(r[2], 0.000895566)
+
+        r = fit_arrhenius(temps, diffusivities, mode="exp", diffusivity_errors=diffusivities * 0.01)
+        self.assertAlmostEqual(r[0], Ea, 5)
+        self.assertAlmostEqual(r[1], c, 2)
+        self.assertAlmostEqual(r[2], 0.000904815)
 
         # when not enough values for error estimate
         r2 = fit_arrhenius([1, 2], [10, 10])
@@ -51,6 +57,11 @@ class FuncTest(PymatgenTest):
 
         ax = get_arrhenius_plot(temps, diffusivities)
         assert isinstance(ax, mpl.axes.Axes)
+
+        ax = get_arrhenius_plot(temps, diffusivities, mode="exp", diffusivity_errors=diffusivities * 0.01, unit="eV")
+        assert isinstance(ax, mpl.axes.Axes)
+        assert ax.get_xlabel() == "T (K)"
+        assert ax.get_ylabel() == "D (cm$^2$/s)"
 
 
 class DiffusionAnalyzerTest(PymatgenTest):
