@@ -1,9 +1,8 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Function to add edge data to MigrationGraph through 2 SC structures
-"""
+"""Function to add edge data to MigrationGraph through 2 SC structures."""
+
 from __future__ import annotations
 
 __author__ = "Haoming Li"
@@ -16,13 +15,8 @@ import logging
 
 import numpy as np
 
-from pymatgen.analysis.diffusion.neb.full_path_mapper import (
-    MigrationGraph,
-    MigrationHop,
-)
-from pymatgen.analysis.diffusion.utils.parse_entries import (
-    get_matched_structure_mapping,
-)
+from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph, MigrationHop
+from pymatgen.analysis.diffusion.utils.parse_entries import get_matched_structure_mapping
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import PeriodicSite, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -44,12 +38,12 @@ def add_edge_data_from_sc(
     supercell structures.
 
     Args:
+        mg: MigrationGraph object.
         i_sc: Supercell structure containing working ion at initial position
         e_sc: Supercell structure containing working ion at ending position
         data_array: The data to be added to the edges
         key: Key of the edge attribute to be added
-        use_host_sg: Flag t whether or not to use the host structure's spacegroup to
-            initiate MigrationHop
+        use_host_sg: Flag whether to use the host structure's spacegroup to initiate MigrationHop
 
     Returns:
         None
@@ -58,9 +52,7 @@ def add_edge_data_from_sc(
     i_wi = [x for x in i_sc.sites if x.species_string == wi]
     e_wi = [x for x in e_sc.sites if x.species_string == wi]
     if len(i_wi) != 1 or len(e_wi) != 1:
-        raise ValueError(
-            "The number of working ions in each supercell structure should be one"
-        )
+        raise ValueError("The number of working ions in each supercell structure should be one")
     isite, esite = i_wi[0], e_wi[0]
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, use_host_sg)
     add_dict = {key: data_array}
@@ -79,7 +71,7 @@ def get_uc_pos(
     sc: Structure,
     sm: StructureMatcher,
 ) -> tuple[PeriodicSite, PeriodicSite, PeriodicSite]:
-    """Take positions in the supercell and transform into the unit cell positions
+    """Take positions in the supercell and transform into the unit cell positions.
 
     Args:
         isite: initial site in the SC
@@ -93,10 +85,7 @@ def get_uc_pos(
     """
     mapping = get_matched_structure_mapping(base=uc, inserted=sc, sm=sm)
     if mapping is None:
-        raise ValueError(
-            "Cannot obtain inverse mapping, consider lowering tolerances "
-            "in StructureMatcher"
-        )
+        raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances " "in StructureMatcher")
     sc_m, total_t = mapping
     sc_ipos = isite.frac_coords
     sc_ipos_t = sc_ipos - total_t
@@ -131,9 +120,7 @@ def get_uc_pos(
 
 def _get_first_close_site(frac_coord, structure, stol=0.1):
     for site in structure.sites:
-        dist, image = structure.lattice.get_distance_and_image(
-            frac_coord, site.frac_coords
-        )
+        dist, image = structure.lattice.get_distance_and_image(frac_coord, site.frac_coords)
         if dist < stol:
             return np.add(site.frac_coords, image)
     return frac_coord
@@ -141,7 +128,7 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
 
 def mh_eq(mh1, mh2):
     """
-    Allow for symmetric matching of MigrationPath objects with variable precession
+    Allow for symmetric matching of MigrationPath objects with variable precession.
 
     Args:
         mh1: MigrationHop object
@@ -161,7 +148,7 @@ def get_unique_hop(
     esite: PeriodicSite,
     use_host_sg: bool = True,
 ) -> tuple[int, MigrationHop]:
-    """Get the unique hop label that correspond to two end positions in the SC
+    """Get the unique hop label that correspond to two end positions in the SC.
 
     Args:
         mg: Object containing the migration analysis
@@ -174,16 +161,10 @@ def get_unique_hop(
     Returns:
         The index of the unique hop, the MigrationHop object transformed from the SC
     """
-    sm = StructureMatcher(
-        ignored_species=[
-            next(iter(mg.m_graph.graph.edges(data=True)))[2]["hop"].isite.specie.name
-        ]
-    )
+    sm = StructureMatcher(ignored_species=[next(iter(mg.m_graph.graph.edges(data=True)))[2]["hop"].isite.specie.name])
     uc_isite, uc_msite, uc_esite = get_uc_pos(isite, esite, mg.symm_structure, sc, sm)
     if use_host_sg:
-        base_ss = SpacegroupAnalyzer(
-            mg.host_structure, symprec=mg.symprec
-        ).get_symmetrized_structure()
+        base_ss = SpacegroupAnalyzer(mg.host_structure, symprec=mg.symprec).get_symmetrized_structure()
         mh_from_sc = MigrationHop(
             uc_isite,
             uc_esite,
@@ -192,9 +173,7 @@ def get_unique_hop(
             symprec=mg.symprec,
         )
     else:
-        mh_from_sc = MigrationHop(
-            uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=mg.symprec
-        )
+        mh_from_sc = MigrationHop(uc_isite, uc_esite, symm_structure=mg.symm_structure, symprec=mg.symprec)
     result = []
     for k, v in mg.unique_hops.items():
         # tolerance may be changed here
@@ -206,7 +185,5 @@ def get_unique_hop(
     if len(result) == 0:
         raise ValueError("No matches between UC and SC")
 
-    assert mg.symm_structure.spacegroup.are_symmetrically_equivalent(
-        [uc_msite], [mh_from_sc.msite]
-    )
+    assert mg.symm_structure.spacegroup.are_symmetrically_equivalent([uc_msite], [mh_from_sc.msite])
     return result[0], mh_from_sc

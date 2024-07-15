@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.neb.tests.test_pathfinder &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.neb.tests.test_pathfinder &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=608d49bb"></script>
+    <script src="../../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.tests.test_pathfinder</a></li> 
       </ul>
@@ -57,11 +57,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.pathfinder</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DistinctPathFinder</span><span class="p">,</span>
-    <span class="n">IDPPSolver</span><span class="p">,</span>
-    <span class="n">MigrationHop</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.pathfinder</span> <span class="kn">import</span> <span class="n">DistinctPathFinder</span><span class="p">,</span> <span class="n">IDPPSolver</span><span class="p">,</span> <span class="n">MigrationHop</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.supercells</span> <span class="kn">import</span> <span class="n">get_start_end_structures</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -72,21 +68,24 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 14, 2017&quot;</span>
 
 
-<div class="viewcode-block" id="get_path"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.get_path">[docs]</a><span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="n">path_str</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_path">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.get_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="n">path_str</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">):</span>
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">path_str</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="IDPPSolverTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest">[docs]</a><span class="k">class</span> <span class="nc">IDPPSolverTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="n">init_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;CONTCAR-0&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;pathfinder_files&quot;</span><span class="p">))</span>
-    <span class="n">final_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-        <span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;CONTCAR-1&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;pathfinder_files&quot;</span><span class="p">)</span>
-    <span class="p">)</span>
 
-<div class="viewcode-block" id="IDPPSolverTest.test_idpp_from_ep"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp_from_ep">[docs]</a>    <span class="k">def</span> <span class="nf">test_idpp_from_ep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">IDPPSolver</span><span class="o">.</span><span class="n">from_endpoints</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="p">],</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span>
-        <span class="p">)</span>
+<div class="viewcode-block" id="IDPPSolverTest">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest">[docs]</a>
+<span class="k">class</span> <span class="nc">IDPPSolverTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="n">init_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;CONTCAR-0&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;pathfinder_files&quot;</span><span class="p">))</span>
+    <span class="n">final_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;CONTCAR-1&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;pathfinder_files&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="IDPPSolverTest.test_idpp_from_ep">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp_from_ep">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_idpp_from_ep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">IDPPSolver</span><span class="o">.</span><span class="n">from_endpoints</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="p">],</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
         <span class="n">new_path</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">maxiter</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
             <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
@@ -99,23 +98,16 @@
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
         <span class="k">assert</span> <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">==</span> <span class="mi">111</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.482439</span><span class="p">,</span> <span class="mf">0.68264727</span><span class="p">,</span> <span class="mf">0.26525066</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50113915</span><span class="p">,</span> <span class="mf">0.74958704</span><span class="p">,</span> <span class="mf">0.75147021</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.28422885</span><span class="p">,</span> <span class="mf">0.62568764</span><span class="p">,</span> <span class="mf">0.98975444</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">])</span>
-        <span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.482439</span><span class="p">,</span> <span class="mf">0.68264727</span><span class="p">,</span> <span class="mf">0.26525066</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50113915</span><span class="p">,</span> <span class="mf">0.74958704</span><span class="p">,</span> <span class="mf">0.75147021</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.28422885</span><span class="p">,</span> <span class="mf">0.62568764</span><span class="p">,</span> <span class="mf">0.98975444</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="IDPPSolverTest.test_idpp_from_ep_diff_latt"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp_from_ep_diff_latt">[docs]</a>    <span class="k">def</span> <span class="nf">test_idpp_from_ep_diff_latt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IDPPSolverTest.test_idpp_from_ep_diff_latt">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp_from_ep_diff_latt">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_idpp_from_ep_diff_latt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># This is the same test as test_idpp_from_ep where we want to interpolate</span>
         <span class="c1"># different lattices.</span>
 
@@ -145,21 +137,11 @@
         <span class="c1"># For checking coords, the endpoints will have the same frac coords as the</span>
         <span class="c1"># original test, whereas the midpoints will not have altered coord because</span>
         <span class="c1"># of the differing lattice.</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.47483465</span><span class="p">,</span> <span class="mf">0.6740367</span><span class="p">,</span> <span class="mf">0.26270862</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.48839604</span><span class="p">,</span> <span class="mf">0.73135841</span><span class="p">,</span> <span class="mf">0.73315875</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.27395552</span><span class="p">,</span> <span class="mf">0.60307242</span><span class="p">,</span> <span class="mf">0.95398018</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">])</span>
-        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.47483465</span><span class="p">,</span> <span class="mf">0.6740367</span><span class="p">,</span> <span class="mf">0.26270862</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.48839604</span><span class="p">,</span> <span class="mf">0.73135841</span><span class="p">,</span> <span class="mf">0.73315875</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.27395552</span><span class="p">,</span> <span class="mf">0.60307242</span><span class="p">,</span> <span class="mf">0.95398018</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">]))</span>
 
         <span class="c1"># ensure the lattices are interpolated</span>
         <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
@@ -213,10 +195,11 @@
             <span class="p">),</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="IDPPSolverTest.test_idpp"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp">[docs]</a>    <span class="k">def</span> <span class="nf">test_idpp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mf">1.0</span>
-        <span class="p">)</span>
+
+<div class="viewcode-block" id="IDPPSolverTest.test_idpp">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.IDPPSolverTest.test_idpp">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_idpp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_struct</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_struct</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">IDPPSolver</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
         <span class="n">new_path</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">maxiter</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
@@ -230,19 +213,19 @@
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
         <span class="k">assert</span> <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">==</span> <span class="mi">111</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.482439</span><span class="p">,</span> <span class="mf">0.68264727</span><span class="p">,</span> <span class="mf">0.26525066</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-            <span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">])</span>
-        <span class="p">)</span></div></div>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.50000014</span><span class="p">,</span> <span class="mf">0.99999998</span><span class="p">,</span> <span class="mf">0.74999964</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.482439</span><span class="p">,</span> <span class="mf">0.68264727</span><span class="p">,</span> <span class="mf">0.26525066</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_path</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.59767531</span><span class="p">,</span> <span class="mf">0.12640952</span><span class="p">,</span> <span class="mf">0.37745006</span><span class="p">]))</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DistinctPathFinderTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest">[docs]</a><span class="k">class</span> <span class="nc">DistinctPathFinderTest</span><span class="p">(</span><span class="n">PymatgenTest</span><span class="p">):</span>
-<div class="viewcode-block" id="DistinctPathFinderTest.test_get_paths"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest.test_get_paths">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DistinctPathFinderTest">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest">[docs]</a>
+<span class="k">class</span> <span class="nc">DistinctPathFinderTest</span><span class="p">(</span><span class="n">PymatgenTest</span><span class="p">):</span>
+<div class="viewcode-block" id="DistinctPathFinderTest.test_get_paths">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest.test_get_paths">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;LiFePO4&quot;</span><span class="p">)</span>
         <span class="c1"># Only one path in LiFePO4 with 4 A.</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">DistinctPathFinder</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">max_path_length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -287,20 +270,27 @@
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;pathfindertest_*.cif&quot;</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DistinctPathFinderTest.test_max_path_length"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest.test_max_path_length">[docs]</a>    <span class="k">def</span> <span class="nf">test_max_path_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DistinctPathFinderTest.test_max_path_length">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.DistinctPathFinderTest.test_max_path_length">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_max_path_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;LYPS.cif&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;pathfinder_files&quot;</span><span class="p">))</span>
         <span class="n">dp1</span> <span class="o">=</span> <span class="n">DistinctPathFinder</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">perc_mode</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">dp1</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mf">4.11375354207</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
         <span class="n">dp2</span> <span class="o">=</span> <span class="n">DistinctPathFinder</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">perc_mode</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">dp2</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">dp2</span><span class="o">.</span><span class="n">max_path_length</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="MigrationHopTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest">[docs]</a><span class="k">class</span> <span class="nc">MigrationHopTest</span><span class="p">(</span><span class="n">PymatgenTest</span><span class="p">):</span>
-<div class="viewcode-block" id="MigrationHopTest.setUp"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MigrationHopTest">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest">[docs]</a>
+<span class="k">class</span> <span class="nc">MigrationHopTest</span><span class="p">(</span><span class="n">PymatgenTest</span><span class="p">):</span>
+<div class="viewcode-block" id="MigrationHopTest.setUp">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.setUp">[docs]</a>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;LiFePO4&quot;</span><span class="p">)</span>
-        <span class="n">m_graph</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span>
-        <span class="p">)</span>
+        <span class="n">m_graph</span> <span class="o">=</span> <span class="n">MigrationGraph</span><span class="o">.</span><span class="n">with_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">migrating_specie</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
         <span class="n">gen</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">m_graph</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
         <span class="n">i_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ipos&quot;</span><span class="p">],</span> <span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
@@ -309,11 +299,17 @@
         <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span> <span class="o">=</span> <span class="n">MigrationHop</span><span class="p">(</span><span class="n">i_site</span><span class="p">,</span> <span class="n">e_site</span><span class="p">,</span> <span class="n">symm_structure</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MigrationHopTest.test_msonable"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_msonable">[docs]</a>    <span class="k">def</span> <span class="nf">test_msonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">hop_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">hop_dict</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span></div>
 
-<div class="viewcode-block" id="MigrationHopTest.test_get_start_end_structs_from_hop"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_start_end_structs_from_hop">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_start_end_structs_from_hop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MigrationHopTest.test_msonable">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_msonable">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_msonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hop_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hop_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MigrationHopTest.test_get_start_end_structs_from_hop">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_start_end_structs_from_hop">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_start_end_structs_from_hop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dist_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">length</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lifepo</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">base</span><span class="o">.</span><span class="n">remove_species</span><span class="p">([</span><span class="s2">&quot;Li&quot;</span><span class="p">])</span>
@@ -328,7 +324,10 @@
         <span class="n">end_site</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">start_site</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">end_site</span><span class="p">),</span> <span class="n">dist_ref</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MigrationHopTest.test_get_start_end_structs_from_hop_vac"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_start_end_structs_from_hop_vac">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_start_end_structs_from_hop_vac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MigrationHopTest.test_get_start_end_structs_from_hop_vac">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_start_end_structs_from_hop_vac">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_start_end_structs_from_hop_vac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dist_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">length</span>
         <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">b_sc</span> <span class="o">=</span> <span class="n">get_start_end_structures</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
@@ -351,7 +350,10 @@
         <span class="n">end</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dist_ref</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MigrationHopTest.test_get_sc_structures"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_sc_structures">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_sc_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MigrationHopTest.test_get_sc_structures">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_sc_structures">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_sc_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dist_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">length</span>
         <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">b_sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">get_sc_structures</span><span class="p">(</span><span class="n">vac_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">start_site</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
@@ -360,14 +362,15 @@
         <span class="k">assert</span> <span class="n">b_sc</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe24 P24 O96&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">start_site</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">end_site</span><span class="p">),</span> <span class="n">dist_ref</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MigrationHopTest.test_get_sc_structures_vacmode"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_sc_structures_vacmode">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_sc_structures_vacmode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MigrationHopTest.test_get_sc_structures_vacmode">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.neb.tests.test_pathfinder.html#pymatgen.analysis.diffusion.neb.tests.test_pathfinder.MigrationHopTest.test_get_sc_structures_vacmode">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_sc_structures_vacmode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">b_sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="o">.</span><span class="n">get_sc_structures</span><span class="p">(</span><span class="n">vac_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">start</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span> <span class="n">end</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Li23 Fe24 P24 O96&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">b_sc</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Li24 Fe24 P24 O96&quot;</span><span class="p">)</span></div></div>
+        <span class="k">assert</span> <span class="n">b_sc</span><span class="o">.</span><span class="n">composition</span> <span class="o">==</span> <span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Li24 Fe24 P24 O96&quot;</span><span class="p">)</span></div>
+</div>
 
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 
             <div class="clearer"></div>
@@ -382,7 +385,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
@@ -390,7 +393,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

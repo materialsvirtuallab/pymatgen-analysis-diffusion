@@ -11,10 +11,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.analysis.diffusion.aimd.pathway import (
-    ProbabilityDensityAnalysis,
-    SiteOccupancyAnalyzer,
-)
+from pymatgen.analysis.diffusion.aimd.pathway import ProbabilityDensityAnalysis, SiteOccupancyAnalyzer
 from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 from pymatgen.core import Structure
 from pymatgen.io.vasp import Chgcar
@@ -45,9 +42,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
-        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
-            diffusion_analyzer=diff_analyzer, interval=0.5
-        )
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer, interval=0.5)
         dV = pda.structure.lattice.volume / pda.lens[0] / pda.lens[1] / pda.lens[2]
         Pr_tot = np.sum(pda.Pr) * dV
 
@@ -61,9 +56,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
-        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
-            diffusion_analyzer=diff_analyzer, interval=0.1
-        )
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer, interval=0.1)
         pda.generate_stable_sites(p_ratio=0.25, d_cutoff=1.5)
 
         assert len(pda.stable_sites) == 50
@@ -82,9 +75,7 @@ class ProbabilityDensityTest(unittest.TestCase):
         diff_analyzer = DiffusionAnalyzer.from_dict(data)
 
         # ProbabilityDensityAnalysis object
-        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(
-            diffusion_analyzer=diff_analyzer, interval=0.1
-        )
+        pda = ProbabilityDensityAnalysis.from_diffusion_analyzer(diffusion_analyzer=diff_analyzer, interval=0.1)
         pda.to_chgcar("CHGCAR.PDA")
         chgcar = Chgcar.from_file("CHGCAR.PDA")
         assert pda.structure.species == chgcar.structure.species
@@ -102,9 +93,7 @@ class SiteOccupancyTest(unittest.TestCase):
         coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
         # SiteOccupancyAnalyzer object
-        socc = SiteOccupancyAnalyzer(
-            structure, coords_ref, trajectories, species=("Li", "Na")
-        )
+        socc = SiteOccupancyAnalyzer(structure, coords_ref, trajectories, species=("Li", "Na"))
         site_occ = socc.site_occ
         self.assertAlmostEqual(np.sum(site_occ), len(coords_ref), 12)
         self.assertAlmostEqual(site_occ[11], 0.98, 12)
@@ -120,9 +109,7 @@ class SiteOccupancyTest(unittest.TestCase):
         coords_ref = [ss.frac_coords for ss in structure if ss.specie.symbol == "Na"]
 
         # SiteOccupancyAnalyzer object
-        socc = SiteOccupancyAnalyzer.from_diffusion_analyzer(
-            coords_ref, diffusion_analyzer=diff_analyzer
-        )
+        socc = SiteOccupancyAnalyzer.from_diffusion_analyzer(coords_ref, diffusion_analyzer=diff_analyzer)
         site_occ = socc.site_occ
         self.assertAlmostEqual(np.sum(site_occ), len(coords_ref), 12)
         self.assertAlmostEqual(site_occ[1], 0.98, 12)

@@ -1,3 +1,1 @@
-"""
-Analysis tools for NEB calculations, including pathway analysis.
-"""
+"""Analysis tools for NEB calculations, including pathway analysis."""

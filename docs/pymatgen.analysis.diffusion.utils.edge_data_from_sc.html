@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>pymatgen.analysis.diffusion.utils.edge_data_from_sc module &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.edge_data_from_sc module &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/documentation_options.js?v=608d49bb"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.edge_data_from_sc module</a></li> 
       </ul>
     </div>  
@@ -46,21 +46,23 @@
           <div class="body" role="main">
             
   <section id="module-pymatgen.analysis.diffusion.utils.edge_data_from_sc">
-<span id="pymatgen-analysis-diffusion-utils-edge-data-from-sc-module"></span><h1>pymatgen.analysis.diffusion.utils.edge_data_from_sc module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.edge_data_from_sc" title="Permalink to this heading">¶</a></h1>
-<p>Function to add edge data to MigrationGraph through 2 SC structures</p>
+<span id="pymatgen-analysis-diffusion-utils-edge-data-from-sc-module"></span><h1>pymatgen.analysis.diffusion.utils.edge_data_from_sc module<a class="headerlink" href="#module-pymatgen.analysis.diffusion.utils.edge_data_from_sc" title="Link to this heading">¶</a></h1>
+<p>Function to add edge data to MigrationGraph through 2 SC structures.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.edge_data_from_sc.add_edge_data_from_sc">
-<span class="sig-name descname"><span class="pre">add_edge_data_from_sc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'custom_key'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_host_sg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#add_edge_data_from_sc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.add_edge_data_from_sc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a data entry and key to edges within FullPathMapper object with the same hop_label.
-These hops are equivalent by symmetry to the 2 positions given in the supercell structures.</p>
+<span class="sig-name descname"><span class="pre">add_edge_data_from_sc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'custom_key'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_host_sg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#add_edge_data_from_sc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.add_edge_data_from_sc" title="Link to this definition">¶</a></dt>
+<dd><p>Add a data entry and key to edges within FullPathMapper object with the same
+hop_label. These hops are equivalent by symmetry to the 2 positions given in the
+supercell structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>mg</strong> – MigrationGraph object.</p></li>
 <li><p><strong>i_sc</strong> – Supercell structure containing working ion at initial position</p></li>
 <li><p><strong>e_sc</strong> – Supercell structure containing working ion at ending position</p></li>
 <li><p><strong>data_array</strong> – The data to be added to the edges</p></li>
 <li><p><strong>key</strong> – Key of the edge attribute to be added</p></li>
-<li><p><strong>use_host_sg</strong> – Flag t whether or not to use the host structure’s spacegroup to initiate MigrationHop</p></li>
+<li><p><strong>use_host_sg</strong> – Flag whether to use the host structure’s spacegroup to initiate MigrationHop</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -71,14 +73,14 @@ These hops are equivalent by symmetry to the 2 positions given in the supercell 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_uc_pos">
-<span class="sig-name descname"><span class="pre">get_uc_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.sites.PeriodicSite</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pymatgen.core.sites.PeriodicSite</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pymatgen.core.sites.PeriodicSite</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#get_uc_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_uc_pos" title="Permalink to this definition">¶</a></dt>
-<dd><p>Take positions in the supercel and transform into the unitcell positions</p>
+<span class="sig-name descname"><span class="pre">get_uc_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructureMatcher</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">PeriodicSite</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PeriodicSite</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PeriodicSite</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#get_uc_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_uc_pos" title="Link to this definition">¶</a></dt>
+<dd><p>Take positions in the supercell and transform into the unit cell positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>isite</strong> – initial site in the SC</p></li>
 <li><p><strong>esite</strong> – ending site in the SC</p></li>
-<li><p><strong>uc</strong> – Unit Cell structre</p></li>
+<li><p><strong>uc</strong> – Unit Cell structure</p></li>
 <li><p><strong>sc</strong> – Super Cell structure</p></li>
 <li><p><strong>sm</strong> – StructureMatcher object with the working ion ignored</p></li>
 </ul>
@@ -91,8 +93,8 @@ These hops are equivalent by symmetry to the 2 positions given in the supercell 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_unique_hop">
-<span class="sig-name descname"><span class="pre">get_unique_hop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_host_sg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#get_unique_hop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_unique_hop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the unique hop label that correspond to two end positions in the SC</p>
+<span class="sig-name descname"><span class="pre">get_unique_hop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.analysis.diffusion.neb.full_path_mapper.html#pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph" title="pymatgen.analysis.diffusion.neb.full_path_mapper.MigrationGraph"><span class="pre">MigrationGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PeriodicSite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_host_sg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.diffusion.neb.pathfinder.html#pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop" title="pymatgen.analysis.diffusion.neb.pathfinder.MigrationHop"><span class="pre">MigrationHop</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#get_unique_hop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_unique_hop" title="Link to this definition">¶</a></dt>
+<dd><p>Get the unique hop label that correspond to two end positions in the SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -100,19 +102,20 @@ These hops are equivalent by symmetry to the 2 positions given in the supercell 
 <li><p><strong>sc</strong> – Structure of the supercell used for the NEB calculation</p></li>
 <li><p><strong>isite</strong> – Initial position in the supercell</p></li>
 <li><p><strong>esite</strong> – Final position in the supercell</p></li>
-<li><p><strong>use_host_sg</strong> – Flag t whether or not to use the host structure’s spacegroup to initiate MigrationHop</p></li>
+<li><p><strong>use_host_sg</strong> – Flag t whether or not to use the host structure’s spacegroup to
+initiate MigrationHop</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The index of the unique hop, the MigrationHop object trasformed from the SC</p>
+<dd class="field-even"><p>The index of the unique hop, the MigrationHop object transformed from the SC</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.utils.edge_data_from_sc.mh_eq">
-<span class="sig-name descname"><span class="pre">mh_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mh1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mh2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#mh_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.mh_eq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allow for symmetric matching of MigrationPath objects with variable precession</p>
+<span class="sig-name descname"><span class="pre">mh_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mh1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mh2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/utils/edge_data_from_sc.html#mh_eq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.utils.edge_data_from_sc.mh_eq" title="Link to this definition">¶</a></dt>
+<dd><p>Allow for symmetric matching of MigrationPath objects with variable precession.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -159,7 +162,7 @@ These hops are equivalent by symmetry to the 2 positions given in the supercell 
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -167,7 +170,7 @@ These hops are equivalent by symmetry to the 2 positions given in the supercell 
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.tests.test_parse_entries &#8212; pymatgen-diffusion 2023.8.15 documentation</title>
+    <title>pymatgen.analysis.diffusion.utils.tests.test_parse_entries &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/flasky.css?v=8156beb0" />
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=7d1ab505"></script>
-    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=608d49bb"></script>
+    <script src="../../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
 
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2023.8.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.tests.test_parse_entries</a></li> 
       </ul>
@@ -74,8 +74,12 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 10, 2019&quot;</span>
 
 
-<div class="viewcode-block" id="ParseEntriesTest"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest">[docs]</a><span class="k">class</span> <span class="nc">ParseEntriesTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<div class="viewcode-block" id="ParseEntriesTest.setUp"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParseEntriesTest">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest">[docs]</a>
+<span class="k">class</span> <span class="nc">ParseEntriesTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="ParseEntriesTest.setUp">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.setUp">[docs]</a>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">/parse_entry_test_vars.json&quot;</span><span class="p">)</span>
         <span class="n">struct_uc</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;struct_uc&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;li_ent&quot;</span><span class="p">]</span>
@@ -97,15 +101,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ignored_species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">],</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li1</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li2</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_2Li</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li1</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li2</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_2Li</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_is_valid_inserted_ent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapped_struct</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="kc">True</span>
@@ -118,24 +117,23 @@
                     <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">res</span>
 
-<div class="viewcode-block" id="ParseEntriesTest.test_get_inserted_on_base"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_inserted_on_base">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span>
+<div class="viewcode-block" id="ParseEntriesTest.test_get_inserted_on_base">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_inserted_on_base">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_inserted_ent</span><span class="p">(</span><span class="n">mapped_struct</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">mapped_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;insertion_energy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">5.0</span>
-        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span>
+        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_inserted_ent</span><span class="p">(</span><span class="n">mapped_struct</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">mapped_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;insertion_energy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">7.0</span>
-        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span>
-        <span class="p">)</span>
+        <span class="n">mapped_struct</span> <span class="o">=</span> <span class="n">get_inserted_on_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sm</span><span class="p">)</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_inserted_ent</span><span class="p">(</span><span class="n">mapped_struct</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">mapped_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;insertion_energy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">4.0</span></div>
 
-<div class="viewcode-block" id="ParseEntriesTest.test_process_ents"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_process_ents">[docs]</a>    <span class="k">def</span> <span class="nf">test_process_ents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParseEntriesTest.test_process_ents">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_process_ents">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_process_ents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">base_2_ent</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span>
             <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span> <span class="o">*</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
             <span class="n">energy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span>
@@ -150,45 +148,42 @@
                 <span class="k">if</span> <span class="n">i_insert_site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="n">i_insert_site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;insertion_energy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span></div>
 
-<div class="viewcode-block" id="ParseEntriesTest.test_filter_and_merge"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_filter_and_merge">[docs]</a>    <span class="k">def</span> <span class="nf">test_filter_and_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParseEntriesTest.test_filter_and_merge">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_filter_and_merge">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_filter_and_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">combined_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li1</span><span class="o">.</span><span class="n">sites</span>
-            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li2</span><span class="o">.</span><span class="n">sites</span>
-            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_2Li</span><span class="o">.</span><span class="n">sites</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li1</span><span class="o">.</span><span class="n">sites</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_1Li2</span><span class="o">.</span><span class="n">sites</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_inserted_2Li</span><span class="o">.</span><span class="n">sites</span>
         <span class="p">)</span>
         <span class="n">filtered_struct</span> <span class="o">=</span> <span class="n">_filter_and_merge</span><span class="p">(</span><span class="n">combined_struct</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i_insert_site</span> <span class="ow">in</span> <span class="n">filtered_struct</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">i_insert_site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">i_insert_site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;insertion_energy&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">{</span><span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="ParseEntriesTest.test_get_insertion_energy"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_insertion_energy">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_insertion_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParseEntriesTest.test_get_insertion_energy">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_insertion_energy">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_insertion_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">insert_energy</span> <span class="o">=</span> <span class="n">get_insertion_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">)</span>
-        <span class="n">basex2_</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span>
-            <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">energy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="mi">2</span>
-        <span class="p">)</span>
+        <span class="n">basex2_</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">energy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">insert_energyx2</span> <span class="o">=</span> <span class="n">get_insertion_energy</span><span class="p">(</span><span class="n">basex2_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">insert_energyx2</span><span class="p">,</span> <span class="n">insert_energy</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">insert_energy</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># 3 + 2 where 2 is from the Li energy</span>
         <span class="n">insert_energy</span> <span class="o">=</span> <span class="n">get_insertion_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">li_ent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">insert_energy</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParseEntriesTest.test_get_all_sym_sites"><a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_all_sym_sites">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_all_sym_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">struct11</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span>
-        <span class="p">)</span>
+
+<div class="viewcode-block" id="ParseEntriesTest.test_get_all_sym_sites">
+<a class="viewcode-back" href="../../../../../../pymatgen.analysis.diffusion.utils.tests.test_parse_entries.html#pymatgen.analysis.diffusion.utils.tests.test_parse_entries.ParseEntriesTest.test_get_all_sym_sites">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_get_all_sym_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">struct11</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li1</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">struct11</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span>
-        <span class="n">struct12</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span>
-        <span class="p">)</span>
+        <span class="n">struct12</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_1Li2</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">struct12</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span>
-        <span class="n">struct22</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">struct22</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">8</span></div></div>
+        <span class="n">struct22</span> <span class="o">=</span> <span class="n">get_sym_migration_ion_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inserted_2Li</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">migrating_ion</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">struct22</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">8</span></div>
+</div>
 
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 
             <div class="clearer"></div>
@@ -203,7 +198,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../../search.html" method="get">
@@ -211,7 +206,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
