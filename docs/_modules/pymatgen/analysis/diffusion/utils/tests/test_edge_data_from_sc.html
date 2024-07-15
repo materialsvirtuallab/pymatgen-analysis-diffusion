@@ -93,6 +93,16 @@
         <span class="n">key</span><span class="o">=</span><span class="n">test_key</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="n">test_single_key</span> <span class="o">=</span> <span class="s2">&quot;test_single_key&quot;</span>
+    <span class="n">test_single</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">add_edge_data_from_sc</span><span class="p">(</span>
+        <span class="n">mg_Li</span><span class="p">,</span>
+        <span class="n">i_sc</span><span class="o">=</span><span class="n">input_struct_i</span><span class="p">,</span>
+        <span class="n">e_sc</span><span class="o">=</span><span class="n">input_struct_e</span><span class="p">,</span>
+        <span class="n">data_array</span><span class="o">=</span><span class="n">test_single</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="n">test_single_key</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">edge_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">_u</span><span class="p">,</span> <span class="n">_v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">mg_Li</span><span class="o">.</span><span class="n">m_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">edge_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>

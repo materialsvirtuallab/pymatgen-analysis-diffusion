@@ -78,7 +78,7 @@
     <span class="n">mg</span><span class="p">:</span> <span class="n">MigrationGraph</span><span class="p">,</span>
     <span class="n">i_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
     <span class="n">e_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
-    <span class="n">data_array</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">data_array</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;custom_key&quot;</span><span class="p">,</span>
     <span class="n">use_host_sg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -106,7 +106,10 @@
     <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span> <span class="o">=</span> <span class="n">i_wi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e_wi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">uhop_index</span><span class="p">,</span> <span class="n">mh_from_sc</span> <span class="o">=</span> <span class="n">get_unique_hop</span><span class="p">(</span><span class="n">mg</span><span class="p">,</span> <span class="n">i_sc</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">esite</span><span class="p">,</span> <span class="n">use_host_sg</span><span class="p">)</span>
     <span class="n">add_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">data_array</span><span class="p">}</span>
-    <span class="n">mg</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">target_label</span><span class="o">=</span><span class="n">uhop_index</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">add_dict</span><span class="p">,</span> <span class="n">m_hop</span><span class="o">=</span><span class="n">mh_from_sc</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_array</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">mg</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">target_label</span><span class="o">=</span><span class="n">uhop_index</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">add_dict</span><span class="p">,</span> <span class="n">m_hop</span><span class="o">=</span><span class="n">mh_from_sc</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mg</span><span class="o">.</span><span class="n">add_data_to_similar_edges</span><span class="p">(</span><span class="n">target_label</span><span class="o">=</span><span class="n">uhop_index</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">add_dict</span><span class="p">)</span></div>
 
 
 

@@ -1,10 +1,6 @@
 Change Log
 ==========
 
-v2024.7.15
-----------
-- Exponential fitting mode for Arrhenius fit (@ab5424)
-
 v2024.6.25
 ----------
 * Fix broken code due to pymatgen and matplotlib deprecated methods.

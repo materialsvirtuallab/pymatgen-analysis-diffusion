@@ -74,6 +74,7 @@ def set_ver(ctx):
             )
     with open("pyproject.toml", "w") as f:
         f.write("\n".join(lines))
+        f.write("\n")
 
     ctx.run("ruff format pyproject.toml")
 

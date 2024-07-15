@@ -366,7 +366,7 @@ displacement for diffusing specie).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.fit_arrhenius">
-<span class="sig-name descname"><span class="pre">fit_arrhenius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#fit_arrhenius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.fit_arrhenius" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_arrhenius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'linear'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'exp'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivity_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#fit_arrhenius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.fit_arrhenius" title="Link to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns Ea, c, standard error of Ea from the Arrhenius fit.</dt><dd><p>D = c * exp(-Ea/kT).</p>
 </dd>
@@ -377,6 +377,18 @@ displacement for diffusing specie).</p>
 <li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
 from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – <dl class="simple">
+<dt>The fitting mode. Supported modes are:</dt><dd><ol class="lowerroman simple">
+<li><p>”linear” (default), which fits ln(D) vs 1/T.</p></li>
+<li><p>”exp”, which fits D vs T.</p></li>
+</ol>
+</dd>
+</dl>
+<p>Hint: Use “exp” with diffusivity errors if the errors are
+not homoscadastic in the linear representation. Avoid using
+“exp” without errors.</p>
+</p></li>
+<li><p><strong>diffusivity_errors</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of absolute errors in diffusivities. units: cm^2/s</p></li>
 </ul>
 </dd>
 </dl>
@@ -384,7 +396,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot">
-<span class="sig-name descname"><span class="pre">get_arrhenius_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivity_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_arrhenius_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_arrhenius_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivity_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'linear'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'exp'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'eV'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'meV'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'meV'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_arrhenius_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot" title="Link to this definition">¶</a></dt>
 <dd><p>Returns an Arrhenius plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -394,6 +406,9 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 from DiffusionAnalyzer.diffusivity).</p></li>
 <li><p><strong>diffusivity_errors</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of errors for the
 diffusivities. If None, no error bar is plotted.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – The fitting mode. See fit_arrhenius for details.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – The unit for the activation energy. Supported units are
+“eV” and “meV”.</p></li>
 <li><p><strong>**kwargs</strong> – Any keyword args supported by matplotlib.pyplot.plot.</p></li>
 </ul>
 </dd>
@@ -486,7 +501,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity">
-<span class="sig-name descname"><span class="pre">get_extrapolated_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_temp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_extrapolated_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_extrapolated_diffusivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'linear'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'exp'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/analyzer.html#get_extrapolated_diffusivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity" title="Link to this definition">¶</a></dt>
 <dd><p>Returns (Arrhenius) extrapolated diffusivity at new_temp.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -495,6 +510,7 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
 from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 <li><p><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – The fitting mode. See fit_arrhenius for details.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

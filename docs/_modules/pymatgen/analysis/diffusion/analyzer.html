@@ -66,16 +66,21 @@
 
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">OrderDisorderElementComparator</span><span class="p">,</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Vasprun</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Will Richards, Shyue Ping Ong&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
@@ -950,7 +955,12 @@
 
 <div class="viewcode-block" id="fit_arrhenius">
 <a class="viewcode-back" href="../../../../pymatgen.analysis.diffusion.analyzer.html#pymatgen.analysis.diffusion.analyzer.fit_arrhenius">[docs]</a>
-<span class="k">def</span> <span class="nf">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">fit_arrhenius</span><span class="p">(</span>
+    <span class="n">temps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">diffusivities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">diffusivity_errors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns Ea, c, standard error of Ea from the Arrhenius fit.</span>
 <span class="sd">        D = c * exp(-Ea/kT).</span>
@@ -959,16 +969,35 @@
 <span class="sd">        temps ([float]): A sequence of temperatures. units: K</span>
 <span class="sd">        diffusivities ([float]): A sequence of diffusivities (e.g.,</span>
 <span class="sd">            from DiffusionAnalyzer.diffusivity). units: cm^2/s</span>
+<span class="sd">        mode (str): The fitting mode. Supported modes are:</span>
+<span class="sd">                i. &quot;linear&quot; (default), which fits ln(D) vs 1/T.</span>
+<span class="sd">                ii. &quot;exp&quot;, which fits D vs T.</span>
+<span class="sd">            Hint: Use &quot;exp&quot; with diffusivity errors if the errors are</span>
+<span class="sd">            not homoscadastic in the linear representation. Avoid using</span>
+<span class="sd">            &quot;exp&quot; without errors.</span>
+<span class="sd">        diffusivity_errors ([float]): A sequence of absolute errors in diffusivities. units: cm^2/s</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">t_1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
-    <span class="n">logd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">diffusivities</span><span class="p">)</span>
-    <span class="c1"># Do a least squares regression of log(D) vs 1/T</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">))])</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">w</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">logd</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
-    <span class="n">std_Ea</span> <span class="o">=</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_1</span><span class="p">)))</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">std_Ea</span></div>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be &#39;linear&#39; or &#39;exp&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
+        <span class="n">t_1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
+        <span class="c1"># Do a least squares regression of log(D) vs 1/T</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">))])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">diffusivities</span><span class="p">),</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
+        <span class="n">std_Ea</span> <span class="o">=</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_1</span><span class="p">)))</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">std_Ea</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">arrhenius</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span>
+
+        <span class="n">guess</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Use linear fit to get initial guess</span>
+
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">arrhenius</span><span class="p">,</span> <span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">guess</span><span class="p">,</span> <span class="n">diffusivity_errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">popt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">popt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pcov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
 
 
 
@@ -1038,7 +1067,7 @@
 
 <div class="viewcode-block" id="get_extrapolated_diffusivity">
 <a class="viewcode-back" href="../../../../pymatgen.analysis.diffusion.analyzer.html#pymatgen.analysis.diffusion.analyzer.get_extrapolated_diffusivity">[docs]</a>
-<span class="k">def</span> <span class="nf">get_extrapolated_diffusivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_extrapolated_diffusivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns (Arrhenius) extrapolated diffusivity at new_temp.</span>
 
@@ -1047,11 +1076,12 @@
 <span class="sd">        diffusivities ([float]): A sequence of diffusivities (e.g.,</span>
 <span class="sd">            from DiffusionAnalyzer.diffusivity). units: cm^2/s</span>
 <span class="sd">        new_temp (float): desired temperature. units: K</span>
+<span class="sd">        mode (str): The fitting mode. See fit_arrhenius for details.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (float) Diffusivity at extrapolated temp in cm^2/s.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span>
+    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">new_temp</span><span class="p">))</span></div>
 
 
@@ -1081,7 +1111,14 @@
 
 <div class="viewcode-block" id="get_arrhenius_plot">
 <a class="viewcode-back" href="../../../../pymatgen.analysis.diffusion.analyzer.html#pymatgen.analysis.diffusion.analyzer.get_arrhenius_plot">[docs]</a>
-<span class="k">def</span> <span class="nf">get_arrhenius_plot</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">diffusivity_errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_arrhenius_plot</span><span class="p">(</span>
+    <span class="n">temps</span><span class="p">,</span>
+    <span class="n">diffusivities</span><span class="p">,</span>
+    <span class="n">diffusivity_errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;eV&quot;</span><span class="p">,</span> <span class="s2">&quot;meV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meV&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns an Arrhenius plot.</span>
 
@@ -1091,28 +1128,32 @@
 <span class="sd">            from DiffusionAnalyzer.diffusivity).</span>
 <span class="sd">        diffusivity_errors ([float]): A sequence of errors for the</span>
 <span class="sd">            diffusivities. If None, no error bar is plotted.</span>
+<span class="sd">        mode (str): The fitting mode. See fit_arrhenius for details.</span>
+<span class="sd">        unit (str): The unit for the activation energy. Supported units are</span>
+<span class="sd">            &quot;eV&quot; and &quot;meV&quot;.</span>
 <span class="sd">        **kwargs:</span>
 <span class="sd">            Any keyword args supported by matplotlib.pyplot.plot.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib.Axes object. Do ax.show() to show the plot.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span>
+    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">diffusivity_errors</span><span class="p">)</span>
 
     <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
 
     <span class="n">ax</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 
     <span class="c1"># log10 of the arrhenius fit</span>
-    <span class="n">arr</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">temps</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">temps</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span>
 
-    <span class="n">t_1</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_1</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="s2">&quot;ko&quot;</span><span class="p">,</span> <span class="n">t_1</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="s2">&quot;ko&quot;</span><span class="p">,</span> <span class="n">x</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span> <span class="k">else</span> <span class="n">t</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">diffusivity_errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">diffusivity_errors</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
-            <span class="n">t_1</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">],</span>
+            <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">],</span>
             <span class="n">diffusivities</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">],</span>
             <span class="n">yerr</span><span class="o">=</span><span class="n">diffusivity_errors</span><span class="p">,</span>
             <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;ko&quot;</span><span class="p">,</span>
@@ -1120,16 +1161,16 @@
             <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-        <span class="mf">0.6</span><span class="p">,</span>
+        <span class="mf">0.6</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span> <span class="k">else</span> <span class="mf">0.1</span><span class="p">,</span>
         <span class="mf">0.85</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;E$_a$ = </span><span class="si">{</span><span class="p">(</span><span class="n">Ea</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> meV&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;E$_a$ = </span><span class="si">{</span><span class="p">(</span><span class="n">Ea</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> meV&quot;</span> <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;meV&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;E$_a$ = </span><span class="si">{</span><span class="n">Ea</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">,</span>
         <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
         <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;D (cm$^2$/s)&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;1000/T (K$^{-1}$)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;1000/T (K$^{-1}$)&quot;</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span> <span class="k">else</span> <span class="s2">&quot;T (K)&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ax</span></div>
 
 </pre></div>
