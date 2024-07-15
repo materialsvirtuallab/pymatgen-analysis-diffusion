@@ -57,9 +57,7 @@ def add_edge_data_from_sc(
     uhop_index, mh_from_sc = get_unique_hop(mg, i_sc, isite, esite, use_host_sg)
     add_dict = {key: data_array}
     if isinstance(data_array, list):
-        mg.add_data_to_similar_edges(
-            target_label=uhop_index, data=add_dict, m_hop=mh_from_sc
-        )
+        mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict, m_hop=mh_from_sc)
     else:
         mg.add_data_to_similar_edges(target_label=uhop_index, data=add_dict)
 
