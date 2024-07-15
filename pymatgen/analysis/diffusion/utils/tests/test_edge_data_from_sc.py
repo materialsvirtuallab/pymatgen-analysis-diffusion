@@ -43,6 +43,16 @@ def test_add_edge_data_from_sc():
         key=test_key,
     )
 
+    test_single_key = "test_single_key"
+    test_single = 100
+    add_edge_data_from_sc(
+        mg_Li,
+        i_sc=input_struct_i,
+        e_sc=input_struct_e,
+        data_array=test_single,
+        key=test_single_key,
+    )
+
     edge_data = []
     for _u, _v, d in mg_Li.m_graph.graph.edges(data=True):
         edge_data.append(d)
