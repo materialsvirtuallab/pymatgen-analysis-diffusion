@@ -237,7 +237,7 @@ class VanHoveAnalysis:
 
         labelsize = int(figsize[0] * 3)
 
-        ax.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
+        plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
         ax.set_xlabel("Time (ps)", size=labelsize)
         ax.set_ylabel(r"$r$ ($\AA$)", size=labelsize)
         ax.axis([x.min(), x.max(), y.min(), y.max()])

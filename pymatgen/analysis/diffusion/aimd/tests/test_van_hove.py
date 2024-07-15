@@ -43,6 +43,8 @@ class VanHoveTest(unittest.TestCase):
         self.assertAlmostEqual(vh.gdrt[10, 0], 9.68574868168, 10)
         ax = vh.get_1d_plot()
         assert isinstance(ax, mpl.axes.Axes)
+        ax = vh.get_3d_plot()
+        assert isinstance(ax, mpl.axes.Axes)
 
 
 class RDFTest(unittest.TestCase):
