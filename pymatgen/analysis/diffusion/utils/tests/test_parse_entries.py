@@ -27,7 +27,7 @@ __date__ = "April 10, 2019"
 
 
 class ParseEntriesTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         d = loadfn(f"{dir_path}/parse_entry_test_vars.json")
         struct_uc = d["struct_uc"]
         self.li_ent = d["li_ent"]
@@ -53,7 +53,7 @@ class ParseEntriesTest(unittest.TestCase):
         self.struct_inserted_1Li2 = get_inserted_on_base(self.base, self.inserted_1Li2, self.li_ent, self.sm)
         self.struct_inserted_2Li = get_inserted_on_base(self.base, self.inserted_2Li, self.li_ent, self.sm)
 
-    def _is_valid_inserted_ent(self, mapped_struct):
+    def _is_valid_inserted_ent(self, mapped_struct: Structure) -> bool:
         res = True
         for isite in mapped_struct.sites:
             if isite.species_string == "Li":
@@ -64,7 +64,7 @@ class ParseEntriesTest(unittest.TestCase):
                     return False
         return res
 
-    def test_get_inserted_on_base(self):
+    def test_get_inserted_on_base(self) -> None:
         mapped_struct = get_inserted_on_base(self.base, self.inserted_1Li1, self.li_ent, self.sm)
         assert self._is_valid_inserted_ent(mapped_struct)
         assert mapped_struct[0].properties["insertion_energy"] == 5.0
@@ -75,7 +75,7 @@ class ParseEntriesTest(unittest.TestCase):
         assert self._is_valid_inserted_ent(mapped_struct)
         assert mapped_struct[0].properties["insertion_energy"] == 4.0
 
-    def test_process_ents(self):
+    def test_process_ents(self) -> None:
         base_2_ent = ComputedStructureEntry(
             structure=self.base.structure * [[1, 1, 0], [1, -1, 0], [0, 0, 2]],
             energy=self.base.energy * 4,
@@ -90,16 +90,17 @@ class ParseEntriesTest(unittest.TestCase):
                 if i_insert_site.species_string == "Li":
                     assert i_insert_site.properties["insertion_energy"] == 4
 
-    def test_filter_and_merge(self):
+    def test_filter_and_merge(self) -> None:
         combined_struct = Structure.from_sites(
             self.struct_inserted_1Li1.sites + self.struct_inserted_1Li2.sites + self.struct_inserted_2Li.sites
         )
         filtered_struct = _filter_and_merge(combined_struct)
+        assert filtered_struct is not None
         for i_insert_site in filtered_struct:
             if i_insert_site.species_string == "Li":
                 assert i_insert_site.properties["insertion_energy"] in {4.5, 5.5}
 
-    def test_get_insertion_energy(self):
+    def test_get_insertion_energy(self) -> None:
         insert_energy = get_insertion_energy(self.base, self.inserted_1Li1, self.li_ent)
         basex2_ = ComputedStructureEntry(structure=self.base.structure * [1, 1, 2], energy=self.base.energy * 2)
         insert_energyx2 = get_insertion_energy(basex2_, self.inserted_1Li1, self.li_ent)
@@ -108,7 +109,7 @@ class ParseEntriesTest(unittest.TestCase):
         insert_energy = get_insertion_energy(self.base, self.inserted_2Li, self.li_ent)
         self.assertAlmostEqual(insert_energy, 4)
 
-    def test_get_all_sym_sites(self):
+    def test_get_all_sym_sites(self) -> None:
         struct11 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li")
         assert struct11.composition["Li"] == 4
         struct12 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li")

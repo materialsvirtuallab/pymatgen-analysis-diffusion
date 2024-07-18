@@ -5,6 +5,7 @@ from __future__ import annotations
 import glob
 import os
 import unittest
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -15,12 +16,15 @@ from pymatgen.core import Composition, PeriodicSite, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
+
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
 __date__ = "March 14, 2017"
 
 
-def get_path(path_str, dirname="./"):
+def get_path(path_str: PathLike, dirname: PathLike = "./") -> str:
     cwd = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(cwd, dirname, path_str)
 
@@ -29,7 +33,7 @@ class IDPPSolverTest(unittest.TestCase):
     init_struct = Structure.from_file(get_path("CONTCAR-0", dirname="pathfinder_files"))
     final_struct = Structure.from_file(get_path("CONTCAR-1", dirname="pathfinder_files"))
 
-    def test_idpp_from_ep(self):
+    def test_idpp_from_ep(self) -> None:
         obj = IDPPSolver.from_endpoints([self.init_struct, self.final_struct], nimages=3, sort_tol=1.0)
         new_path = obj.run(
             maxiter=5000,
@@ -49,7 +53,7 @@ class IDPPSolverTest(unittest.TestCase):
         assert np.allclose(new_path[3][22].frac_coords, np.array([0.28422885, 0.62568764, 0.98975444]))
         assert np.allclose(new_path[4][47].frac_coords, np.array([0.59767531, 0.12640952, 0.37745006]))
 
-    def test_idpp_from_ep_diff_latt(self):
+    def test_idpp_from_ep_diff_latt(self) -> None:
         # This is the same test as test_idpp_from_ep where we want to interpolate
         # different lattices.
 
@@ -137,7 +141,7 @@ class IDPPSolverTest(unittest.TestCase):
             ),
         )
 
-    def test_idpp(self):
+    def test_idpp(self) -> None:
         images = self.init_struct.interpolate(self.final_struct, nimages=4, autosort_tol=1.0)
         obj = IDPPSolver(images)
         new_path = obj.run(
@@ -158,7 +162,7 @@ class IDPPSolverTest(unittest.TestCase):
 
 
 class DistinctPathFinderTest(PymatgenTest):
-    def test_get_paths(self):
+    def test_get_paths(self) -> None:
         s = self.get_structure("LiFePO4")
         # Only one path in LiFePO4 with 4 A.
         p = DistinctPathFinder(s, "Li", max_path_length=4)
@@ -203,7 +207,7 @@ class DistinctPathFinderTest(PymatgenTest):
         for f in glob.glob("pathfindertest_*.cif"):
             os.remove(f)
 
-    def test_max_path_length(self):
+    def test_max_path_length(self) -> None:
         s = Structure.from_file(get_path("LYPS.cif", dirname="pathfinder_files"))
         dp1 = DistinctPathFinder(s, "Li", perc_mode="1d")
         self.assertAlmostEqual(dp1.max_path_length, 4.11375354207, 7)
@@ -212,7 +216,7 @@ class DistinctPathFinderTest(PymatgenTest):
 
 
 class MigrationHopTest(PymatgenTest):
-    def setUp(self):
+    def setUp(self) -> None:
         self.lifepo = self.get_structure("LiFePO4")
         m_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
         gen = iter(m_graph.m_graph.graph.edges(data=True))
@@ -223,11 +227,11 @@ class MigrationHopTest(PymatgenTest):
         symm_structure = a.get_symmetrized_structure()
         self.m_hop = MigrationHop(i_site, e_site, symm_structure)
 
-    def test_msonable(self):
+    def test_msonable(self) -> None:
         hop_dict = self.m_hop.as_dict()
         assert isinstance(hop_dict, dict)
 
-    def test_get_start_end_structs_from_hop(self):
+    def test_get_start_end_structs_from_hop(self) -> None:
         dist_ref = self.m_hop.length
         base = self.lifepo.copy()
         base.remove_species(["Li"])
@@ -242,7 +246,7 @@ class MigrationHopTest(PymatgenTest):
         end_site = next(filter(lambda x: x.species_string == "Li", end.sites))
         self.assertAlmostEqual(start_site.distance(end_site), dist_ref, 3)
 
-    def test_get_start_end_structs_from_hop_vac(self):
+    def test_get_start_end_structs_from_hop_vac(self) -> None:
         dist_ref = self.m_hop.length
         start, end, b_sc = get_start_end_structures(
             self.m_hop.isite,
@@ -251,21 +255,21 @@ class MigrationHopTest(PymatgenTest):
             sc_mat=[[2, 1, 0], [-1, 1, 0], [0, 0, 2]],
             vac_mode=True,
         )
-        s1 = set()
-        s2 = set()
+        _s1 = set()
+        _s2 = set()
         for itr_start, start_site in enumerate(start.sites):
             for itr_end, end_site in enumerate(end.sites):
                 dist_ = start_site.distance(end_site)
                 if dist_ < 1e-5:
-                    s1.add(itr_start)
-                    s2.add(itr_end)
-        s1 = sorted(s1, reverse=True)
-        s2 = sorted(s2, reverse=True)
+                    _s1.add(itr_start)
+                    _s2.add(itr_end)
+        s1 = sorted(_s1, reverse=True)
+        s2 = sorted(_s2, reverse=True)
         start.remove_sites(s1)
         end.remove_sites(s2)
         self.assertAlmostEqual(start.sites[0].distance(end.sites[0]), dist_ref, 3)
 
-    def test_get_sc_structures(self):
+    def test_get_sc_structures(self) -> None:
         dist_ref = self.m_hop.length
         start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=False)
         start_site = next(filter(lambda x: x.species_string == "Li", start.sites))
@@ -274,7 +278,7 @@ class MigrationHopTest(PymatgenTest):
         assert b_sc.composition == Composition("Fe24 P24 O96")
         self.assertAlmostEqual(start_site.distance(end_site), dist_ref, 3)
 
-    def test_get_sc_structures_vacmode(self):
+    def test_get_sc_structures_vacmode(self) -> None:
         start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=True)
         assert start.composition == end.composition == Composition("Li23 Fe24 P24 O96")
         assert b_sc.composition == Composition("Li24 Fe24 P24 O96")

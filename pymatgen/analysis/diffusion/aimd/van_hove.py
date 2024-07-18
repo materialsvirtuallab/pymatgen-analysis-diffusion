@@ -9,6 +9,7 @@ import itertools
 from collections import Counter
 from typing import TYPE_CHECKING, Callable
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,8 +20,13 @@ from pymatgen.util.plotting import pretty_plot
 from .rdf import RadialDistributionFunction
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from matplotlib.axes import Axes
+
     from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
     from pymatgen.core import Structure
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -48,10 +54,10 @@ class VanHoveAnalysis:
         step_skip: int = 50,
         sigma: float = 0.1,
         cell_range: int = 1,
-        species: tuple | list = ("Li", "Na"),
-        reference_species: tuple | list | None = None,
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
+        reference_species: Sequence | None = None,
         indices: list | None = None,
-    ):
+    ) -> None:
         """
         Initiation.
 
@@ -198,7 +204,7 @@ class VanHoveAnalysis:
         # time interval (in ps) in gsrt and gdrt.
         self.timeskip = self.obj.time_step * self.obj.step_skip * step_skip / 1000.0
 
-    def get_3d_plot(self, figsize: tuple = (12, 8), mode: str = "distinct"):
+    def get_3d_plot(self, figsize: tuple = (12, 8), mode: str = "distinct") -> Axes:
         """
         Plot 3D self-part or distinct-part of van Hove function, which is
         specified by the input argument 'type'.
@@ -240,7 +246,8 @@ class VanHoveAnalysis:
         plt.pcolor(X, Y, grt, cmap="jet", vmin=grt.min(), vmax=vmax)
         ax.set_xlabel("Time (ps)", size=labelsize)
         ax.set_ylabel(r"$r$ ($\AA$)", size=labelsize)
-        ax.axis([x.min(), x.max(), y.min(), y.max()])
+        ax.set_xlim(x.min(), x.max())
+        ax.set_ylim(y.min(), y.max())
 
         cbar = plt.colorbar(ticks=cb_ticks)
         cbar.set_label(label=cb_label, size=labelsize)
@@ -253,7 +260,7 @@ class VanHoveAnalysis:
         mode: str = "distinct",
         times: list | None = None,
         colors: list | None = None,
-    ):
+    ) -> Axes:
         """
         Plot the van Hove function at given r or t.
 
@@ -307,7 +314,7 @@ class VanHoveAnalysis:
 class EvolutionAnalyzer:
     """Analyze the evolution of structures during AIMD simulations."""
 
-    def __init__(self, structures: list, rmax: float = 10, step: int = 1, time_step: int = 2):
+    def __init__(self, structures: list, rmax: float = 10, step: int = 1, time_step: int = 2) -> None:
         """
         Initialization the EvolutionAnalyzer from MD simulations. From the
         structures obtained from MD simulations, we can analyze the structure
@@ -336,7 +343,7 @@ class EvolutionAnalyzer:
         self.time_step = time_step
 
     @staticmethod
-    def get_pairs(structure: Structure):
+    def get_pairs(structure: Structure) -> list:
         """
         Get all element pairs in a structure.
 
@@ -352,7 +359,7 @@ class EvolutionAnalyzer:
         return list(pairs)
 
     @staticmethod
-    def rdf(structure: Structure, pair: tuple, ngrid: int = 101, rmax: float = 10):
+    def rdf(structure: Structure, pair: tuple, ngrid: int = 101, rmax: float = 10) -> np.ndarray:
         """
         Process rdf from a given structure and pair.
 
@@ -383,7 +390,7 @@ class EvolutionAnalyzer:
         ngrid: int = 101,
         window: float = 1,
         direction: str = "c",
-    ):
+    ) -> np.ndarray:
         """
         Get atomic distribution for a given specie.
 
@@ -419,7 +426,7 @@ class EvolutionAnalyzer:
 
         return np.array(density)
 
-    def get_df(self, func: Callable, save_csv: str | None = None, **kwargs):
+    def get_df(self, func: Callable, save_csv: str | None = None, **kwargs) -> pd.DataFrame:
         """
         Get the data frame for a given pair. This step would be very slow if
         there are hundreds or more structures to parse.
@@ -460,7 +467,7 @@ class EvolutionAnalyzer:
         return df
 
     @staticmethod
-    def get_min_dist(df: pd.DataFrame, tol: float = 1e-10):
+    def get_min_dist(df: pd.DataFrame, tol: float = 1e-10) -> float:
         """
         Get the shortest pair distance from the given DataFrame.
 
@@ -484,8 +491,8 @@ class EvolutionAnalyzer:
         df: pd.DataFrame,
         x_label: str | None = None,
         cb_label: str | None = None,
-        cmap=plt.cm.plasma,  # pylint: disable=E1101
-    ):
+        cmap: mpl.colors.Colormap = plt.cm.plasma,  # type: ignore[attr-defined] # pylint: disable=E1101
+    ) -> Axes:
         """
         Plot the evolution with time for a given DataFrame. It can be RDF,
         atomic distribution or other characterization data we might
@@ -523,11 +530,11 @@ class EvolutionAnalyzer:
             rasterized=True,
         )
         ax.set_ylim(ax.get_ylim()[::-1])
-        ax.collections[0].colorbar.set_label(cb_label, fontsize=30)
+        ax.collections[0].colorbar.set_label(cb_label, fontsize=30) if cb_label and ax.collections[0].colorbar else None
 
         plt.xticks(rotation="horizontal")
 
-        ax.set_xlabel(x_label, fontsize=30)
+        ax.set_xlabel(x_label, fontsize=30) if x_label else None
         ax.set_ylabel("Time (ps)", fontsize=30)
 
         plt.yticks(rotation="horizontal")
@@ -537,9 +544,9 @@ class EvolutionAnalyzer:
     def plot_rdf_evolution(
         self,
         pair: tuple,
-        cmap=plt.cm.plasma,  # pylint: disable=E1101
+        cmap: mpl.colors.Colormap = plt.cm.plasma,  # type: ignore[attr-defined] # pylint: disable=E1101
         df: pd.DataFrame = None,
-    ):
+    ) -> Axes:
         """
         Plot the RDF evolution with time for a given pair.
 
@@ -562,9 +569,9 @@ class EvolutionAnalyzer:
         self,
         specie: str,
         direction: str = "c",
-        cmap=plt.cm.Blues,  # pylint: disable=E1101
+        cmap: mpl.colors.Colormap = plt.cm.Blues,  # type: ignore[attr-defined] # pylint: disable=E1101
         df: pd.DataFrame = None,
-    ):
+    ) -> Axes:
         """
         Plot the atomic distribution evolution with time for a given species.
 

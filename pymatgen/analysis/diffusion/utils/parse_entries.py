@@ -96,7 +96,7 @@ def process_entries(
 
     results = []
 
-    def _meta_stable_sites(base_ent, inserted_ent):
+    def _meta_stable_sites(base_ent: ComputedStructureEntry, inserted_ent: ComputedStructureEntry) -> list:
         mapped_struct = get_inserted_on_base(
             base_ent,
             inserted_ent,
@@ -135,7 +135,7 @@ def process_entries(
     return sorted(results, key=lambda x: x["inserted"].composition[working_ion], reverse=True)
 
 
-def get_matched_structure_mapping(base: Structure, inserted: Structure, sm: StructureMatcher):
+def get_matched_structure_mapping(base: Structure, inserted: Structure, sm: StructureMatcher) -> tuple | None:
     """
     Get the mapping from the inserted structure onto the base structure,
     assuming that the inserted structure sans the working ion is some kind
@@ -166,7 +166,7 @@ def get_inserted_on_base(
     inserted_ent: ComputedStructureEntry,
     migrating_ion_entry: ComputedEntry,
     sm: StructureMatcher,
-) -> Structure | None:
+) -> Structure:
     """
     For a structured-matched pair of base and inserted entries, map all of the Li
     positions in the inserted entry to positions in the base entry and return a new
@@ -185,7 +185,7 @@ def get_inserted_on_base(
     """
     mapped_result = get_matched_structure_mapping(base_ent.structure, inserted_ent.structure, sm)
     if mapped_result is None:
-        return None
+        raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances in StructureMatcher")
 
     sc_m, total_t = mapped_result
     insertion_energy = get_insertion_energy(base_ent, inserted_ent, migrating_ion_entry)

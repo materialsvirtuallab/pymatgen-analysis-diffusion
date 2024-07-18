@@ -25,7 +25,11 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pymatgen.io.vasp.outputs import Chgcar
     from pymatgen.symmetry.structure import SymmetrizedStructure
+    from pymatgen.util.typing import PathLike, SpeciesLike
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +43,7 @@ class IDPPSolver:
     Smidstrup et al., J. Chem. Phys. 140, 214106 (2014).
     """
 
-    def __init__(self, structures):
+    def __init__(self, structures: list[Structure]) -> None:
         """
         Initialization.
 
@@ -50,7 +54,7 @@ class IDPPSolver:
         latt = structures[0].lattice
         natoms = structures[0].num_sites
         nimages = len(structures) - 2
-        target_dists = []
+        _target_dists = []
 
         # Initial guess of the path (in Cartesian coordinates) used in the IDPP
         # algo.
@@ -64,9 +68,9 @@ class IDPPSolver:
                 structures[-1].distance_matrix - structures[0].distance_matrix
             )
 
-            target_dists.append(dist)
+            _target_dists.append(dist)
 
-        target_dists = np.array(target_dists)
+        target_dists = np.array(_target_dists)
 
         # Set of translational vector matrices (anti-symmetric) for the images.
         translations = np.zeros((nimages, natoms, natoms, 3), dtype=np.float64)
@@ -98,14 +102,14 @@ class IDPPSolver:
 
     def run(
         self,
-        maxiter=1000,
-        tol=1e-5,
-        gtol=1e-3,
-        step_size=0.05,
-        max_disp=0.05,
-        spring_const=5.0,
-        species=None,
-    ):
+        maxiter: int = 1000,
+        tol: float = 1e-5,
+        gtol: float = 1e-3,
+        step_size: float = 0.05,
+        max_disp: float = 0.05,
+        spring_const: float = 5.0,
+        species: list[SpeciesLike] | None = None,
+    ) -> list[Structure]:
         """
         Perform iterative minimization of the set of objective functions in an
         NEB-like manner. In each iteration, the total force matrix for each
@@ -192,11 +196,11 @@ class IDPPSolver:
     @classmethod
     def from_endpoints(
         cls,
-        endpoints,
+        endpoints: list[Structure],
         nimages: int = 5,
         sort_tol: float = 1.0,
         interpolate_lattices: bool = False,
-    ):
+    ) -> IDPPSolver:
         """
         A class method that starts with end-point structures instead. The
         initial guess for the IDPP algo is then constructed using linear
@@ -234,7 +238,7 @@ class IDPPSolver:
 
         return IDPPSolver(images)
 
-    def _get_funcs_and_forces(self, x):
+    def _get_funcs_and_forces(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Calculate the set of objective functions as well as their gradients,
         i.e. "effective true forces".
@@ -264,7 +268,7 @@ class IDPPSolver:
         return 0.5 * np.array(funcs), -2 * np.array(funcs_prime)
 
     @staticmethod
-    def get_unit_vector(vec):
+    def get_unit_vector(vec: np.ndarray) -> np.ndarray:
         """
         Calculate the unit vector of a vector.
 
@@ -273,7 +277,7 @@ class IDPPSolver:
         """
         return vec / np.sqrt(np.sum(vec**2))
 
-    def _get_total_forces(self, x, true_forces, spring_const):
+    def _get_total_forces(self, x: np.ndarray, true_forces: np.ndarray, spring_const: float) -> np.ndarray:
         """
         Calculate the total force on each image structure, which is equal to
         the spring force along the tangent + true force perpendicular to the
@@ -312,7 +316,7 @@ class MigrationHop(MSONable):
         symm_structure: SymmetrizedStructure,
         host_symm_struct: SymmetrizedStructure = None,
         symprec: float = 0.001,
-    ):
+    ) -> None:
         """
         Args:
             isite: Initial site
@@ -324,8 +328,8 @@ class MigrationHop(MSONable):
         """
         self.isite = isite
         self.esite = esite
-        self.iindex = None
-        self.eindex = None
+        self.iindex = -1
+        self.eindex = -1
         self.symm_structure = symm_structure
         self.host_symm_struct = host_symm_struct
         self.symprec = symprec
@@ -343,7 +347,7 @@ class MigrationHop(MSONable):
                 self.eindex = i
 
         # if no index was identified then loop over each site until something is found
-        if self.iindex is None:
+        if self.iindex is -1:
             for i, sites in enumerate(self.symm_structure.equivalent_sites):
                 for itr_site in sites:
                     if sg.are_symmetrically_equivalent([isite], [itr_site]):
@@ -352,7 +356,7 @@ class MigrationHop(MSONable):
                 else:
                     continue
                 break
-        if self.eindex is None:
+        if self.eindex is -1:
             for i, sites in enumerate(self.symm_structure.equivalent_sites):
                 for itr_site in sites:
                     if sg.are_symmetrically_equivalent([esite], [itr_site]):
@@ -362,12 +366,12 @@ class MigrationHop(MSONable):
                     continue
                 break
 
-        if self.iindex is None:
+        if self.iindex is -1:
             raise RuntimeError(f"No symmetrically equivalent site was found for {isite}")
-        if self.eindex is None:
+        if self.eindex is -1:
             raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ifc = self.isite.frac_coords
         efc = self.esite.frac_coords
         wyk_symbols = self.symm_structure.wyckoff_symbols
@@ -381,20 +385,20 @@ class MigrationHop(MSONable):
         )
 
     @property
-    def length(self):
+    def length(self) -> float:
         """
         Returns:
             (float) Length of migration path.
         """
-        return np.linalg.norm(self.isite.coords - self.esite.coords)
+        return float(np.linalg.norm(self.isite.coords - self.esite.coords))
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.iindex + self.eindex
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:  # noqa: ANN001
         if self.symm_structure != other.symm_structure:
             return False
 
@@ -407,7 +411,9 @@ class MigrationHop(MSONable):
             self.symprec,
         )
 
-    def get_structures(self, nimages=5, vac_mode=True, idpp=False, **idpp_kwargs):
+    def get_structures(
+        self, nimages: int = 5, vac_mode: bool = True, idpp: bool = False, **idpp_kwargs
+    ) -> list[Structure]:
         r"""
         Generate structures for NEB calculation.
 
@@ -448,7 +454,7 @@ class MigrationHop(MSONable):
 
         return structures
 
-    def _split_migrating_and_other_sites(self, vac_mode):
+    def _split_migrating_and_other_sites(self, vac_mode: bool) -> tuple[list[Site], list[Site]]:
         migrating_specie_sites = []
         other_sites = []
         for site in self.symm_structure.sites:
@@ -510,7 +516,7 @@ class MigrationHop(MSONable):
         )
         return start_struct, end_struct, base_sc
 
-    def write_path(self, fname, **kwargs):
+    def write_path(self, fname: PathLike, **kwargs) -> None:
         r"""
         Write the path to a file for easy viewing.
 
@@ -535,12 +541,12 @@ class DistinctPathFinder:
 
     def __init__(
         self,
-        structure,
-        migrating_specie,
-        max_path_length=None,
-        symprec=0.1,
-        perc_mode=">1d",
-    ):
+        structure: Structure,
+        migrating_specie: SpeciesLike,
+        max_path_length: float | None = None,
+        symprec: float = 0.1,
+        perc_mode: str = ">1d",
+    ) -> None:
         """
         Args:
             structure: Input structure that contains all sites.
@@ -598,7 +604,7 @@ class DistinctPathFinder:
         else:
             self.max_path_length = max_path_length
 
-    def get_paths(self):
+    def get_paths(self) -> list[MigrationHop]:
         """
         Returns:
             [MigrationHop] All distinct migration paths.
@@ -614,7 +620,7 @@ class DistinctPathFinder:
 
         return sorted(paths, key=lambda p: p.length)
 
-    def write_all_paths(self, fname, nimages=5, **kwargs):
+    def write_all_paths(self, fname: PathLike, nimages: int = 5, **kwargs) -> None:
         r"""
         Write a file containing all paths, using hydrogen as a placeholder for
         the images. H is chosen as it is the smallest atom. This is extremely
@@ -650,7 +656,15 @@ class NEBPathfinder:
         Ceder, The Journal of Chemical Physics 145 (7), 074112
     """
 
-    def __init__(self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None):
+    def __init__(
+        self,
+        start_struct: Structure,
+        end_struct: Structure,
+        relax_sites: list[int],
+        v: np.ndarray,
+        n_images: int = 20,
+        mid_struct: Structure = None,
+    ) -> None:
         """
         Args:
             start_struct: Starting structure
@@ -668,10 +682,9 @@ class NEBPathfinder:
         self.__relax_sites = relax_sites
         self.__v = v
         self.__n_images = n_images
-        self.__images = None
         self.interpolate()
 
-    def interpolate(self):
+    def interpolate(self) -> None:
         """
         Finds a set of n_images from self.s1 to self.s2, where all sites except
         for the ones given in relax_sites, the interpolation is linear (as in
@@ -717,14 +730,14 @@ class NEBPathfinder:
         self.__images = images
 
     @property
-    def images(self):
+    def images(self) -> list[Structure]:
         """
         Returns a list of structures interpolating between the start and
         endpoint structures.
         """
         return self.__images
 
-    def plot_images(self, outfile):
+    def plot_images(self, outfile: PathLike) -> None:
         """
         Generates a POSCAR with the calculated diffusion path with respect to the first
         endpoint.
@@ -732,6 +745,7 @@ class NEBPathfinder:
         Args:
             outfile: Output file for the POSCAR.
         """
+        assert self.__images is not None, "Images have not been calculated yet. Run interpolate() first."
         sum_struct = self.__images[0].sites
         for image in self.__images:
             for site_i in self.__relax_sites:
@@ -750,17 +764,17 @@ class NEBPathfinder:
 
     @staticmethod
     def string_relax(
-        start,
-        end,
-        V,
-        n_images=25,
-        dr=None,
-        h=3.0,
-        k=0.17,
-        min_iter=100,
-        max_iter=10000,
-        max_tol=5e-6,
-    ):
+        start: np.ndarray,
+        end: np.ndarray,
+        V: np.ndarray,
+        n_images: int = 25,
+        dr: np.ndarray | Sequence | None = None,
+        h: float = 3.0,
+        k: float = 0.17,
+        min_iter: int = 100,
+        max_iter: int = 10000,
+        max_tol: float = 5e-6,
+    ) -> np.ndarray:
         """
         Implements path relaxation via the elastic band method. In general, the
         method is to define a path by a set of points (images) connected with
@@ -883,7 +897,7 @@ class NEBPathfinder:
         return s
 
     @staticmethod
-    def __f2d(frac_coords, v):
+    def __f2d(frac_coords: np.ndarray, v: np.ndarray) -> np.ndarray:
         """
         Converts fractional coordinates to discrete coordinates with respect to
         the grid size of v.
@@ -892,7 +906,7 @@ class NEBPathfinder:
         return (np.array(frac_coords) * np.array(v.shape)).astype(int)
 
     @staticmethod
-    def __d2f(disc_coords, v):
+    def __d2f(disc_coords: np.ndarray, v: np.ndarray) -> np.ndarray:
         """
         Converts a point given in discrete coordinates with respect to the
         grid in v to fractional coordinates.
@@ -913,7 +927,7 @@ class StaticPotential:
     function to normalize the potential from 0 to 1 (recommended).
     """
 
-    def __init__(self, struct, pot):
+    def __init__(self, struct: Structure, pot: np.ndarray) -> None:
         """
         :param struct: atomic structure of the potential
         :param pot: volumentric data to be used as a potential
@@ -921,16 +935,16 @@ class StaticPotential:
         self.__v = pot
         self.__s = struct
 
-    def get_v(self):
+    def get_v(self) -> np.ndarray:
         """Returns the potential."""
         return self.__v
 
-    def normalize(self):
+    def normalize(self) -> None:
         """Sets the potential range 0 to 1."""
         self.__v = self.__v - np.amin(self.__v)
         self.__v = self.__v / np.amax(self.__v)
 
-    def rescale_field(self, new_dim):
+    def rescale_field(self, new_dim: tuple) -> None:
         """
         Changes the discretization of the potential field by linear
         interpolation. This is necessary if the potential field
@@ -956,7 +970,7 @@ class StaticPotential:
         )
         self.__v = v_ngrid
 
-    def gaussian_smear(self, r):
+    def gaussian_smear(self, r: float) -> None:
         """
         Applies an isotropic Gaussian smear of width (standard deviation) r to
         the potential field. This is necessary to avoid finding paths through
@@ -1007,7 +1021,7 @@ class StaticPotential:
 class ChgcarPotential(StaticPotential):
     """Implements a potential field based on the charge density output from VASP."""
 
-    def __init__(self, chgcar, smear=False, normalize=True):
+    def __init__(self, chgcar: Chgcar, smear: bool = False, normalize: bool = True) -> None:
         """
         :param chgcar: Chgcar object based on a VASP run of the structure of
             interest (Chgcar.from_file("CHGCAR"))
@@ -1032,7 +1046,7 @@ class FreeVolumePotential(StaticPotential):
     is lower at points farther away from any atoms in the structure.
     """
 
-    def __init__(self, struct, dim, smear=False, normalize=True):
+    def __init__(self, struct: Structure, dim: tuple, smear: bool = False, normalize: bool = True) -> None:
         """
         :param struct: Unit cell on which to base the potential
         :param dim: Grid size for the potential
@@ -1050,7 +1064,7 @@ class FreeVolumePotential(StaticPotential):
             self.normalize()
 
     @staticmethod
-    def __add_gaussians(s, dim, r=1.5):
+    def __add_gaussians(s: Structure, dim: Sequence, r: float = 1.5) -> np.ndarray:
         gauss_dist = np.zeros(dim)
         for a_d in np.arange(0, dim[0], 1):
             for b_d in np.arange(0, dim[1], 1):
@@ -1065,7 +1079,9 @@ class FreeVolumePotential(StaticPotential):
 class MixedPotential(StaticPotential):
     """Implements a potential that is a weighted sum of some other potentials."""
 
-    def __init__(self, potentials, coefficients, smear=False, normalize=True):
+    def __init__(
+        self, potentials: list[StaticPotential], coefficients: list[float], smear: bool = False, normalize: bool = True
+    ) -> None:
         """
         Args:
             potentials: List of objects extending the StaticPotential superclass

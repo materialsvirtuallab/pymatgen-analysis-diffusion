@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from math import ceil
 from multiprocessing import cpu_count
+from typing import TYPE_CHECKING
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -17,6 +18,11 @@ from scipy.stats import norm
 
 from pymatgen.core import Structure
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pymatgen.util.typing import SpeciesLike
 
 
 class RadialDistributionFunction:
@@ -34,7 +40,7 @@ class RadialDistributionFunction:
         rmax: float = 10.0,
         cell_range: int = 1,
         sigma: float = 0.1,
-    ):
+    ) -> None:
         """
         Args:
             structures ([Structure]): list of structure
@@ -145,14 +151,14 @@ class RadialDistributionFunction:
     @classmethod
     def from_species(
         cls,
-        structures: list,
+        structures: list[Structure],
         ngrid: int = 101,
         rmax: float = 10.0,
         cell_range: int = 1,
         sigma: float = 0.1,
-        species: tuple | list = ("Li", "Na"),
-        reference_species: tuple | list | None = None,
-    ):
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
+        reference_species: Sequence[SpeciesLike] | None = None,
+    ) -> RadialDistributionFunction:
         """
         Initialize using species.
 
@@ -191,7 +197,7 @@ class RadialDistributionFunction:
         )
 
     @property
-    def coordination_number(self):
+    def coordination_number(self) -> np.ndarray:
         """
         returns running coordination number.
 
@@ -208,7 +214,7 @@ class RadialDistributionFunction:
         xlim: tuple = (0.0, 8.0),
         ylim: tuple = (-0.005, 3.0),
         loc_peak: bool = False,
-    ):
+    ) -> np.ndarray:
         """
         Plot the average RDF function.
 
@@ -248,7 +254,7 @@ class RadialDistributionFunction:
 
         return ax
 
-    def export_rdf(self, filename: str):
+    def export_rdf(self, filename: str) -> None:
         """
         Output RDF data to a csv file.
 
@@ -280,8 +286,8 @@ class RadialDistributionFunctionFast:
         rmax: float = 10.0,
         ngrid: float = 101,
         sigma: float = 0.0,
-        n_jobs=None,
-    ):
+        n_jobs: int | None = None,
+    ) -> None:
         """
         This method calculates rdf on `np.linspace(rmin, rmax, ngrid)` points.
 
@@ -350,7 +356,7 @@ class RadialDistributionFunctionFast:
         self.n_structures = len(self.structures)
         self.sigma = ceil(sigma / self.dr)
 
-    def _dist_to_counts(self, d):
+    def _dist_to_counts(self, d: np.ndarray) -> np.ndarray:
         """
         Convert a distance array for counts in the bin.
 
@@ -360,7 +366,11 @@ class RadialDistributionFunctionFast:
         Returns:
             1D array of counts in the bins centered on self.r
         """
-        counts = np.zeros((self.ngrid,))
+        counts = np.zeros(
+            np.array(
+                self.ngrid,
+            )
+        )
         indices = np.array(np.floor((d - self.rmin + 0.5 * self.dr) / self.dr), dtype=int)
 
         unique, val_counts = np.unique(indices, return_counts=True)
@@ -371,8 +381,8 @@ class RadialDistributionFunctionFast:
         self,
         ref_species: str | list[str],
         species: str | list[str],
-        is_average=True,
-    ):
+        is_average: bool = True,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Args:
             ref_species (list of species or just single specie str): the reference species.
@@ -400,8 +410,8 @@ class RadialDistributionFunctionFast:
         self,
         ref_species: str | list[str],
         species: str | list[str],
-        index=0,
-    ):
+        index: int = 0,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the RDF for one structure, indicated by the index of the structure
         in all structures.
@@ -439,7 +449,12 @@ class RadialDistributionFunctionFast:
             rdf_temp = gaussian_filter1d(rdf_temp, self.sigma)
         return self.r, rdf_temp
 
-    def get_coordination_number(self, ref_species, species, is_average=True):
+    def get_coordination_number(
+        self,
+        ref_species: SpeciesLike | list[SpeciesLike],
+        species: SpeciesLike | list[SpeciesLike],
+        is_average: bool = True,
+    ) -> tuple[np.ndarray, list]:
         """
         returns running coordination number.
 
@@ -464,7 +479,7 @@ class RadialDistributionFunctionFast:
         return self.r, cn
 
 
-def _get_neighbor_list(structure, r) -> tuple:
+def _get_neighbor_list(structure: Structure, r: float) -> tuple:
     """
     Thin wrapper to enable parallel calculations.
 

@@ -16,7 +16,7 @@ __author__ = "Austen"
 class MVLCINEBEndPointSet(MITRelaxSet):
     """Class for writing NEB end points relaxation inputs."""
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs) -> None:
         r"""
         Args:
             structure: Structure
@@ -48,7 +48,7 @@ class MVLCINEBSet(MITNEBSet):
     http://theory.cm.utexas.edu/vtsttools/.
     """
 
-    def __init__(self, structures, **kwargs):
+    def __init__(self, structures: list[Structure], **kwargs) -> None:
         r"""
         Args:
             structures: Input structures.
@@ -82,7 +82,7 @@ class MVLCINEBSet(MITNEBSet):
         super().__init__(structures, **kwargs)
 
 
-def get_endpoints_from_index(structure, site_indices):
+def get_endpoints_from_index(structure: Structure, site_indices: list[int]) -> list[Structure]:
     """
     This class reads in one perfect structure and the two endpoint structures
     are generated using site_indices.
@@ -121,7 +121,7 @@ def get_endpoints_from_index(structure, site_indices):
     return [s_0, s_1]
 
 
-def get_endpoint_dist(ep_0, ep_1):
+def get_endpoint_dist(ep_0: Structure, ep_1: Structure) -> list[float]:
     """
     Calculate a list of site distances between two endpoints, assuming periodic
     boundary conditions.

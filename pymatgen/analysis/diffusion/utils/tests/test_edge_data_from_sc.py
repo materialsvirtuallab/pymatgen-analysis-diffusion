@@ -30,7 +30,7 @@ mg_Li = MigrationGraph.with_distance(structure=uc_full_sites, migrating_specie="
 mg_Mg = MigrationGraph.with_distance(structure=mg_uc_full_sites, migrating_specie="Mg", max_distance=4)
 
 
-def test_add_edge_data_from_sc():
+def test_add_edge_data_from_sc() -> None:
     errors = []
 
     test_key = "test_key"
@@ -70,7 +70,7 @@ def test_add_edge_data_from_sc():
     assert not errors, "errors occurred:\n" + "\n".join(errors)
 
 
-def test_get_uc_pos():
+def test_get_uc_pos() -> None:
     errors = []
 
     # set up parameters to initiate get_uc_pos
@@ -114,7 +114,7 @@ def test_get_uc_pos():
     assert not errors, "errors occurred:\n" + "\n".join(errors)
 
 
-def test_get_unique_hop_host():
+def test_get_unique_hop_host() -> None:
     results = get_unique_hop(
         mg_Mg,
         mg_input_struct_i,
@@ -125,7 +125,7 @@ def test_get_unique_hop_host():
     assert results[0] == 2
 
 
-def test_get_unique_host_nonhost():
+def test_get_unique_host_nonhost() -> None:
     with pytest.raises(RuntimeError) as exc_info:
         get_unique_hop(
             mg_Mg,
