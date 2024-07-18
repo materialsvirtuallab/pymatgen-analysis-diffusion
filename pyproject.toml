@@ -87,6 +87,7 @@ include = ["pymatgen.*"]
 target-version = "py39"
 line-length = 120
 lint.select = [
+    "ANN", # flake8-annotations
     "B", # flake8-bugbear
     "C4", # flake8-comprehensions
     "D", # pydocstyle
@@ -118,6 +119,9 @@ lint.select = [
     "YTT", # flake8-2020
 ]
 lint.ignore = [
+    "ANN003", # Missing type annotation for kwargs
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
     "B023", # Function definition does not bind loop variable
     "B028", # No explicit stacklevel keyword argument found
     "B904", # Within an except clause, raise exceptions with ...

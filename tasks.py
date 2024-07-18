@@ -23,7 +23,7 @@ NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
 @task
-def make_doc(ctx):
+def make_doc(ctx) -> None:
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run(
@@ -64,7 +64,7 @@ def make_doc(ctx):
 
 
 @task
-def set_ver(ctx):
+def set_ver(ctx) -> None:
 
     lines = []
     with open("pyproject.toml") as f:
@@ -80,7 +80,7 @@ def set_ver(ctx):
 
 
 @task
-def update_doc(ctx):
+def update_doc(ctx) -> None:
     make_doc(ctx)
     with cd("docs"):
         ctx.run("git add .")
@@ -89,7 +89,7 @@ def update_doc(ctx):
 
 
 @task
-def publish(ctx):
+def publish(ctx) -> None:
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python -m build", warn=True)
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
@@ -97,7 +97,7 @@ def publish(ctx):
 
 
 @task
-def release_github(ctx):
+def release_github(ctx) -> None:
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
@@ -115,12 +115,12 @@ def release_github(ctx):
 
 
 @task
-def test(ctx):
+def test(ctx) -> None:
     ctx.run("pytest pymatgen")
 
 
 @task
-def release(ctx):
+def release(ctx) -> None:
     set_ver(ctx)
     # test(ctx)
     update_doc(ctx)

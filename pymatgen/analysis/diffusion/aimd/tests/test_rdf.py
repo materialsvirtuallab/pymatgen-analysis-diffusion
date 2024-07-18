@@ -13,7 +13,7 @@ tests_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class RDFTest(unittest.TestCase):
-    def test_rdf(self):
+    def test_rdf(self) -> None:
         # Parse the DiffusionAnalyzer object from json file directly
         obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
@@ -31,7 +31,7 @@ class RDFTest(unittest.TestCase):
 
         self.assertAlmostEqual(r[np.argmax(s_na_rdf)], 2.9000, 4)
 
-    def test_rdf_coordination_number(self):
+    def test_rdf_coordination_number(self) -> None:
         # create a simple cubic lattice
         coords = np.array([[0.5, 0.5, 0.5]])
         atom_list = ["S"]
