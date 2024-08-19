@@ -1,5 +1,5 @@
 coveralls
-maggma==0.69.0
+maggma==0.69.2
 mypy
 pytest
 pytest-cov
