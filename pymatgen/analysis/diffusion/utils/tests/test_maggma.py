@@ -16,7 +16,7 @@ __version__ = "1.0"
 __date__ = "April 10, 2019"
 
 
-@pytest.fixture()
+@pytest.fixture
 def maggma_stores() -> dict[str, JSONStore]:
     return {
         "sgroups": JSONStore(f"{dir_path}/maggma_sgroup_store.json", key="group_id"),
