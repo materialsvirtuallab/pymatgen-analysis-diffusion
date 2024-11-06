@@ -26,12 +26,12 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class FuncTest(PymatgenTest):
-    def test_get_conversion_factor(self):
+    def test_get_conversion_factor(self) -> None:
         s = PymatgenTest.get_structure("LiFePO4")
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
         self.assertAlmostEqual(41370704.343540139, get_conversion_factor(s, "Li", 600), delta=20)
 
-    def test_fit_arrhenius(self):
+    def test_fit_arrhenius(self) -> None:
         Ea = 0.5
         k = const.k / const.e
         c = 12
@@ -65,7 +65,7 @@ class FuncTest(PymatgenTest):
 
 
 class DiffusionAnalyzerTest(PymatgenTest):
-    def test_init(self):
+    def test_init(self) -> None:
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
@@ -236,17 +236,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             d.export_msdt("test.csv")
             with open("test.csv") as f:
-                data = []
+                _data = []
                 for row in csv.reader(f):
                     if row:
-                        data.append(row)
-            data.pop(0)
-            data = np.array(data, dtype=np.float64)
-            assert data[:, 1] == pytest.approx(d.msd)
-            assert data[:, -1] == pytest.approx(d.mscd)
+                        _data.append(row)
+            _data.pop(0)
+            data = np.array(_data, dtype=np.float64)
+            assert [row[1] for row in data] == pytest.approx(d.msd)
+            assert [row[-1] for row in data] == pytest.approx(d.mscd)
             os.remove("test.csv")
 
-    def test_init_npt(self):
+    def test_init_npt(self) -> None:
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
@@ -452,17 +452,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             d.export_msdt("test.csv")
             with open("test.csv") as f:
-                data = []
+                _data = []
                 for row in csv.reader(f):
                     if row:
-                        data.append(row)
-            data.pop(0)
-            data = np.array(data, dtype=np.float64)
-            assert data[:, 1] == pytest.approx(d.msd)
-            assert data[:, -1] == pytest.approx(d.mscd)
+                        _data.append(row)
+            _data.pop(0)
+            data = np.array(_data, dtype=np.float64)
+            assert [row[1] for row in data] == pytest.approx(d.msd)
+            assert [row[-1] for row in data] == pytest.approx(d.mscd)
             os.remove("test.csv")
 
-    def test_from_structure_NPT(self):
+    def test_from_structure_NPT(self) -> None:
         coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])
         coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]])
@@ -477,7 +477,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             structures,
             specie="Li",
             temperature=500.0,
-            time_step=2.0,
+            time_step=2,
             step_skip=1,
             smoothed=None,
         )

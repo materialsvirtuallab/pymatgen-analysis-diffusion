@@ -32,7 +32,7 @@ def get_entries_from_dbs(
     material_store: MongoStore,
     migrating_ion: str,
     material_id: str,
-):
+) -> tuple:
     """
     Get the entries needed to construct a migration from a database that
     contains topotactically matched structures.

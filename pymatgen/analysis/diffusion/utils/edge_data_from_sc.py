@@ -116,7 +116,7 @@ def get_uc_pos(
     return p0, p1, p2
 
 
-def _get_first_close_site(frac_coord, structure, stol=0.1):
+def _get_first_close_site(frac_coord: np.ndarray, structure: Structure, stol: float = 0.1) -> np.ndarray:
     for site in structure.sites:
         dist, image = structure.lattice.get_distance_and_image(frac_coord, site.frac_coords)
         if dist < stol:
@@ -124,7 +124,7 @@ def _get_first_close_site(frac_coord, structure, stol=0.1):
     return frac_coord
 
 
-def mh_eq(mh1, mh2):
+def mh_eq(mh1: MigrationHop, mh2: MigrationHop) -> bool:
     """
     Allow for symmetric matching of MigrationPath objects with variable precession.
 

@@ -23,7 +23,7 @@ tests_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class VanHoveTest(unittest.TestCase):
-    def test_van_hove(self):
+    def test_van_hove(self) -> None:
         # Parse the DiffusionAnalyzer object from json file directly
         obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
@@ -48,7 +48,7 @@ class VanHoveTest(unittest.TestCase):
 
 
 class RDFTest(unittest.TestCase):
-    def test_rdf(self):
+    def test_rdf(self) -> None:
         # Parse the DiffusionAnalyzer object from json file directly
         obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 
@@ -118,7 +118,7 @@ class RDFTest(unittest.TestCase):
         self.assertAlmostEqual(obj_1.rho, obj_2.rho)
         self.assertAlmostEqual(obj_1.rdf[0], obj_2.rdf[0])
 
-    def test_rdf_coordination_number(self):
+    def test_rdf_coordination_number(self) -> None:
         # create a simple cubic lattice
         coords = np.array([[0.5, 0.5, 0.5]])
         atom_list = ["S"]
@@ -129,7 +129,7 @@ class RDFTest(unittest.TestCase):
         )
         assert rdf.coordination_number[100] == 6.0
 
-    def test_rdf_two_species_coordination_number(self):
+    def test_rdf_two_species_coordination_number(self) -> None:
         # create a structure with interpenetrating simple cubic lattice
         coords = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         atom_list = ["S", "Zn"]
@@ -145,25 +145,25 @@ class RDFTest(unittest.TestCase):
         )
         assert rdf.coordination_number[100] == 8.0
 
-    def setUp(self):
+    def setUp(self) -> None:
         coords = np.array([[0.5, 0.5, 0.5]])
         atom_list = ["S"]
         lattice = Lattice.from_parameters(a=1.0, b=1.0, c=1.0, alpha=90, beta=90, gamma=90)
         self.structure = Structure(lattice, atom_list, coords)
 
-    def test_raises_valueerror_if_ngrid_is_less_than_2(self):
+    def test_raises_valueerror_if_ngrid_is_less_than_2(self) -> None:
         with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(structures=[self.structure], ngrid=1)
 
-    def test_raises_ValueError_if_sigma_is_not_positive(self):
+    def test_raises_ValueError_if_sigma_is_not_positive(self) -> None:
         with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(structures=[self.structure], sigma=0)
 
-    def test_raises_ValueError_if_species_not_in_structure(self):
+    def test_raises_ValueError_if_species_not_in_structure(self) -> None:
         with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(structures=[self.structure], species=["Cl"])
 
-    def test_raises_ValueError_if_reference_species_not_in_structure(self):
+    def test_raises_ValueError_if_reference_species_not_in_structure(self) -> None:
         with pytest.raises(ValueError):
             RadialDistributionFunction.from_species(
                 structures=[self.structure], species=["S"], reference_species=["Cl"]
@@ -171,7 +171,7 @@ class RDFTest(unittest.TestCase):
 
 
 class EvolutionAnalyzerTest(unittest.TestCase):
-    def test_get_df(self):
+    def test_get_df(self) -> None:
         # Parse the DiffusionAnalyzer object from json file directly
         obj = loadfn(os.path.join(tests_dir, "cNa3PS4_pda.json"))
 

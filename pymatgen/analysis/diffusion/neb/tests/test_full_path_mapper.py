@@ -27,25 +27,25 @@ __date__ = "April 10, 2019"
 
 
 class MigrationGraphSimpleTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm = MigrationGraph.with_distance(structure=struct, migrating_specie="Li", max_distance=4)
 
-    def test_get_pos_and_migration_hop(self):
+    def test_get_pos_and_migration_hop(self) -> None:
         """
         Make sure that we can populate the graph with MigrationHop Objects
         """
         self.fpm._get_pos_and_migration_hop(0, 1, 1)
         self.assertAlmostEqual(self.fpm.m_graph.graph[0][1][1]["hop"].length, 3.571248, 4)
 
-    def test_get_summary_dict(self):
+    def test_get_summary_dict(self) -> None:
         summary_dict = self.fpm.get_summary_dict()
         assert "hop_label" in summary_dict["hops"][0]
         assert "hop_label" in summary_dict["unique_hops"][0]
 
 
 class MigrationGraphFromEntriesTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.test_ents_MOF = loadfn(f"{dir_path}/full_path_files/Mn6O5F7_cat_migration.json")
         self.aeccar_MOF = Chgcar.from_file(f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp")
         self.li_ent = loadfn(f"{dir_path}/full_path_files/li_ent.json")["li_ent"]
@@ -55,7 +55,7 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
             migrating_ion_entry=self.li_ent,
         )[0]
 
-    def test_m_graph_from_entries_failed(self):
+    def test_m_graph_from_entries_failed(self) -> None:
         # only base
         s_list = MigrationGraph.get_structure_from_entries(
             entries=[self.test_ents_MOF["ent_base"]],
@@ -69,14 +69,14 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
         )
         assert len(s_list) == 0
 
-    def test_m_graph_construction(self):
+    def test_m_graph_construction(self) -> None:
         assert self.full_struct.composition["Li"] == 8
         mg = MigrationGraph.with_distance(self.full_struct, migrating_specie="Li", max_distance=4.0)
         assert len(mg.m_graph.structure) == 8
 
 
 class MigrationGraphComplexTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         struct = Structure.from_file(f"{dir_path}/full_path_files/MnO2_full_Li.vasp")
         self.fpm_li = MigrationGraph.with_distance(structure=struct, migrating_specie="Li", max_distance=4)
 
@@ -85,7 +85,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
         struct = Structure.from_file(f"{dir_path}/full_path_files/Mg_2atom.vasp")
         self.fpm_mg = MigrationGraph.with_distance(structure=struct, migrating_specie="Mg", max_distance=2)
 
-    def test_group_and_label_hops(self):
+    def test_group_and_label_hops(self) -> None:
         """
         Check that the set of end points in a group of similarly labeled hops are all
         the same.
@@ -107,7 +107,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
             for end_point_labels in sub_set:
                 assert sorted(end_point_labels) == sorted(sub_set[0])
 
-    def test_unique_hops_dict(self):
+    def test_unique_hops_dict(self) -> None:
         """
         Check that the unique hops are inequivalent
         """
@@ -117,7 +117,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
         for migration_hop in all_pairs:
             assert migration_hop[0]["hop"] != migration_hop[1]["hop"]
 
-    def test_add_data_to_similar_edges(self):
+    def test_add_data_to_similar_edges(self) -> None:
         # passing normal data
         self.fpm_li.add_data_to_similar_edges(0, {"key0": "data"})
         for _u, _v, d in self.fpm_li.m_graph.graph.edges(data=True):
@@ -142,7 +142,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
             if d["hop_label"] == 2:
                 assert d["key2"] == [3, 2, 1]
 
-    def test_assign_cost_to_graph(self):
+    def test_assign_cost_to_graph(self) -> None:
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         for _u, _v, d in self.fpm_li.m_graph.graph.edges(data=True):
             self.assertAlmostEqual(d["cost"], d["hop_distance"], 4)
@@ -151,7 +151,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
         for _u, _v, d in self.fpm_li.m_graph.graph.edges(data=True):
             self.assertAlmostEqual(d["cost"], d["hop_distance"] ** 2, 4)
 
-    def test_periodic_dijkstra(self):
+    def test_periodic_dijkstra(self) -> None:
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
 
         # test the connection graph
@@ -165,7 +165,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
                     opposite_connections = [d2_["to_jimage"] for k2_, d2_ in conn_dict[v][u].items()]
                     assert neg_image in opposite_connections
 
-    def test_get_path(self):
+    def test_get_path(self) -> None:
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         paths = [*self.fpm_li.get_path(flip_hops=False)]
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
@@ -182,12 +182,12 @@ class MigrationGraphComplexTest(unittest.TestCase):
         p_strings = {"->".join(map(str, get_hop_site_sequence(ipath, start_u=u))) for u, ipath in paths}
         assert "1->0->1" in p_strings
 
-    def test_get_key_in_path(self):
+    def test_get_key_in_path(self) -> None:
         self.fpm_li.assign_cost_to_graph()  # use 'hop_distance'
         paths = [*self.fpm_li.get_path(flip_hops=False)]
         hop_seq_info = [get_hop_site_sequence(ipath, start_u=u, key="hop_distance") for u, ipath in paths]
 
-        hop_distances = {}
+        hop_distances: dict = {}
         for u, ipath in paths:
             hop_distances[u] = []
             for hop in ipath:
@@ -198,13 +198,13 @@ class MigrationGraphComplexTest(unittest.TestCase):
             assert distances == hop_seq_info[u][1]
             print(distances, hop_seq_info[u][1])
 
-    def test_not_matching_first(self):
+    def test_not_matching_first(self) -> None:
         structure = Structure.from_file(f"{dir_path}/pathfinder_files/Li6MnO4.json")
         fpm_lmo = MigrationGraph.with_distance(structure, "Li", max_distance=4)
         for _u, _v, d in fpm_lmo.m_graph.graph.edges(data=True):
             assert d["hop"].eindex in {0, 1}
 
-    def test_order_path(self):
+    def test_order_path(self) -> None:
         # add list data to migration graph - to test if list data is flipped
         for n, hop_d in self.fpm_li.unique_hops.items():
             data = {"data": [hop_d["iindex"], hop_d["eindex"]]}
@@ -227,7 +227,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
 
 
 class ChargeBarrierGraphTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.full_sites_MOF = loadfn(f"{dir_path}/full_path_files/LixMn6O5F7_full_sites.json")
         self.aeccar_MOF = Chgcar.from_file(f"{dir_path}/full_path_files/AECCAR_Mn6O5F7.vasp")
         self.cbg = ChargeBarrierGraph.with_distance(
@@ -239,7 +239,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
         )
         self.cbg._tube_radius = 10000
 
-    def test_integration(self):
+    def test_integration(self) -> None:
         """
         Sanity check: for a long enough diagonally hop, if we turn the radius of the tube way up, it should cover the entire unit cell
         """
@@ -273,7 +273,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             3,
         )
 
-    def test_populate_edges_with_chg_density_info(self):
+    def test_populate_edges_with_chg_density_info(self) -> None:
         """
         Test that all of the sites with similar lengths have similar charge densities,
         this will not always be true, but it valid in this Mn6O5F7
@@ -289,7 +289,7 @@ class ChargeBarrierGraphTest(unittest.TestCase):
             if 1.05 > length / prv[0] > 0.95:
                 self.assertAlmostEqual(chg, prv[1], 3)
 
-    def test_get_summary_dict(self):
+    def test_get_summary_dict(self) -> None:
         summary_dict = self.cbg.get_summary_dict()
         assert "chg_total", summary_dict["hops"][0]  # noqa: PLW0129
         assert "chg_total", summary_dict["unique_hops"][0]  # noqa: PLW0129

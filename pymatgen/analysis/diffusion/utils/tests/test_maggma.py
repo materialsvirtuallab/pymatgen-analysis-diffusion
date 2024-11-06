@@ -17,14 +17,14 @@ __date__ = "April 10, 2019"
 
 
 @pytest.fixture()
-def maggma_stores():
+def maggma_stores() -> dict[str, JSONStore]:
     return {
         "sgroups": JSONStore(f"{dir_path}/maggma_sgroup_store.json", key="group_id"),
         "materials": JSONStore(f"{dir_path}/maggma_materials_store.json", key="material_id"),
     }
 
 
-def test(maggma_stores):
+def test(maggma_stores: dict) -> None:
     base_ents, inserted_ents = get_entries_from_dbs(
         maggma_stores["sgroups"],
         maggma_stores["materials"],
@@ -33,7 +33,7 @@ def test(maggma_stores):
     )
 
     # check that the entries have been created
-    def has_mg(ent):
+    def has_mg(ent) -> bool:  # noqa: ANN001
         return "Mg" in ent.composition.as_dict()
 
     assert all(map(has_mg, inserted_ents))

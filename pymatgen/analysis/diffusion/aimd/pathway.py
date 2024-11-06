@@ -4,10 +4,18 @@ from __future__ import annotations
 
 import itertools
 from collections import Counter
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
+    from pymatgen.core.structure import Structure
+    from pymatgen.util.typing import PathLike, SpeciesLike
 
 
 class ProbabilityDensityAnalysis:
@@ -25,7 +33,13 @@ class ProbabilityDensityAnalysis:
     Conductor". Chem. Mater. (2015), 27, pp 8318-8325.
     """
 
-    def __init__(self, structure, trajectories, interval=0.5, species=("Li", "Na")):
+    def __init__(
+        self,
+        structure: Structure,
+        trajectories: np.ndarray,
+        interval: float = 0.5,
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
+    ) -> None:
         """
         Initialization.
 
@@ -66,7 +80,7 @@ class ProbabilityDensityAnalysis:
         grid = agrid[:, None, None] + bgrid[None, :, None] + cgrid[None, None, :]
 
         # Calculate time-averaged probability density function distribution Pr
-        count = Counter()
+        count: Counter = Counter()
         Pr = np.zeros(ngrid, dtype=np.double)
 
         for it in range(nsteps):
@@ -113,10 +127,12 @@ class ProbabilityDensityAnalysis:
         self.lens = lens
         self.Pr = Pr
         self.species = species
-        self.stable_sites = None
+        self.stable_sites: np.ndarray | None = None
 
     @classmethod
-    def from_diffusion_analyzer(cls, diffusion_analyzer, interval=0.5, species=("Li", "Na")):
+    def from_diffusion_analyzer(
+        cls, diffusion_analyzer: DiffusionAnalyzer, interval: float = 0.5, species: Sequence[SpeciesLike] = ("Li", "Na")
+    ) -> ProbabilityDensityAnalysis:
         """
         Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.
 
@@ -128,16 +144,16 @@ class ProbabilityDensityAnalysis:
             species(list of str): list of species that are of interest
         """
         structure = diffusion_analyzer.structure
-        trajectories = []
+        _trajectories = []
 
         for _i, s in enumerate(diffusion_analyzer.get_drift_corrected_structures()):
-            trajectories.append(s.frac_coords)
+            _trajectories.append(s.frac_coords)
 
-        trajectories = np.array(trajectories)
+        trajectories = np.array(_trajectories)
 
         return ProbabilityDensityAnalysis(structure, trajectories, interval=interval, species=species)
 
-    def generate_stable_sites(self, p_ratio=0.25, d_cutoff=1.0):
+    def generate_stable_sites(self, p_ratio: float = 0.25, d_cutoff: float = 1.0) -> None:
         """
         Obtain a set of low-energy sites from probability density function with
         given probability threshold 'p_ratio'. The set of grid points with
@@ -157,14 +173,14 @@ class ProbabilityDensityAnalysis:
             as a Nx3 numpy array.
         """
         # Set of grid points with high probability density.
-        grid_fcoords = []
+        _grid_fcoords = []
         indices = np.where(self.Pr > self.Pr.max() * p_ratio)
         lattice = self.structure.lattice
 
         for x, y, z in zip(indices[0], indices[1], indices[2]):
-            grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
+            _grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
 
-        grid_fcoords = np.array(grid_fcoords)
+        grid_fcoords = np.array(_grid_fcoords)
         dist_matrix = np.array(lattice.get_all_distances(grid_fcoords, grid_fcoords))
         np.fill_diagonal(dist_matrix, 0)
 
@@ -191,34 +207,35 @@ class ProbabilityDensityAnalysis:
         stable_sites = []
 
         for i in set(cluster_indices):
-            indices = np.where(cluster_indices == i)[0]
+            _indices = np.where(cluster_indices == i)[0]
 
-            if len(indices) == 1:
-                stable_sites.append(grid_fcoords[indices[0]])
+            if len(_indices) == 1:
+                stable_sites.append(grid_fcoords[_indices[0]])
                 continue
 
             # Consider periodic boundary condition
-            members = grid_fcoords[indices] - grid_fcoords[indices[0]]
+            members = grid_fcoords[_indices] - grid_fcoords[_indices[0]]
             members = np.where(members > 0.5, members - 1.0, members)
             members = np.where(members < -0.5, members + 1.0, members)
-            members += grid_fcoords[indices[0]]
+            members += grid_fcoords[_indices[0]]
 
             stable_sites.append(np.mean(members, axis=0))
 
         self.stable_sites = np.array(stable_sites)
 
-    def get_full_structure(self):
+    def get_full_structure(self) -> Structure:
         """
         Generate the structure with the low-energy sites included. In the end, a
         pymatgen Structure object will be returned.
         """
         full_structure = self.structure.copy()
+        assert self.stable_sites is not None, "Please run generate_stable_sites() first!"
         for fcoord in self.stable_sites:
             full_structure.append("X", fcoord)
 
         return full_structure
 
-    def to_chgcar(self, filename="CHGCAR.vasp"):
+    def to_chgcar(self, filename: PathLike = "CHGCAR.vasp") -> None:
         """
         Save the probability density distribution in the format of CHGCAR,
         which can be visualized by VESTA.
@@ -282,7 +299,13 @@ class SiteOccupancyAnalyzer:
 
     """
 
-    def __init__(self, structure, coords_ref, trajectories, species=("Li", "Na")):
+    def __init__(
+        self,
+        structure: Structure,
+        coords_ref: np.ndarray | Sequence[Sequence[float]],
+        trajectories: np.ndarray | Sequence[Sequence[Sequence[float]]],
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
+    ) -> None:
         """
         Args:
             structure (pmg_structure): Initial structure.
@@ -296,7 +319,7 @@ class SiteOccupancyAnalyzer:
         lattice = structure.lattice
         coords_ref = np.array(coords_ref)
         trajectories = np.array(trajectories)
-        count = Counter()
+        count: Counter = Counter()
 
         indices = [i for i, site in enumerate(structure) if site.specie.symbol in species]
 
@@ -318,12 +341,17 @@ class SiteOccupancyAnalyzer:
         self.nsteps = len(trajectories)
         self.site_occ = site_occ
 
-    def get_average_site_occupancy(self, indices):
+    def get_average_site_occupancy(self, indices: list) -> float:
         """Get the average site occupancy over a subset of reference sites."""
         return np.sum(self.site_occ[indices]) / len(indices)
 
     @classmethod
-    def from_diffusion_analyzer(cls, coords_ref, diffusion_analyzer, species=("Li", "Na")):
+    def from_diffusion_analyzer(
+        cls,
+        coords_ref: np.ndarray | Sequence[Sequence[float]],
+        diffusion_analyzer: DiffusionAnalyzer,
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
+    ) -> SiteOccupancyAnalyzer:
         """
         Create a SiteOccupancyAnalyzer object using a diffusion_analyzer object.
 

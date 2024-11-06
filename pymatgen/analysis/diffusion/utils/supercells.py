@@ -106,7 +106,7 @@ def get_start_end_structures(
         initial structure, final structure, empty structure all in the supercell
     """
 
-    def remove_site_at_pos(structure: Structure, site: PeriodicSite, tol: float):
+    def remove_site_at_pos(structure: Structure, site: PeriodicSite, tol: float) -> Structure:
         new_struct_sites = []
         for isite in structure:
             if not vac_mode or (isite.distance(site) <= tol):
