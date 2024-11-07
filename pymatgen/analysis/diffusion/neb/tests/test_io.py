@@ -34,7 +34,7 @@ class MVLCINEBEndPointSetTest(unittest.TestCase):
         incar_expect = """ALGO     =  Fast
 EDIFF    =  5e-05
 EDIFFG   =  -0.02
-ENCUT    =  520
+ENCUT    =  520.0
 IBRION   =  2
 ICHARG   =  1
 ISIF     =  2
@@ -102,7 +102,7 @@ class MVLCINEBSetTest(unittest.TestCase):
         incar_expect = """ALGO = Fast
 EDIFF = 5e-05
 EDIFFG = -0.02
-ENCUT = 520
+ENCUT = 520.0
 IBRION = 3
 ICHAIN = 0
 ICHARG = 1
@@ -136,7 +136,7 @@ SPRING = -5"""
         incar_expect = """ALGO     =  Fast
 EDIFF    =  5e-05
 EDIFFG   =  -0.05
-ENCUT    =  520
+ENCUT    =  520.0
 IBRION   =  3
 ICHAIN   =  0
 ICHARG   =  1
