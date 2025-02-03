@@ -199,7 +199,7 @@ class RadialDistributionFunction:
     @property
     def coordination_number(self) -> np.ndarray:
         """
-        returns running coordination number.
+        Returns running coordination number.
 
         Returns:
             numpy array
@@ -456,7 +456,7 @@ class RadialDistributionFunctionFast:
         is_average: bool = True,
     ) -> tuple[np.ndarray, list]:
         """
-        returns running coordination number.
+        Returns running coordination number.
 
         Args:
             ref_species (list of species or just single specie str): the reference species.

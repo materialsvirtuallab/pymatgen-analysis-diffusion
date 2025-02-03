@@ -83,7 +83,7 @@ def get_uc_pos(
     """
     mapping = get_matched_structure_mapping(base=uc, inserted=sc, sm=sm)
     if mapping is None:
-        raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances " "in StructureMatcher")
+        raise ValueError("Cannot obtain inverse mapping, consider lowering tolerances in StructureMatcher")
     sc_m, total_t = mapping
     sc_ipos = isite.frac_coords
     sc_ipos_t = sc_ipos - total_t

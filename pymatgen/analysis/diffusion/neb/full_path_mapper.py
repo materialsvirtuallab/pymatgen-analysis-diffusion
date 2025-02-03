@@ -285,7 +285,7 @@ class MigrationGraph(MSONable):
 
     def _get_pos_and_migration_hop(self, u: int, v: int, w: int) -> None:
         """
-        insert a single MigrationHop object on a graph edge
+        Insert a single MigrationHop object on a graph edge
         Args:
           u (int): index of initial node
           v (int): index of final node
@@ -362,7 +362,7 @@ class MigrationGraph(MSONable):
 
     def get_path(self, max_val: float = 100000, flip_hops: bool = True) -> Generator:
         """
-        obtain a pathway through the material using hops that are in the current graph
+        Obtain a pathway through the material using hops that are in the current graph
         Basic idea:
             Get an endpoint p1 in the graph that is outside the current unit cell
             Ask the graph for a pathway that connects to p1 from either within the (0,0,0) cell
@@ -692,7 +692,7 @@ class ChargeBarrierGraph(MigrationGraph):
 
     def get_least_chg_path(self) -> list:
         """
-        obtain an intercolating pathway through the material that has the least amount of charge
+        Obtain an intercolating pathway through the material that has the least amount of charge
         Returns:
             list of hops.
         """

@@ -224,7 +224,7 @@ class IDPPSolver:
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
-                    "Auto sorting is turned off because it is unable" " to match the end-point structures!",
+                    "Auto sorting is turned off because it is unable to match the end-point structures!",
                     UserWarning,
                 )
                 images = endpoints[0].interpolate(
@@ -886,7 +886,7 @@ class NEBPathfinder:
             tol = la.norm((s - s0) * dr) / n_images / h
 
             if tol > 1e10:
-                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid " "divergence.")
+                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
                 logger.debug(f"Converged at {step=}")
