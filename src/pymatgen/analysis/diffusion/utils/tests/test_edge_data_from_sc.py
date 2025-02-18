@@ -136,5 +136,5 @@ def test_get_unique_host_nonhost() -> None:
         )
 
     assert exc_info.value.args[0] == (
-        "No symmetrically equivalent site was found for [0.53593472 " "2.8352428  4.54752366] Mg"
+        "No symmetrically equivalent site was found for [0.53593472 2.8352428  4.54752366] Mg"
     )

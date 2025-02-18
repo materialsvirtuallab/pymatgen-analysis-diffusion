@@ -97,7 +97,7 @@ class RadialDistributionFunction:
         self.rhos = rhos
         self.rho = rho  # This is the average density
 
-        for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices):
+        for fcoords, ref_fcoords, latt in zip(fcoords_list, ref_fcoords_list, lattices, strict=False):
             dcf = fcoords[:, None, None, :] + images[None, None, :, :] - ref_fcoords[None, :, None, :]
             dcc = latt.get_cartesian_coords(dcf)
             d2 = np.sum(dcc**2, axis=3)
@@ -199,7 +199,7 @@ class RadialDistributionFunction:
     @property
     def coordination_number(self) -> np.ndarray:
         """
-        returns running coordination number.
+        Returns running coordination number.
 
         Returns:
             numpy array
@@ -271,7 +271,7 @@ class RadialDistributionFunction:
             f.write(delimiter.join(["r", "g(r)"]))
             f.write("\n")
 
-            for r, gr in zip(self.interval, self.rdf):
+            for r, gr in zip(self.interval, self.rdf, strict=False):
                 f.write(delimiter.join([str(v) for v in [r, gr]]))
                 f.write("\n")
 
@@ -310,7 +310,7 @@ class RadialDistributionFunctionFast:
         # Number of atoms in all structures should be the same
         assert len({len(i) for i in self.structures}) == 1
         elements = [[i.specie for i in j.sites] for j in self.structures]
-        unique_elements_on_sites = [len(set(i)) == 1 for i in list(zip(*elements))]
+        unique_elements_on_sites = [len(set(i)) == 1 for i in list(zip(*elements, strict=False))]
 
         # For the same site index, all structures should have the same element there
         if not all(unique_elements_on_sites):
@@ -338,7 +338,7 @@ class RadialDistributionFunctionFast:
             self.neighbor_indices,
             self.image_vectors,
             self.distances,
-        ) = list(zip(*self.neighbor_lists))
+        ) = list(zip(*self.neighbor_lists, strict=False))
 
         elements = np.array([str(i.specie) for i in structures[0]])  # type: ignore
         self.center_elements = [elements[i] for i in self.center_indices]
@@ -456,7 +456,7 @@ class RadialDistributionFunctionFast:
         is_average: bool = True,
     ) -> tuple[np.ndarray, list]:
         """
-        returns running coordination number.
+        Returns running coordination number.
 
         Args:
             ref_species (list of species or just single specie str): the reference species.

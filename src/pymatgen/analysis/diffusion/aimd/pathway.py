@@ -88,7 +88,7 @@ class ProbabilityDensityAnalysis:
             for fcoord in fcoords:
                 # for each atom at time t, find the nearest grid point from
                 # the 8 points that surround the atom
-                corner_i = [int(c / d) for c, d in zip(fcoord, frac_interval)]
+                corner_i = [int(c / d) for c, d in zip(fcoord, frac_interval, strict=False)]
                 next_i = np.zeros_like(corner_i, dtype=int)
 
                 # consider PBC
@@ -177,7 +177,7 @@ class ProbabilityDensityAnalysis:
         indices = np.where(self.Pr > self.Pr.max() * p_ratio)
         lattice = self.structure.lattice
 
-        for x, y, z in zip(indices[0], indices[1], indices[2]):
+        for x, y, z in zip(indices[0], indices[1], indices[2], strict=False):
             _grid_fcoords.append([x / self.lens[0], y / self.lens[1], z / self.lens[2]])
 
         grid_fcoords = np.array(_grid_fcoords)

@@ -139,7 +139,7 @@ def get_endpoint_dist(ep_0: Structure, ep_1: Structure) -> list[float]:
     assert ep_0.lattice.abc == ep_0.lattice.abc, "Lattice mismatch!"
 
     distances = []
-    for site0, site1 in zip(ep_0, ep_1):
+    for site0, site1 in zip(ep_0, ep_1, strict=False):
         fc = (site0.frac_coords, site1.frac_coords)
         d = ep_0.lattice.get_distance_and_image(fc[0], fc[1])[0]
         distances.append(d)

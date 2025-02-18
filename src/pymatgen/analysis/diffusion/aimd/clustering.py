@@ -193,7 +193,7 @@ class KmeansPBC(Kmeans):
             return True
         if old_centroids is None:
             return False
-        return all(np.allclose(pbc_diff(c1, c2), [0, 0, 0]) for c1, c2 in zip(old_centroids, centroids))
+        return all(np.allclose(pbc_diff(c1, c2), [0, 0, 0]) for c1, c2 in zip(old_centroids, centroids, strict=False))
 
 
 def get_random_centroid(points: np.ndarray) -> np.ndarray:
