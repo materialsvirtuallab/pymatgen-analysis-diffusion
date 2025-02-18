@@ -119,7 +119,7 @@ class ProbabilityDensityAnalysis:
         for i, n in count.most_common(ngrid):
             Pr[i] = float(n) / nsteps / len(indices) / lattice.volume * ngrid
 
-        Pr = Pr.reshape(lens[0], lens[1], lens[2])  # pylint: disable=E1121
+        Pr = Pr.reshape(lens[0], lens[1], lens[2])  # type: ignore
 
         self.structure = structure
         self.trajectories = trajectories
@@ -131,7 +131,10 @@ class ProbabilityDensityAnalysis:
 
     @classmethod
     def from_diffusion_analyzer(
-        cls, diffusion_analyzer: DiffusionAnalyzer, interval: float = 0.5, species: Sequence[SpeciesLike] = ("Li", "Na")
+        cls,
+        diffusion_analyzer: DiffusionAnalyzer,
+        interval: float = 0.5,
+        species: Sequence[SpeciesLike] = ("Li", "Na"),
     ) -> ProbabilityDensityAnalysis:
         """
         Create a ProbabilityDensityAnalysis from a diffusion_analyzer object.
@@ -343,7 +346,7 @@ class SiteOccupancyAnalyzer:
 
     def get_average_site_occupancy(self, indices: list) -> float:
         """Get the average site occupancy over a subset of reference sites."""
-        return np.sum(self.site_occ[indices]) / len(indices)
+        return np.sum(self.site_occ[indices]) / len(indices)  # type: ignore
 
     @classmethod
     def from_diffusion_analyzer(

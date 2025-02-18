@@ -648,7 +648,7 @@ class ChargeBarrierGraph(MigrationGraph):
                 * (dist_to_line < self._tube_radius)
             )
             pbc_mask = pbc_mask + mask
-        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
+        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)  # type: ignore
 
         if mask_file_seedname:
             mask_out = VolumetricData(
