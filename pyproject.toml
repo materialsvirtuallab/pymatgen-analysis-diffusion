@@ -120,8 +120,6 @@ lint.select = [
 ]
 lint.ignore = [
     "ANN003", # Missing type annotation for kwargs
-    "ANN101", # Missing type annotation for self in method
-    "ANN102", # Missing type annotation for cls in classmethod
     "B023", # Function definition does not bind loop variable
     "B028", # No explicit stacklevel keyword argument found
     "B904", # Within an except clause, raise exceptions with ...
@@ -149,8 +147,7 @@ lint.isort.required-imports = ["from __future__ import annotations"]
 lint.isort.split-on-trailing-comma = false
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**" = ["D"]
-"tasks.py" = ["D"]
+"!src/**.py" = ["D", "EXE"]
 
 
 [tool.pytest.ini_options]
