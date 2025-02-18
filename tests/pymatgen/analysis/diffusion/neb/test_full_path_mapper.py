@@ -217,7 +217,7 @@ class MigrationGraphComplexTest(unittest.TestCase):
             ordered = order_path(hop_list, n)
 
             # check if isites and esites are oriented to form a coherent path
-            for h1, h2 in itertools.pairwise(ordered[:-1]):
+            for h1, h2 in itertools.pairwise(ordered):
                 assert h1["eindex"] == h2["iindex"]
 
             # if hop was flipped, check list data was flipped too

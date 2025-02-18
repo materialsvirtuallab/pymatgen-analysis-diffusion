@@ -417,7 +417,7 @@ class MigrationGraph(MSONable):
 
             # get the sequence of MigrationHop objects the represent the pathway
             path_hops = []
-            for (idx1, jimage1), (idx2, jimage2) in itertools.pairwise(path[:-1]):
+            for (idx1, jimage1), (idx2, jimage2) in itertools.pairwise(path):
                 # for each pair of points in the periodic graph path look for end points in the original graph
                 # the index pair has to be u->v with u <= v
                 # once that is determined look up all such pairs in the graph and see if relative image
