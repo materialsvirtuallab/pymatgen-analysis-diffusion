@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-
 """
 Deployment file to facilitate releases of pymatgen.analysis.diffusion.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -12,7 +11,7 @@ import os
 import re
 
 import requests
-from invoke import task
+from invoke import Context, task
 from monty.os import cd
 
 __author__ = "Shyue Ping Ong"
@@ -23,7 +22,7 @@ NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
 @task
-def make_doc(ctx) -> None:
+def make_doc(ctx: Context) -> None:
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run(
@@ -64,13 +63,13 @@ def make_doc(ctx) -> None:
 
 
 @task
-def set_ver(ctx) -> None:
+def set_ver(ctx: Context) -> None:
 
     lines = []
     with open("pyproject.toml") as f:
-        for l in f:
+        for line in f:
             lines.append(
-                re.sub(r"^version = ([^,]+)", f'version = "{NEW_VER}"', l.rstrip())
+                re.sub(r"^version = ([^,]+)", f'version = "{NEW_VER}"', line.rstrip())
             )
     with open("pyproject.toml", "w") as f:
         f.write("\n".join(lines))
@@ -80,7 +79,9 @@ def set_ver(ctx) -> None:
 
 
 @task
-def update_doc(ctx) -> None:
+def update_doc(
+    ctx: Context,
+) -> None:
     make_doc(ctx)
     with cd("docs"):
         ctx.run("git add .")
@@ -89,7 +90,7 @@ def update_doc(ctx) -> None:
 
 
 @task
-def publish(ctx) -> None:
+def publish(ctx: Context) -> None:
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python -m build", warn=True)
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
@@ -97,7 +98,7 @@ def publish(ctx) -> None:
 
 
 @task
-def release_github(ctx) -> None:
+def release_github(ctx: Context) -> None:
     payload = {
         "tag_name": "v" + NEW_VER,
         "target_commitish": "master",
@@ -115,12 +116,12 @@ def release_github(ctx) -> None:
 
 
 @task
-def test(ctx) -> None:
+def test(ctx: Context) -> None:
     ctx.run("pytest pymatgen")
 
 
 @task
-def release(ctx) -> None:
+def release(ctx: Context) -> None:
     set_ver(ctx)
     # test(ctx)
     update_doc(ctx)
