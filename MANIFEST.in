@@ -1,6 +1,2 @@
 include LICENSE COPYRIGHT *.md *.in requirements.txt
 recursive-include pymatgen *.py
-recursive-include scripts *.py
-prune */tests
-prune */*/tests
-prune */*/*/tests

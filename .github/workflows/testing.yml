@@ -30,7 +30,7 @@ jobs:
         pip install -e '.[ci]'
     - name: pytest
       run: |
-        python -m pytest --cov=pymatgen.analysis.diffusion --durations=30 pymatgen
+        python -m pytest --cov=pymatgen.analysis.diffusion --durations=30 tests
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4
       env:
