@@ -176,7 +176,7 @@ class IDPPSolver:
             # generate the improved image structure
             new_sites = []
 
-            for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1]):
+            for site, cart_coords in zip(self.structures[ni + 1], coords[ni + 1], strict=False):
                 new_site = PeriodicSite(
                     site.species,
                     coords=cart_coords,
@@ -224,7 +224,7 @@ class IDPPSolver:
         except Exception as e:
             if "Unable to reliably match structures " in str(e):
                 warnings.warn(
-                    "Auto sorting is turned off because it is unable" " to match the end-point structures!",
+                    "Auto sorting is turned off because it is unable to match the end-point structures!",
                     UserWarning,
                 )
                 images = endpoints[0].interpolate(
@@ -886,7 +886,7 @@ class NEBPathfinder:
             tol = la.norm((s - s0) * dr) / n_images / h
 
             if tol > 1e10:
-                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid " "divergence.")
+                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
                 logger.debug(f"Converged at {step=}")
@@ -956,7 +956,7 @@ class StaticPotential:
         :param new_dim: tuple giving the numpy shape of the new grid
         """
         v_dim = self.__v.shape
-        padded_v = np.lib.pad(self.__v, ((0, 1), (0, 1), (0, 1)), mode="wrap")
+        padded_v = np.lib.pad(self.__v, ((0, 1), (0, 1), (0, 1)), mode="wrap")  # type: ignore
         ogrid_list = np.array([list(c) for c in list(np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
         v_ogrid = padded_v.reshape(((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
         ngrid_a, ngrid_b, ngrid_c = np.mgrid[
@@ -1080,7 +1080,11 @@ class MixedPotential(StaticPotential):
     """Implements a potential that is a weighted sum of some other potentials."""
 
     def __init__(
-        self, potentials: list[StaticPotential], coefficients: list[float], smear: bool = False, normalize: bool = True
+        self,
+        potentials: list[StaticPotential],
+        coefficients: list[float],
+        smear: bool = False,
+        normalize: bool = True,
     ) -> None:
         """
         Args:

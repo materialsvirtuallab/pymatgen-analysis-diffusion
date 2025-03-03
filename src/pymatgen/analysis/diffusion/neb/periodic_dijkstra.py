@@ -13,12 +13,12 @@ __date__ = "April 11, 2019"
 import heapq
 import math
 from collections import defaultdict
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
 
     from networkx.classes.graph import Graph
 

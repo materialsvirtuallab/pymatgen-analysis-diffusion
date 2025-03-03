@@ -2,6 +2,7 @@
 # Distributed under the terms of the BSD License.
 from __future__ import annotations
 
+import itertools
 import os
 import unittest
 
@@ -216,11 +217,11 @@ class MigrationGraphComplexTest(unittest.TestCase):
             ordered = order_path(hop_list, n)
 
             # check if isites and esites are oriented to form a coherent path
-            for h1, h2 in zip(ordered[:-1], ordered[1:]):
+            for h1, h2 in itertools.pairwise(ordered):
                 assert h1["eindex"] == h2["iindex"]
 
             # if hop was flipped, check list data was flipped too
-            for h, ord_h in zip(hop_list, ordered):
+            for h, ord_h in zip(hop_list, ordered, strict=False):
                 if h["iindex"] != ord_h["iindex"]:  # check only if hop was flipped
                     assert h["data"][0] == ord_h["data"][-1]
                     assert h["data"][-1] == ord_h["data"][0]

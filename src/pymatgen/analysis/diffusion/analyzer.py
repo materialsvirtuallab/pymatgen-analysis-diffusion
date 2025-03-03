@@ -589,7 +589,7 @@ class DiffusionAnalyzer(MSONable):
                 f.write("# ")
             f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
-            for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd):
+            for dt, msd, msdc, mscd in zip(self.dt, self.msd, self.msd_components, self.mscd, strict=False):
                 f.write(delimiter.join([str(v) for v in [dt, msd, *list(msdc), mscd]]))
                 f.write("\n")
 
@@ -651,7 +651,7 @@ class DiffusionAnalyzer(MSONable):
         f_disp = np.cumsum(dp, axis=1)
         c_disp = []
         for i in f_disp:
-            c_disp.append([np.dot(d, m) for d, m in zip(i, _lattices[1:])])
+            c_disp.append([np.dot(d, m) for d, m in zip(i, _lattices[1:], strict=False)])
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.

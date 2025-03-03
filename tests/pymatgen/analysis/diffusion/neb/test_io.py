@@ -34,7 +34,7 @@ class MVLCINEBEndPointSetTest(unittest.TestCase):
         incar_expect = """ALGO     =  Fast
 EDIFF    =  5e-05
 EDIFFG   =  -0.02
-ENCUT    =  520
+ENCUT    =  520.0
 IBRION   =  2
 ICHARG   =  1
 ISIF     =  2
@@ -68,7 +68,7 @@ SIGMA    =  0.05"""
         incar_expect = """ALGO = Normal
 EDIFF = 5e-05
 EDIFFG = -0.05
-ENCUT = 520
+ENCUT = 520.0
 IBRION = 2
 ICHARG = 1
 ISIF = 2
@@ -102,7 +102,7 @@ class MVLCINEBSetTest(unittest.TestCase):
         incar_expect = """ALGO = Fast
 EDIFF = 5e-05
 EDIFFG = -0.02
-ENCUT = 520
+ENCUT = 520.0
 IBRION = 3
 ICHAIN = 0
 ICHARG = 1
@@ -123,7 +123,7 @@ MAGMOM = 35*0.6
 NELM = 200
 NELMIN = 6
 NSW = 200
-POTIM = 0
+POTIM = 0.0
 PREC = Accurate
 SIGMA = 0.05
 SPRING = -5"""
@@ -136,7 +136,7 @@ SPRING = -5"""
         incar_expect = """ALGO     =  Fast
 EDIFF    =  5e-05
 EDIFFG   =  -0.05
-ENCUT    =  520
+ENCUT    =  520.0
 IBRION   =  3
 ICHAIN   =  0
 ICHARG   =  1
@@ -158,7 +158,7 @@ NELM     =  200
 NELMIN   =  6
 NPAR     =  4
 NSW      =  200
-POTIM    =  0
+POTIM    =  0.0
 PREC     =  Accurate
 SIGMA    =  0.05
 SPRING   =  -5"""

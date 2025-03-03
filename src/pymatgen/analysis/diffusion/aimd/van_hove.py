@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import itertools
 from collections import Counter
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ from pymatgen.util.plotting import pretty_plot
 from .rdf import RadialDistributionFunction
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from matplotlib.axes import Axes
 

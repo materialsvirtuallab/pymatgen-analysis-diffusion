@@ -8,11 +8,12 @@ __maintainer__ = "Jimmy Shen"
 __email__ = "jmmshn@lbl.gov"
 __date__ = "April 11, 2019"
 
+import itertools
 import logging
 import operator
 from copy import deepcopy
 from itertools import starmap
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
@@ -29,7 +30,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
 
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
     from pymatgen.util.typing import SpeciesLike
@@ -186,7 +187,13 @@ class MigrationGraph(MSONable):
         return cls(structure=structure, m_graph=migration_graph, **kwargs)
 
     @classmethod
-    def with_distance(cls, structure: Structure, migrating_specie: SpeciesLike, max_distance: float, **kwargs):  # noqa: ANN206
+    def with_distance(
+        cls,
+        structure: Structure,
+        migrating_specie: SpeciesLike,
+        max_distance: float,
+        **kwargs,
+    ) -> MigrationGraph:
         """
         Using a specific nn strategy to get the connectivity graph between all the migrating ion sites.
 
@@ -285,7 +292,7 @@ class MigrationGraph(MSONable):
 
     def _get_pos_and_migration_hop(self, u: int, v: int, w: int) -> None:
         """
-        insert a single MigrationHop object on a graph edge
+        Insert a single MigrationHop object on a graph edge
         Args:
           u (int): index of initial node
           v (int): index of final node
@@ -340,8 +347,8 @@ class MigrationGraph(MSONable):
                     [m_hop.isite], [d["hop"].isite]
                 ):
                     # "The data going to this edge needs to be flipped"
-                    for k in data:
-                        if isinstance(data[k], (np.ndarray, np.generic)):
+                    for k in data:  # noqa: PLC0206
+                        if isinstance(data[k], np.ndarray | np.generic):
                             raise Warning("The data provided will only be flipped if it a list")
                         if not isinstance(data[k], list):
                             continue
@@ -362,7 +369,7 @@ class MigrationGraph(MSONable):
 
     def get_path(self, max_val: float = 100000, flip_hops: bool = True) -> Generator:
         """
-        obtain a pathway through the material using hops that are in the current graph
+        Obtain a pathway through the material using hops that are in the current graph
         Basic idea:
             Get an endpoint p1 in the graph that is outside the current unit cell
             Ask the graph for a pathway that connects to p1 from either within the (0,0,0) cell
@@ -410,7 +417,7 @@ class MigrationGraph(MSONable):
 
             # get the sequence of MigrationHop objects the represent the pathway
             path_hops = []
-            for (idx1, jimage1), (idx2, jimage2) in zip(path[:-1], path[1:]):
+            for (idx1, jimage1), (idx2, jimage2) in itertools.pairwise(path):
                 # for each pair of points in the periodic graph path look for end points in the original graph
                 # the index pair has to be u->v with u <= v
                 # once that is determined look up all such pairs in the graph and see if relative image
@@ -641,7 +648,7 @@ class ChargeBarrierGraph(MigrationGraph):
                 * (dist_to_line < self._tube_radius)
             )
             pbc_mask = pbc_mask + mask
-        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
+        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)  # type: ignore
 
         if mask_file_seedname:
             mask_out = VolumetricData(
@@ -679,7 +686,8 @@ class ChargeBarrierGraph(MigrationGraph):
                 v["hop"], chg_along_path=True, output_positions=True
             )
             images = [
-                {"position": ifrac, "average_charge": ichg} for ifrac, ichg in zip(frac_coords_list, avg_chg_list)
+                {"position": ifrac, "average_charge": ichg}
+                for ifrac, ichg in zip(frac_coords_list, avg_chg_list, strict=False)
             ]
             v.update(
                 dict(
@@ -692,7 +700,7 @@ class ChargeBarrierGraph(MigrationGraph):
 
     def get_least_chg_path(self) -> list:
         """
-        obtain an intercolating pathway through the material that has the least amount of charge
+        Obtain an intercolating pathway through the material that has the least amount of charge
         Returns:
             list of hops.
         """
@@ -798,7 +806,7 @@ def order_path(hop_list: list[dict], start_u: int | str) -> list[dict]:
     seq = get_hop_site_sequence(hop_list, start_u)
 
     ordered_path = []
-    for n, hop in zip(seq[:-1], hop_list):
+    for n, hop in zip(seq[:-1], hop_list, strict=False):
         if n == hop["iindex"]:  # don't flip hop
             ordered_path.append(hop)
         else:
@@ -855,9 +863,9 @@ def almost(a, b) -> bool:  # noqa: ANN001
     """Return true if the values are almost equal."""
     SMALL_VAL = 1e-4
     try:
-        return all(almost(i, j) for i, j in zip(list(a), list(b)))
+        return all(almost(i, j) for i, j in zip(list(a), list(b), strict=False))
     except BaseException:
-        if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        if isinstance(a, int | float) and isinstance(b, int | float):
             return abs(a - b) < SMALL_VAL
         raise NotImplementedError
 
