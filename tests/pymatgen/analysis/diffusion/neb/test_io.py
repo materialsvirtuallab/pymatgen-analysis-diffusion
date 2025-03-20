@@ -99,7 +99,7 @@ class MVLCINEBSetTest(unittest.TestCase):
         m = MVLCINEBSet(self.structures)
 
         incar_string = m.incar.get_str(sort_keys=True)
-        incar_expect = """ALGO = Fast
+        incar_expect = """ALGO = Normal
 EDIFF = 5e-05
 EDIFFG = -0.02
 ENCUT = 520.0
@@ -133,7 +133,7 @@ SPRING = -5"""
         user_incar_settings = {"IOPT": 3, "EDIFFG": -0.05, "NPAR": 4, "ISIF": 3}
         m = MVLCINEBSet(self.structures, user_incar_settings=user_incar_settings)
         incar_string = m.incar.get_str(sort_keys=True, pretty=True)
-        incar_expect = """ALGO     =  Fast
+        incar_expect = """ALGO     =  Normal
 EDIFF    =  5e-05
 EDIFFG   =  -0.05
 ENCUT    =  520.0
