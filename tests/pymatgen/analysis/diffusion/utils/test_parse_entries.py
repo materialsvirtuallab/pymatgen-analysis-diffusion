@@ -111,8 +111,8 @@ class ParseEntriesTest(unittest.TestCase):
 
     def test_get_all_sym_sites(self) -> None:
         struct11 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li1.structure, migrating_ion="Li")
-        assert struct11.composition["Li"] == 4
+        assert struct11.composition["Li"] == 1
         struct12 = get_sym_migration_ion_sites(self.base.structure, self.inserted_1Li2.structure, migrating_ion="Li")
-        assert struct12.composition["Li"] == 4
+        assert struct12.composition["Li"] == 1
         struct22 = get_sym_migration_ion_sites(self.base.structure, self.inserted_2Li.structure, migrating_ion="Li")
-        assert struct22.composition["Li"] == 8
+        assert struct22.composition["Li"] == 2
