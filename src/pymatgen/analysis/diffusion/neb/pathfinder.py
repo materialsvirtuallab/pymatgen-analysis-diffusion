@@ -992,9 +992,9 @@ class StaticPotential:
         v_dim = self.__v.shape
         r_frac = (r / a_lat, r / b_lat, r / c_lat)
         r_disc = (
-            int(math.ceil(r_frac[0] * v_dim[0])),
-            int(math.ceil(r_frac[1] * v_dim[1])),
-            int(math.ceil(r_frac[2] * v_dim[2])),
+            math.ceil(r_frac[0] * v_dim[0]),
+            math.ceil(r_frac[1] * v_dim[1]),
+            math.ceil(r_frac[2] * v_dim[2]),
         )
 
         # Apply smearing

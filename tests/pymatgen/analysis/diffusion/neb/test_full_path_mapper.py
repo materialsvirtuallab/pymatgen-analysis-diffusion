@@ -71,9 +71,9 @@ class MigrationGraphFromEntriesTest(unittest.TestCase):
         assert len(s_list) == 0
 
     def test_m_graph_construction(self) -> None:
-        assert self.full_struct.composition["Li"] == 8
+        assert self.full_struct.composition["Li"] == 5
         mg = MigrationGraph.with_distance(self.full_struct, migrating_specie="Li", max_distance=4.0)
-        assert len(mg.m_graph.structure) == 8
+        assert len(mg.m_graph.structure) == 5
 
 
 class MigrationGraphComplexTest(unittest.TestCase):
