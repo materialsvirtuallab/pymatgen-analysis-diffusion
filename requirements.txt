@@ -1,4 +1,4 @@
-pymatgen==2025.4.20
+pymatgen==2025.5.2
 joblib==1.5.1
 ase==3.25.0
 seaborn==0.13.2
