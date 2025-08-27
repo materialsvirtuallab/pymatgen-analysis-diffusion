@@ -13,6 +13,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from scipy.stats import norm
 
 from pymatgen.util.plotting import pretty_plot
@@ -277,8 +278,6 @@ class VanHoveAnalysis:
         if times is None:
             times = [0.0]
         if colors is None:
-            import seaborn as sns
-
             colors = sns.color_palette("Set1", 10)
 
         assert mode in ["distinct", "self"]
@@ -508,8 +507,6 @@ class EvolutionAnalyzer:
         Returns:
             matplotlib.axes._subplots.AxesSubplot object
         """
-        import seaborn as sns
-
         sns.set_style("white")
 
         plt.rcParams["axes.linewidth"] = 1.5

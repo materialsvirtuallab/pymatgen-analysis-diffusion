@@ -31,6 +31,7 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord import pbc_diff
+from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -470,8 +471,6 @@ class DiffusionAnalyzer(MSONable):
         Notes:
             The method doesn't apply to NPT-AIMD simulation analysis.
         """
-        from pymatgen.util.plotting import pretty_plot
-
         if self.lattices is not None and len(self.lattices) > 1:
             warnings.warn("Note the method doesn't apply to NPT-AIMD simulation analysis!")
 
@@ -518,8 +517,6 @@ class DiffusionAnalyzer(MSONable):
                 or direction (default). If mode = "mscd", the smoothed mscd vs.
                 time will be plotted.
         """
-        from pymatgen.util.plotting import pretty_plot
-
         ax = pretty_plot(12, 8)
         plot_dt: np.ndarray
         if np.max(self.dt) > 100000:
@@ -1058,8 +1055,6 @@ def get_arrhenius_plot(
         A matplotlib.Axes object. Do ax.show() to show the plot.
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities, mode, diffusivity_errors)
-
-    from pymatgen.util.plotting import pretty_plot
 
     ax = pretty_plot(12, 8)
 
