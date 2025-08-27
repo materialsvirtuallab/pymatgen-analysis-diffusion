@@ -1554,7 +1554,7 @@ requires-dist = [
     { name = "ase" },
     { name = "joblib" },
     { name = "maggma", marker = "extra == 'ci'" },
-    { name = "numpy", specifier = ">=1.25.0,<2.0" },
+    { name = "numpy", specifier = ">=1.25.0,<3.0" },
     { name = "pymatgen", specifier = ">=2024.6.10" },
     { name = "pytest", marker = "extra == 'ci'", specifier = ">=8" },
     { name = "pytest-cov", marker = "extra == 'ci'", specifier = ">=4" },
