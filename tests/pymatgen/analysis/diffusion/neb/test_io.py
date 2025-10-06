@@ -4,13 +4,14 @@ import os
 import unittest
 from typing import TYPE_CHECKING
 
+from pymatgen.core import Structure
+
 from pymatgen.analysis.diffusion.neb.io import (
     MVLCINEBEndPointSet,
     MVLCINEBSet,
     get_endpoint_dist,
     get_endpoints_from_index,
 )
-from pymatgen.core import Structure
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike

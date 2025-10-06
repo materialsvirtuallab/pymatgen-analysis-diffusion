@@ -12,12 +12,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from joblib import Parallel, delayed
+from pymatgen.core import Structure
+from pymatgen.util.plotting import pretty_plot
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 from scipy.stats import norm
-
-from pymatgen.core import Structure
-from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

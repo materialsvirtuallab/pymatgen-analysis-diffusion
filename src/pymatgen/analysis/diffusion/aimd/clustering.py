@@ -10,7 +10,6 @@ import random
 import warnings
 
 import numpy as np
-
 from pymatgen.util.coord import all_distances, pbc_diff
 
 __author__ = "Shyue Ping Ong"
@@ -161,7 +160,7 @@ class KmeansPBC(Kmeans):
             k: Number of means
             centroids: List of centroids
         """
-        m, n = points.shape
+        _m, n = points.shape
         labels = np.array(labels)
         new_centroids = []
         for i in range(k):
@@ -169,7 +168,7 @@ class KmeansPBC(Kmeans):
             if len(ind) > 0:
                 c = np.zeros(n)
                 for j in ind:
-                    dist, image = self.lattice.get_distance_and_image(centroids[i], points[j])
+                    _dist, image = self.lattice.get_distance_and_image(centroids[i], points[j])
                     c += points[j] + image
                 c /= len(ind)
                 c = np.mod(c, 1)
@@ -203,7 +202,7 @@ def get_random_centroid(points: np.ndarray) -> np.ndarray:
     Args:
         points: List of points.
     """
-    m, n = points.shape
+    _m, n = points.shape
     maxd = np.max(points, axis=0)
     mind = np.min(points, axis=0)
     return np.array([random.uniform(mind[i], maxd[i]) for i in range(n)])

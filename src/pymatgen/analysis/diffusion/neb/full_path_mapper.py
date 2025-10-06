@@ -18,16 +18,16 @@ from typing import TYPE_CHECKING
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
-
-from pymatgen.analysis.diffusion.neb.pathfinder import ChgcarPotential, MigrationHop, NEBPathfinder
-from pymatgen.analysis.diffusion.neb.periodic_dijkstra import get_optimal_pathway_rev, periodic_dijkstra
-from pymatgen.analysis.diffusion.utils.parse_entries import process_entries
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN, NearNeighbors
 from pymatgen.core import Composition, PeriodicSite, Structure
 from pymatgen.io.vasp import VolumetricData
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
+
+from pymatgen.analysis.diffusion.neb.pathfinder import ChgcarPotential, MigrationHop, NEBPathfinder
+from pymatgen.analysis.diffusion.neb.periodic_dijkstra import get_optimal_pathway_rev, periodic_dijkstra
+from pymatgen.analysis.diffusion.utils.parse_entries import process_entries
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
@@ -515,7 +515,7 @@ class ChargeBarrierGraph(MigrationGraph):
         bb = np.linspace(0, 1, len(self.potential_field.get_axis_grid(1)), endpoint=False)
         cc = np.linspace(0, 1, len(self.potential_field.get_axis_grid(2)), endpoint=False)
         # move the grid points to the center
-        aa, bb, dd = map(_shift_grid, [aa, bb, cc])
+        aa, bb, _dd = map(_shift_grid, [aa, bb, cc])
 
         # mesh grid for each unit cell
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing="ij")

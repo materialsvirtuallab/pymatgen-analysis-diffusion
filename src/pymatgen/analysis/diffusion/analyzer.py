@@ -24,20 +24,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as const
 from monty.json import MSONable
-from scipy.optimize import curve_fit
-
 from pymatgen.analysis.structure_matcher import OrderDisorderElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord import pbc_diff
 from pymatgen.util.plotting import pretty_plot
+from scipy.optimize import curve_fit
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
     from matplotlib.axes import Axes
-
     from pymatgen.util.typing import PathLike, SpeciesLike
 
 __author__ = "Will Richards, Shyue Ping Ong"
@@ -250,7 +248,7 @@ class DiffusionAnalyzer(MSONable):
             # drift corrected position
             dc = self.disp - drift
 
-            nions, nsteps, dim = dc.shape
+            _nions, nsteps, _dim = dc.shape
 
             self.indices = indices
 
@@ -404,7 +402,7 @@ class DiffusionAnalyzer(MSONable):
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
         lattices = self.lattices
-        nsites, nsteps, dim = self.corrected_displacements.shape
+        _nsites, nsteps, _dim = self.corrected_displacements.shape
 
         for i in range(start or 0, stop or nsteps, step or 1):
             latt = lattices[0] if len(lattices) == 1 else lattices[i]
@@ -960,7 +958,7 @@ def get_diffusivity_from_msd(msd: np.ndarray, dt: np.ndarray, smoothed: bool | s
     # Get self diffusivity
     a = np.ones((len(dt), 2))
     a[:, 0] = dt
-    (m, c), res, rank, s = weighted_lstsq(a, msd)
+    (m, _c), res, _rank, _s = weighted_lstsq(a, msd)
     # m shouldn't be negative
     m = max(m, 1e-15)
 

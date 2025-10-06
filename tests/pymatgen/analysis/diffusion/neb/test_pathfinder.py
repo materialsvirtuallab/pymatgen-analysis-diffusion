@@ -8,13 +8,13 @@ import unittest
 from typing import TYPE_CHECKING
 
 import numpy as np
+from pymatgen.core import Composition, PeriodicSite, Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 from pymatgen.analysis.diffusion.neb.pathfinder import DistinctPathFinder, IDPPSolver, MigrationHop
 from pymatgen.analysis.diffusion.utils.supercells import get_start_end_structures
-from pymatgen.core import Composition, PeriodicSite, Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
@@ -220,7 +220,7 @@ class MigrationHopTest(PymatgenTest):
         self.lifepo = self.get_structure("LiFePO4")
         m_graph = MigrationGraph.with_distance(self.lifepo, max_distance=4.0, migrating_specie="Li")
         gen = iter(m_graph.m_graph.graph.edges(data=True))
-        u, v, d = next(gen)
+        _u, _v, d = next(gen)
         i_site = PeriodicSite("Li", coords=d["ipos"], lattice=self.lifepo.lattice)
         e_site = PeriodicSite("Li", coords=d["epos"], lattice=self.lifepo.lattice)
         a = SpacegroupAnalyzer(self.lifepo)
@@ -235,7 +235,7 @@ class MigrationHopTest(PymatgenTest):
         dist_ref = self.m_hop.length
         base = self.lifepo.copy()
         base.remove_species(["Li"])
-        start, end, b_sc = get_start_end_structures(
+        start, end, _b_sc = get_start_end_structures(
             self.m_hop.isite,
             self.m_hop.esite,
             base_struct=base,
@@ -248,7 +248,7 @@ class MigrationHopTest(PymatgenTest):
 
     def test_get_start_end_structs_from_hop_vac(self) -> None:
         dist_ref = self.m_hop.length
-        start, end, b_sc = get_start_end_structures(
+        start, end, _b_sc = get_start_end_structures(
             self.m_hop.isite,
             self.m_hop.esite,
             base_struct=self.lifepo,

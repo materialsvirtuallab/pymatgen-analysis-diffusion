@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 
 from monty.serialization import loadfn
-
 from pymatgen.util.testing import PymatgenTest
 
 module_dir = os.path.dirname(os.path.abspath(__file__))

@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
     from networkx.classes.graph import Graph
-
     from pymatgen.analysis.graphs import StructureGraph
 
 

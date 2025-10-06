@@ -11,6 +11,9 @@ import matplotlib as mpl
 import numpy as np
 import pytest
 import scipy.constants as const
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.diffusion.analyzer import (
     DiffusionAnalyzer,
@@ -18,9 +21,6 @@ from pymatgen.analysis.diffusion.analyzer import (
     get_arrhenius_plot,
     get_conversion_factor,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
