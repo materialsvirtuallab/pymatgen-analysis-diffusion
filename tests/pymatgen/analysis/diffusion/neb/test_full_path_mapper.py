@@ -8,6 +8,8 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
+from pymatgen.core import PeriodicSite, Structure
+from pymatgen.io.vasp import Chgcar
 
 from pymatgen.analysis.diffusion.neb.full_path_mapper import (
     ChargeBarrierGraph,
@@ -17,8 +19,6 @@ from pymatgen.analysis.diffusion.neb.full_path_mapper import (
     order_path,
 )
 from pymatgen.analysis.diffusion.neb.periodic_dijkstra import _get_adjacency_with_images
-from pymatgen.core import PeriodicSite, Structure
-from pymatgen.io.vasp import Chgcar
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

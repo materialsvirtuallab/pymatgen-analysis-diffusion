@@ -13,9 +13,10 @@ from scipy.spatial.distance import squareform
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
     from pymatgen.core.structure import Structure
     from pymatgen.util.typing import PathLike, SpeciesLike
+
+    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 
 class ProbabilityDensityAnalysis:

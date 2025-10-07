@@ -6,11 +6,11 @@ import itertools
 import unittest
 
 import numpy as np
+from pymatgen.core import Lattice
+from pymatgen.util.coord import pbc_diff
 from scipy.cluster.vq import kmeans
 
 from pymatgen.analysis.diffusion.aimd.clustering import Kmeans, KmeansPBC
-from pymatgen.core import Lattice
-from pymatgen.util.coord import pbc_diff
 
 
 class KmeansTest(unittest.TestCase):
@@ -27,8 +27,8 @@ class KmeansTest(unittest.TestCase):
         clusters = []
         for _i in range(10):
             clusters.append(k.cluster(data, 3))
-        c1, l1, ss = min(clusters, key=lambda d: d[2])
-        c2, d = kmeans(data, 3)
+        c1, _l1, _ss = min(clusters, key=lambda d: d[2])
+        c2, _d = kmeans(data, 3)
         same = False
         for a in itertools.permutations(c2):
             if np.allclose(c1, a):
@@ -48,7 +48,7 @@ class KmeansPBCTest(unittest.TestCase):
                 _pts.append(np.array(c) + np.random.randn(3) * 0.01 + np.random.randint(3))
         pts = np.array(_pts)
         k = KmeansPBC(lattice)
-        centroids, labels, ss = k.cluster(pts, 4)
+        centroids, _labels, _ss = k.cluster(pts, 4)
         for c1 in centroids:
             found = False
             for c2 in centroids:

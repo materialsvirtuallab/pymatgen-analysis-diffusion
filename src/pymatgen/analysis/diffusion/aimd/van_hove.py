@@ -14,9 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy.stats import norm
-
 from pymatgen.util.plotting import pretty_plot
+from scipy.stats import norm
 
 from .rdf import RadialDistributionFunction
 
@@ -24,10 +23,10 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from matplotlib.axes import Axes
-
-    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
     from pymatgen.core import Structure
     from pymatgen.util.typing import SpeciesLike
+
+    from pymatgen.analysis.diffusion.analyzer import DiffusionAnalyzer
 
 __author__ = "Iek-Heng Chu"
 __version__ = "1.0"
@@ -87,7 +86,7 @@ class VanHoveAnalysis:
         if step_skip <= 0:
             raise ValueError("skip_step should be >=1!")
 
-        n_ions, nsteps, ndim = diffusion_analyzer.disp.shape
+        _n_ions, nsteps, _ndim = diffusion_analyzer.disp.shape
 
         if nsteps <= avg_nsteps:
             raise ValueError("Number of timesteps is too small!")
@@ -515,7 +514,7 @@ class EvolutionAnalyzer:
         plt.rcParams["ytick.labelsize"] = 20
         plt.rcParams["xtick.major.pad"] = 10
 
-        fig, ax = plt.subplots(figsize=(12, 8), facecolor="w")
+        _fig, ax = plt.subplots(figsize=(12, 8), facecolor="w")
         ax = sns.heatmap(
             df,
             linewidths=0,

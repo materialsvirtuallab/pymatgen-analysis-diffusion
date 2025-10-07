@@ -9,7 +9,6 @@ import logging
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -153,7 +152,7 @@ def get_matched_structure_mapping(base: Structure, inserted: Structure, sm: Stru
     s1, s2 = sm._process_species([base, inserted])
     fu, _ = sm._get_supercell_size(s1, s2)
     try:
-        val, dist, sc_m, total_t, mapping = sm._strict_match(s1, s2, fu=fu, s1_supercell=True)
+        _val, _dist, sc_m, total_t, _mapping = sm._strict_match(s1, s2, fu=fu, s1_supercell=True)
     except TypeError:
         return None
     sc = s1 * sc_m
