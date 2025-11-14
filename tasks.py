@@ -92,9 +92,8 @@ def update_doc(
 @task
 def publish(ctx: Context) -> None:
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python -m build", warn=True)
-    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
-    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
+    ctx.run("uv build", warn=True)
+    ctx.run("uv publish", warn=True)
 
 
 @task
