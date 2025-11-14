@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.supercells &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <title>pymatgen.analysis.diffusion.utils.supercells &#8212; pymatgen-diffusion 2025.10.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
-    <script src="../../../../../_static/documentation_options.js?v=608d49bb"></script>
-    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/documentation_options.js?v=708802d9"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -25,7 +25,7 @@
 </script>
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2025.10.7 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.supercells</a></li> 
       </ul>
@@ -48,16 +48,16 @@
   <h1>Source code for pymatgen.analysis.diffusion.utils.supercells</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Functions for creating supercells for NEB calculations.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="c1"># from ase.build import find_optimal_cell_shape, get_deviation_from_optimal_cell_shape</span>
 <span class="c1"># from pymatgen.io.ase import AseAtomsAdaptor</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> <span class="n">CubicSupercellTransformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.transformations.advanced_transformations</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubicSupercellTransformation</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
@@ -72,7 +72,7 @@
 
 <div class="viewcode-block" id="get_sc_fromstruct">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.supercells.html#pymatgen.analysis.diffusion.utils.supercells.get_sc_fromstruct">[docs]</a>
-<span class="k">def</span> <span class="nf">get_sc_fromstruct</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_sc_fromstruct</span><span class="p">(</span>
     <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
     <span class="n">min_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
     <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
@@ -103,7 +103,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_sc_from_struct_pmg</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_sc_from_struct_pmg</span><span class="p">(</span>
     <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
     <span class="n">min_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
     <span class="n">max_atoms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
@@ -133,7 +133,7 @@
 
 <div class="viewcode-block" id="get_start_end_structures">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.supercells.html#pymatgen.analysis.diffusion.utils.supercells.get_start_end_structures">[docs]</a>
-<span class="k">def</span> <span class="nf">get_start_end_structures</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_start_end_structures</span><span class="p">(</span>
     <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
     <span class="n">esite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
     <span class="n">base_struct</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
@@ -159,7 +159,7 @@
 <span class="sd">        initial structure, final structure, empty structure all in the supercell</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">remove_site_at_pos</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_site_at_pos</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
         <span class="n">new_struct_sites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">vac_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="n">isite</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">):</span>
@@ -208,7 +208,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="../../../../../index.html">Documentation overview</a><ul>

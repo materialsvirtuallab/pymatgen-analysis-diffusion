@@ -1,13 +1,6 @@
 pymatgen.analysis.diffusion.aimd package
 ========================================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 7
-
-
 Submodules
 ----------
 
@@ -24,5 +17,5 @@ Module contents
 
 .. automodule:: pymatgen.analysis.diffusion.aimd
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

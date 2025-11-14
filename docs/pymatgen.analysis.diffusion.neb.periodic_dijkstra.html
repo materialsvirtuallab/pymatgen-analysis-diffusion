@@ -3,13 +3,13 @@
 <html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pymatgen.analysis.diffusion.neb.periodic_dijkstra module &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <title>pymatgen.analysis.diffusion.neb.periodic_dijkstra module &#8212; pymatgen-diffusion 2025.10.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/flasky.css?v=8156beb0" />
-    <script src="_static/documentation_options.js?v=608d49bb"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/documentation_options.js?v=708802d9"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,7 +26,7 @@
 </script>
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen-diffusion 2025.10.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.neb.periodic_dijkstra module</a></li> 
       </ul>
     </div>  
@@ -50,13 +50,13 @@
 <p>Dijkstra’s path search on a graph where the nodes are on a periodic graph.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.periodic_dijkstra.get_optimal_pathway_rev">
-<span class="sig-name descname"><span class="pre">get_optimal_pathway_rev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#get_optimal_pathway_rev"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.get_optimal_pathway_rev" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_optimal_pathway_rev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#get_optimal_pathway_rev"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.get_optimal_pathway_rev" title="Link to this definition">¶</a></dt>
 <dd><p>Follow a leaf node all the way up to source.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra">
-<span class="sig-name descname"><span class="pre">periodic_dijkstra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G:</span> <span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources:</span> <span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'weight'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_image:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_reached:</span> <span class="pre">Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#periodic_dijkstra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">periodic_dijkstra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G:</span> <span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources:</span> <span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'weight'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_image:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_reached:</span> <span class="pre">Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#periodic_dijkstra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra" title="Link to this definition">¶</a></dt>
 <dd><p>Find the lowest cost pathway from a source point in the periodic graph.
 Since the search can move many cells away without finding the target
 we have to limit how many cells away from (0,0,0) to search.</p>
@@ -85,7 +85,7 @@ path_parent: dictionary of optimal path parent for each node given in index-imag
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra_on_sgraph">
-<span class="sig-name descname"><span class="pre">periodic_dijkstra_on_sgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sgraph:</span> <span class="pre">StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources:</span> <span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'weight'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_image:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_reached:</span> <span class="pre">Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#periodic_dijkstra_on_sgraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra_on_sgraph" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">periodic_dijkstra_on_sgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sgraph:</span> <span class="pre">StructureGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources:</span> <span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'weight'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_image:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_reached:</span> <span class="pre">Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion/neb/periodic_dijkstra.html#periodic_dijkstra_on_sgraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.diffusion.neb.periodic_dijkstra.periodic_dijkstra_on_sgraph" title="Link to this definition">¶</a></dt>
 <dd><p>Find the lowest cost pathway from a source point in the periodic graph.
 Since the search can move many cells away without finding the target
 we have to limit how many cells away from (0,0,0) to search.</p>
@@ -118,7 +118,7 @@ path_parent: dictionary of optimal path parent for each node given in index-imag
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>

@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.aimd.rdf &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <title>pymatgen.analysis.diffusion.aimd.rdf &#8212; pymatgen-diffusion 2025.10.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
-    <script src="../../../../../_static/documentation_options.js?v=608d49bb"></script>
-    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/documentation_options.js?v=708802d9"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -25,7 +25,7 @@
 </script>
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2025.10.7 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.aimd.rdf</a></li> 
       </ul>
@@ -51,31 +51,36 @@
 
 <span class="sd">&quot;&quot;&quot;RDF implementation.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
-<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">gaussian_filter1d</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">find_peaks</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.util.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_filter1d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.util.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpeciesLike</span>
 
 
 <div class="viewcode-block" id="RadialDistributionFunction">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction">[docs]</a>
-<span class="k">class</span> <span class="nc">RadialDistributionFunction</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RadialDistributionFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the average radial distribution function for a given set of</span>
 <span class="sd">    structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">structures</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
@@ -84,7 +89,7 @@
         <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">cell_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structures ([Structure]): list of structure</span>
@@ -141,7 +146,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rhos</span> <span class="o">=</span> <span class="n">rhos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span>  <span class="c1"># This is the average density</span>
 
-        <span class="k">for</span> <span class="n">fcoords</span><span class="p">,</span> <span class="n">ref_fcoords</span><span class="p">,</span> <span class="n">latt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fcoords_list</span><span class="p">,</span> <span class="n">ref_fcoords_list</span><span class="p">,</span> <span class="n">lattices</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fcoords</span><span class="p">,</span> <span class="n">ref_fcoords</span><span class="p">,</span> <span class="n">latt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fcoords_list</span><span class="p">,</span> <span class="n">ref_fcoords_list</span><span class="p">,</span> <span class="n">lattices</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
             <span class="n">dcf</span> <span class="o">=</span> <span class="n">fcoords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">ref_fcoords</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
             <span class="n">dcc</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">dcf</span><span class="p">)</span>
             <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dcc</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -195,16 +200,16 @@
 <div class="viewcode-block" id="RadialDistributionFunction.from_species">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.from_species">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_species</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_species</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">structures</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">structures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">],</span>
         <span class="n">ngrid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
         <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">cell_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-        <span class="n">species</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">),</span>
-        <span class="n">reference_species</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SpeciesLike</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">),</span>
+        <span class="n">reference_species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SpeciesLike</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RadialDistributionFunction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize using species.</span>
 
@@ -244,9 +249,9 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns running coordination number.</span>
+<span class="sd">        Returns running coordination number.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy array</span>
@@ -257,13 +262,13 @@
 
 <div class="viewcode-block" id="RadialDistributionFunction.get_rdf_plot">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.get_rdf_plot">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_rdf_plot</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rdf_plot</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">xlim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
         <span class="n">ylim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span>
         <span class="n">loc_peak</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the average RDF function.</span>
 
@@ -306,7 +311,7 @@
 
 <div class="viewcode-block" id="RadialDistributionFunction.export_rdf">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunction.export_rdf">[docs]</a>
-    <span class="k">def</span> <span class="nf">export_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Output RDF data to a csv file.</span>
 
@@ -323,7 +328,7 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;g(r)&quot;</span><span class="p">]))</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">gr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdf</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">gr</span><span class="p">]]))</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 </div>
@@ -332,18 +337,18 @@
 
 <div class="viewcode-block" id="RadialDistributionFunctionFast">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast">[docs]</a>
-<span class="k">class</span> <span class="nc">RadialDistributionFunctionFast</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RadialDistributionFunctionFast</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast radial distribution analysis.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">structures</span><span class="p">:</span> <span class="n">Structure</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">],</span>
         <span class="n">rmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">rmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">ngrid</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
         <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method calculates rdf on `np.linspace(rmin, rmax, ngrid)` points.</span>
 
@@ -366,7 +371,7 @@
         <span class="c1"># Number of atoms in all structures should be the same</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">({</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">})</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
-        <span class="n">unique_elements_on_sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">elements</span><span class="p">))]</span>
+        <span class="n">unique_elements_on_sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">elements</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">))]</span>
 
         <span class="c1"># For the same site index, all structures should have the same element there</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">unique_elements_on_sites</span><span class="p">):</span>
@@ -394,7 +399,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_indices</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">image_vectors</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_lists</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_lists</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
         <span class="n">elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>  <span class="c1"># type: ignore</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">center_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_indices</span><span class="p">]</span>
@@ -412,7 +417,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_structures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">sigma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_dist_to_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dist_to_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert a distance array for counts in the bin.</span>
 
@@ -422,7 +427,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            1D array of counts in the bins centered on self.r</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span><span class="p">,))</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ngrid</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">d</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rmin</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="n">unique</span><span class="p">,</span> <span class="n">val_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -431,12 +440,12 @@
 
 <div class="viewcode-block" id="RadialDistributionFunctionFast.get_rdf">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_rdf">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_rdf</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rdf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ref_species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">is_average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">is_average</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            ref_species (list of species or just single specie str): the reference species.</span>
@@ -463,12 +472,12 @@
 
 <div class="viewcode-block" id="RadialDistributionFunctionFast.get_one_rdf">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_one_rdf">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_one_rdf</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_one_rdf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ref_species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the RDF for one structure, indicated by the index of the structure</span>
 <span class="sd">        in all structures.</span>
@@ -509,9 +518,14 @@
 
 <div class="viewcode-block" id="RadialDistributionFunctionFast.get_coordination_number">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.aimd.rdf.html#pymatgen.analysis.diffusion.aimd.rdf.RadialDistributionFunctionFast.get_coordination_number">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_species</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">is_average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_coordination_number</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ref_species</span><span class="p">:</span> <span class="n">SpeciesLike</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">SpeciesLike</span><span class="p">],</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">SpeciesLike</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">SpeciesLike</span><span class="p">],</span>
+        <span class="n">is_average</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns running coordination number.</span>
+<span class="sd">        Returns running coordination number.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ref_species (list of species or just single specie str): the reference species.</span>
@@ -536,7 +550,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_neighbor_list</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_neighbor_list</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Thin wrapper to enable parallel calculations.</span>
 
@@ -554,7 +568,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="../../../../../index.html">Documentation overview</a><ul>

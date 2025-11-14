@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.maggma &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <title>pymatgen.analysis.diffusion.utils.maggma &#8212; pymatgen-diffusion 2025.10.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
-    <script src="../../../../../_static/documentation_options.js?v=608d49bb"></script>
-    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/documentation_options.js?v=708802d9"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -25,7 +25,7 @@
 </script>
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2025.10.7 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.maggma</a></li> 
       </ul>
@@ -54,7 +54,7 @@
 <span class="sd">that the rest of the package will not depend on Maggma.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jimmy Shen&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
@@ -63,13 +63,13 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;jmmshn@lbl.gov&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;July 21, 2019&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">monty.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">MontyDecoder</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">maggma.stores</span> <span class="kn">import</span> <span class="n">MongoStore</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">maggma.stores</span><span class="w"> </span><span class="kn">import</span> <span class="n">MongoStore</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -77,12 +77,12 @@
 
 <div class="viewcode-block" id="get_entries_from_dbs">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.maggma.html#pymatgen.analysis.diffusion.utils.maggma.get_entries_from_dbs">[docs]</a>
-<span class="k">def</span> <span class="nf">get_entries_from_dbs</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_entries_from_dbs</span><span class="p">(</span>
     <span class="n">structure_group_store</span><span class="p">:</span> <span class="n">MongoStore</span><span class="p">,</span>
     <span class="n">material_store</span><span class="p">:</span> <span class="n">MongoStore</span><span class="p">,</span>
     <span class="n">migrating_ion</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">material_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the entries needed to construct a migration from a database that</span>
 <span class="sd">    contains topotactically matched structures.</span>
@@ -122,7 +122,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="../../../../../index.html">Documentation overview</a><ul>

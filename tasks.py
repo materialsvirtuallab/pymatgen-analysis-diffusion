@@ -28,7 +28,7 @@ def make_doc(ctx: Context) -> None:
         ctx.run(
             "sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../src/pymatgen"
         )
-        ctx.run("rm pymatgen*.tests.rst")
+        ctx.run("rm pymatgen*.tests.rst", warn=True)
         for f in glob.glob("*.rst"):
             if f.startswith("pymatgen") and f.endswith("rst"):
                 newoutput = []

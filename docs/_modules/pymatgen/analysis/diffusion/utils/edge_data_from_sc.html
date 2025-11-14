@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pymatgen.analysis.diffusion.utils.edge_data_from_sc &#8212; pymatgen-diffusion 2024.6.10 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+    <title>pymatgen.analysis.diffusion.utils.edge_data_from_sc &#8212; pymatgen-diffusion 2025.10.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/flasky.css?v=8156beb0" />
-    <script src="../../../../../_static/documentation_options.js?v=608d49bb"></script>
-    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/documentation_options.js?v=708802d9"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -25,7 +25,7 @@
 </script>
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2024.6.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen-diffusion 2025.10.7 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffusion.utils.edge_data_from_sc</a></li> 
       </ul>
@@ -51,7 +51,7 @@
 
 <span class="sd">&quot;&quot;&quot;Function to add edge data to MigrationGraph through 2 SC structures.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Haoming Li&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2021, The Materials Project&quot;</span>
@@ -59,22 +59,22 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;HLi98@lbl.gov&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;February 2, 2021&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.analysis.structure_matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.core.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.symmetry.analyzer</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span> <span class="kn">import</span> <span class="n">MigrationGraph</span><span class="p">,</span> <span class="n">MigrationHop</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion.utils.parse_entries</span> <span class="kn">import</span> <span class="n">get_matched_structure_mapping</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.analysis.diffusion.neb.full_path_mapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">MigrationGraph</span><span class="p">,</span> <span class="n">MigrationHop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymatgen.analysis.diffusion.utils.parse_entries</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_matched_structure_mapping</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="add_edge_data_from_sc">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.add_edge_data_from_sc">[docs]</a>
-<span class="k">def</span> <span class="nf">add_edge_data_from_sc</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_edge_data_from_sc</span><span class="p">(</span>
     <span class="n">mg</span><span class="p">:</span> <span class="n">MigrationGraph</span><span class="p">,</span>
     <span class="n">i_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
     <span class="n">e_sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
@@ -115,7 +115,7 @@
 
 <div class="viewcode-block" id="get_uc_pos">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_uc_pos">[docs]</a>
-<span class="k">def</span> <span class="nf">get_uc_pos</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_uc_pos</span><span class="p">(</span>
     <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
     <span class="n">esite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
     <span class="n">uc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
@@ -136,7 +136,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="n">get_matched_structure_mapping</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">uc</span><span class="p">,</span> <span class="n">inserted</span><span class="o">=</span><span class="n">sc</span><span class="p">,</span> <span class="n">sm</span><span class="o">=</span><span class="n">sm</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot obtain inverse mapping, consider lowering tolerances &quot;</span> <span class="s2">&quot;in StructureMatcher&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot obtain inverse mapping, consider lowering tolerances in StructureMatcher&quot;</span><span class="p">)</span>
     <span class="n">sc_m</span><span class="p">,</span> <span class="n">total_t</span> <span class="o">=</span> <span class="n">mapping</span>
     <span class="n">sc_ipos</span> <span class="o">=</span> <span class="n">isite</span><span class="o">.</span><span class="n">frac_coords</span>
     <span class="n">sc_ipos_t</span> <span class="o">=</span> <span class="n">sc_ipos</span> <span class="o">-</span> <span class="n">total_t</span>
@@ -170,7 +170,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_first_close_site</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_first_close_site</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">stol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
         <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">stol</span><span class="p">:</span>
@@ -180,7 +180,7 @@
 
 <div class="viewcode-block" id="mh_eq">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.mh_eq">[docs]</a>
-<span class="k">def</span> <span class="nf">mh_eq</span><span class="p">(</span><span class="n">mh1</span><span class="p">,</span> <span class="n">mh2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mh_eq</span><span class="p">(</span><span class="n">mh1</span><span class="p">:</span> <span class="n">MigrationHop</span><span class="p">,</span> <span class="n">mh2</span><span class="p">:</span> <span class="n">MigrationHop</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Allow for symmetric matching of MigrationPath objects with variable precession.</span>
 
@@ -198,7 +198,7 @@
 
 <div class="viewcode-block" id="get_unique_hop">
 <a class="viewcode-back" href="../../../../../pymatgen.analysis.diffusion.utils.edge_data_from_sc.html#pymatgen.analysis.diffusion.utils.edge_data_from_sc.get_unique_hop">[docs]</a>
-<span class="k">def</span> <span class="nf">get_unique_hop</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unique_hop</span><span class="p">(</span>
     <span class="n">mg</span><span class="p">:</span> <span class="n">MigrationGraph</span><span class="p">,</span>
     <span class="n">sc</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
     <span class="n">isite</span><span class="p">:</span> <span class="n">PeriodicSite</span><span class="p">,</span>
@@ -251,7 +251,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="../../../../../index.html">Documentation overview</a><ul>
