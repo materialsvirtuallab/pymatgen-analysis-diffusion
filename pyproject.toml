@@ -207,4 +207,5 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest>=8.3.5",
     "ruff>=0.14.5",
+    "sphinx>=8.1.3",
 ]

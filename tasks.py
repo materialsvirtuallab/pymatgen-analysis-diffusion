@@ -26,7 +26,7 @@ def make_doc(ctx: Context) -> None:
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run(
-            "sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen"
+            "sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../src/pymatgen"
         )
         ctx.run("rm pymatgen*.tests.rst")
         for f in glob.glob("*.rst"):
