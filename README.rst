@@ -1,6 +1,6 @@
-.. image:: https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion/actions/workflows/testing.yml/badge.svg
+.. image:: https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion/actions/workflows/test.yml/badge.svg
       :alt: CI Status
-      :target: https://github.com/materialsvirtuallab/pymatgen-diffusion/actions/workflows/testing.yml
+      :target: https://github.com/materialsvirtuallab/pymatgen-diffusion/actions/workflows/test.yml
 
 .. image:: https://codecov.io/gh/materialsvirtuallab/pymatgen-analysis-diffusion/graph/badge.svg?token=4lH4UZcXye
       :target: https://codecov.io/gh/materialsvirtuallab/pymatgen-analysis-diffusion
@@ -14,7 +14,7 @@ pymatgen for structural manipulations, file io, and preliminary analyses. This i
 and will always be, a scientific work in progress. Pls check back regularly for
 more details.
 
-Documentation available via `Github Pages <https://github.com/materialsvirtuallab/pymatgen-analysis-diffusion>`_.
+Documentation available via `Github Pages <https://materialsvirtuallab.github.io/pymatgen-analysis-diffusion>`_.
 
 Major Update (v2021.3.5)
 ========================
