@@ -347,7 +347,7 @@ class MigrationHop(MSONable):
                 self.eindex = i
 
         # if no index was identified then loop over each site until something is found
-        if self.iindex is -1:
+        if self.iindex == -1:
             for i, sites in enumerate(self.symm_structure.equivalent_sites):
                 for itr_site in sites:
                     if sg.are_symmetrically_equivalent([isite], [itr_site]):
@@ -356,7 +356,7 @@ class MigrationHop(MSONable):
                 else:
                     continue
                 break
-        if self.eindex is -1:
+        if self.eindex == -1:
             for i, sites in enumerate(self.symm_structure.equivalent_sites):
                 for itr_site in sites:
                     if sg.are_symmetrically_equivalent([esite], [itr_site]):
@@ -366,9 +366,9 @@ class MigrationHop(MSONable):
                     continue
                 break
 
-        if self.iindex is -1:
+        if self.iindex == -1:
             raise RuntimeError(f"No symmetrically equivalent site was found for {isite}")
-        if self.eindex is -1:
+        if self.eindex == -1:
             raise RuntimeError(f"No symmetrically equivalent site was found for {esite}")
 
     def __repr__(self) -> str:
