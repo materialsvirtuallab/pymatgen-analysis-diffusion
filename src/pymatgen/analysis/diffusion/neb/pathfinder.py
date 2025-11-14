@@ -441,10 +441,9 @@ class MigrationHop(MSONable):
             the migrating ion. This makes it easier to perform subsequent
             analysis.
         """
-        migrating_specie_sites, other_sites = self._split_migrating_and_other_sites(vac_mode)
-
-        start_structure = Structure.from_sites([self.isite, *migrating_specie_sites, *other_sites])
-        end_structure = Structure.from_sites([self.esite, *migrating_specie_sites, *other_sites])
+        _, other_sites = self._split_migrating_and_other_sites(vac_mode)
+        start_structure = Structure.from_sites([self.isite, *other_sites])
+        end_structure = Structure.from_sites([self.esite, *other_sites])
 
         structures = start_structure.interpolate(end_structure, nimages=nimages + 1, pbc=False)
 

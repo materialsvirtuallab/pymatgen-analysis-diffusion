@@ -282,3 +282,10 @@ class MigrationHopTest(PymatgenTest):
         start, end, b_sc = self.m_hop.get_sc_structures(vac_mode=True)
         assert start.composition == end.composition == Composition("Li23 Fe24 P24 O96")
         assert b_sc.composition == Composition("Li24 Fe24 P24 O96")
+
+    def test_get_structures(self) -> None:
+        print(len(self.lifepo))
+        structures = self.m_hop.get_structures(vac_mode=True)
+        assert len(structures[0]) == len(self.lifepo) - 1
+        structures = self.m_hop.get_structures(vac_mode=False)
+        assert len(structures[0]) == len(self.lifepo) - 4 + 1
