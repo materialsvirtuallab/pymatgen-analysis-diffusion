@@ -52,7 +52,7 @@ dependencies = [
     "ase",
     "seaborn"
 ]
-version = "2024.7.15"
+version = "2025.11.14"
 
 [project.urls]
 Homepage = "http://materialsvirtuallab.github.io/pymatgen-analysis-diffusion/"

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v2025.11.14
+-----------
+* Bug fix for distance determination for same sites. Use same tolerance as symprec.
+
 v2024.6.25
 ----------
 * Fix broken code due to pymatgen and matplotlib deprecated methods.
