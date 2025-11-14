@@ -1,9 +1,5 @@
 [build-system]
-requires = [
-    # pin NumPy version used in the build
-    "numpy>=1.20.1",
-    "setuptools>=43.0.0",
-]
+requires = [ "setuptools>=43.0.0" ]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -37,9 +33,9 @@ keywords = [
 license = { text = "BSD" }
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
