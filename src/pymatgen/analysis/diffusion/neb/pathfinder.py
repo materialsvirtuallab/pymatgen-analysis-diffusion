@@ -461,7 +461,7 @@ class MigrationHop(MSONable):
             if site.specie != self.isite.specie:
                 other_sites.append(site)
             else:
-                if self.isite.distance(site) <= 1e-8 or self.esite.distance(site) <= 1e-8:
+                if self.isite.distance(site) <= self.symprec or self.esite.distance(site) <= self.symprec:
                     migrating_specie_sites.append(site)
                     continue
 
@@ -816,7 +816,7 @@ class NEBPathfinder:
 
         # Set parameters
         dr = np.array([1 / V.shape[0], 1 / V.shape[1], 1 / V.shape[2]]) if not dr else np.array(dr, dtype=float)
-        keff = k * dr * n_images
+        keff = k * dr * n_images  # type:ignore[operator]
         h0 = h
 
         # Initialize string
