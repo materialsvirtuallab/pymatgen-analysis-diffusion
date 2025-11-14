@@ -2085,7 +2085,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen-analysis-diffusion"
-version = "2025.11.14"
+version = "2025.11.15"
 source = { editable = "." }
 dependencies = [
     { name = "ase" },
