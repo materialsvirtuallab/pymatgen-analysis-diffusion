@@ -16,13 +16,13 @@ import numpy.linalg as la
 import scipy.signal
 import scipy.stats
 from monty.json import MSONable
-from scipy.interpolate import interp1d
-
-from pymatgen.analysis.diffusion.utils.supercells import get_sc_fromstruct, get_start_end_structures
 from pymatgen.core import PeriodicSite, Site, Structure
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from scipy.interpolate import interp1d
+
+from pymatgen.analysis.diffusion.utils.supercells import get_sc_fromstruct, get_start_end_structures
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

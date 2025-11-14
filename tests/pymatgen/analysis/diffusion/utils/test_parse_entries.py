@@ -7,6 +7,9 @@ import unittest
 
 import numpy as np
 from monty.serialization import loadfn
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core import Structure
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 from pymatgen.analysis.diffusion.utils.parse_entries import (
     _filter_and_merge,
@@ -15,9 +18,6 @@ from pymatgen.analysis.diffusion.utils.parse_entries import (
     get_sym_migration_ion_sites,
     process_entries,
 )
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import Structure
-from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + "/test_files"
 
